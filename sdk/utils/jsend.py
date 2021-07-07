@@ -13,17 +13,11 @@
 # limitations under the License.
 
 
-from sdk.utils.jsend import JSendPayload
+from typing import TypedDict
 
 
-class HTTPError(Exception):
+class JSendPayload(TypedDict):
+    status: str
     code: int
     message: str
-
-    def __init__(self, data: JSendPayload, *args: object) -> None:
-        super().__init__(*args)
-        self.code = data["code"]
-        self.message = data["message"]
-
-    def __str__(self) -> str:
-        return f"HTTP {self.code}: {self.message}"
+    data: any

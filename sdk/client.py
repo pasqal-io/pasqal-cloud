@@ -13,10 +13,11 @@
 # limitations under the License.
 
 from typing import Dict
-from sdk.errors import HTTPError
+
 import requests
 
 from sdk.endpoints import Endpoints
+from sdk.errors import HTTPError
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -73,7 +74,7 @@ class Client:
             timeout=TIMEOUT,
             headers=headers,
         ).json()
-        # If core returns unauthorized we attempt to login and retry request
+        # If account returns unauthorized we attempt to login and retry request
         if rsp.status_code == 401:
             self._login()
             rsp = requests.request(
