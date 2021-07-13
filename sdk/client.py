@@ -37,6 +37,21 @@ class Client:
         self.client_id = client_id
         self.client_secret = client_secret
         self.endpoints = endpoints or Endpoints()
+        self.group_id = None
+        self._login()
+
+    def _fetch_group_id(self):
+        url = f"{self.endpoints.account}/api/v1/apikeys"
+        rsp = requests.request(
+            "GET",
+            url,
+            timeout=TIMEOUT,
+            headers=self._headers(),
+        )
+        data = rsp.json()
+        if rsp.status_code >= 400:
+            raise HTTPError(data)
+        self.group_id = data["data"][0]["group"]["id"]
 
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
@@ -57,23 +72,26 @@ class Client:
         if rsp.status_code >= 400:
             raise HTTPError(data)
 
-        self._token = data["data"]["token"]
+        self._token = data["token"]
+
+        # Retrieve group_id
+        self._fetch_group_id()
+
+    def _headers(self):
+        return {
+            "content-type": "application/json",
+            "authorization": f"Bearer {self._token}",
+        }
 
     def _request(self, method: str, url: str, payload: Dict = None):
-        headers = (
-            {
-                "content-type": "application/json",
-                "authorization": f"Bearer {self._token}",
-            },
-        )
-
         rsp = requests.request(
             method,
             url,
             json=payload,
             timeout=TIMEOUT,
-            headers=headers,
-        ).json()
+            headers=self._headers(),
+        )
+        data = rsp.json()
         # If account returns unauthorized we attempt to login and retry request
         if rsp.status_code == 401:
             self._login()
@@ -83,9 +101,32 @@ class Client:
                 json=payload,
                 headers=self._headers(),
                 timeout=TIMEOUT,
-            ).json
+            )
+            data = rsp.json()
 
         if rsp.status_code >= 400:
-            raise HTTPError(rsp)
+            raise HTTPError(data)
 
-        return rsp.json()
+        return data
+
+    def _send_batch(self, batch_data: Dict):
+        batch_data.update({"group_id": self.group_id})
+        return self._request(
+            "POST",
+            f"{self.endpoints.core}/api/v1/batches",
+            batch_data,
+        )["data"]
+
+    def _complete_batch(self, batch_id: int, wait=False):
+        response = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
+        )["data"]
+        if wait:
+            # TODO: wiat for results (and return them ?)
+            pass
+        return response
+
+    def _send_job(self, job_data: Dict):
+        return self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
+            "data"
+        ]
