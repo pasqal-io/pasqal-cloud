@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict
+from typing import Dict, List
 
 import requests
 
@@ -130,3 +130,13 @@ class Client:
         return self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
             "data"
         ]
+
+    def _get_batch(self, id: int) -> Dict:
+        return self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
+            "data"
+        ]
+
+    def _get_jobs(self, batch_id: int) -> List:
+        return self._request(
+            "GET", f"{self.endpoints.core}/api/v1/jobs?batch_id={batch_id}"
+        )["data"]

@@ -29,7 +29,6 @@ class Batch:
         - priority: Level of priority of the batch
         - status: Status of the batch
         - webhook: Webhook where the job results are automatically sent to.
-        - client: Client object for sending data to PCS API.
         - jobs: Dictionnary of all the jobs added to the batch.
     """
 
@@ -42,7 +41,7 @@ class Batch:
     priority: int
     status: str
     webhook: str
-    client: Client
+    _client: Client
     jobs: Dict[int, Job] = field(default_factory=lambda: {})
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
@@ -55,7 +54,7 @@ class Batch:
         Returns:
             - Job: the created job.
         """
-        job_rsp = self.client._send_job(
+        job_rsp = self._client._send_job(
             {"runs": runs, "variables": variables, "batch_id": self.id}
         )
         job = Job(**job_rsp)
@@ -72,4 +71,4 @@ class Batch:
         device when all its jobs are done.
         """
         self.complete = True
-        return self.client._complete_batch(self.id)
+        return self._client._complete_batch(self.id)
