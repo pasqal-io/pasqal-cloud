@@ -1,3 +1,4 @@
+import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict
@@ -9,6 +10,9 @@ from sdk.job import Job
 class DeviceType(Enum):
     EMULATOR = "EMULATOR"
     MOCK = "MOCK_DEVICE"
+
+
+JOB_RESULT_POLLING_INTERVAL = 60  # 1 minute
 
 
 @dataclass
@@ -48,8 +52,9 @@ class Batch:
         """Add and send a new job for this batch.
 
         Args:
-            - runs: number of times the job is ran on the QPU.
-            - variables (optional): values for variables if sequence is parametrized.
+            runs: number of times the job is ran on the QPU.
+            variables (optional): values for variables if sequence is parametrized.
+            wait: Whether to wait for results to be sent back.
 
         Returns:
             - Job: the created job.
@@ -60,15 +65,27 @@ class Batch:
         job = Job(**job_rsp)
         self.jobs[job.id] = job
         if wait:
-            # TODO: poll results
-            pass
+            while job.status == "PENDING":
+                time.sleep(JOB_RESULT_POLLING_INTERVAL)
+                job_rsp = self._client._get_job(job.id)
+                job = Job(**job_rsp)
         return job
 
-    def declare_complete(self) -> Dict:
+    def declare_complete(self, wait: bool = False) -> Dict:
         """Declare to PCS that the batch is complete.
+
+        Args:
+            wait: Whether to wait for results to be sent back.
 
         A batch that is complete awaits no extra jobs. The batch is then unassigned to its running
         device when all its jobs are done.
         """
         self.complete = True
-        return self._client._complete_batch(self.id)
+        rsp = self._client._complete_batch(self.id)
+        if wait:
+            for job_id in self.jobs:
+                job = self.jobs[job_id]
+                while job.status == "PENDING":
+                    job = self._client._get_job(job.id)
+                    time.sleep(JOB_RESULT_POLLING_INTERVAL)
+        return rsp

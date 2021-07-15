@@ -140,3 +140,8 @@ class Client:
         return self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs?batch_id={batch_id}"
         )["data"]
+
+    def _get_job(self, job_id: int) -> Dict:
+        return self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")[
+            "data"
+        ]
