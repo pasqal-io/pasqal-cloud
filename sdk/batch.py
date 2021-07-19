@@ -12,7 +12,7 @@ class DeviceType(Enum):
     MOCK = "MOCK_DEVICE"
 
 
-JOB_RESULT_POLLING_INTERVAL = 60  # 1 minute
+RESULT_POLLING_INTERVAL = 60  # 1 minute
 
 
 @dataclass
@@ -46,7 +46,7 @@ class Batch:
     status: str
     webhook: str
     _client: Client
-    jobs: Dict[int, Job] = field(default_factory=lambda: {})
+    jobs: Dict[int, Job] = field(default_factory=dict)
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
         """Add and send a new job for this batch.
@@ -66,7 +66,7 @@ class Batch:
         self.jobs[job.id] = job
         if wait:
             while job.status == "PENDING":
-                time.sleep(JOB_RESULT_POLLING_INTERVAL)
+                time.sleep(RESULT_POLLING_INTERVAL)
                 job_rsp = self._client._get_job(job.id)
                 job = Job(**job_rsp)
         return job
@@ -77,15 +77,18 @@ class Batch:
         Args:
             wait: Whether to wait for results to be sent back.
 
-        A batch that is complete awaits no extra jobs. The batch is then unassigned to its running
-        device when all its jobs are done.
+        A batch that is complete awaits no extra jobs. All jobs previously added
+        will be executed before the batch is terminated. When all its jobs are done,
+        the complete batch is unassigned to its running device.
         """
         self.complete = True
         rsp = self._client._complete_batch(self.id)
         if wait:
-            for job_id in self.jobs:
-                job = self.jobs[job_id]
-                while job.status == "PENDING":
-                    job = self._client._get_job(job.id)
-                    time.sleep(JOB_RESULT_POLLING_INTERVAL)
+            while rsp["status"] == "PENDING":
+                time.sleep(RESULT_POLLING_INTERVAL)
+                rsp = self._client._get_batch(self.id)
+            jobs_rsp = self._client._get_jobs(self.id)
+            for j in jobs_rsp:
+                job = Job(**j)
+                self.jobs[job.id] = job
         return rsp

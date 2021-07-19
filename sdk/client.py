@@ -38,19 +38,14 @@ class Client:
         self.client_secret = client_secret
         self.endpoints = endpoints or Endpoints()
         self.group_id = None
-        self._login()
+        self._fetch_group_id()
 
     def _fetch_group_id(self):
         url = f"{self.endpoints.account}/api/v1/apikeys"
-        rsp = requests.request(
+        data = self._request(
             "GET",
             url,
-            timeout=TIMEOUT,
-            headers=self._headers(),
         )
-        data = rsp.json()
-        if rsp.status_code >= 400:
-            raise HTTPError(data)
         self.group_id = data["data"][0]["group"]["id"]
 
     def _login(self):
@@ -73,9 +68,6 @@ class Client:
             raise HTTPError(data)
 
         self._token = data["token"]
-
-        # Retrieve group_id
-        self._fetch_group_id()
 
     def _headers(self):
         return {
@@ -117,13 +109,10 @@ class Client:
             batch_data,
         )["data"]
 
-    def _complete_batch(self, batch_id: int, wait=False):
+    def _complete_batch(self, batch_id: int):
         response = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]
-        if wait:
-            # TODO: wiat for results (and return them ?)
-            pass
         return response
 
     def _send_job(self, job_data: Dict):
