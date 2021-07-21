@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict
+from typing import Dict, List
 
 import requests
 
@@ -37,6 +37,16 @@ class Client:
         self.client_id = client_id
         self.client_secret = client_secret
         self.endpoints = endpoints or Endpoints()
+        self.group_id = None
+        self._fetch_group_id()
+
+    def _fetch_group_id(self):
+        url = f"{self.endpoints.account}/api/v1/apikeys"
+        data = self._request(
+            "GET",
+            url,
+        )
+        self.group_id = data["data"][0]["group"]["id"]
 
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
@@ -57,23 +67,23 @@ class Client:
         if rsp.status_code >= 400:
             raise HTTPError(data)
 
-        self._token = data["data"]["token"]
+        self._token = data["token"]
+
+    def _headers(self):
+        return {
+            "content-type": "application/json",
+            "authorization": f"Bearer {self._token}",
+        }
 
     def _request(self, method: str, url: str, payload: Dict = None):
-        headers = (
-            {
-                "content-type": "application/json",
-                "authorization": f"Bearer {self._token}",
-            },
-        )
-
         rsp = requests.request(
             method,
             url,
             json=payload,
             timeout=TIMEOUT,
-            headers=headers,
-        ).json()
+            headers=self._headers(),
+        )
+        data = rsp.json()
         # If account returns unauthorized we attempt to login and retry request
         if rsp.status_code == 401:
             self._login()
@@ -83,9 +93,44 @@ class Client:
                 json=payload,
                 headers=self._headers(),
                 timeout=TIMEOUT,
-            ).json
+            )
+            data = rsp.json()
 
         if rsp.status_code >= 400:
-            raise HTTPError(rsp)
+            raise HTTPError(data)
 
-        return rsp.json()
+        return data
+
+    def _send_batch(self, batch_data: Dict):
+        batch_data.update({"group_id": self.group_id})
+        return self._request(
+            "POST",
+            f"{self.endpoints.core}/api/v1/batches",
+            batch_data,
+        )["data"]
+
+    def _complete_batch(self, batch_id: int):
+        response = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
+        )["data"]
+        return response
+
+    def _send_job(self, job_data: Dict):
+        return self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
+            "data"
+        ]
+
+    def _get_batch(self, id: int) -> Dict:
+        return self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
+            "data"
+        ]
+
+    def _get_jobs(self, batch_id: int) -> List:
+        return self._request(
+            "GET", f"{self.endpoints.core}/api/v1/jobs?batch_id={batch_id}"
+        )["data"]
+
+    def _get_job(self, job_id: int) -> Dict:
+        return self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")[
+            "data"
+        ]
