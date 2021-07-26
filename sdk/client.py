@@ -38,6 +38,7 @@ class Client:
         self.client_secret = client_secret
         self.endpoints = endpoints or Endpoints()
         self.group_id = None
+        self._token = ""
         self._fetch_group_id()
 
     def _fetch_group_id(self):
