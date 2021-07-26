@@ -59,9 +59,10 @@ class Batch:
         Returns:
             - Job: the created job.
         """
-        job_rsp = self._client._send_job(
-            {"runs": runs, "variables": variables, "batch_id": self.id}
-        )
+        job_data = {"runs": runs, "batch_id": self.id}
+        if variables:
+            job_data["variables"] = variables
+        job_rsp = self._client._send_job(job_data)
         job = Job(**job_rsp)
         self.jobs[job.id] = job
         if wait:
