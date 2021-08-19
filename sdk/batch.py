@@ -30,6 +30,7 @@ class Batch:
         - device_type: Type of device To run the batch on.
         - group_id: Id of the owner group of the batch.
         - id: Unique identifier for the batch
+        - user_id: Unique identifier of the user that created the batch
         - priority: Level of priority of the batch
         - status: Status of the batch
         - webhook: Webhook where the job results are automatically sent to.
@@ -42,6 +43,7 @@ class Batch:
     device_type: str
     group_id: int
     id: int
+    user_id: int
     priority: int
     status: str
     webhook: str
