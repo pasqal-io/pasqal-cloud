@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 
 @dataclass
@@ -14,6 +15,8 @@ class Job:
         - errors: Error messages that occured while processing job.
         - id: Unique identifier for the batch
         - status: Status of the job
+        - variables (optional): dictionnary of variables of the job.
+            None if the associated batch is non-parametrized
     """
 
     runs: int
@@ -24,3 +27,4 @@ class Job:
     created_at: str
     updated_at: str
     errors: str
+    variables: Dict = None

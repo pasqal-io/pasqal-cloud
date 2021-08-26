@@ -19,9 +19,9 @@ RESULT_POLLING_INTERVAL = 60  # 1 minute
 class Batch:
     """Class for batch data.
 
-    A batch groups up several jobs with the same sequence. When a batch is assigned to a QPU,
-    all its jobs are ran sequentially and no other batch can be assigned to the device
-    until all its jobs are done and it is declared complete.
+    A batch groups up several jobs with the same sequence. When a batch is assigned to
+    a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
+    device until all its jobs are done and it is declared complete.
 
     Attributes:
         - complete: Whether the batch has been declared as complete.
@@ -34,6 +34,7 @@ class Batch:
         - priority: Level of priority of the batch
         - status: Status of the batch
         - webhook: Webhook where the job results are automatically sent to.
+        - sequence_builder: Pulser sequence of the batch
         - jobs: Dictionnary of all the jobs added to the batch.
     """
 
@@ -48,6 +49,7 @@ class Batch:
     status: str
     webhook: str
     _client: Client
+    sequence_builder: str
     jobs: Dict[int, Job] = field(default_factory=dict)
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
