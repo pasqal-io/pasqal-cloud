@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sdk.job import Job
 from sdk.batch import Batch, DeviceType
 from sdk.client import Client
 from sdk.endpoints import Endpoints
+from sdk.job import Job
 
 
 class SDK:
