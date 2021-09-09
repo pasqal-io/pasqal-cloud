@@ -19,7 +19,7 @@ exec(open("sdk/_version.py").read())
 
 setup(
     name="pasqal-sdk",
-    version="0.0.1",
+    version=__version__,
     description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),
     include_package_data=True,

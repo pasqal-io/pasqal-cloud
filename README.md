@@ -50,8 +50,8 @@ sdk = SDK(client_id=client_id, client_secret=client_secret)
 # Creation of a sequence
 reg = Register.square(2, prefix="q")
 sequence = Sequence(reg, devices.Chadoq2)
-## You should add channels and variables to your sequence
-## See Pulser documentation for details
+# You should add channels and variables to your sequence
+# See Pulser documentation for details
 serialized_sequence = sequence.serialize() # Serialize the sequence in json format
 
 # Create a new batch and send it to Pasqal QPUs
