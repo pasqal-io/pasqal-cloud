@@ -18,8 +18,8 @@ __version__ = ""
 exec(open("sdk/_version.py").read())
 
 setup(
-    name="sdk",
-    version="0.0.1",
+    name="pasqal-sdk",
+    version=__version__,
     description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),
     include_package_data=True,
@@ -27,10 +27,13 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
     maintainer_email="pcs@pasqal.io",
-    python_requires=">=3.7.0",
+    python_requires=">=3.8.0",
     license="Apache 2.0",
     # TODO:
-    classifiers=[],
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Programming Language :: Python :: 3",
+    ],
     url="https://github.com/pasqal-io/cloud-sdk",
     install_requires=[
         "requests==2.25.1",
