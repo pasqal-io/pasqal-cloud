@@ -12,7 +12,7 @@ class DeviceType(StrEnum):
     MOCK = "MOCK_DEVICE"
 
 
-RESULT_POLLING_INTERVAL = 10  # seconds
+RESULT_POLLING_INTERVAL = 2  # seconds
 
 
 @dataclass
