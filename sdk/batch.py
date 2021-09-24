@@ -1,18 +1,18 @@
 import time
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Dict
 
 from sdk.client import Client
 from sdk.job import Job
+from sdk.utils.enum import StrEnum
 
 
-class DeviceType(Enum):
+class DeviceType(StrEnum):
     EMULATOR = "EMULATOR"
     MOCK = "MOCK_DEVICE"
 
 
-RESULT_POLLING_INTERVAL = 60  # 1 minute
+RESULT_POLLING_INTERVAL = 10  # seconds
 
 
 @dataclass
