@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, List
 
 
 @dataclass
@@ -26,5 +26,5 @@ class Job:
     result: str
     created_at: str
     updated_at: str
-    errors: str
+    errors: List[str]
     variables: Dict = None
