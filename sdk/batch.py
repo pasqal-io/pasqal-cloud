@@ -36,6 +36,8 @@ class Batch:
         - webhook: Webhook where the job results are automatically sent to.
         - sequence_builder: Pulser sequence of the batch
         - jobs: Dictionnary of all the jobs added to the batch.
+        - jobs_count: number of jobs added to the batch
+        - pending_jobs_count: number of jobs that have not been processed yet
     """
 
     complete: bool
@@ -51,6 +53,8 @@ class Batch:
     _client: Client
     sequence_builder: str
     jobs: Dict[int, Job] = field(default_factory=dict)
+    jobs_count: int = 0
+    pending_jobs_count: int = 0
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
         """Add and send a new job for this batch.
