@@ -42,12 +42,12 @@ class Client:
         self._fetch_group_id()
 
     def _fetch_group_id(self):
-        url = f"{self.endpoints.account}/api/v1/apikeys"
+        url = f"{self.endpoints.account}/api/v1/auth/info"
         data = self._request(
             "GET",
             url,
         )
-        self.group_id = data["data"][0]["group"]["id"]
+        self.group_id = data["data"]["group_id"]
 
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
