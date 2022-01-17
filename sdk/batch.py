@@ -74,7 +74,7 @@ class Batch:
         job = Job(**job_rsp)
         self.jobs[job.id] = job
         if wait:
-            while job.status == "PENDING":
+            while job.status in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 job_rsp = self._client._get_job(job.id)
                 job = Job(**job_rsp)
@@ -93,7 +93,7 @@ class Batch:
         self.complete = True
         rsp = self._client._complete_batch(self.id)
         if wait:
-            while rsp["status"] == "PENDING":
+            while rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 rsp = self._client._get_batch(self.id)
             jobs_rsp = self._client._get_jobs(self.id)
