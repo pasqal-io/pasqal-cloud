@@ -126,10 +126,17 @@ class Client:
             "data"
         ]
 
-    def _get_jobs(self, batch_id: int) -> List:
-        return self._request(
+    def _get_jobs(self, batch_id: int, fetch_results: bool = False) -> List:
+        job_list = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs?batch_id={batch_id}"
         )["data"]
+        # Job results are not included when fetching a list of jobs
+        # Fetch them explicitly if wanted
+        if fetch_results:
+            for job_data in job_list:
+                if job_data.get("status") == "DONE":
+                    job_data["result"] = self._get_job(job_data["id"]).get("result")
+        return job_list
 
     def _get_job(self, job_id: int) -> Dict:
         return self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")[
