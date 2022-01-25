@@ -18,7 +18,7 @@ pip install -e .
 ```
 
 Bear in mind that this installation will track the contents of your local
-cloud_sdk repository folder, so if you checkout a different branch (e.g. ``master``),
+cloud_sdk repository folder, so if you checkout a different branch (e.g. `master`),
 your installation will change accordingly.
 
 ### Development Requirements (Optional)
@@ -31,16 +31,16 @@ pip install -e .[dev]
 
 ## Basic usage
 
-The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically 
+The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
 to Pasqal APIs using an API token generated in the [user portal](https://pasqal.cloud.io) (available soon).
 
-A `Batch` is a group of jobs with the same sequence that run on the same QPU. 
-The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/), 
+A `Batch` is a group of jobs with the same sequence that run on the same QPU.
+The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
 ```python
 from sdk import SDK
-from pulser import devices, Register, Sequence 
+from pulser import devices, Register, Sequence
 
 client_id="your_client_id" # Replace this value by the client id of your API key
 client_secret="your_client_secret" #Replace this value by the client secret of your API key
@@ -56,6 +56,8 @@ serialized_sequence = sequence.serialize() # Serialize the sequence in json form
 
 # Create a new batch and send it to Pasqal QPUs
 batch = sdk.create_batch(serialized_sequence)
+# You can also choose to run your batch on an emulator using the optional argument 'emulator'
+# batch = sdk.create_batch(serialized_sequence, emulator=True)
 
 # Add jobs to your batch
 job1 = batch.add_job(runs=400)

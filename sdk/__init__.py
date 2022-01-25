@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sdk.batch import Batch, DeviceType
+from sdk.batch import Batch
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
@@ -35,13 +35,15 @@ class SDK:
     def create_batch(
         self,
         serialized_sequence: str,
-        device_type: DeviceType = DeviceType.EMULATOR,
+        emulator: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
 
         Args:
             serialized_sequence: Serialized pulser sequence.
-            device_type: Type of device to run the batch on.
+            emulator: Whether to run the batch on an emulator.
+              If set to false, the device_type will be set to the one
+              stored in the serialized sequence
 
         Returns:
             Batch: The new batch that has been created in the database.
@@ -49,7 +51,7 @@ class SDK:
         batch_rsp = self._client._send_batch(
             {
                 "sequence_builder": serialized_sequence,
-                "device_type": device_type,
+                "emulator": emulator,
                 "webhook": self.webhook,
             }
         )
