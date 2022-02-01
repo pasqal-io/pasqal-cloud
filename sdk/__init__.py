@@ -23,8 +23,8 @@ class SDK:
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        client_id: str = "",
+        client_secret: str = "",
         endpoints: Endpoints = None,
         webhook: str = None,
     ):

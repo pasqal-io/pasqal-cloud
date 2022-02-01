@@ -43,6 +43,8 @@ setup(
             "black==20.8b1",
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
+            "pytest==6.2.2",
+            "pytest-cov==2.11.1",
         }
     },
 )
