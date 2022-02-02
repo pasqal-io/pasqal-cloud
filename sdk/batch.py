@@ -31,7 +31,7 @@ class Batch:
         - sequence_builder: Pulser sequence of the batch
         - jobs: Dictionnary of all the jobs added to the batch.
         - jobs_count: number of jobs added to the batch
-        - pending_jobs_count: number of jobs that have not been processed yet
+        - jobs_count_per_status: number of jobs per status
     """
 
     complete: bool
@@ -48,7 +48,7 @@ class Batch:
     sequence_builder: str
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
-    pending_jobs_count: int = 0
+    jobs_count_per_status: dict = {}
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
         """Add and send a new job for this batch.
