@@ -134,7 +134,6 @@ class Client:
         # Fetch them explicitly if wanted
         if fetch_results:
             for job_data in job_list:
-                print(job_data)
                 if job_data.get("status") == "DONE":
                     job_data["result"] = self._get_job(job_data["id"]).get("result")
         return job_list

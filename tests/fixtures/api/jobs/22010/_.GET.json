@@ -11,7 +11,7 @@
       "id": 22010,
       "result": "result",
       "runs": 50,
-      "status": "CANCELED",
+      "status": "DONE",
       "updated_at": "2021-11-10T15:27:06.698066",
       "variables": {
         "Omega_max": 14.4,
