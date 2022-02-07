@@ -1,71 +1,91 @@
 from unittest.mock import Mock, MagicMock, patch
 
+import json
+import os
 import pytest
+import requests_mock
 
 from sdk import SDK
 from sdk.batch import Batch
 
 
+TEST_API_FIXTURES_PATH = "tests/fixtures/api"
+JSON_FILE = "_.{}.json"
+
+
 class TestBatch:
     @pytest.fixture(autouse=True)
-    @patch("sdk.Client")
-    def init_sdk(self, mock_client):
-        self.sdk = SDK()
+    @requests_mock.Mocker(kw="mock")
+    def init_sdk(self, **kwargs):
+        def mock_response(request, context):
+            path = request.url.split("/api/v1/")[1].split("?")[0]
+            json_path = os.path.join(
+                TEST_API_FIXTURES_PATH, path, JSON_FILE.format(request.method)
+            )
+            with open(json_path) as json_file:
+                return json.load(json_file)
+
+        # Configure requests to use the local JSON files a response
+        kwargs["mock"].register_uri(
+            requests_mock.ANY, requests_mock.ANY, json=mock_response
+        )
+        self.requests_mock = kwargs["mock"]
+        self.sdk = SDK(client_id="my_client_id", client_secret="my_client_secret")
         self.pulser_sequence = "pulser_test_sequence"
+        self.batch_id = 1
+        self.job_result = "result"
+        self.n_job_runs = 50
 
-    @patch("sdk.Batch")
-    def test_create_batch(self, mock_batch):
-        self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
-        )
-        self.sdk._client._send_batch.assert_called_once()
+    def test_create_batch(self):
+        with self.requests_mock:
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+            )
+            assert batch.id == self.batch_id
+            assert batch.sequence_builder == self.pulser_sequence
 
-    @patch("sdk.batch.Client")
-    def test_batch_add_job(self, mock_client):
-        batch_id = 2
-        mock_client._send_job.return_value = {
-            "runs": 1,
-            "batch_id": batch_id,
-            "id": 1,
-            "status": "",
-            "created_at": "",
-            "updated_at": "",
-            "errors": [],
-        }
-        self.batch = Batch(
-            complete=False,
-            created_at="",
-            updated_at="",
-            device_type="",
-            group_id=1,
-            id=batch_id,
-            user_id=1,
-            priority=1,
-            status="",
-            webhook="",
-            _client=mock_client,
-            sequence_builder=self.pulser_sequence,
-        )
-        job = self.batch.add_job(runs=50, variables={"var": 2})
-        self.batch._client._send_job.assert_called_once()
-        assert job.batch_id == batch_id
+    def test_batch_add_job(self):
+        with self.requests_mock:
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+            )
+            job = batch.add_job(
+                runs=self.n_job_runs,
+                variables={"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]},
+            )
+            assert job.batch_id == self.batch_id
+            assert job.runs == self.n_job_runs
 
-    @patch("sdk.batch.Job")
-    @patch("sdk.batch.Client")
-    def test_batch_declare_complete(self, mock_job, mock_client):
-        self.batch = Batch(
-            complete=False,
-            created_at="",
-            updated_at="",
-            device_type="",
-            group_id=1,
-            id=1,
-            user_id=1,
-            priority=1,
-            status="",
-            webhook="",
-            _client=mock_client,
-            sequence_builder=self.pulser_sequence,
-        )
-        self.batch.declare_complete(wait=True)
-        self.batch._client._complete_batch.assert_called_once()
+    def test_batch_add_job_and_wait_for_results(self):
+        with self.requests_mock:
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+            )
+            job = batch.add_job(
+                runs=self.n_job_runs,
+                variables={"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]},
+                wait=True,
+            )
+            assert job.batch_id == self.batch_id
+            assert job.runs == self.n_job_runs
+            assert job.result == self.job_result
+
+    def test_batch_declare_complete(self):
+        with self.requests_mock:
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+            )
+            rsp = batch.declare_complete(wait=False)
+            assert rsp["complete"]
+            assert len(batch.jobs) == 0
+
+    def test_batch_declare_complete_and_wait_for_results(self):
+        job_id = 22010
+        with self.requests_mock:
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+            )
+            rsp = batch.declare_complete(wait=True)
+            assert rsp["complete"]
+            assert batch.jobs[job_id].batch_id == self.batch_id
+            assert batch.jobs[job_id].result == self.job_result

@@ -35,9 +35,7 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     url="https://github.com/pasqal-io/cloud-sdk",
-    install_requires=[
-        "requests==2.25.1",
-    ],
+    install_requires=["requests==2.25.1", "requests-mock==1.9.3"],
     extras_require={
         "dev": {
             "black==20.8b1",
