@@ -24,7 +24,7 @@ def request_mock(mock=None):
     return mock
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def start_mock_request(request_mock):
     request_mock.start()
     yield request_mock
