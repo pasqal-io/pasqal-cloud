@@ -35,14 +35,14 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     url="https://github.com/pasqal-io/cloud-sdk",
-    install_requires=[
-        "requests==2.25.1",
-    ],
+    install_requires=["requests==2.25.1", "requests-mock==1.9.3"],
     extras_require={
         "dev": {
             "black==20.8b1",
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
+            "pytest==6.2.2",
+            "pytest-cov==2.11.1",
         }
     },
 )
