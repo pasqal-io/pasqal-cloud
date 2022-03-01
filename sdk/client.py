@@ -104,11 +104,13 @@ class Client:
 
     def _send_batch(self, batch_data: Dict):
         batch_data.update({"group_id": self.group_id})
-        return self._request(
+        batch_data = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
         )["data"]
+        jobs_data = batch_data.pop("jobs", [])
+        return batch_data, jobs_data
 
     def _complete_batch(self, batch_id: int):
         response = self._request(
