@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import requests
 
@@ -102,7 +102,7 @@ class Client:
 
         return data
 
-    def _send_batch(self, batch_data: Dict):
+    def _send_batch(self, batch_data: Dict)-> Dict[str, Any], List[Dict[str,Any]]:
         batch_data.update({"group_id": self.group_id})
         batch_data = self._request(
             "POST",
