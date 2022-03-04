@@ -16,7 +16,7 @@ class TestBatch:
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
 
     def test_create_batch(self):
-        job = Job(runs=self.n_job_runs, variables=self.job_variables)
+        job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job]
         )
@@ -28,7 +28,7 @@ class TestBatch:
         assert batch.jobs[self.job_id].runs == self.n_job_runs
 
     def test_create_batch_and_wait_for_results(self, request_mock):
-        job = Job(runs=self.n_job_runs, variables=self.job_variables)
+        job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
         )

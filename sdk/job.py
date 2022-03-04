@@ -28,8 +28,3 @@ class Job:
     errors: List[str]
     result: str = None
     variables: Dict = None
-
-    def __init__(self, runs, **kwargs):
-        self.runs = runs
-        for field in kwargs:
-            setattr(self, field, kwargs[field])

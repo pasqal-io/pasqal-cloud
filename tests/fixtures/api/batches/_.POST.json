@@ -17,6 +17,8 @@
       "id": 22010,
       "runs": 50,
       "status": "PENDING",
+      "created_at": "2021-11-10T15:27:06.698066",
+      "errors": [],
       "updated_at": "2021-11-10T15:27:06.698066",
       "variables": {
         "Omega_max": 14.4,

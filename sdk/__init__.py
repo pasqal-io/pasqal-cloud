@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import time
-from typing import List
+from typing import Any, Dict, List
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
@@ -38,7 +38,7 @@ class SDK:
     def create_batch(
         self,
         serialized_sequence: str,
-        jobs: List[Job],
+        jobs: List[Dict[str, Any]],
         emulator: bool = False,
         wait: bool = False,
     ) -> Batch:
@@ -62,7 +62,7 @@ class SDK:
                 "sequence_builder": serialized_sequence,
                 "emulator": emulator,
                 "webhook": self.webhook,
-                "jobs": [job.__dict__ for job in jobs],
+                "jobs": jobs,
             }
         )
         batch = Batch(**batch_rsp, _client=self._client)
