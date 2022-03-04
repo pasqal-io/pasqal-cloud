@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sdk.batch import Batch
+import time
+from typing import Any, Dict, List
+
+from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
@@ -35,28 +38,44 @@ class SDK:
     def create_batch(
         self,
         serialized_sequence: str,
+        jobs: List[Dict[str, Any]],
         emulator: bool = False,
+        wait: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
+        For Iroise MVP, the batch must contain at least one job and will be declared as complete immediately.
 
         Args:
             serialized_sequence: Serialized pulser sequence.
+            jobs: List of jobs to be added to the batch at creation. (#TODO: Make optional after Iroise MVP)
             emulator: Whether to run the batch on an emulator.
               If set to false, the device_type will be set to the one
               stored in the serialized sequence
+            wait: Whether to wait for results to be sent back
+
 
         Returns:
             Batch: The new batch that has been created in the database.
         """
-        batch_rsp = self._client._send_batch(
+        batch_rsp, jobs_rsp = self._client._send_batch(
             {
                 "sequence_builder": serialized_sequence,
                 "emulator": emulator,
                 "webhook": self.webhook,
+                "jobs": jobs,
             }
         )
         batch = Batch(**batch_rsp, _client=self._client)
+        for job_rsp in jobs_rsp:
+            batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch
+        if wait:
+            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
+                time.sleep(RESULT_POLLING_INTERVAL)
+                batch_rsp = self._client._get_batch(batch.id)
+            for job_id, job in batch.jobs.items():
+                job_rsp = self._client._get_job(job_id)
+                batch.jobs[job.id] = Job(**job_rsp)
         return batch
 
     def get_batch(self, id: int, load_results: bool = False) -> Batch:

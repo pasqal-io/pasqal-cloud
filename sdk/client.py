@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 import requests
 
@@ -102,13 +102,17 @@ class Client:
 
         return data
 
-    def _send_batch(self, batch_data: Dict):
+    def _send_batch(
+        self, batch_data: Dict
+    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data.update({"group_id": self.group_id})
-        return self._request(
+        batch_data = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
         )["data"]
+        jobs_data = batch_data.pop("jobs", [])
+        return batch_data, jobs_data
 
     def _complete_batch(self, batch_id: int):
         response = self._request(
