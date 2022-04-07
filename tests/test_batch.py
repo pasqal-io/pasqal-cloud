@@ -1,7 +1,6 @@
 import pytest
 
 from sdk import SDK
-from sdk.job import Job
 
 
 class TestBatch:
@@ -10,7 +9,7 @@ class TestBatch:
         self.sdk = SDK(client_id="my_client_id", client_secret="my_client_secret")
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = 1
-        self.job_result = "result"
+        self.job_result = {"1001": 12, "0110": 35, "1111": 1}
         self.n_job_runs = 50
         self.job_id = 22010
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
