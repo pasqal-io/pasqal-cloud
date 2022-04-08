@@ -26,5 +26,6 @@ class Job:
     created_at: str
     updated_at: str
     errors: List[str]
+    device_status: str = None
     result: str = None
     variables: Dict = None
