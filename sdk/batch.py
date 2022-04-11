@@ -29,6 +29,7 @@ class Batch:
         - status: Status of the batch
         - webhook: Webhook where the job results are automatically sent to.
         - sequence_builder: Pulser sequence of the batch
+        - device_status: Status of the device where the batch is running.
         - jobs: Dictionnary of all the jobs added to the batch.
         - jobs_count: number of jobs added to the batch
         - jobs_count_per_status: number of jobs per status
