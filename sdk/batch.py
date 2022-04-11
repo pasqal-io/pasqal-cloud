@@ -46,6 +46,7 @@ class Batch:
     webhook: str
     _client: Client
     sequence_builder: str
+    device_status: str = None
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
