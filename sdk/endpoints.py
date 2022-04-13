@@ -15,8 +15,8 @@
 from dataclasses import dataclass
 from typing import Final
 
-CORE_API_URL: Final[str] = "https://apis.prod.pasqal.cloud/core"
-ACCOUNT_API_URL: Final[str] = "https://apis.prod.pasqal.cloud/account"
+CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core"
+ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"
 
 
 @dataclass
