@@ -23,7 +23,8 @@ class HTTPError(Exception):
     def __init__(self, data: JSendPayload, *args: object) -> None:
         super().__init__(*args)
         self.code = data["code"]
-        self.message = data["message"]
+        # If no error description, display default response message instead
+        self.description = data.get("data", {}).get("description", data["message"])
 
     def __str__(self) -> str:
-        return f"HTTP {self.code}: {self.message}"
+        return f"Error {self.code}: {self.description}"
