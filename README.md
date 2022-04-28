@@ -63,7 +63,7 @@ batch = sdk.create_batch(serialized_sequence)
 job1 = batch.add_job(runs=400)
 job2 = batch.add_job(runs=100, wait=True) # You can wait for the job results
 
-results = job2.results # You can retrieve and post-process if wanted the results of the job
+results = job2.result # You can retrieve and post-process if wanted the results of the job
 
 # Declare your batch complete, meaning it awaits no new jobs and the QPU can proceed to next batch
 batch.declare_complete()

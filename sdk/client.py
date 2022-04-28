@@ -137,9 +137,11 @@ class Client:
         # Job results are not included when fetching a list of jobs
         # Fetch them explicitly if wanted
         if fetch_results:
+            results = self._request(
+                "GET", f"{self.endpoints.core}/api/v1/batches/{batch_id}/result"
+            )["data"]
             for job_data in job_list:
-                if job_data.get("status") == "DONE":
-                    job_data["result"] = self._get_job(job_data["id"]).get("result")
+                job_data["result"] = results.get(job_data["id"], None)
         return job_list
 
     def _get_job(self, job_id: int) -> Dict:

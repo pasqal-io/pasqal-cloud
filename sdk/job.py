@@ -26,5 +26,5 @@ class Job:
     created_at: str
     updated_at: str
     errors: List[str]
-    result: str = None
+    result: Dict = None
     variables: Dict = None
