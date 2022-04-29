@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+import json
+
 from sdk.utils.jsend import JSendPayload
 
 
@@ -25,6 +27,10 @@ class HTTPError(Exception):
         self.code = data["code"]
         # If no error description, display default response message instead
         self.description = data.get("data", {}).get("description", data["message"])
+        self.details = data
 
     def __str__(self) -> str:
-        return f"Error {self.code}: {self.description}"
+        return (
+            f"Error {self.code}: {self.description}\n"
+            f"Details: {json.dumps(self.details, indent=2)}"
+        )
