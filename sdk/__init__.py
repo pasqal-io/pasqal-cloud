@@ -19,6 +19,13 @@ from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
+from sdk.utils.strenum import StrEnum
+
+
+class DeviceType(StrEnum):
+    QPU = "QPU"
+    GPU_EMULATOR = "GPU_EMULATOR"
+    CPU_EMULATOR = "CPU_EMULATOR"
 
 
 class SDK:
@@ -39,7 +46,7 @@ class SDK:
         self,
         serialized_sequence: str,
         jobs: List[Dict[str, Any]],
-        emulator: bool = False,
+        device_type: DeviceType = DeviceType.QPU,
         wait: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
@@ -48,8 +55,8 @@ class SDK:
         Args:
             serialized_sequence: Serialized pulser sequence.
             jobs: List of jobs to be added to the batch at creation. (#TODO: Make optional after Iroise MVP)
-            emulator: Whether to run the batch on an emulator.
-              If set to false, the device_type will be set to the one
+            device_type: The type of device to use, either an emulator or a QPU
+              If set to QPU, the device_type will be set to the one
               stored in the serialized sequence
             wait: Whether to wait for results to be sent back
 
@@ -57,10 +64,17 @@ class SDK:
         Returns:
             Batch: The new batch that has been created in the database.
         """
+
+        emulator = (
+            device_type == DeviceType.CPU_EMULATOR
+            or device_type == DeviceType.GPU_EMULATOR
+        )
+
         batch_rsp, jobs_rsp = self._client._send_batch(
             {
                 "sequence_builder": serialized_sequence,
                 "emulator": emulator,
+                "device_type": device_type,
                 "webhook": self.webhook,
                 "jobs": jobs,
             }
