@@ -24,8 +24,8 @@ from sdk.utils.strenum import StrEnum
 
 class DeviceType(StrEnum):
     QPU = "QPU"
-    GPU_EMULATOR = "GPU_EMULATOR"
-    CPU_EMULATOR = "CPU_EMULATOR"
+    EMU_FREE = "EMU_FREE"
+    EMU_SV = "EMU_SV"
 
 
 class SDK:
@@ -65,20 +65,27 @@ class SDK:
             Batch: The new batch that has been created in the database.
         """
 
-        emulator = (
-            device_type == DeviceType.CPU_EMULATOR
-            or device_type == DeviceType.GPU_EMULATOR
-        )
+        is_emulator = device_type != DeviceType.QPU
+        
+        req = {
+            "sequence_builder": serialized_sequence,
+            "webhook": self.webhook,
+            "jobs": jobs,
+        }
 
-        batch_rsp, jobs_rsp = self._client._send_batch(
-            {
-                "sequence_builder": serialized_sequence,
-                "emulator": emulator,
-                "device_type": device_type,
-                "webhook": self.webhook,
-                "jobs": jobs,
-            }
-        )
+        # the emulator field is only added in the case
+        # an emulator job is requested otherwise it's left empty
+        if is_emulator:
+            req.update({"emulator": device_type})
+
+        batch_rsp, jobs_rsp = self._client._send_batch(req)
+        #     {
+        #         "sequence_builder": serialized_sequence,
+        #         "emulator": is_emulator,
+        #         "webhook": self.webhook,
+        #         "jobs": jobs,
+        #     }
+        # )
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
