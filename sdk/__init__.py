@@ -66,7 +66,7 @@ class SDK:
         """
 
         is_emulator = device_type != DeviceType.QPU
-        
+
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
@@ -79,13 +79,6 @@ class SDK:
             req.update({"emulator": device_type})
 
         batch_rsp, jobs_rsp = self._client._send_batch(req)
-        #     {
-        #         "sequence_builder": serialized_sequence,
-        #         "emulator": is_emulator,
-        #         "webhook": self.webhook,
-        #         "jobs": jobs,
-        #     }
-        # )
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
