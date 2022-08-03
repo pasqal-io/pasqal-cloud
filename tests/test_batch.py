@@ -18,7 +18,9 @@ class TestBatch:
     def test_create_batch(self, device_type):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[job], device_type=device_type
+            serialized_sequence=self.pulser_sequence,
+            jobs=[job],
+            device_type=device_type,
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
@@ -43,14 +45,10 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
         )
         assert batch.jobs[self.job_id].result == self.job_result
-        breakpoint()
-
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
         )
-
-        breakpoint()
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):
