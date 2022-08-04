@@ -45,10 +45,6 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
         )
         assert batch.jobs[self.job_id].result == self.job_result
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
-        )
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):

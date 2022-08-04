@@ -65,8 +65,6 @@ class SDK:
             Batch: The new batch that has been created in the database.
         """
 
-        is_emulator = device_type != DeviceType.QPU
-
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
@@ -75,7 +73,7 @@ class SDK:
 
         # the emulator field is only added in the case
         # an emulator job is requested otherwise it's left empty
-        if is_emulator:
+        if device_type != DeviceType.QPU:
             req.update({"emulator": device_type})
 
         batch_rsp, jobs_rsp = self._client._send_batch(req)
