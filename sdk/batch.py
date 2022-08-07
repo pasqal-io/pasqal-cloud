@@ -33,6 +33,7 @@ class Batch:
         - jobs: Dictionnary of all the jobs added to the batch.
         - jobs_count: number of jobs added to the batch
         - jobs_count_per_status: number of jobs per status
+        - slurm_job_id: The id of the job assigned by the Slurm scheduler (emulators only)
     """
 
     complete: bool
@@ -51,6 +52,7 @@ class Batch:
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
+    slurm_job_id: str = None
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
         """Add and send a new job for this batch.
