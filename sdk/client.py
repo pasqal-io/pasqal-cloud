@@ -134,8 +134,7 @@ class Client:
             results = self._request(
                 "GET", f"{self.endpoints.core}/api/v1/batches/{id}/results"
             )["data"]
-        for job_data in jobs_data:
-            if fetch_results:
+            for job_data in jobs_data:
                 job_data["result"] = results.get(job_data["id"], None)
         return batch_data, jobs_data
 

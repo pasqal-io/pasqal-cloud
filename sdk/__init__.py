@@ -78,18 +78,18 @@ class SDK:
                 batch.jobs[job.id] = Job(**job_rsp)
         return batch
 
-    def get_batch(self, id: int, load_results: bool = False) -> Batch:
+    def get_batch(self, id: int, fetch_results: bool = False) -> Batch:
         """Retrieve a batch's data and all its jobs.
 
         Args:
             id: Id of the batch.
-            load_results: whether to load job results
+            fetch_results: whether to load job results
 
         Returns:
             Batch: the batch stored in the PCS database.
         """
 
-        batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=load_results)
+        batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
