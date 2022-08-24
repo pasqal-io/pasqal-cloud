@@ -91,9 +91,9 @@ class Batch:
         if wait:
             while rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                rsp = self._client._get_batch(self.id)
-            jobs_rsp = self._client._get_jobs(self.id, fetch_results=True)
-            for j in jobs_rsp:
-                job = Job(**j)
-                self.jobs[job.id] = job
-        return rsp
+                batch_rsp, jobs_rsp = self._client._get_batch(
+                    self.id, fetch_results=True
+                )
+            for job_rsp in jobs_rsp:
+                self.jobs[job_rsp["id"]] = Job(**job_rsp)
+        return batch_rsp
