@@ -1,6 +1,6 @@
 import pytest
 
-from sdk import SDK
+from sdk import SDK, DeviceType
 
 
 class TestBatch:
@@ -14,10 +14,13 @@ class TestBatch:
         self.job_id = 22010
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
 
-    def test_create_batch(self):
+    @pytest.mark.parametrize("device_type", [d.value for d in DeviceType])
+    def test_create_batch(self, device_type):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[job]
+            serialized_sequence=self.pulser_sequence,
+            jobs=[job],
+            device_type=device_type,
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
