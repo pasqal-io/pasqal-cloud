@@ -87,9 +87,9 @@ class Batch:
         the complete batch is unassigned to its running device.
         """
         self.complete = True
-        rsp = self._client._complete_batch(self.id)
+        batch_rsp = self._client._complete_batch(self.id)
         if wait:
-            while rsp["status"] in ["PENDING", "RUNNING"]:
+            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp, jobs_rsp = self._client._get_batch(
                     self.id, fetch_results=True
