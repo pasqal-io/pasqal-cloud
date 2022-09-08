@@ -30,12 +30,12 @@ class Client:
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        username: str,
+        password: str,
         endpoints: Endpoints = None,
     ):
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self.username = username
+        self.password = password
         self.endpoints = endpoints or Endpoints()
         self.group_id = None
         self._token = ""
@@ -52,9 +52,8 @@ class Client:
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
         payload = {
-            "type": "api_key",
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
+            "username": self.username,
+            "password": self.password,
         }
 
         rsp = requests.post(
