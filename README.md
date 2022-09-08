@@ -66,10 +66,10 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 from sdk import SDK
 from pulser import devices, Register, Sequence
 
-client_id="your_client_id" # Replace this value by the client id of your API key
-client_secret="your_client_secret" #Replace this value by the client secret of your API key
+username="your_username" # Replace this value by your username or email on the PASQAL platform
+password="your_password" # Replace this value by your password on the PASQAL platform. Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
 
-sdk = SDK(client_id=client_id, client_secret=client_secret)
+sdk = SDK(username=username, password=password)
 
 # When creating a job, select a number of runs and set the desired values for the variables
 # defined in the sequence
