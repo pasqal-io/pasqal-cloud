@@ -25,6 +25,7 @@ from sdk.utils.strenum import StrEnum
 class DeviceType(StrEnum):
     QPU = "QPU"
     EMU_FREE = "EMU_FREE"
+    EMU_SV = "EMU_SV"
 
 
 class SDK:
