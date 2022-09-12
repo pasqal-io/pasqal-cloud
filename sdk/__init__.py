@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import asdict
 import json
 import time
 from typing import Any, Dict, List, Optional, Union
@@ -85,7 +84,7 @@ class SDK:
         # it's requested
         if configuration:
             if isinstance(configuration, Configuration):
-                configuration = asdict(configuration)
+                configuration = configuration.to_dict()
             req.update({"configuration": json.dumps(configuration)})
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch = Batch(**batch_rsp, _client=self._client)
