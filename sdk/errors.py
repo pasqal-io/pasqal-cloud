@@ -21,12 +21,17 @@ from sdk.utils.jsend import JSendPayload
 class HTTPError(Exception):
     code: int
     message: str
+    description: str
+    details: dict
 
     def __init__(self, data: JSendPayload, *args: object) -> None:
         super().__init__(*args)
         self.code = data["code"]
         # If no error description, display default response message instead
-        self.description = data.get("data", {}).get("description", data["message"])
+        if data.get("data"):
+            self.description = data["data"].get("description", data["message"])
+        else:
+            self.description = data["message"]
         self.details = data
 
     def __str__(self) -> str:
