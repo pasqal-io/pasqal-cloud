@@ -85,7 +85,7 @@ class SDK:
         if configuration:
             if isinstance(configuration, Configuration):
                 configuration = configuration.to_dict()
-            req.update({"configuration": json.dumps(configuration)})
+            req.update({"configuration": configuration})
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:

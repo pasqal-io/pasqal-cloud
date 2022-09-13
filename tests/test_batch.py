@@ -103,17 +103,16 @@ class TestBatch:
         assert batch.jobs[self.job_id].batch_id == batch.id
         assert batch.jobs[self.job_id].result == self.job_result
 
-    @pytest.mark.parametrize("device_type, configuration", [
-        (DeviceType.EMU_SV, {"precision": "normal"}),
-        (DeviceType.EMU_SV, Configuration()),
+    @pytest.mark.parametrize("device_type, configuration, expected", [
+        (DeviceType.EMU_SV, Configuration(), Configuration().to_dict()),
+        (DeviceType.EMU_SV, Configuration().to_dict(), Configuration().to_dict())
     ])
-    def test_create_batch_configuration(self, device_type, configuration):
+    def test_create_batch_configuration(self, device_type, configuration, expected):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
-        configuration = {"precision": "normal"}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
             device_type=device_type,
             configuration=configuration
         )
-        assert batch.configuration == configuration
+        assert batch.configuration == expected

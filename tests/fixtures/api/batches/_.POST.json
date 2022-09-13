@@ -12,7 +12,7 @@
     "updated_at": "2021-11-10T15:27:44.110274",
     "user_id": 1,
     "webhook": "10.0.1.5",
-    "configuration": {"precision": "normal"},
+    "configuration": {"dt": 0.1, "precision": "normal"},
     "jobs": [{
       "batch_id": 1,
       "id": 22010,
