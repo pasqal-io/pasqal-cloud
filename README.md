@@ -79,8 +79,11 @@ job2 = {"runs": 50, "variables": {"omega_max": 10.5} }
 # Send the batch of jobs to the QPU and wait for the results
 batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 
-# You can also choose to run your batch on an emulator using the optional argument 'emulator'
-# batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=True)
+# You can also choose to run your batch on an emulator using the optional argument 'device_type'
+# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" device type.
+# "EMU_SV", which is a more performant version, is not available on this platform yet.
+from sdk import DeviceType
+batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE)
 
 # Once the QPU has returned the results, you can access them with the following:
 for job in batch.jobs.values():
