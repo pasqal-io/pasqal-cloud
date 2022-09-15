@@ -2,7 +2,7 @@ name: Publish cloud-sdk 📦 to PyPI and TestPyPI
 on:
   push:
     branches:
-      - master
+      - dev
 
 jobs:
   build-n-publish:
