@@ -43,7 +43,7 @@ class Configuration:
             return {}
         if prefix == "extra_config":
             #  In extra_config don't flatten the further dicts.
-            return {k: v for (k, v) in conf_dict.items()}
+            return conf_dict
         return (
             {  # flatten if (nested) dictionary
                 kk: vv
