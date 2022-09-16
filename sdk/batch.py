@@ -53,7 +53,7 @@ class Batch:
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
-    configuration: Optional[Union[Configuration, Dict]] = None
+    configuration: Optional[Configuration] = None
 
     def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
         """Add and send a new job for this batch.

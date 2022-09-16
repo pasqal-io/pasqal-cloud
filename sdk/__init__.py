@@ -49,7 +49,7 @@ class SDK:
         serialized_sequence: str,
         jobs: List[Dict[str, Any]],
         device_type: DeviceType = DeviceType.QPU,
-        configuration: Optional[Union[Dict[str, Any], Configuration]] = None,
+        configuration: Optional[Configuration] = None,
         wait: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
@@ -83,9 +83,7 @@ class SDK:
         # The configuration field is only added in the case
         # it's requested
         if configuration:
-            if isinstance(configuration, Configuration):
-                configuration = configuration.to_dict()
-            req.update({"configuration": configuration})
+            req.update({"configuration": configuration.to_dict()})
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
