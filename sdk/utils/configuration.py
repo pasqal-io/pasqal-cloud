@@ -1,4 +1,3 @@
-import dataclasses
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, Optional, Union
 
@@ -19,7 +18,7 @@ class Configuration:
 
     def to_dict(self):
         self._validate()
-        return Configuration._flatten_dict(asdict(self))
+        return Configuration._unnest_extra_config(asdict(self))
 
     def _validate(self):
         if self.dt <= 0:
@@ -33,23 +32,8 @@ class Configuration:
         return self
 
     @staticmethod
-    def _flatten_dict(
-        conf_dict: Optional[Union[Dict[str, Any], str]], prefix: str = ""
-    ) -> Dict:
-        """flattens dictionaries, except the extra_config field.
-        Excludes None values
-        """
-        if not conf_dict:
-            return {}
-        if prefix == "extra_config":
-            #  In extra_config don't flatten the further dicts.
-            return conf_dict
-        return (
-            {  # flatten if (nested) dictionary
-                kk: vv
-                for (k, v) in conf_dict.items()
-                for (kk, vv) in Configuration._flatten_dict(v, k).items()
-            }
-            if isinstance(conf_dict, dict)
-            else {prefix: conf_dict}
-        )
+    def _unnest_extra_config(conf_dict) -> Dict:
+        res = { k:v for (k,v) in conf_dict.items() if not k == "extra_config"}
+        if conf_dict.get("extra_config", None):
+            res.update(conf_dict["extra_config"])
+        return res
