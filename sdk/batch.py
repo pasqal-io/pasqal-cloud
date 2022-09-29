@@ -52,8 +52,8 @@ class Batch:
     webhook: str
     _client: Client
     sequence_builder: str
-    start_datetime: str
-    end_datetime: str
+    start_datetime: Optional[str]
+    end_datetime: Optional[str]
     device_status: str = None
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
