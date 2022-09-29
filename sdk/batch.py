@@ -22,7 +22,7 @@ class Batch:
         - complete: Whether the batch has been declared as complete.
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamps of the last update of the batch.
-        - device_type: Type of device To run the batch on.
+        - device_type: Type of device to run the batch on.
         - group_id: Id of the owner group of the batch.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
@@ -30,11 +30,14 @@ class Batch:
         - status: Status of the batch.
         - webhook: Webhook where the job results are automatically sent to.
         - sequence_builder: Pulser sequence of the batch.
+        - start_datetime: Timestamp of the time the batch was sent to the QPU.
+        - end_datetime: Tiemstamp of when the  batch process was finished.
         - device_status: Status of the device where the batch is running.
         - jobs: Dictionary of all the jobs added to the batch.
         - jobs_count: number of jobs added to the batch.
         - jobs_count_per_status: number of jobs per status.
         - configuration: Further configuration for certain emulators.
+
     """
 
     complete: bool
@@ -49,6 +52,8 @@ class Batch:
     webhook: str
     _client: Client
     sequence_builder: str
+    start_datetime: Optional[str]
+    end_datetime: Optional[str]
     device_status: str = None
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
