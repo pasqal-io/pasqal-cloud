@@ -32,28 +32,22 @@ class Client:
         self,
         username: str,
         password: str,
+        group_id: int,
         endpoints: Endpoints = None,
     ):
         self.username = username
         self.password = password
         self.endpoints = endpoints or Endpoints()
-        self.group_id = None
+        self.group_id = group_id
         self._token = ""
-        self._fetch_group_id()
-
-    def _fetch_group_id(self):
-        url = f"{self.endpoints.account}/api/v1/auth/info"
-        data = self._request(
-            "GET",
-            url,
-        )
-        self.group_id = data["data"]["group_id"]
 
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
         payload = {
             "username": self.username,
             "password": self.password,
+            "type": "user",
+            "group_id": self.group_id,
         }
 
         rsp = requests.post(
