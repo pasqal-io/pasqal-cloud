@@ -125,7 +125,7 @@ class Client:
             "data"
         ]
 
-    def _get_batch(self, id: int, fetch_results: bool = False) -> Dict:
+    def _get_batch(self, id: int, fetch_results: bool = False) -> Tuple[Dict, Dict]:
         batch_data = self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
             "data"
         ]
