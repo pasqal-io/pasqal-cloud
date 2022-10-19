@@ -44,7 +44,7 @@ class Client:
     def _login(self):
         url = f"{self.endpoints.account}/api/v1/auth/login"
         payload = {
-            "username": self.username,
+            "email": self.username,
             "password": self.password,
             "type": "user",
             "group_id": self.group_id,
