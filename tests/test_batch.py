@@ -1,6 +1,7 @@
 import pytest
 
 from sdk import SDK, DeviceType
+from sdk.utils.configuration import Configuration
 
 
 class TestBatch:
@@ -101,3 +102,19 @@ class TestBatch:
         )
         assert batch.jobs[self.job_id].batch_id == batch.id
         assert batch.jobs[self.job_id].result == self.job_result
+
+    @pytest.mark.parametrize(
+        "device_type, configuration, expected",
+        [
+            (DeviceType.EMU_SV, Configuration(), Configuration().to_dict()),
+        ],
+    )
+    def test_create_batch_configuration(self, device_type, configuration, expected):
+        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[job],
+            device_type=device_type,
+            configuration=configuration,
+        )
+        assert batch.configuration == expected

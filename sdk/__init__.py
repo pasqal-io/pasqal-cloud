@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Union
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
+from sdk.utils.configuration import Configuration
 from sdk.utils.strenum import StrEnum
 
 
@@ -47,6 +49,7 @@ class SDK:
         serialized_sequence: str,
         jobs: List[Dict[str, Any]],
         device_type: DeviceType = DeviceType.QPU,
+        configuration: Optional[Configuration] = None,
         wait: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
@@ -58,6 +61,7 @@ class SDK:
             device_type: The type of device to use, either an emulator or a QPU
               If set to QPU, the device_type will be set to the one
               stored in the serialized sequence
+            configuration: A dictionary with extra configuration for the emulators that accept it.
             wait: Whether to wait for results to be sent back
 
 
@@ -76,6 +80,10 @@ class SDK:
         if device_type != DeviceType.QPU:
             req.update({"emulator": device_type})
 
+        # The configuration field is only added in the case
+        # it's requested
+        if configuration:
+            req.update({"configuration": configuration.to_dict()})
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:

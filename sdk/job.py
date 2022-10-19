@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -10,6 +10,8 @@ class Job:
         - runs: Number of time the job should be ran.
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamps of the last update of the batch.
+        - start_timestamp(optional): The timestamp of when the job began processing.
+        - end_timestamp(optional): The timestamp of when the job finished processing.
         - batch_id: Id of the batch which the job belongs to.
         - errors: Error messages that occured while processing job.
         - id: Unique identifier for the batch
@@ -26,5 +28,7 @@ class Job:
     created_at: str
     updated_at: str
     errors: List[str]
+    start_timestamp: Optional[str] = None
+    end_timestamp: Optional[str] = None
     result: Dict = None
     variables: Dict = None
