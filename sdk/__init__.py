@@ -35,12 +35,13 @@ class SDK:
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        username: str,
+        password: str,
+        group_id: str,
         endpoints: Endpoints = None,
         webhook: str = None,
     ):
-        self._client = Client(client_id, client_secret, endpoints)
+        self._client = Client(username, password, group_id, endpoints)
         self.batches = {}
         self.webhook = webhook
 
