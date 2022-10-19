@@ -56,7 +56,7 @@ class Client:
             timeout=TIMEOUT,
             headers={"content-type": "application/json"},
         )
-        data = rsp.json()
+        data = rsp.json()["data"]
 
         if rsp.status_code >= 400:
             raise HTTPError(data)
