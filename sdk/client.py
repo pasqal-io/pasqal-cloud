@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from sdk import batch
 
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
@@ -34,7 +33,7 @@ class Client:
         self,
         client_id: str,
         client_secret: str,
-        endpoints: Endpoints = None,
+        endpoints: Optional[Endpoints] = None,
     ):
         self.client_id = client_id
         self.client_secret = client_secret
@@ -78,7 +77,9 @@ class Client:
             "authorization": f"Bearer {self._token}",
         }
 
-    def _request(self, method: str, url: str, payload: Dict = None) -> JSendPayload:
+    def _request(
+        self, method: str, url: str, payload: Optional[Dict[str, Any]] = None
+    ) -> JSendPayload:
         rsp = requests.request(
             method,
             url,
@@ -122,7 +123,7 @@ class Client:
         )["data"]
         return response
 
-    def _send_job(self, job_data: Dict) -> Dict[str, Any]:
+    def _send_job(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "POST", f"{self.endpoints.core}/api/v1/jobs", job_data
         )["data"]
@@ -130,11 +131,11 @@ class Client:
 
     def _get_batch(
         self, id: int, fetch_results: bool = False
-    ) -> Tuple[Dict[str, Any], Dict]:
+    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
         )["data"]
-        jobs_data: Dict = batch_data.pop("jobs", {})
+        jobs_data = batch_data.pop("jobs", {})
         if fetch_results:
             results = self._request(
                 "GET", f"{self.endpoints.core}/api/v1/batches/{id}/results"
@@ -143,6 +144,8 @@ class Client:
                 job_data["result"] = results.get(str(job_data["id"]), None)
         return batch_data, jobs_data
 
-    def _get_job(self, job_id: int) -> Dict:
-        job: Dict = self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")["data"]
+    def _get_job(self, job_id: int) -> Dict[str, Any]:
+        job: Dict[str, Any] = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
+        )["data"]
         return job

@@ -63,7 +63,10 @@ class Batch:
         self.configuration = Configuration.from_dict(self.configuration)
 
     def add_job(
-        self, runs: int = 100, variables: Dict = None, wait: bool = False
+        self,
+        runs: int = 100,
+        variables: Optional[Dict[str, Any]] = None,
+        wait: bool = False,
     ) -> Job:
         """Add and send a new job for this batch.
 
@@ -88,7 +91,7 @@ class Batch:
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(self, wait: bool = False) -> Dict:
+    def declare_complete(self, wait: bool = False) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:

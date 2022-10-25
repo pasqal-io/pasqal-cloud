@@ -9,5 +9,5 @@ class StrEnum(str, Enum):
         return ret
 
     @classmethod
-    def list(cls) -> List:
+    def list(cls) -> List[str]:
         return list(map(lambda c: c.value, cls))  # type: ignore

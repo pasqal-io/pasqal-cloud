@@ -20,7 +20,7 @@ class Configuration:
 
     @staticmethod
     def from_dict(
-        conf: Optional[Union[Configuration, Dict]]
+        conf: Optional[Union[Configuration, Dict[str, Any]]]
     ) -> Optional[Configuration]:
         if conf is None:
             return None

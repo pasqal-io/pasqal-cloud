@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -30,5 +30,5 @@ class Job:
     errors: List[str]
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
-    result: Optional[Dict] = None
-    variables: Optional[Dict] = None
+    result: Optional[Dict[str, Any]] = None
+    variables: Optional[Dict[str, Any]] = None
