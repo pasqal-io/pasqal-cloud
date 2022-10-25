@@ -13,7 +13,6 @@
     "user_id": 1,
     "webhook": "10.0.1.5",
     "configuration": {"dt": 0.1, "precision": "normal"},
-      "status": "PENDING",
     "start_datetime": "2021-11-10T15:27:06.698066",
     "end_datetime": "2021-11-10T15:27:06.698066",
     "jobs": [{

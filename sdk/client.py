@@ -15,6 +15,7 @@
 from typing import Any, Dict, List, Tuple
 
 import requests
+from sdk import batch
 
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
@@ -107,12 +108,11 @@ class Client:
         self, batch_data: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data.update({"group_id": self.group_id})
-        rsp: JSendPayload = self._request(
+        batch_data = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
-        )
-        batch_data = rsp["data"]
+        )["data"]
         jobs_data = batch_data.pop("jobs", {})
         return batch_data, jobs_data
 
@@ -144,6 +144,5 @@ class Client:
         return batch_data, jobs_data
 
     def _get_job(self, job_id: int) -> Dict:
-        rsp = self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")
-        job: Dict = rsp["data"]
+        job: Dict = self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")["data"]
         return job
