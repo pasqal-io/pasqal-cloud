@@ -22,7 +22,7 @@ class HTTPError(Exception):
     code: int
     message: str
     description: str
-    details: dict
+    details: JSendPayload
 
     def __init__(self, data: JSendPayload, *args: object) -> None:
         super().__init__(*args)

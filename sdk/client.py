@@ -15,9 +15,9 @@
 from typing import Any, Dict, List, Tuple
 
 import requests
-
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
+from sdk.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -41,7 +41,7 @@ class Client:
         self._token = ""
         self._fetch_group_id()
 
-    def _fetch_group_id(self):
+    def _fetch_group_id(self) -> None:
         url = f"{self.endpoints.account}/api/v1/auth/info"
         data = self._request(
             "GET",
@@ -49,7 +49,7 @@ class Client:
         )
         self.group_id = data["data"]["group_id"]
 
-    def _login(self):
+    def _login(self) -> None:
         url = f"{self.endpoints.account}/api/v1/auth/login"
         payload = {
             "type": "api_key",
@@ -70,13 +70,13 @@ class Client:
 
         self._token = data["token"]
 
-    def _headers(self):
+    def _headers(self) -> Dict[str,str]:
         return {
             "content-type": "application/json",
             "authorization": f"Bearer {self._token}",
         }
 
-    def _request(self, method: str, url: str, payload: Dict = None):
+    def _request(self, method: str, url: str, payload: Dict = None) -> JSendPayload:
         rsp = requests.request(
             method,
             url,
@@ -84,7 +84,7 @@ class Client:
             timeout=TIMEOUT,
             headers=self._headers(),
         )
-        data = rsp.json()
+        data: JSendPayload = rsp.json()
         # If account returns unauthorized we attempt to login and retry request
         if rsp.status_code == 401:
             self._login()
@@ -103,33 +103,35 @@ class Client:
         return data
 
     def _send_batch(
-        self, batch_data: Dict
+        self, batch_data: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data.update({"group_id": self.group_id})
-        batch_data = self._request(
+        rsp: JSendPayload = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
-        )["data"]
-        jobs_data = batch_data.pop("jobs", [])
+        )
+        batch_data = rsp["data"]
+        jobs_data = batch_data.pop("jobs", {})
         return batch_data, jobs_data
 
-    def _complete_batch(self, batch_id: int):
-        response = self._request(
+    def _complete_batch(self, batch_id: int) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]
         return response
 
-    def _send_job(self, job_data: Dict):
-        return self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
+    def _send_job(self, job_data: Dict) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
             "data"
         ]
+        return response
 
-    def _get_batch(self, id: int, fetch_results: bool = False) -> Tuple[Dict, Dict]:
-        batch_data = self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
+    def _get_batch(self, id: int, fetch_results: bool = False) -> Tuple[Dict[str, Any], Dict]:
+        batch_data: Dict[str, Any] = self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
             "data"
         ]
-        jobs_data = batch_data.pop("jobs", {})
+        jobs_data: Dict = batch_data.pop("jobs", {})
         if fetch_results:
             results = self._request(
                 "GET", f"{self.endpoints.core}/api/v1/batches/{id}/results"
@@ -139,6 +141,6 @@ class Client:
         return batch_data, jobs_data
 
     def _get_job(self, job_id: int) -> Dict:
-        return self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")[
-            "data"
-        ]
+        rsp = self._request("GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}")
+        job: Dict = rsp["data"]
+        return job

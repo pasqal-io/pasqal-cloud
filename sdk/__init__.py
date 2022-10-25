@@ -41,7 +41,7 @@ class SDK:
         webhook: str = None,
     ):
         self._client = Client(client_id, client_secret, endpoints)
-        self.batches = {}
+        self.batches: Dict[int, Batch] = {}
         self.webhook = webhook
 
     def create_batch(
@@ -83,9 +83,9 @@ class SDK:
         # The configuration field is only added in the case
         # it's requested
         if configuration:
-            req.update({"configuration": configuration.to_dict()})
+            req.update({"configuration": configuration.to_dict()}) # type: ignore
         batch_rsp, jobs_rsp = self._client._send_batch(req)
-        batch = Batch(**batch_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, _client=self._client) # type: ignore
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch
@@ -110,7 +110,7 @@ class SDK:
         """
 
         batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, _client=self._client) # type: ignore
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch

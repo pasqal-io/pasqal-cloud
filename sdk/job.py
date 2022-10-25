@@ -30,5 +30,5 @@ class Job:
     errors: List[str]
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
-    result: Dict = None
-    variables: Dict = None
+    result: Optional[Dict] = None
+    variables: Optional[Dict] = None
