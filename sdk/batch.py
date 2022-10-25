@@ -6,7 +6,6 @@ from sdk.client import Client
 from sdk.job import Job
 from sdk.utils.configuration import Configuration
 
-
 RESULT_POLLING_INTERVAL = 2  # seconds
 
 
@@ -63,7 +62,9 @@ class Batch:
     def __post_init__(self) -> None:
         self.configuration = Configuration.from_dict(self.configuration)
 
-    def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False) -> Job:
+    def add_job(
+        self, runs: int = 100, variables: Dict = None, wait: bool = False
+    ) -> Job:
         """Add and send a new job for this batch.
 
         Args:

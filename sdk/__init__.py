@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
@@ -83,9 +82,9 @@ class SDK:
         # The configuration field is only added in the case
         # it's requested
         if configuration:
-            req.update({"configuration": configuration.to_dict()}) # type: ignore
+            req.update({"configuration": configuration.to_dict()})  # type: ignore
         batch_rsp, jobs_rsp = self._client._send_batch(req)
-        batch = Batch(**batch_rsp, _client=self._client) # type: ignore
+        batch = Batch(**batch_rsp, _client=self._client)  # type: ignore
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch
@@ -110,7 +109,7 @@ class SDK:
         """
 
         batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, _client=self._client) # type: ignore
+        batch = Batch(**batch_rsp, _client=self._client)  # type: ignore
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch

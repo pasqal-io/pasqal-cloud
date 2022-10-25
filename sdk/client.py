@@ -15,6 +15,7 @@
 from typing import Any, Dict, List, Tuple
 
 import requests
+
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
 from sdk.utils.jsend import JSendPayload
@@ -70,7 +71,7 @@ class Client:
 
         self._token = data["token"]
 
-    def _headers(self) -> Dict[str,str]:
+    def _headers(self) -> Dict[str, str]:
         return {
             "content-type": "application/json",
             "authorization": f"Bearer {self._token}",
@@ -122,15 +123,17 @@ class Client:
         return response
 
     def _send_job(self, job_data: Dict) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request("POST", f"{self.endpoints.core}/api/v1/jobs", job_data)[
-            "data"
-        ]
+        response: Dict[str, Any] = self._request(
+            "POST", f"{self.endpoints.core}/api/v1/jobs", job_data
+        )["data"]
         return response
 
-    def _get_batch(self, id: int, fetch_results: bool = False) -> Tuple[Dict[str, Any], Dict]:
-        batch_data: Dict[str, Any] = self._request("GET", f"{self.endpoints.core}/api/v1/batches/{id}")[
-            "data"
-        ]
+    def _get_batch(
+        self, id: int, fetch_results: bool = False
+    ) -> Tuple[Dict[str, Any], Dict]:
+        batch_data: Dict[str, Any] = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
+        )["data"]
         jobs_data: Dict = batch_data.pop("jobs", {})
         if fetch_results:
             results = self._request(

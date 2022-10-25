@@ -10,4 +10,4 @@ class StrEnum(str, Enum):
 
     @classmethod
     def list(cls) -> List:
-        return list(map(lambda c: c.value, cls)) # type: ignore
+        return list(map(lambda c: c.value, cls))  # type: ignore
