@@ -13,11 +13,11 @@
 # limitations under the License.
 
 
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class JSendPayload(TypedDict):
     status: str
     code: int
     message: str
-    data: any
+    data: Any

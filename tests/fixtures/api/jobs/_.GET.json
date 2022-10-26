@@ -14,6 +14,8 @@
       "runs": 50,
       "status": "DONE",
       "updated_at": "2021-11-10T15:27:06.698066",
+      "start_datetime": "2021-11-10T15:27:06.698066",
+      "end_datetime": "2021-11-10T15:27:06.698066",
       "variables": {
         "Omega_max": 14.4,
         "last_target": "q1",

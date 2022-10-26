@@ -28,8 +28,30 @@ from sdk.utils.configuration import (
         (Configuration(), {"dt": 0.1, "precision": "normal"}),
     ],
 )
-def test_configuration(config: Configuration, expected: Dict):
+def test_configuration_to_dict(config: Configuration, expected: Dict):
     assert config.to_dict() == expected
+
+
+@pytest.mark.parametrize(
+    "expected, config",
+    [
+        (
+            Configuration(
+                dt=0.5,
+                extra_config={"extra": "parameter", "extra_dict": {"key": "value"}},
+            ),
+            {
+                "dt": 0.5,
+                "precision": "normal",
+                "extra": "parameter",
+                "extra_dict": {"key": "value"},
+            },
+        ),
+        (Configuration(), {"dt": 0.1, "precision": "normal"}),
+    ],
+)
+def test_configuration_from_dict(expected: Configuration, config: Dict):
+    assert Configuration.from_dict(config) == expected
 
 
 @pytest.mark.parametrize(
