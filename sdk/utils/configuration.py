@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from typing import Any, Dict, Optional, Union
 
 INVALID_KEY_ERROR_MSG = "Invalid key {} in Configuration.extra_config. Attempted to override a default field."
@@ -20,15 +20,17 @@ class Configuration:
 
     @staticmethod
     def from_dict(
-        conf: Optional[Union[Configuration, Dict[str, Any]]]
-    ) -> Optional[Configuration]:
-        if conf is None:
-            return None
-        if isinstance(conf, Configuration):
-            return conf
-        dt = conf.pop("dt", Configuration.dt)
-        precision = conf.pop("precision", Configuration.precision)
-        return Configuration(dt=dt, precision=precision, extra_config=conf)
+        conf: Dict[str, Any]
+    ) -> Configuration:
+        base_conf = {}
+        for field in fields(Configuration):
+            if field.name != "extra_config" and field.name in conf:
+                base_conf[field.name]=conf.pop(field.name)
+
+        # ensure that no extra config is passed as None
+        if not conf:
+            conf=None
+        return Configuration(**base_conf, extra_config=conf)
 
     def to_dict(self) -> Dict[str, Any]:
         self._validate()
