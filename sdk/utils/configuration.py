@@ -19,18 +19,16 @@ class Configuration:
     extra_config: Optional[Dict[str, Any]] = None
 
     @staticmethod
-    def from_dict(
-        conf: Dict[str, Any]
-    ) -> Configuration:
+    def from_dict(conf: Dict[str, Any]) -> Configuration:
         base_conf = {}
         for field in fields(Configuration):
             if field.name != "extra_config" and field.name in conf:
-                base_conf[field.name]=conf.pop(field.name)
+                base_conf[field.name] = conf.pop(field.name)
 
         # ensure that no extra config is passed as None
         if not conf:
-            conf=None
-        return Configuration(**base_conf, extra_config=conf)
+            conf = None  # type: ignore
+        return Configuration(**base_conf, extra_config=conf)  # type: ignore
 
     def to_dict(self) -> Dict[str, Any]:
         self._validate()

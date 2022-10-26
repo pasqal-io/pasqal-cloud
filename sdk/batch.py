@@ -60,7 +60,8 @@ class Batch:
     configuration: Optional[Configuration] = None
 
     def __post_init__(self) -> None:
-        self.configuration = Configuration.from_dict(self.configuration)
+        if isinstance(self.configuration, dict):
+            self.configuration = Configuration.from_dict(self.configuration)  # type: ignore
 
     def add_job(
         self,
