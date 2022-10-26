@@ -38,4 +38,4 @@ jobs:
             pytest -vvv --cov sdk tests
         - name: Mypy checks
           run: |
-            mypy sdk
+            mypy --install-types sdk

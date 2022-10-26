@@ -41,8 +41,10 @@ setup(
             "black==20.8b1",
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
+            "mypy==0.982",
             "pytest==6.2.2",
             "pytest-cov==2.11.1",
+            "types-requests==2.25.1"
         },
         ":python_version == '3.7'": ["typing-extensions==4.4.0",]
     },
