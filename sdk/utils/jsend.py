@@ -12,8 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sys import version_info
+from typing import Any
 
-from typing import Any, TypedDict
+if version_info[:2] >= (3, 8):
+    from typing import TypedDict
+else:
+    from typing_extensions import TypedDict
 
 
 class JSendPayload(TypedDict):
