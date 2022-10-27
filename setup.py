@@ -27,7 +27,7 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
     maintainer_email="pcs@pasqal.io",
-    python_requires=">=3.8.0",
+    python_requires=">=3.7",
     license="Apache 2.0",
     # TODO:
     classifiers=[
@@ -43,6 +43,7 @@ setup(
             "flake8-import-order==0.18.1",
             "pytest==6.2.2",
             "pytest-cov==2.11.1",
-        }
+        },
+        ":python_version == '3.7'": ["typing-extensions==4.4.0",]
     },
 )
