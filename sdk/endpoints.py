@@ -19,7 +19,7 @@ from dataclasses import dataclass
 if version_info[:2] >= (3, 8):
     from typing import Final
 else:
-    from typing_extensions import Final
+    from typing_extensions import Final # type: ignore
 
 CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core"
 ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"

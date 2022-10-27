@@ -36,6 +36,7 @@ jobs:
         - name: Perform unit tests
           run: |
             pytest -vvv --cov sdk tests
-        - name: Mypy checks
+        - name: Mypy checks for Python >= 3.8
+          if: ${{ matrix.python-version >= 3.8}}
           run: |
             mypy sdk
