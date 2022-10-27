@@ -43,7 +43,7 @@ setup(
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
             "mypy==0.982",
-            "pytest==6.2.2",
+            "pytest==6.2.5",
             "pytest-cov==2.11.1",
             "types-requests==2.25.1"
         },
