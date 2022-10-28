@@ -38,7 +38,7 @@ jobs:
           run: |
             pytest -vvv --cov sdk tests
 
-        - name: Mypy checks for Python >= 3.8
-          if: ${{ matrix.python-version >= 3.8 }}
+        - name: Mypy checks only for Python 3.8
+          if: ${{ matrix.python-version == 3.8 }}
           run: |
             mypy sdk
