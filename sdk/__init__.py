@@ -84,7 +84,7 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
         batch_rsp, jobs_rsp = self._client._send_batch(req)
-        batch = Batch(**batch_rsp, _client=self._client)  # type: ignore
+        batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch
@@ -109,7 +109,7 @@ class SDK:
         """
 
         batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, _client=self._client)  # type: ignore
+        batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch

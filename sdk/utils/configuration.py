@@ -28,7 +28,7 @@ class Configuration:
         # ensure that no extra config is passed as None
         if not conf:
             conf = None  # type: ignore
-        return Configuration(**base_conf, extra_config=conf)  # type: ignore
+        return Configuration(**base_conf, extra_config=conf)
 
     def to_dict(self) -> Dict[str, Any]:
         self._validate()
@@ -41,7 +41,7 @@ class Configuration:
             raise InvalidConfiguration(PRECISION_NOT_VALID.format(self.precision))
         if self.extra_config:
             for k in self.extra_config.keys():
-                if k in self.__dataclass_fields__.keys():  # type: ignore
+                if k in self.__dataclass_fields__.keys():
                     raise InvalidConfiguration(INVALID_KEY_ERROR_MSG.format(k))
 
     @staticmethod

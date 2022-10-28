@@ -22,6 +22,7 @@ setup(
     version=__version__,
     description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),
+    package_data={"sdk": ["py.typed"]},
     include_package_data=True,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -41,8 +42,10 @@ setup(
             "black==20.8b1",
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
-            "pytest==6.2.2",
+            "mypy==0.982",
+            "pytest==6.2.5",
             "pytest-cov==2.11.1",
+            "types-requests==2.25.1"
         },
         ":python_version == '3.7'": ["typing-extensions==4.4.0",]
     },
