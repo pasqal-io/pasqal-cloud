@@ -106,7 +106,7 @@ class TestBatch:
     @pytest.mark.parametrize(
         "device_type, configuration, expected",
         [
-            (DeviceType.EMU_SV, Configuration(), Configuration().to_dict()),
+            (DeviceType.EMU_SV, Configuration(), Configuration()),
         ],
     )
     def test_create_batch_configuration(self, device_type, configuration, expected):

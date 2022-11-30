@@ -1,4 +1,6 @@
-from dataclasses import dataclass, asdict
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, fields
 from typing import Any, Dict, Optional, Union
 
 INVALID_KEY_ERROR_MSG = "Invalid key {} in Configuration.extra_config. Attempted to override a default field."
@@ -16,11 +18,23 @@ class Configuration:
     precision: str = "normal"
     extra_config: Optional[Dict[str, Any]] = None
 
-    def to_dict(self):
+    @staticmethod
+    def from_dict(conf: Dict[str, Any]) -> Configuration:
+        base_conf = {}
+        for field in fields(Configuration):
+            if field.name != "extra_config" and field.name in conf:
+                base_conf[field.name] = conf.pop(field.name)
+
+        # ensure that no extra config is passed as None
+        if not conf:
+            conf = None  # type: ignore
+        return Configuration(**base_conf, extra_config=conf)
+
+    def to_dict(self) -> Dict[str, Any]:
         self._validate()
         return Configuration._unnest_extra_config(asdict(self))
 
-    def _validate(self):
+    def _validate(self) -> None:
         if self.dt <= 0:
             raise InvalidConfiguration(DT_VALUE_NOT_VALID.format(self.dt))
         if self.precision not in ["low", "normal", "high"]:
@@ -29,11 +43,10 @@ class Configuration:
             for k in self.extra_config.keys():
                 if k in self.__dataclass_fields__.keys():
                     raise InvalidConfiguration(INVALID_KEY_ERROR_MSG.format(k))
-        return self
 
     @staticmethod
-    def _unnest_extra_config(conf_dict) -> Dict:
-        res = { k:v for (k,v) in conf_dict.items() if not k == "extra_config"}
+    def _unnest_extra_config(conf_dict: Dict[str, Any]) -> Dict[str, Any]:
+        res = {k: v for (k, v) in conf_dict.items() if not k == "extra_config"}
         if conf_dict.get("extra_config", None):
             res.update(conf_dict["extra_config"])
         return res

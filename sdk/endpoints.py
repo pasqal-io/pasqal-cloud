@@ -12,8 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sys import version_info
+
 from dataclasses import dataclass
-from typing import Final
+
+if version_info[:2] >= (3, 8):
+    from typing import Final
+else:
+    from typing_extensions import Final # type: ignore
 
 CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core"
 ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"

@@ -1,11 +1,10 @@
 import time
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Union
-from sdk.utils.configuration import Configuration
+from typing import Any, Dict, Optional
 
 from sdk.client import Client
 from sdk.job import Job
-
+from sdk.utils.configuration import Configuration
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -31,7 +30,7 @@ class Batch:
         - webhook: Webhook where the job results are automatically sent to.
         - sequence_builder: Pulser sequence of the batch.
         - start_datetime: Timestamp of the time the batch was sent to the QPU.
-        - end_datetime: Tiemstamp of when the  batch process was finished.
+        - end_datetime: Timestamp of when the  batch process was finished.
         - device_status: Status of the device where the batch is running.
         - jobs: Dictionary of all the jobs added to the batch.
         - jobs_count: number of jobs added to the batch.
@@ -52,15 +51,24 @@ class Batch:
     webhook: str
     _client: Client
     sequence_builder: str
-    start_datetime: str = None
-    end_datetime: str = None
-    device_status: str = None
+    start_datetime: Optional[str]
+    end_datetime: Optional[str]
+    device_status: Optional[str] = None
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
-    configuration: Optional[Dict] = None
+    configuration: Optional[Configuration] = None
 
-    def add_job(self, runs: int = 100, variables: Dict = None, wait: bool = False):
+    def __post_init__(self) -> None:
+        if isinstance(self.configuration, dict):
+            self.configuration = Configuration.from_dict(self.configuration)  # type: ignore
+
+    def add_job(
+        self,
+        runs: int = 100,
+        variables: Optional[Dict[str, Any]] = None,
+        wait: bool = False,
+    ) -> Job:
         """Add and send a new job for this batch.
 
         Args:
@@ -71,7 +79,7 @@ class Batch:
         Returns:
             - Job: the created job.
         """
-        job_data = {"runs": runs, "batch_id": self.id}
+        job_data: Dict[str, Any] = {"runs": runs, "batch_id": self.id}
         if variables:
             job_data["variables"] = variables
         job_rsp = self._client._send_job(job_data)
@@ -84,7 +92,7 @@ class Batch:
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(self, wait: bool = False) -> Dict:
+    def declare_complete(self, wait: bool = False) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:

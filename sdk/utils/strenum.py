@@ -1,11 +1,13 @@
 from enum import Enum
+from typing import List
 
 
 class StrEnum(str, Enum):
-    def __str__(self):
+    def __str__(self) -> str:
         """Used when dumping enum fields in a schema."""
-        return self.value
+        ret: str = self.value
+        return ret
 
     @classmethod
-    def list(cls):
-        return list(map(lambda c: c.value, cls))
+    def list(cls) -> List[str]:
+        return list(map(lambda c: c.value, cls))  # type: ignore

@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import time
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
@@ -38,11 +37,11 @@ class SDK:
         username: str,
         password: str,
         group_id: str,
-        endpoints: Endpoints = None,
-        webhook: str = None,
+        endpoints: Optional[Endpoints] = None,
+        webhook: Optional[str] = None,
     ):
         self._client = Client(username, password, group_id, endpoints)
-        self.batches = {}
+        self.batches: Dict[int, Batch] = {}
         self.webhook = webhook
 
     def create_batch(
@@ -84,7 +83,7 @@ class SDK:
         # The configuration field is only added in the case
         # it's requested
         if configuration:
-            req.update({"configuration": configuration.to_dict()})
+            req.update({"configuration": configuration.to_dict()})  # type: ignore
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
