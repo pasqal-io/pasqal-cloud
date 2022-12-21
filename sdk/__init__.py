@@ -87,14 +87,17 @@ class SDK:
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
-        self.batches[batch.id] = batch
+
         if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp, _ = self._client._get_batch(batch.id)
+            batch = Batch(**batch_rsp, _client=self._client)
             for job_id, job in batch.jobs.items():
                 job_rsp = self._client._get_job(job_id)
                 batch.jobs[job.id] = Job(**job_rsp)
+
+        self.batches[batch.id] = batch
         return batch
 
     def get_batch(self, id: int, fetch_results: bool = False) -> Batch:
