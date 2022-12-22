@@ -92,7 +92,7 @@ class SDK:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp, _ = self._client._get_batch(batch.id)
-            batch = Batch(**batch_rsp, _client=self._client)
+            batch = Batch(**batch_rsp, _client=self._client, fetch_results=True)
             for job_id, job in batch.jobs.items():
                 job_rsp = self._client._get_job(job_id)
                 batch.jobs[job.id] = Job(**job_rsp)
