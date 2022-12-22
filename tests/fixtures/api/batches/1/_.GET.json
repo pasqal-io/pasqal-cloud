@@ -11,7 +11,25 @@
     "status": "DONE",
     "updated_at": "2021-11-10T15:27:44.110274",
     "user_id": 2,
-    "webhook": "10.0.1.5"
+    "webhook": "10.0.1.5",
+    "jobs": [{
+      "batch_id": 1,
+      "id": 22010,
+      "runs": 50,
+      "status": "PENDING",
+      "created_at": "2021-11-10T15:27:06.698066",
+      "errors": [],
+      "updated_at": "2021-11-10T15:27:06.698066",
+      "variables": {
+        "Omega_max": 14.4,
+        "last_target": "q1",
+        "ts": [
+          200,
+          500
+        ]
+      }
+
+    }]
   },
   "message": "OK.",
   "status": "success"
