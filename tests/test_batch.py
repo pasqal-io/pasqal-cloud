@@ -44,7 +44,7 @@ class TestBatch:
             assert job.result is None
         assert request_mock.last_request.method == "GET"
 
-    def test_create_batch_and_wait_for_results(self, request_mock):
+    def test_create_batch_and_fetch_results(self, request_mock):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True, fetch_results=True
