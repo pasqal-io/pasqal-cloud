@@ -2,9 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
-
 ## [Unreleased] - yyyy-mm-dd
 
 Here we write upgrading notes for brands. It's a team effort to make them as
@@ -28,8 +25,7 @@ See commit history before [this commit](https://github.com/pasqal-io/cloud-sdk/c
 
 ### Changed
 
-See commit history before [this commit](https://github.com/pasqal-io/cloud-sdk/commit/7c703534f55012489550f7df116f3f326e741de5).
-
 ### Fixed
 
-See commit history before [this commit](https://github.com/pasqal-io/cloud-sdk/commit/7c703534f55012489550f7df116f3f326e741de5).
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
