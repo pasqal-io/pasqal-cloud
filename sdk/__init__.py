@@ -50,6 +50,7 @@ class SDK:
         device_type: DeviceType = DeviceType.QPU,
         configuration: Optional[Configuration] = None,
         wait: bool = False,
+        fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
         For Iroise MVP, the batch must contain at least one job and will be declared as complete immediately.
@@ -61,7 +62,8 @@ class SDK:
               If set to QPU, the device_type will be set to the one
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators that accept it.
-            wait: Whether to wait for results to be sent back
+            wait: Whether to wait for the batch to be done
+            fetch_results: Whether to download the results. Implies waiting for the batch.
 
 
         Returns:
@@ -84,17 +86,22 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
         batch_rsp, jobs_rsp = self._client._send_batch(req)
+        batch_id = batch_rsp["id"]
+        if wait or fetch_results:
+            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
+                time.sleep(RESULT_POLLING_INTERVAL)
+                batch_rsp, jobs_rsp = self._client._get_batch(batch_id)
+
+            if fetch_results:
+                batch_rsp, jobs_rsp = self._client._get_batch(
+                    batch_id, fetch_results=True
+                )
+
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
+
         self.batches[batch.id] = batch
-        if wait:
-            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp, _ = self._client._get_batch(batch.id)
-            for job_id, job in batch.jobs.items():
-                job_rsp = self._client._get_job(job_id)
-                batch.jobs[job.id] = Job(**job_rsp)
         return batch
 
     def get_batch(self, id: int, fetch_results: bool = False) -> Batch:
@@ -102,7 +109,7 @@ class SDK:
 
         Args:
             id: Id of the batch.
-            fetch_results: whether to load job results
+            fetch_results: whether to download job results
 
         Returns:
             Batch: the batch stored in the PCS database.

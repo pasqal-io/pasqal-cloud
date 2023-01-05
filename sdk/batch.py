@@ -51,8 +51,8 @@ class Batch:
     webhook: str
     _client: Client
     sequence_builder: str
-    start_datetime: Optional[str]
-    end_datetime: Optional[str]
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
     device_status: Optional[str] = None
     jobs: Dict[int, Job] = field(default_factory=dict)
     jobs_count: int = 0
@@ -74,7 +74,7 @@ class Batch:
         Args:
             runs: number of times the job is ran on the QPU.
             variables (optional): values for variables if sequence is parametrized.
-            wait: Whether to wait for results to be sent back.
+            wait: Whether to wait for the job to be done.
 
         Returns:
             - Job: the created job.
@@ -92,11 +92,12 @@ class Batch:
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(self, wait: bool = False) -> Dict[str, Any]:
+    def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:
-            wait: Whether to wait for results to be sent back.
+            wait: Whether to wait for the batch to be done
+            fetch_results: Whether to download the results. Implies waiting for the batch.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
@@ -104,9 +105,13 @@ class Batch:
         """
         self.complete = True
         batch_rsp = self._client._complete_batch(self.id)
-        if wait:
+        if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
+                batch_rsp, jobs_rsp = self._client._get_batch(
+                    self.id,
+                )
+            if fetch_results:
                 batch_rsp, jobs_rsp = self._client._get_batch(
                     self.id, fetch_results=True
                 )
