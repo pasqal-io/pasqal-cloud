@@ -30,22 +30,33 @@ class TestBatch:
         assert batch.jobs[self.job_id].batch_id == batch.id
         assert batch.jobs[self.job_id].runs == self.n_job_runs
 
-    def test_create_batch_and_wait_for_results(self, request_mock):
+    def test_create_batch_and_wait(self, request_mock):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
         )
-        assert batch.id == self.batch_id
+        assert batch.id == 212  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
-        assert len(batch.jobs) == 1
-        assert batch.jobs[self.job_id].runs == self.n_job_runs
+        assert batch.jobs
+        for job_id, job in batch.jobs.items():
+            assert self.job_id == job_id
+            assert job.result is None
         assert request_mock.last_request.method == "GET"
-        assert (
-            request_mock.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
+
+    def test_create_batch_and_fetch_results(self, request_mock):
+        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence, jobs=[job], wait=True, fetch_results=True
         )
-        assert batch.jobs[self.job_id].result == self.job_result
+        assert batch.id == 212  # the batch_id used in the mock data
+        assert batch.sequence_builder == self.pulser_sequence
+        assert batch.complete
+        assert batch.jobs
+        for job_id, job in batch.jobs.items():
+            assert self.job_id == job_id
+            assert job.result == self.job_result
+        assert request_mock.last_request.method == "GET"
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):
