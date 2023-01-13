@@ -48,7 +48,6 @@ class Client:
             "email": self.username,
             "password": self.password,
             "type": "user",
-            "group_id": self.group_id,
         }
 
         rsp = requests.post(
