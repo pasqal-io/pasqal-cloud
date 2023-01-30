@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 from typing import Dict
 import pytest
 
-from sdk.utils.configuration import (
-    Configuration,
+from sdk.utils.configuration.base_config import (
+    BaseConfig,
     InvalidConfiguration,
-    INVALID_KEY_ERROR_MSG,
+    INVALID_KEY_ERROR_MSG
+)
+from sdk.utils.configuration import EmuFreeConfig
+from sdk.utils.configuration.emu_sv import (
+    EmuSVConfig,
     DT_VALUE_NOT_VALID,
     PRECISION_NOT_VALID,
 )
@@ -14,7 +20,7 @@ from sdk.utils.configuration import (
     "config, expected",
     [
         (
-            Configuration(
+            EmuSVConfig(
                 dt=0.5,
                 extra_config={"extra": "parameter", "extra_dict": {"key": "value"}},
             ),
@@ -25,18 +31,22 @@ from sdk.utils.configuration import (
                 "extra_dict": {"key": "value"},
             },
         ),
-        (Configuration(), {"dt": 0.1, "precision": "normal"}),
+        (EmuSVConfig(), {"dt": 0.1, "precision": "normal"}),
+        (EmuFreeConfig(), {"with_noise": False}),
+        (EmuFreeConfig(with_noise=True), {"with_noise": True}),
+        (BaseConfig(), {}),
+        (BaseConfig(extra_config={"extra": "parameter"}), {"extra": "parameter"})
     ],
 )
-def test_configuration_to_dict(config: Configuration, expected: Dict):
+def test_configuration_to_dict(config: BaseConfig, expected: dict):
     assert config.to_dict() == expected
 
 
 @pytest.mark.parametrize(
-    "expected, config",
+    "config_class, expected, config",
     [
-        (
-            Configuration(
+        (   EmuSVConfig,
+            EmuSVConfig(
                 dt=0.5,
                 extra_config={"extra": "parameter", "extra_dict": {"key": "value"}},
             ),
@@ -47,20 +57,24 @@ def test_configuration_to_dict(config: Configuration, expected: Dict):
                 "extra_dict": {"key": "value"},
             },
         ),
-        (Configuration(), {"dt": 0.1, "precision": "normal"}),
+        (EmuSVConfig, EmuSVConfig(), {"dt": 0.1, "precision": "normal"}),
+        (EmuFreeConfig, EmuFreeConfig(), {"with_noise": False}),
+        (EmuFreeConfig, EmuFreeConfig(with_noise=True), {"with_noise": True}),
+        (BaseConfig, BaseConfig(), {}),
+        (BaseConfig, BaseConfig(extra_config={"extra": "parameter"}), {"extra": "parameter"})
     ],
 )
-def test_configuration_from_dict(expected: Configuration, config: Dict):
-    assert Configuration.from_dict(config) == expected
+def test_configuration_from_dict(config_class: type, expected: BaseConfig, config: dict):
+    assert config_class.from_dict(config) == expected
 
 
 @pytest.mark.parametrize(
     "config, extra_config, expected",
     [
-        (Configuration(), {"dt": 0.1}, INVALID_KEY_ERROR_MSG.format("dt")),
-        (Configuration(dt=-1), None, DT_VALUE_NOT_VALID.format(-1)),
+        (EmuSVConfig(), {"dt": 0.1}, INVALID_KEY_ERROR_MSG.format("dt")),
+        (EmuSVConfig(dt=-1), None, DT_VALUE_NOT_VALID.format(-1)),
         (
-            Configuration(precision="nonsense"),
+            EmuSVConfig(precision="nonsense"),
             None,
             PRECISION_NOT_VALID.format("nonsense"),
         ),

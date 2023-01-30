@@ -1,7 +1,7 @@
 import pytest
 
 from sdk import SDK, DeviceType
-from sdk.utils.configuration import Configuration
+from sdk.utils.configuration import BaseConfig, EmuFreeConfig, EmuSVConfig
 
 
 class TestBatch:
@@ -117,7 +117,10 @@ class TestBatch:
     @pytest.mark.parametrize(
         "device_type, configuration, expected",
         [
-            (DeviceType.EMU_SV, Configuration(), Configuration()),
+            (DeviceType.EMU_SV, EmuSVConfig(), EmuSVConfig()),
+            (DeviceType.QPU, None, None),
+            (DeviceType.EMU_FREE, EmuFreeConfig(), EmuFreeConfig(extra_config={'dt': 0.1, 'precision': 'normal'})),
+            ('SomethingElse', BaseConfig(), BaseConfig(extra_config={'dt': 0.1, 'precision': 'normal'}))
         ],
     )
     def test_create_batch_configuration(self, device_type, configuration, expected):
