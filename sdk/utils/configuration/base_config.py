@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
-from typing import Any, Optional, Type
+from typing import Any, Optional
 
 
 class InvalidConfiguration(Exception):

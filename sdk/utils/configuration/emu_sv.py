@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, fields
-from typing import Optional, Any
+from dataclasses import dataclass
 
 from sdk.utils.configuration.base_config import BaseConfig, InvalidConfiguration
-from sdk.utils.device_types import DeviceType
-
 
 DT_VALUE_NOT_VALID = "dt must be larger than 0. Not {}."
 PRECISION_NOT_VALID = "Precision {} not valid. Must be one of 'low', 'normal', 'high'"

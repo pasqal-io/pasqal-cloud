@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict
 import pytest
 
 from sdk.utils.configuration.base_config import (
