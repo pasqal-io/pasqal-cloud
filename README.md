@@ -96,12 +96,14 @@ for job in batch.jobs.values():
 Some emulators, for now only EMU_SV, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
 
-We supply a `Configuration` class that contains the currently tunable parameters along with their default values.
+We supply a '`EmuSVConfig` class that contains the currently tunable parameters along with their default values.'
 
-``` python
+```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk import DeviceType, Configuration
-configuration = Configuration("dt" = 0.5, "precision" = "normal")
+from sdk.utils.device_types import DeviceType
+from sd.utils.configuration import EmuSVConfig
+
+configuration = EmuSVConfig("dt" = 0.5, "precision" = "normal")
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_SV, configuration=configuration)
 ```
