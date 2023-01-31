@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 
 class InvalidConfiguration(Exception):
@@ -21,7 +21,7 @@ class BaseConfig:
         return self._unnest_extra_config(asdict(self))
 
     @classmethod
-    def from_dict(cls, conf: dict[str, Any]) :
+    def from_dict(cls, conf: dict[str, Any]) -> BaseConfig:
         base_conf = {}
         for field in fields(cls):
             if field.name != "extra_config" and field.name in conf:
