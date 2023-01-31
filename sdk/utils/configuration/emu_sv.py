@@ -10,7 +10,12 @@ PRECISION_NOT_VALID = "Precision {} not valid. Must be one of 'low', 'normal', '
 
 @dataclass
 class EmuSVConfig(BaseConfig):
+    """Configuration for the EmuSV device type.
 
+    Args:
+        dt (float): The time step of the simulation. Defaults to 0.1.
+        precision (str): The precision of the simulation. Defaults to "normal".
+    """
     dt: float = 0.1
     precision: str = "normal"
 

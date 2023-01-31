@@ -13,15 +13,45 @@ INVALID_KEY_ERROR_MSG = "Invalid key {} in Configuration.extra_config. Attempted
 
 @dataclass
 class BaseConfig:
+    """Base class for all configuration classes.
+    
+    This class provides a common interface for all configuration classes.
+    It also provides a mechanism to add extra configuration parameters
+    that are not part of the default configuration.
+
+    The extra configuration parameters are stored in the `extra_config` field.
+    This field is a dictionary that can be used to store any extra configuration
+    parameters. The `extra_config` field is not part of the configuration
+    dictionary returned by the `to_dict` method. Instead, the extra configuration
+    parameters are added to the configuration dictionary.
+    """
 
     extra_config: Optional[dict[str, Any]] = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Converts the configuration to a dictionary.
+
+        The extra configuration parameters are added to the configuration
+        dictionary.
+
+        Returns:
+            dict: Configuration dictionary.
+        """
         self._validate()
         return self._unnest_extra_config(asdict(self))
 
     @classmethod
     def from_dict(cls, conf: dict[str, Any]) -> BaseConfig:
+        """Creates a configuration object from a dictionary.
+
+        The extra configuration parameters are stored in the `extra_config` field.
+
+        Args:
+            conf (dict): Configuration dictionary.
+
+        Returns:
+            BaseConfig: Configuration object.
+        """
         base_conf = {}
         for field in fields(cls):
             if field.name != "extra_config" and field.name in conf:
