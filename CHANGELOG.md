@@ -20,11 +20,12 @@ straightforward as possible.
 - Moved the device_types into utils
 - Refactored configuration to be split into `BaseConfig`, `EmuSVConfig` and `EmuFreeConfig`, more device-specific configs can be added
 - Refactored unit tests to use the proper Config model.
+- Updated README with the new Configuration classes.
 
 ### Added
 
 - `BaseConfig`: the base configuration class. A dataclass with the same methods as the former `Configuration` model and the `extra_config` param.
-- `EmuSvConfig`: the configuration class for `DeviceType.EMU_SV`, inherits from `BaseConfig` with the parameters formerly found on `Configuration`.
+- `EmuSVConfig`: the configuration class for `DeviceType.EMU_SV`, inherits from `BaseConfig` with the parameters formerly found on `Configuration`.
 - `EmuFreeConfig`: the configuration class for `DeviceType.EMU_FREE`, inherits from `BaseConfig` with the `with_noise` boolean parameter.
 
 ## [0.1.7] - 2023-01-04
