@@ -19,14 +19,8 @@ from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
-from sdk.utils.configuration import Configuration
-from sdk.utils.strenum import StrEnum
-
-
-class DeviceType(StrEnum):
-    QPU = "QPU"
-    EMU_FREE = "EMU_FREE"
-    EMU_SV = "EMU_SV"
+from sdk.device.configuration import BaseConfig
+from sdk.device.device_types import DeviceType
 
 
 class SDK:
@@ -48,7 +42,7 @@ class SDK:
         serialized_sequence: str,
         jobs: List[Dict[str, Any]],
         device_type: DeviceType = DeviceType.QPU,
-        configuration: Optional[Configuration] = None,
+        configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
     ) -> Batch:
@@ -85,6 +79,7 @@ class SDK:
         # it's requested
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
+
         batch_rsp, jobs_rsp = self._client._send_batch(req)
         batch_id = batch_rsp["id"]
         if wait or fetch_results:
@@ -96,7 +91,6 @@ class SDK:
                 batch_rsp, jobs_rsp = self._client._get_batch(
                     batch_id, fetch_results=True
                 )
-
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
