@@ -4,8 +4,8 @@ from typing import Any, Dict, Optional, Type, Union
 
 from sdk.client import Client
 from sdk.job import Job
-from sdk.utils.configuration import BaseConfig, EmuSVConfig, EmuFreeConfig
-from sdk.utils.device_types import DeviceType
+from sdk.device.configuration import BaseConfig, EmuSVConfig, EmuFreeConfig
+from sdk.device.device_types import DeviceType
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 

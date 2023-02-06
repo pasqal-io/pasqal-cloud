@@ -1,7 +1,7 @@
 import pytest
 
 from sdk import SDK, DeviceType
-from sdk.utils.configuration import BaseConfig, EmuFreeConfig, EmuSVConfig
+from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuSVConfig
 
 
 class TestBatch:

@@ -101,8 +101,8 @@ For EMU_SV:
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.utils.device_types import DeviceType
-from sd.utils.configuration import EmuSVConfig
+from sdk.device.device_types import DeviceType
+from sdk.device.configuration import EmuSVConfig
 
 configuration = EmuSVConfig(dt = 0.5, precision = "normal")
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_SV, configuration=configuration)
@@ -113,8 +113,8 @@ For EMU_FREE:
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.utils.device_types import DeviceType
-from sd.utils.configuration import EmuFreeConfig
+from sdk.device.device_types import DeviceType
+from sdk.device.configuration import EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE, configuration=configuration)

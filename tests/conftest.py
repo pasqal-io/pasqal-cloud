@@ -2,7 +2,7 @@ import json
 import os
 import pytest
 import requests_mock
-from sdk.utils.device_types import DeviceType
+from sdk.device.device_types import DeviceType
 
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"

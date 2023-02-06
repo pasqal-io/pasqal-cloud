@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from sdk.utils.configuration.base_config import (
+from sdk.device.configuration.base_config import (
     BaseConfig,
     InvalidConfiguration,
     INVALID_KEY_ERROR_MSG
 )
-from sdk.utils.configuration import EmuFreeConfig
-from sdk.utils.configuration.emu_sv import (
+from sdk.device.configuration import EmuFreeConfig
+from sdk.device.configuration.emu_sv import (
     EmuSVConfig,
     DT_VALUE_NOT_VALID,
     PRECISION_NOT_VALID,

@@ -19,8 +19,8 @@ from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints
 from sdk.job import Job
-from sdk.utils.configuration import BaseConfig
-from sdk.utils.device_types import DeviceType
+from sdk.device.configuration import BaseConfig
+from sdk.device.device_types import DeviceType
 
 
 class SDK:

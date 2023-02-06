@@ -1,4 +1,4 @@
-from sdk.utils.configuration.base_config import BaseConfig
+from sdk.device.configuration.base_config import BaseConfig
 
 from dataclasses import dataclass
 

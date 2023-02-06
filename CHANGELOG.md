@@ -17,7 +17,7 @@ straightforward as possible.
 
 ### Changed
 
-- Moved the device_types into utils
+- Moved the device_types into device module
 - Refactored configuration to be split into `BaseConfig`, `EmuSVConfig` and `EmuFreeConfig`, more device-specific configs can be added
 - Refactored unit tests to use the proper Config model.
 - Updated README with the new Configuration classes.

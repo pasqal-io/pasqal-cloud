@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from sdk.utils.configuration.base_config import BaseConfig, InvalidConfiguration
+from sdk.device.configuration.base_config import BaseConfig, InvalidConfiguration
 
 DT_VALUE_NOT_VALID = "dt must be larger than 0. Not {}."
 PRECISION_NOT_VALID = "Precision {} not valid. Must be one of 'low', 'normal', 'high'"
