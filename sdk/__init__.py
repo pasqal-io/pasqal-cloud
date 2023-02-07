@@ -34,7 +34,7 @@ class SDK:
         webhook: Optional[str] = None,
     ):
         self._client = Client(client_id, client_secret, endpoints)
-        self.batches: Dict[int, Batch] = {}
+        self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 
     def create_batch(
@@ -98,7 +98,7 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
-    def get_batch(self, id: int, fetch_results: bool = False) -> Batch:
+    def get_batch(self, id: str, fetch_results: bool = False) -> Batch:
         """Retrieve a batch's data and all its jobs.
 
         Args:

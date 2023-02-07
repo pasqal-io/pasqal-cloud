@@ -13,6 +13,12 @@ straightforward as possible.
 
 - A new version of the "core" microservice, using FastAPI instead of Flask as web framework, was released in the "dev" environment. If using the "dev" environment, you should upgrade the core endpoint you are using to "https://apis.dev.pasqal.cloud/core-fast"
 
+## [0.1.9] - 2023-02-07
+
+### Changed
+
+- Changed typehints for id fields to be `str` rather than `int` to reflect the switch to `uuid` in our services.
+
 ## [0.1.8] - 2023-01-31
 
 ### Changed
