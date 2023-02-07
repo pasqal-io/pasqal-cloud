@@ -2,14 +2,14 @@
   "code": 200,
   "data": [
     {
-      "batch_id": 1,
+      "batch_id": "00000000-0000-0000-0000-000000000001",
       "created_at": "2021-11-10T15:24:38.172109",
       "errors": [
         "Error 1",
         "Error 2: Cannot connect to QPU",
         "Error 3: Matrix glitch"
       ],
-      "id": 22010,
+      "id": "00000000-0000-0000-0000-000000022010",
       "result": { "1001": 12, "0110": 35, "1111": 1 },
       "runs": 50,
       "status": "DONE",

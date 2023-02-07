@@ -18,6 +18,7 @@ straightforward as possible.
 ### Changed
 
 - Changed typehints for id fields to be `str` rather than `int` to reflect the switch to `uuid` in our services.
+- Updated tests to use UUID strings in the fixtures and tests
 
 ## [0.1.8] - 2023-01-31
 
