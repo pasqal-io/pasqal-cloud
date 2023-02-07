@@ -117,7 +117,7 @@ class Client:
         jobs_data = batch_data.pop("jobs", [])
         return batch_data, jobs_data
 
-    def _complete_batch(self, batch_id: int) -> Dict[str, Any]:
+    def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]
@@ -130,7 +130,7 @@ class Client:
         return response
 
     def _get_batch(
-        self, id: int, fetch_results: bool = False
+        self, id: str, fetch_results: bool = False
     ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
@@ -144,7 +144,7 @@ class Client:
                 job_data["result"] = results.get(str(job_data["id"]), None)
         return batch_data, jobs_data
 
-    def _get_job(self, job_id: int) -> Dict[str, Any]:
+    def _get_job(self, job_id: str) -> Dict[str, Any]:
         job: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
         )["data"]

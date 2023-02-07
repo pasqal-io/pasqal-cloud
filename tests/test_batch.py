@@ -9,10 +9,10 @@ class TestBatch:
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(client_id="my_client_id", client_secret="my_client_secret")
         self.pulser_sequence = "pulser_test_sequence"
-        self.batch_id = 1
+        self.batch_id = '00000000-0000-0000-0000-000000000001'
         self.job_result = {"1001": 12, "0110": 35, "1111": 1}
         self.n_job_runs = 50
-        self.job_id = 22010
+        self.job_id = "00000000-0000-0000-0000-000000022010"
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
 
     @pytest.mark.parametrize("device_type", [d.value for d in DeviceType])
@@ -35,7 +35,7 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
         )
-        assert batch.id == 212  # the batch_id used in the mock data
+        assert batch.id == "00000000-0000-0000-0000-000000000001"  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.jobs
@@ -49,7 +49,7 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True, fetch_results=True
         )
-        assert batch.id == 212  # the batch_id used in the mock data
+        assert batch.id == "00000000-0000-0000-0000-000000000001"  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.jobs

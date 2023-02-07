@@ -44,8 +44,8 @@ class Batch:
     created_at: str
     updated_at: str
     device_type: str
-    group_id: int
-    id: int
+    group_id: str
+    id: str
     user_id: int
     priority: int
     status: str
@@ -55,7 +55,7 @@ class Batch:
     start_datetime: Optional[str] = None
     end_datetime: Optional[str] = None
     device_status: Optional[str] = None
-    jobs: Dict[int, Job] = field(default_factory=dict)
+    jobs: Dict[str, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
     configuration: Optional[Union[BaseConfig, dict]] = None
