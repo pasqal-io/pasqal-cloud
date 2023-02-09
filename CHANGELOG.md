@@ -2,14 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased] - yyyy-mm-dd
-
-Here we write upgrading notes for brands. It's a team effort to make them as
-straightforward as possible.
+## [0.1.10] - 2023-02-09
 
 ### Added
 
 ### Changed
+
+- A new device type, "EMU-TN", corresponding to tensor netowrk-based emulator, was added. The "EMU_SV" type was removed as it is not available right now.
 
 - A new version of the "core" microservice, using FastAPI instead of Flask as web framework, was released in the "dev" environment. If using the "dev" environment, you should upgrade the core endpoint you are using to "https://apis.dev.pasqal.cloud/core-fast"
 

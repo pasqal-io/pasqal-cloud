@@ -81,7 +81,6 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 
 # You can also choose to run your batch on an emulator using the optional argument 'device_type'
 # For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" device type.
-# "EMU_SV", which is a more performant version, is not available on this platform yet.
 from sdk import DeviceType
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE)
 
@@ -93,10 +92,10 @@ for job in batch.jobs.values():
 
 ### Extra emulator configuration (Soon publicly available)
 
-Some emulators, such as EMU_SV and EMU_FREE, accept further configuration to control the emulation.
+Some emulators, such as EMU_TN and EMU_FREE, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
 
-For EMU_SV:
+For EMU_TN:
 
 ```python
 # replace the corresponding section in the above code example with this to
@@ -105,7 +104,7 @@ from sdk.device.device_types import DeviceType
 from sdk.device.configuration import EmuSVConfig
 
 configuration = EmuSVConfig(dt = 0.5, precision = "normal")
-batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_SV, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_TN, configuration=configuration)
 ```
 
 For EMU_FREE:
