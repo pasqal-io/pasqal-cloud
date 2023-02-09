@@ -1,10 +1,11 @@
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type, Union
 
 from sdk.client import Client
 from sdk.job import Job
-from sdk.utils.configuration import Configuration
+from sdk.device.configuration import BaseConfig, EmuSVConfig, EmuFreeConfig
+from sdk.device.device_types import DeviceType
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -43,8 +44,8 @@ class Batch:
     created_at: str
     updated_at: str
     device_type: str
-    group_id: int
-    id: int
+    group_id: str
+    id: str
     user_id: int
     priority: int
     status: str
@@ -54,14 +55,22 @@ class Batch:
     start_datetime: Optional[str] = None
     end_datetime: Optional[str] = None
     device_status: Optional[str] = None
-    jobs: Dict[int, Job] = field(default_factory=dict)
+    jobs: Dict[str, Job] = field(default_factory=dict)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
-    configuration: Optional[Configuration] = None
+    configuration: Optional[Union[BaseConfig, dict]] = None
 
     def __post_init__(self) -> None:
-        if isinstance(self.configuration, dict):
-            self.configuration = Configuration.from_dict(self.configuration)  # type: ignore
+        """Post init method to convert the configuration to a BaseConfig object."""
+        if not isinstance(self.configuration, dict):
+            return
+        conf_class: Type[BaseConfig] = BaseConfig
+        if self.device_type == DeviceType.EMU_SV.value:
+            conf_class = EmuSVConfig
+        elif self.device_type == DeviceType.EMU_FREE.value:
+            conf_class = EmuFreeConfig
+
+        self.configuration = conf_class.from_dict(self.configuration)
 
     def add_job(
         self,

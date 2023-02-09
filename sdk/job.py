@@ -22,8 +22,8 @@ class Job:
     """
 
     runs: int
-    batch_id: int
-    id: int
+    batch_id: str
+    id: str
     status: str
     created_at: str
     updated_at: str
