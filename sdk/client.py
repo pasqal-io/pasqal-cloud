@@ -33,7 +33,7 @@ class Client:
         self,
         username: str,
         password: str,
-        group_id: int,
+        group_id: str,
         endpoints: Optional[Endpoints] = None,
     ):
         self.username = username
