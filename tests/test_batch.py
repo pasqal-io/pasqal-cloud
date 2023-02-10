@@ -1,7 +1,7 @@
 import pytest
 
 from sdk import SDK, DeviceType
-from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuSVConfig
+from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 
 
 class TestBatch:
@@ -124,7 +124,7 @@ class TestBatch:
     @pytest.mark.parametrize(
         "device_type, configuration, expected",
         [
-            (DeviceType.EMU_TN, EmuSVConfig(), EmuSVConfig()),
+            (DeviceType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
             (DeviceType.QPU, None, None),
             (
                 DeviceType.EMU_FREE,

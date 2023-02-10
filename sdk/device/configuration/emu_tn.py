@@ -9,15 +9,18 @@ PRECISION_NOT_VALID = "Precision {} not valid. Must be one of 'low', 'normal', '
 
 
 @dataclass
-class EmuSVConfig(BaseConfig):
-    """Configuration for the EmuSV device type.
+class EmuTNConfig(BaseConfig):
+    """Configuration for the EmuTN device type.
 
     Args:
         dt (float): The time step of the simulation. Defaults to 0.1.
         precision (str): The precision of the simulation. Defaults to "normal".
+        max_bond_dim (int): The maximum bond dimension of the Matrix Product State (MPS). Defaults to 500.
     """
+
     dt: float = 0.1
     precision: str = "normal"
+    max_bond_dim: int = 500
 
     def _validate(self) -> None:
         if self.dt <= 0:

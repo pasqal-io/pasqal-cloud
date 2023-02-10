@@ -101,9 +101,9 @@ For EMU_TN:
 # replace the corresponding section in the above code example with this to
 # add further configuration
 from sdk.device.device_types import DeviceType
-from sdk.device.configuration import EmuSVConfig
+from sdk.device.configuration import EmuTNConfig
 
-configuration = EmuSVConfig(dt = 0.5, precision = "normal")
+configuration = EmuTNConfig(dt = 0.5, precision = "normal")
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_TN, configuration=configuration)
 ```
 
