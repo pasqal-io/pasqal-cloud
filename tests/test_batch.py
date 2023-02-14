@@ -1,7 +1,7 @@
 import pytest
 
 from sdk import SDK, DeviceType
-from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuSVConfig
+from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 
 
 class TestBatch:
@@ -9,7 +9,7 @@ class TestBatch:
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(client_id="my_client_id", client_secret="my_client_secret")
         self.pulser_sequence = "pulser_test_sequence"
-        self.batch_id = '00000000-0000-0000-0000-000000000001'
+        self.batch_id = "00000000-0000-0000-0000-000000000001"
         self.job_result = {"1001": 12, "0110": 35, "1111": 1}
         self.n_job_runs = 50
         self.job_id = "00000000-0000-0000-0000-000000022010"
@@ -35,7 +35,9 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
         )
-        assert batch.id == "00000000-0000-0000-0000-000000000001"  # the batch_id used in the mock data
+        assert (
+            batch.id == "00000000-0000-0000-0000-000000000001"
+        )  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.jobs
@@ -47,9 +49,14 @@ class TestBatch:
     def test_create_batch_and_fetch_results(self, request_mock):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[job], wait=True, fetch_results=True
+            serialized_sequence=self.pulser_sequence,
+            jobs=[job],
+            wait=True,
+            fetch_results=True,
         )
-        assert batch.id == "00000000-0000-0000-0000-000000000001"  # the batch_id used in the mock data
+        assert (
+            batch.id == "00000000-0000-0000-0000-000000000001"
+        )  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.jobs
@@ -117,10 +124,18 @@ class TestBatch:
     @pytest.mark.parametrize(
         "device_type, configuration, expected",
         [
-            (DeviceType.EMU_SV, EmuSVConfig(), EmuSVConfig()),
+            (DeviceType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
             (DeviceType.QPU, None, None),
-            (DeviceType.EMU_FREE, EmuFreeConfig(), EmuFreeConfig(extra_config={'dt': 0.1, 'precision': 'normal'})),
-            ('SomethingElse', BaseConfig(), BaseConfig(extra_config={'dt': 0.1, 'precision': 'normal'}))
+            (
+                DeviceType.EMU_FREE,
+                EmuFreeConfig(),
+                EmuFreeConfig(extra_config={"dt": 0.1, "precision": "normal"}),
+            ),
+            (
+                "SomethingElse",
+                BaseConfig(),
+                BaseConfig(extra_config={"dt": 0.1, "precision": "normal"}),
+            ),
         ],
     )
     def test_create_batch_configuration(self, device_type, configuration, expected):
