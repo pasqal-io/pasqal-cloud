@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Type, Union
 
 from sdk.client import Client
 from sdk.job import Job
-from sdk.device.configuration import BaseConfig, EmuSVConfig, EmuFreeConfig
+from sdk.device.configuration import BaseConfig, EmuTNConfig, EmuFreeConfig
 from sdk.device.device_types import DeviceType
 
 RESULT_POLLING_INTERVAL = 2  # seconds
@@ -65,8 +65,8 @@ class Batch:
         if not isinstance(self.configuration, dict):
             return
         conf_class: Type[BaseConfig] = BaseConfig
-        if self.device_type == DeviceType.EMU_SV.value:
-            conf_class = EmuSVConfig
+        if self.device_type == DeviceType.EMU_TN.value:
+            conf_class = EmuTNConfig
         elif self.device_type == DeviceType.EMU_FREE.value:
             conf_class = EmuFreeConfig
 
@@ -101,7 +101,9 @@ class Batch:
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> Dict[str, Any]:
+    def declare_complete(
+        self, wait: bool = False, fetch_results: bool = False
+    ) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:
