@@ -31,31 +31,23 @@ class Client:
 
     def __init__(
         self,
-        client_id: str,
-        client_secret: str,
+        username: str,
+        password: str,
+        group_id: str,
         endpoints: Optional[Endpoints] = None,
     ):
-        self.client_id = client_id
-        self.client_secret = client_secret
+        self.username = username
+        self.password = password
         self.endpoints = endpoints or Endpoints()
-        self.group_id = None
+        self.group_id = group_id
         self._token = ""
-        self._fetch_group_id()
-
-    def _fetch_group_id(self) -> None:
-        url = f"{self.endpoints.account}/api/v1/auth/info"
-        data = self._request(
-            "GET",
-            url,
-        )
-        self.group_id = data["data"]["group_id"]
 
     def _login(self) -> None:
         url = f"{self.endpoints.account}/api/v1/auth/login"
         payload = {
-            "type": "api_key",
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
+            "email": self.username,
+            "password": self.password,
+            "type": "user",
         }
 
         rsp = requests.post(
@@ -64,7 +56,7 @@ class Client:
             timeout=TIMEOUT,
             headers={"content-type": "application/json"},
         )
-        data = rsp.json()
+        data = rsp.json()["data"]
 
         if rsp.status_code >= 400:
             raise HTTPError(data)

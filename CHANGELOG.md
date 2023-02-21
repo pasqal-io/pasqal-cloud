@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2023-02-21
+
+### Changed
+
+- The authentication system has been reworked and is now connected to auth0. API keys have been removed
+hence you should now use your email and password to initialize the SDK (see example in Readme). 
+
 ## [0.1.10] - 2023-02-09
 
 ### Added

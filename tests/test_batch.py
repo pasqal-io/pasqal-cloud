@@ -1,3 +1,4 @@
+from uuid import uuid4
 import pytest
 
 from sdk import SDK, DeviceType
@@ -7,7 +8,9 @@ from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 class TestBatch:
     @pytest.fixture(autouse=True)
     def init_sdk(self, start_mock_request):
-        self.sdk = SDK(client_id="my_client_id", client_secret="my_client_secret")
+        self.sdk = SDK(
+            username="me@test.com", password="password", group_id=str(uuid4())
+        )
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = "00000000-0000-0000-0000-000000000001"
         self.job_result = {"1001": 12, "0110": 35, "1111": 1}
