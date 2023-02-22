@@ -107,7 +107,7 @@ configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_TN, configuration=configuration)
 ```
 
-For EMU_FREE you may add some default SPAM noise. Beware this is makes your job take much longer.
+For EMU_FREE you may add some default SPAM noise. Beware this makes your job take much longer.
 
 ```python
 # replace the corresponding section in the above code example with this to
