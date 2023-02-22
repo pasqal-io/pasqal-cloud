@@ -95,7 +95,7 @@ for job in batch.jobs.values():
 Some emulators, such as EMU_TN and EMU_FREE, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
 
-For EMU_TN:
+For EMU_TN you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network compression, and the maximal bond dimension of tensor network state.
 
 ```python
 # replace the corresponding section in the above code example with this to
@@ -103,11 +103,11 @@ For EMU_TN:
 from sdk.device.device_types import DeviceType
 from sdk.device.configuration import EmuTNConfig
 
-configuration = EmuTNConfig(dt = 0.5, precision = "normal")
+configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_TN, configuration=configuration)
 ```
 
-For EMU_FREE:
+For EMU_FREE you may add some default SPAM noise. Beware this is makes your job take much longer.
 
 ```python
 # replace the corresponding section in the above code example with this to
