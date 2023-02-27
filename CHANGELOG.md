@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.12] - 2023-02-27
+
+### Changed
+- The group_id field has been added to the Job schema which is now present in some services returning Job data.
+- Pytest fixtures updated to accomodate this.
+
 ## [0.1.11] - 2023-02-21
 
 ### Changed
