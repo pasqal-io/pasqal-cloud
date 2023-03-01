@@ -20,18 +20,18 @@ from sdk.device.configuration.emu_tn import (
     [
         (
             EmuTNConfig(
-                dt=0.5,
+                dt=10.0,
                 extra_config={"extra": "parameter", "extra_dict": {"key": "value"}},
             ),
             {
-                "dt": 0.5,
+                "dt": 10.0,
                 "precision": "normal",
                 "max_bond_dim": 500,
                 "extra": "parameter",
                 "extra_dict": {"key": "value"},
             },
         ),
-        (EmuTNConfig(), {"dt": 0.1, "precision": "normal", "max_bond_dim": 500}),
+        (EmuTNConfig(), {"dt": 10.0, "precision": "normal", "max_bond_dim": 500}),
         (EmuFreeConfig(), {"with_noise": False}),
         (EmuFreeConfig(with_noise=True), {"with_noise": True}),
         (BaseConfig(), {}),
@@ -58,7 +58,7 @@ def test_configuration_to_dict(config: BaseConfig, expected: dict):
                 "extra_dict": {"key": "value"},
             },
         ),
-        (EmuTNConfig, EmuTNConfig(), {"dt": 0.1, "precision": "normal"}),
+        (EmuTNConfig, EmuTNConfig(), {"dt": 10.0, "precision": "normal"}),
         (EmuFreeConfig, EmuFreeConfig(), {"with_noise": False}),
         (EmuFreeConfig, EmuFreeConfig(with_noise=True), {"with_noise": True}),
         (BaseConfig, BaseConfig(), {}),
@@ -78,7 +78,7 @@ def test_configuration_from_dict(
 @pytest.mark.parametrize(
     "config, extra_config, expected",
     [
-        (EmuTNConfig(), {"dt": 0.1}, INVALID_KEY_ERROR_MSG.format("dt")),
+        (EmuTNConfig(), {"dt": 10.0}, INVALID_KEY_ERROR_MSG.format("dt")),
         (EmuTNConfig(dt=-1), None, DT_VALUE_NOT_VALID.format(-1)),
         (
             EmuTNConfig(precision="nonsense"),

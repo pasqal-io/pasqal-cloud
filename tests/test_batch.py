@@ -132,12 +132,12 @@ class TestBatch:
             (
                 DeviceType.EMU_FREE,
                 EmuFreeConfig(),
-                EmuFreeConfig(extra_config={"dt": 0.1, "precision": "normal"}),
+                EmuFreeConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
             (
                 "SomethingElse",
                 BaseConfig(),
-                BaseConfig(extra_config={"dt": 0.1, "precision": "normal"}),
+                BaseConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
         ],
     )
