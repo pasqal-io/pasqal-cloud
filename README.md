@@ -66,10 +66,13 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 from sdk import SDK
 from pulser import devices, Register, Sequence
 
-username="your_username" # Replace this value by your username or email on the PASQAL platform
-password="your_password" # Replace this value by your password on the PASQAL platform. Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
+username="your_username" # Replace this value by your username or email on the PASQAL platform.
+group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+password="your_password" # Replace this value by your password on the PASQAL platform.
+# Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
 
-sdk = SDK(username=username, password=password)
+
+sdk = SDK(username=username, password=password, group_id=group_id)
 
 # When creating a job, select a number of runs and set the desired values for the variables
 # defined in the sequence
