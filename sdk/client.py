@@ -17,15 +17,13 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 
 from sdk.endpoints import Endpoints
-from sdk.errors import HTTPError
+from sdk.errors import HTTPError, CannotLoginError
 from sdk.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
 
 class Client:
-    client_id: str
-    client_secret: str
 
     _token: str
 
@@ -34,12 +32,14 @@ class Client:
         username: str,
         password: str,
         group_id: str,
+        login_url: str = None,
         endpoints: Optional[Endpoints] = None,
     ):
         self.username = username
         self.password = password
         self.endpoints = endpoints or Endpoints()
         self.group_id = group_id
+        self.login_url = login_url
         self._token = ""
 
     def _login(self) -> None:
@@ -63,6 +63,9 @@ class Client:
 
         self._token = data["token"]
 
+    def _set_token(self, token: str) -> None:
+        self._token = token
+
     def _headers(self) -> Dict[str, str]:
         return {
             "content-type": "application/json",
@@ -82,6 +85,11 @@ class Client:
         data: JSendPayload = rsp.json()
         # If account returns unauthorized we attempt to login and retry request
         if rsp.status_code == 401:
+            #  TODO: Improve the interactive login flow
+            if (self.username == "" and self.password == "") and self.login_url:
+                raise CannotLoginError(
+                    f"You cannot login without a username or password. You may want to try logging in using the interactive login flow: {self.login_url}"
+                )
             self._login()
             rsp = requests.request(
                 method,
