@@ -28,13 +28,20 @@ class SDK:
 
     def __init__(
         self,
-        username: str,
-        password: str,
         group_id: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        login_url: Optional[str] = None,
         endpoints: Optional[Endpoints] = None,
         webhook: Optional[str] = None,
     ):
-        self._client = Client(username, password, group_id, endpoints)
+        self._client = Client(
+            username=username,
+            password=password,
+            group_id=group_id,
+            login_url=login_url,
+            endpoints=endpoints,
+        )
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 

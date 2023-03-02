@@ -41,5 +41,5 @@ class HTTPError(Exception):
         )
 
 
-class CannotLoginError(Exception):
+class LoginError(Exception):
     pass

@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 
 from sdk.endpoints import Endpoints
-from sdk.errors import HTTPError, CannotLoginError
+from sdk.errors import HTTPError, LoginError
 from sdk.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -29,12 +29,16 @@ class Client:
 
     def __init__(
         self,
-        username: str,
-        password: str,
         group_id: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        login_url: Optional[str] = None,
         endpoints: Optional[Endpoints] = None,
-        login_url: str = "",
     ):
+        if not (username and password) and not login_url:
+            raise Exception(
+                "At least a username/password combination or an interactive login URL should be provided."
+            )
         self.username = username
         self.password = password
         self.endpoints = endpoints or Endpoints()
@@ -87,7 +91,7 @@ class Client:
         if rsp.status_code == 401:
             #  TODO: Improve the interactive login flow
             if (self.username == "" and self.password == "") and self.login_url:
-                raise CannotLoginError(
+                raise LoginError(
                     f"You cannot login without a username or password. You may want to try logging in using the interactive login flow: {self.login_url}"
                 )
             self._login()
