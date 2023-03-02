@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [In progresss]
+
+### Changed
+- The default values for the tensor network emulator were updated to better ones.
+- the client_id and client_secret was leftover in the Client object even though they are no longer used.
+- Updated the README to also supply the group_id which is mandatory.
+
 ## [0.1.12] - 2023-02-27
 
 ### Changed
@@ -21,7 +28,7 @@ hence you should now use your email and password to initialize the SDK (see exam
 
 ### Changed
 
-- A new device type, "EMU-TN", corresponding to tensor netowrk-based emulator, was added. The "EMU_SV" type was removed as it is not available right now.
+- A new device type, "EMU-TN", corresponding to tensor network-based emulator, was added. The "EMU_SV" type was removed as it is not available right now.
 
 - A new version of the "core" microservice, using FastAPI instead of Flask as web framework, was released in the "dev" environment. If using the "dev" environment, you should upgrade the core endpoint you are using to "https://apis.dev.pasqal.cloud/core-fast"
 

@@ -24,8 +24,6 @@ TIMEOUT = 30  # client http requests timeout after 30s
 
 
 class Client:
-    client_id: str
-    client_secret: str
 
     _token: str
 
