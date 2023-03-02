@@ -32,8 +32,8 @@ class Client:
         username: str,
         password: str,
         group_id: str,
-        login_url: str = None,
         endpoints: Optional[Endpoints] = None,
+        login_url: str = "",
     ):
         self.username = username
         self.password = password
