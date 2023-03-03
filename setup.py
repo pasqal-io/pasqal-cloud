@@ -36,7 +36,11 @@ setup(
         "Programming Language :: Python :: 3",
     ],
     url="https://github.com/pasqal-io/cloud-sdk",
-    install_requires=["requests==2.25.1", "requests-mock==1.9.3"],
+    install_requires=[
+        "requests==2.25.1",
+        "requests-mock==1.9.3",
+        "pyjwt[crypto]==2.5.0",
+    ],
     extras_require={
         "dev": {
             "black==20.8b1",
@@ -45,8 +49,10 @@ setup(
             "mypy==0.982",
             "pytest==6.2.5",
             "pytest-cov==2.11.1",
-            "types-requests==2.25.1"
+            "types-requests==2.25.1",
         },
-        ":python_version == '3.7'": ["typing-extensions==4.4.0",]
+        ":python_version == '3.7'": [
+            "typing-extensions==4.4.0",
+        ],
     },
 )

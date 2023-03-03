@@ -11,7 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from __future__ import annotations
+from abc import abstractmethod
+from datetime import datetime, timedelta, timezone
+from jwt import decode, DecodeError
+from requests import PreparedRequest
+from requests.auth import AuthBase
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
@@ -23,25 +28,93 @@ from sdk.utils.jsend import JSendPayload
 TIMEOUT = 30  # client http requests timeout after 30s
 
 
-class Client:
+class HTTPBearerAuthenticator(AuthBase):
+    def __init__(self, token_provider: Optional[TokenProvider]):
+        if not token_provider:
+            raise Exception("The authenticator needs a token provider.")
+        self.token_provider = token_provider
 
-    _token: str
+    def __call__(self, r: PreparedRequest) -> PreparedRequest:
+        r.headers["Authorization"] = f"Bearer {self.token_provider.get_token()}"
+        return r
 
-    def __init__(
-        self,
-        username: str,
-        password: str,
-        group_id: str,
-        endpoints: Optional[Endpoints] = None,
-    ):
+
+class TokenProviderError(Exception):
+    pass
+
+
+class TokenProvider:
+    __token_cache: Optional[tuple[datetime, str]] = None
+    expiry_window: timedelta = timedelta(minutes=1.0)
+
+    @abstractmethod
+    def _query_token(self) -> dict[str, Any]:
+        raise NotImplementedError
+
+    def get_token(self) -> str:
+        if self.__token_cache:
+            expiry, token = self.__token_cache
+            if expiry - self.expiry_window > datetime.now(tz=timezone.utc):
+                return token
+
+        self.__token_cache = self._refresh_token_cache()
+        return self.__token_cache[1]
+
+    def _refresh_token_cache(self) -> tuple[datetime, str]:
+        try:
+            token_response = self._query_token()
+            expiry = self._extract_expiry(token_response)
+
+            if expiry is None:
+                expiry = datetime.now(tz=timezone.utc)
+
+            return (expiry, token_response["access_token"])
+        except HTTPError as err:
+            raise TokenProviderError(err)
+
+    @staticmethod
+    def _extract_expiry(token_response: dict[str, Any]) -> datetime | None:
+        """Extracts the expiry datetime from the token response.
+
+        Assumes that the actual token provided is correct, but might be in an
+        unexpected format
+
+        Args:
+            token_response: A valid token response dictionary.
+
+        Returns:
+            The time the token will expire, or None if it can't be calculated
+        """
+        expires_in = token_response.get("expires_in", None)
+        if expires_in:
+            return datetime.now(tz=timezone.utc) + timedelta(seconds=float(expires_in))
+
+        try:
+            # We assume the token is valid, but might not be in an expected format
+            token = token_response.get("access_token")
+
+            if (isinstance(token, str)and "." in token):
+                token_timestamp = decode(
+                        token,
+                        algorithms=["HS256"],
+                        options={"verify_signature": False},
+                    ).get("exp")
+                if token_timestamp:
+                    return datetime.fromtimestamp(token_timestamp, tz=timezone.utc)
+
+        except DecodeError:
+            # The token is not in a format that could be parsed as a JWT
+            pass
+        return None
+
+
+class UsernamePasswordTokenProvider(TokenProvider):
+    def __init__(self, username: str, password: str, login_url: str):
         self.username = username
         self.password = password
-        self.endpoints = endpoints or Endpoints()
-        self.group_id = group_id
-        self._token = ""
+        self.login_url = login_url
 
-    def _login(self) -> None:
-        url = f"{self.endpoints.account}/api/v1/auth/login"
+    def _query_token(self) -> Dict[str, Any]:
         payload = {
             "email": self.username,
             "password": self.password,
@@ -49,7 +122,7 @@ class Client:
         }
 
         rsp = requests.post(
-            url,
+            self.login_url,
             json=payload,
             timeout=TIMEOUT,
             headers={"content-type": "application/json"},
@@ -59,13 +132,33 @@ class Client:
         if rsp.status_code >= 400:
             raise HTTPError(data)
 
-        self._token = data["token"]
+        return {"access_token": data["token"]}
 
-    def _headers(self) -> Dict[str, str]:
-        return {
-            "content-type": "application/json",
-            "authorization": f"Bearer {self._token}",
-        }
+
+class Client:
+    authenticator: AuthBase
+
+    def __init__(
+        self,
+        group_id: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        token_provider: Optional[TokenProvider] = None,
+        endpoints: Optional[Endpoints] = None,
+    ):
+        if not (username and password) and not token_provider:
+            raise Exception(
+                "At least a username/password combination or TokenProvider object should be provided."
+            )
+        self.endpoints = endpoints or Endpoints()
+        self.group_id = group_id
+
+        if username and password:
+            token_provider = UsernamePasswordTokenProvider(
+                username, password, f"{self.endpoints.account}/api/v1/auth/login"
+            )
+
+        self.authenticator = HTTPBearerAuthenticator(token_provider)
 
     def _request(
         self, method: str, url: str, payload: Optional[Dict[str, Any]] = None
@@ -75,21 +168,10 @@ class Client:
             url,
             json=payload,
             timeout=TIMEOUT,
-            headers=self._headers(),
+            headers={"content-type": "application/json"},
+            auth=self.authenticator,
         )
         data: JSendPayload = rsp.json()
-        # If account returns unauthorized we attempt to login and retry request
-        if rsp.status_code == 401:
-            self._login()
-            rsp = requests.request(
-                method,
-                url,
-                json=payload,
-                headers=self._headers(),
-                timeout=TIMEOUT,
-            )
-            data = rsp.json()
-
         if rsp.status_code >= 400:
             raise HTTPError(data)
 

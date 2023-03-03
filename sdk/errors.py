@@ -39,3 +39,7 @@ class HTTPError(Exception):
             f"Error {self.code}: {self.description}\n"
             f"Details: {json.dumps(self.details, indent=2)}"
         )
+
+
+class LoginError(Exception):
+    pass

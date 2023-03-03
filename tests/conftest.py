@@ -14,9 +14,9 @@ JSON_FILE = "_.{}.json"
 def request_mock(mock=None):
     def mock_response(request, context):
         path = request.url.split("/api/v1/")[1].split("?")[0]
-        
+
         data = None
-        if request.method == 'POST':
+        if request.method == "POST":
             data = request.json()
 
         json_path = os.path.join(
@@ -25,7 +25,7 @@ def request_mock(mock=None):
         with open(json_path) as json_file:
             result = json.load(json_file)
             if data:
-                if data.get('emulator'):
+                if data.get("emulator"):
                     result["data"]["device_type"] = data["emulator"]
                 else:
                     result["data"]["device_type"] = DeviceType.QPU
