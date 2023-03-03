@@ -2,12 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [In progresss]
+## [0.1.13] - [In progress]
 
 ### Changed
 - The default values for the tensor network emulator were updated to better ones.
 - the client_id and client_secret was leftover in the Client object even though they are no longer used.
 - Updated the README to also supply the group_id which is mandatory.
+- Updated the default endpoint to `/core-fast` in accordance with infra changes. All users should use `/core-fast` in all environments.
 
 ## [0.1.12] - 2023-02-27
 
