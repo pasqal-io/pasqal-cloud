@@ -16,7 +16,7 @@ import time
 from typing import Any, Dict, List, Optional
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
-from sdk.client import Client
+from sdk.client import Client, TokenProvider
 from sdk.endpoints import Endpoints
 from sdk.job import Job
 from sdk.device.configuration import BaseConfig
@@ -31,7 +31,7 @@ class SDK:
         group_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
-        login_url: Optional[str] = None,
+        token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         webhook: Optional[str] = None,
     ):
@@ -39,7 +39,7 @@ class SDK:
             username=username,
             password=password,
             group_id=group_id,
-            login_url=login_url,
+            token_provider=token_provider,
             endpoints=endpoints,
         )
         self.batches: Dict[str, Batch] = {}

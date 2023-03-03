@@ -46,7 +46,7 @@ class TokenProvider(Protocol):
     expiry_window: timedelta = timedelta(minutes=1.0)
 
     @abstractmethod
-    def _query_token(self) -> str:
+    def _query_token(self) -> dict[str, Any]:
         raise NotImplementedError
 
     def get_token(self) -> str:
@@ -115,8 +115,7 @@ class UsernamePasswordTokenProvider(TokenProvider):
         self.password = password
         self.login_url = login_url
 
-    def _query_token(self) -> str:
-        url = f"{self.endpoints.account}/api/v1/auth/login"
+    def _query_token(self) -> Dict[str, Any]:
         payload = {
             "email": self.username,
             "password": self.password,
@@ -134,7 +133,7 @@ class UsernamePasswordTokenProvider(TokenProvider):
         if rsp.status_code >= 400:
             raise HTTPError(data)
 
-        return data["token"]
+        return {"access_token": data["token"]}
 
 
 class Client:
