@@ -15,9 +15,9 @@ from __future__ import annotations
 from abc import abstractmethod
 from datetime import datetime, timedelta, timezone
 from jwt import decode, DecodeError
-from requests import HTTPError, PreparedRequest
+from requests import PreparedRequest
 from requests.auth import AuthBase
-from typing import Any, Dict, List, Optional, Protocol, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
@@ -29,7 +29,9 @@ TIMEOUT = 30  # client http requests timeout after 30s
 
 
 class HTTPBearerAuthenticator(AuthBase):
-    def __init__(self, token_provider: TokenProvider):
+    def __init__(self, token_provider: Optional[TokenProvider]):
+        if not token_provider:
+            raise Exception("The authenticator needs a token provider.")
         self.token_provider = token_provider
 
     def __call__(self, r: PreparedRequest) -> PreparedRequest:
@@ -41,7 +43,7 @@ class TokenProviderError(Exception):
     pass
 
 
-class TokenProvider(Protocol):
+class TokenProvider:
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
 
@@ -83,25 +85,22 @@ class TokenProvider(Protocol):
         Returns:
             The time the token will expire, or None if it can't be calculated
         """
-        if expires_in := token_response.get("expires_in"):
+        expires_in = token_response.get("expires_in", None)
+        if expires_in:
             return datetime.now(tz=timezone.utc) + timedelta(seconds=float(expires_in))
 
         try:
             # We assume the token is valid, but might not be in an expected format
             token = token_response.get("access_token")
 
-            if (
-                isinstance(token, str)
-                and "." in token
-                and (
-                    token_timestamp := decode(
+            if (isinstance(token, str)and "." in token):
+                token_timestamp = decode(
                         token,
                         algorithms=["HS256"],
                         options={"verify_signature": False},
                     ).get("exp")
-                )
-            ):
-                return datetime.fromtimestamp(token_timestamp, tz=timezone.utc)
+                if token_timestamp:
+                    return datetime.fromtimestamp(token_timestamp, tz=timezone.utc)
 
         except DecodeError:
             # The token is not in a format that could be parsed as a JWT
