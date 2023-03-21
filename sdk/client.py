@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from __future__ import annotations
+
 from abc import abstractmethod
 from datetime import datetime, timedelta, timezone
-from jwt import decode, DecodeError
-from requests import PreparedRequest
-from requests.auth import AuthBase
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
+from jwt import decode, DecodeError
+from requests import PreparedRequest
+from requests.auth import AuthBase
 
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
@@ -93,12 +94,12 @@ class TokenProvider:
             # We assume the token is valid, but might not be in an expected format
             token = token_response.get("access_token")
 
-            if (isinstance(token, str)and "." in token):
+            if isinstance(token, str) and "." in token:
                 token_timestamp = decode(
-                        token,
-                        algorithms=["HS256"],
-                        options={"verify_signature": False},
-                    ).get("exp")
+                    token,
+                    algorithms=["HS256"],
+                    options={"verify_signature": False},
+                ).get("exp")
                 if token_timestamp:
                     return datetime.fromtimestamp(token_timestamp, tz=timezone.utc)
 
@@ -148,7 +149,8 @@ class Client:
     ):
         if not (username and password) and not token_provider:
             raise Exception(
-                "At least a username/password combination or TokenProvider object should be provided."
+                "At least a username/password combination or"
+                "TokenProvider object should be provided."
             )
         self.endpoints = endpoints or Endpoints()
         self.group_id = group_id
@@ -221,3 +223,9 @@ class Client:
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
         )["data"]
         return job
+
+    def get_device_specs_list(self) -> List[Dict[str, Any]]:
+        device_specs: List[Dict[str, Any]] = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/device/specs"
+        )["data"]
+        return device_specs

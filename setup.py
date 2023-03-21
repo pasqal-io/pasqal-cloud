@@ -40,6 +40,7 @@ setup(
         "requests==2.25.1",
         "requests-mock==1.9.3",
         "pyjwt[crypto]==2.5.0",
+        "pydantic==1.10.6"
     ],
     extras_require={
         "dev": {

@@ -17,10 +17,11 @@ from typing import Any, Dict, List, Optional
 
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client, TokenProvider
+from sdk.device.configuration import BaseConfig
+from sdk.device.device_specs import DeviceSpecsList
+from sdk.device.device_types import DeviceType
 from sdk.endpoints import Endpoints
 from sdk.job import Job
-from sdk.device.configuration import BaseConfig
-from sdk.device.device_types import DeviceType
 
 
 class SDK:
@@ -55,17 +56,21 @@ class SDK:
         fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
-        For Iroise MVP, the batch must contain at least one job and will be declared as complete immediately.
+        For Iroise MVP, the batch must contain at least one job and will be declared as
+        complete immediately.
 
         Args:
             serialized_sequence: Serialized pulser sequence.
-            jobs: List of jobs to be added to the batch at creation. (#TODO: Make optional after Iroise MVP)
+            jobs: List of jobs to be added to the batch at creation.
+                (#TODO: Make optional after Iroise MVP)
             device_type: The type of device to use, either an emulator or a QPU
               If set to QPU, the device_type will be set to the one
               stored in the serialized sequence
-            configuration: A dictionary with extra configuration for the emulators that accept it.
+            configuration: A dictionary with extra configuration for the emulators
+                that accept it.
             wait: Whether to wait for the batch to be done
-            fetch_results: Whether to download the results. Implies waiting for the batch.
+            fetch_results: Whether to download the results. Implies waiting
+                for the batch.
 
 
         Returns:
@@ -123,3 +128,14 @@ class SDK:
             batch.jobs[job_rsp["id"]] = Job(**job_rsp)
         self.batches[batch.id] = batch
         return batch
+
+    def get_device_specs_list(self) -> DeviceSpecsList:
+        """Retrieve the list of available device specifications.
+
+        Returns:
+            DeviceSpecs: the list of available device specifications.
+        """
+
+        return DeviceSpecsList(
+            device_specs_list=self._client.get_device_specs_list()
+        ).device_specs_list
