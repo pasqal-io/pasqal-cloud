@@ -226,6 +226,6 @@ class Client:
 
     def get_device_specs_list(self) -> List[Dict[str, Any]]:
         device_specs: List[Dict[str, Any]] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/device/specs"
+            "GET", f"{self.endpoints.core}/api/v1/devices/specs"
         )["data"]
         return device_specs
