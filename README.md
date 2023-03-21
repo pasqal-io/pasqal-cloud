@@ -121,3 +121,15 @@ from sdk.device.configuration import EmuFreeConfig
 configuration = EmuFreeConfig(with_noise=True)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE, configuration=configuration)
 ```
+
+### List of supported device specifications
+
+The SDK provides a method to retrieve the device specs supported by Pasqal.
+
+```python
+sdk.get_device_specs_list()
+```
+
+The method returns a list of Pydantic `DeviceSpecs` objects with two parameters: `device_type` and `specs`. The `specs` are
+in the `dict` format. They can be dumped into a json string and deserialized into a `Device` instance from the `Pulser`
+library with the `deserialize_device` method from `Pulser`.

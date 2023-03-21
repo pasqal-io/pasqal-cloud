@@ -2,9 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.13] 
+## [0.1.14]
 
 ### Changed
+
+- Added a get_device_specs_list function to the sdk
+- Added pydantic dependency
+- Updated Readme for the device specs
+
+## [0.1.13]
+
+### Changed
+
 - The default values for the tensor network emulator were updated to better ones.
 - the client_id and client_secret was leftover in the Client object even though they are no longer used.
 - Updated the README to also supply the group_id which is mandatory.
@@ -14,6 +23,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.12] - 2023-02-27
 
 ### Changed
+
 - The group_id field has been added to the Job schema which is now present in some services returning Job data.
 - Pytest fixtures updated to accomodate this.
 
@@ -22,7 +32,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - The authentication system has been reworked and is now connected to auth0. API keys have been removed
-hence you should now use your email and password to initialize the SDK (see example in Readme). 
+  hence you should now use your email and password to initialize the SDK (see example in Readme).
 
 ## [0.1.10] - 2023-02-09
 
