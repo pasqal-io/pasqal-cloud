@@ -12,8 +12,9 @@ class DeviceSpecs(BaseModel):
     specs: Dict[str, Any]
 
     @validator("specs", pre=True)
-    def _convert_specs_to_dict(cls, v):
-        return json.loads(v)
+    def _convert_specs_to_dict(cls, v: str) -> Dict[str, Any]:
+        specs_dict: Dict[str, Any] = json.loads(v)
+        return specs_dict
 
 
 class DeviceSpecsList(BaseModel):
