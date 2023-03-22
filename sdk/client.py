@@ -224,8 +224,8 @@ class Client:
         )["data"]
         return job
 
-    def get_device_specs_list(self) -> List[Dict[str, Any]]:
-        device_specs: List[Dict[str, Any]] = self._request(
+    def get_device_specs_dict(self) -> Dict[str, str]:
+        device_specs: Dict[str, str] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/devices/specs"
         )["data"]
         return device_specs

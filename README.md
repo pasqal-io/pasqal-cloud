@@ -124,12 +124,13 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceTyp
 
 ### List of supported device specifications
 
-The SDK provides a method to retrieve the device specs supported by Pasqal.
+The SDK provides a method to retrieve the devices specs currently defined on PASQAL's cloud platform.
+they define the physical constraints of our QPUs and these constraints enforce some rules on
+the pulser sequence that can be run on QPUs (e.g. max amount of atoms, available pulse channels, ...)
 
 ```python
 sdk.get_device_specs_list()
 ```
 
-The method returns a list of Pydantic `DeviceSpecs` objects with two parameters: `device_type` and `specs`. The `specs` are
-in the `dict` format. They can be dumped into a json string and deserialized into a `Device` instance from the `Pulser`
-library with the `deserialize_device` method from `Pulser`.
+The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
+to instantiate a `Device` instance in the `Pulser` library.

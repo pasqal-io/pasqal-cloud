@@ -1,14 +1,8 @@
 {
   "code": 200,
-  "data": [
-    {
-      "id": "00000000-0000-0000-0000-000000000001",
-      "created_at": "2020-01-01T00:00:00+00:00",
-      "updated_at": "2020-01-01T00:00:00+00:00",
-      "device_type": "QPU",
-      "specs": "{\"version\":\"1\",\"channels\":[],\"name\":\"device\",\"dimensions\":2,\"rydberg_level\":51,\"min_atom_distance\":0.2,\"max_atom_num\":10,\"max_radial_distance\":5,\"interaction_coeff_xy\":null,\"supports_slm_mask\":false,\"max_layout_filling\":0.5,\"reusable_channels\":false,\"pre_calibrated_layouts\":[],\"is_virtual\":false}"
-    }
-  ],
+  "data": {
+    "FRESNEL": "{\"version\":\"1\",\"channels\":[],\"name\":\"device\",\"dimensions\":2,\"rydberg_level\":51,\"min_atom_distance\":0.2,\"max_atom_num\":10,\"max_radial_distance\":5,\"interaction_coeff_xy\":null,\"supports_slm_mask\":false,\"max_layout_filling\":0.5,\"reusable_channels\":false,\"pre_calibrated_layouts\":[],\"is_virtual\":false}"
+  },
   "message": "OK.",
   "status": "success"
 }

@@ -6,8 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Added a get_device_specs_list function to the sdk
-- Added pydantic dependency
+- Added a get_device_specs_dict function to the sdk
 - Updated Readme for the device specs
 
 ## [0.1.13]

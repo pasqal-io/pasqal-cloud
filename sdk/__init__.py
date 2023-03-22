@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client, TokenProvider
 from sdk.device.configuration import BaseConfig
-from sdk.device.device_specs import DeviceSpecs, DeviceSpecsList
 from sdk.device.device_types import DeviceType
 from sdk.endpoints import Endpoints
 from sdk.job import Job
@@ -129,13 +128,11 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
-    def get_device_specs_list(self) -> List[DeviceSpecs]:
+    def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.
 
         Returns:
             DeviceSpecs: the list of available device specifications.
         """
 
-        return DeviceSpecsList(
-            device_specs_list=self._client.get_device_specs_list()
-        ).device_specs_list
+        return self._client.get_device_specs_dict()
