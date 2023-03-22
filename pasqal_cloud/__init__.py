@@ -114,7 +114,7 @@ class SDK:
                 )
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
-            batch.jobs[job_rsp["id"]] = Job(**job_rsp)
+            batch.jobs[job_rsp["id"]] = Job(**job_rsp, _client=self._client)
 
         self.batches[batch.id] = batch
         return batch
@@ -123,7 +123,7 @@ class SDK:
         """Retrieve a batch's data and all its jobs.
 
         Args:
-            id: Id of the batch.
+            id: ID of the batch.
             fetch_results: whether to download job results
 
         Returns:
@@ -133,9 +133,47 @@ class SDK:
         batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
         batch = Batch(**batch_rsp, _client=self._client)
         for job_rsp in jobs_rsp:
-            batch.jobs[job_rsp["id"]] = Job(**job_rsp)
+            batch.jobs[job_rsp["id"]] = Job(**job_rsp, _client=self._client)
         self.batches[batch.id] = batch
         return batch
+
+    def cancel_batch(self, id: str) -> Batch:
+        """Cancel the given batch on the PCS
+
+        Args:
+            id: ID of the batch.
+        """
+        batch_rsp = self._client._cancel_batch(id)
+        batch = Batch(**batch_rsp, _client=self._client)
+        return batch
+
+    def get_job(self, id: str, wait: bool = False) -> Job:
+        """Retrieve a job's data.
+
+        Args:
+            id: ID of the job.
+            wait: Whether to wait for the job to be done
+
+        Returns:
+            Job: the job stored in the PCS database.
+        """
+        job_rsp = self._client._get_job(id)
+        if wait:
+            while job_rsp["status"] in ["PENDING", "RUNNING"]:
+                time.sleep(RESULT_POLLING_INTERVAL)
+                job_rsp = self._client._get_job(id)
+        job = Job(**job_rsp, _client=self._client)
+        return job
+
+    def cancel_job(self, id: str) -> Job:
+        """Cancel the given job on the PCS
+
+        Args:
+            id: ID of the job.
+        """
+        job_rsp = self._client._cancel_job(id)
+        job = Job(**job_rsp, _client=self._client)
+        return job
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.

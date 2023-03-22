@@ -16,28 +16,28 @@ class Batch:
 
     A batch groups up several jobs with the same sequence. When a batch is assigned to
     a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
-    device until all its jobs are done and it is declared complete.
+    device until all its jobs are done and declared complete.
 
     Attributes:
         - complete: Whether the batch has been declared as complete.
         - created_at: Timestamp of the creation of the batch.
-        - updated_at: Timestamps of the last update of the batch.
+        - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
-        - group_id: Id of the owner group of the batch.
+        - group_id: ID of the owner group of the batch.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
-        - status: Status of the batch.
+        - status: Status of the batch. Possible values are: PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - webhook: Webhook where the job results are automatically sent to.
+        - _client: A Client instance to connect to PCS.
         - sequence_builder: Pulser sequence of the batch.
         - start_datetime: Timestamp of the time the batch was sent to the QPU.
-        - end_datetime: Timestamp of when the  batch process was finished.
+        - end_datetime: Timestamp of when the batch process was finished.
         - device_status: Status of the device where the batch is running.
         - jobs: Dictionary of all the jobs added to the batch.
-        - jobs_count: number of jobs added to the batch.
-        - jobs_count_per_status: number of jobs per status.
+        - jobs_count: Number of jobs added to the batch.
+        - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
-
     """
 
     complete: bool
@@ -81,7 +81,7 @@ class Batch:
         """Add and send a new job for this batch.
 
         Args:
-            runs: number of times the job is ran on the QPU.
+            runs: number of times the job is run on the QPU.
             variables (optional): values for variables if sequence is parametrized.
             wait: Whether to wait for the job to be done.
 
@@ -92,7 +92,7 @@ class Batch:
         if variables:
             job_data["variables"] = variables
         job_rsp = self._client._send_job(job_data)
-        job = Job(**job_rsp)
+        job = Job(**job_rsp, _client=self._client)
         self.jobs[job.id] = job
         if wait:
             while job.status in ["PENDING", "RUNNING"]:
@@ -107,16 +107,15 @@ class Batch:
         """Declare to PCS that the batch is complete.
 
         Args:
-            wait: Whether to wait for the batch to be done
-            fetch_results: Whether to download the results. Implies
-                waiting for the batch.
+            wait: Whether to wait for the batch to be done.
+            fetch_results: Whether to download the results. Implies waiting for the batch.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
         the complete batch is unassigned to its running device.
         """
-        self.complete = True
         batch_rsp = self._client._complete_batch(self.id)
+        self.complete = True
         if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
@@ -129,4 +128,10 @@ class Batch:
                 )
             for job_rsp in jobs_rsp:
                 self.jobs[job_rsp["id"]] = Job(**job_rsp)
+        return batch_rsp
+
+    def cancel(self) -> Dict[str, Any]:
+        """Cancel the current batch on the PCS."""
+        batch_rsp = self._client._cancel_batch(self.id)
+        self.status = batch_rsp.get("status")
         return batch_rsp

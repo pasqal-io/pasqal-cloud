@@ -22,7 +22,7 @@ def mock_core_response(request):
     )
     with open(json_path) as json_file:
         result = json.load(json_file)
-        if data:
+        if path == "batches" and data:
             if data.get("emulator"):
                 result["data"]["device_type"] = data["emulator"]
             else:
