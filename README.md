@@ -125,7 +125,7 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceTyp
 ### List of supported device specifications
 
 The SDK provides a method to retrieve the devices specs currently defined on PASQAL's cloud platform.
-they define the physical constraints of our QPUs and these constraints enforce some rules on
+They define the physical constraints of our QPUs and these constraints enforce some rules on
 the pulser sequence that can be run on QPUs (e.g. max amount of atoms, available pulse channels, ...)
 
 ```python
