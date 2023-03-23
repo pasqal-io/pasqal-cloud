@@ -15,11 +15,13 @@
 import time
 from typing import Any, Dict, List, Optional
 
+from sdk.authentication import TokenProvider
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
-from sdk.client import Client, TokenProvider
+from sdk.client import Client
+from sdk.endpoints import Endpoints
+from sdk.job import Job
 from sdk.device.configuration import BaseConfig
 from sdk.device.device_types import DeviceType
-from sdk.endpoints import Endpoints
 from sdk.job import Job
 
 
@@ -28,20 +30,12 @@ class SDK:
 
     def __init__(
         self,
-        group_id: str,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
-        token_provider: Optional[TokenProvider] = None,
-        endpoints: Optional[Endpoints] = None,
         webhook: Optional[str] = None,
+        **clients_options,
     ):
-        self._client = Client(
-            username=username,
-            password=password,
-            group_id=group_id,
-            token_provider=token_provider,
-            endpoints=endpoints,
-        )
+        """ **clients_options are the arguments passed directly to the internal Client.
+        """
+        self._client = Client(**clients_options)
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 

@@ -37,6 +37,7 @@ setup(
     ],
     url="https://github.com/pasqal-io/cloud-sdk",
     install_requires=[
+        "auth0-python==3.23.1",
         "requests==2.25.1",
         "requests-mock==1.9.3",
         "pyjwt[crypto]==2.5.0",

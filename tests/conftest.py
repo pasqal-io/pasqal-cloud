@@ -4,34 +4,52 @@ import pytest
 import requests_mock
 from sdk.device.device_types import DeviceType
 
+from sdk.endpoints import Endpoints
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 JSON_FILE = "_.{}.json"
 
 
+def mock_core_response(request):
+    path = request.url.split("/api/v1/")[1].split("?")[0]
+    
+    data = None
+    if request.method == "POST":
+        data = request.json()
+
+    json_path = os.path.join(
+        TEST_API_FIXTURES_PATH, path, JSON_FILE.format(request.method)
+    )
+    with open(json_path) as json_file:
+        result = json.load(json_file)
+        if data:
+            if data.get("emulator"):
+                result["data"]["device_type"] = data["emulator"]
+            else:
+                result["data"]["device_type"] = DeviceType.QPU
+                result["data"]["configuration"] = None
+        return result
+
+
+def mock_auth0_response():
+    json_path = "tests/fixtures/auth0/token_response.json"
+    with open(json_path) as json_file:
+        result = json.load(json_file)
+
+    return result
+
+
+def mock_response(request, context):
+    if request.url.startswith(Endpoints.core):
+        return mock_core_response(request)
+
+    if request.url.startswith(Endpoints.auth0_url):
+        return mock_auth0_response()
+
+
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
 def request_mock(mock=None):
-    def mock_response(request, context):
-        path = request.url.split("/api/v1/")[1].split("?")[0]
-
-        data = None
-        if request.method == "POST":
-            data = request.json()
-
-        json_path = os.path.join(
-            TEST_API_FIXTURES_PATH, path, JSON_FILE.format(request.method)
-        )
-        with open(json_path) as json_file:
-            result = json.load(json_file)
-            if data:
-                if data.get("emulator"):
-                    result["data"]["device_type"] = data["emulator"]
-                else:
-                    result["data"]["device_type"] = DeviceType.QPU
-                    result["data"]["configuration"] = None
-            return result
-
     # Configure requests to use the local JSON files a response
     mock.register_uri(requests_mock.ANY, requests_mock.ANY, json=mock_response)
     return mock
