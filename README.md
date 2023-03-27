@@ -29,7 +29,7 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
-## Authentication
+## Instanciation and Authentication
 
 There are several ways to provide a correct authentication using the SDK.
 
@@ -59,6 +59,20 @@ sdk = SDK(username=username, group_id=group_id)
 """
 sdk = SDK(token_provider=token, group_id=group_id)
 ```
+
+If you want to redefine the APIs used by the SDK, please, do the following.
+
+```python
+from sdk import SDK, Endpoints
+
+class MyNewEndpoints(Endpoints):
+    ...
+
+sdk = SDK(..., endpoints=MyNewEndpoints)
+```
+
+Doing so will result in you only overriding the endpoints you wish, and be able to use the exising ones.
+It's useful for instance to keep the `Auth0` endpoints intacts, and to be able to alter the services you want to use.
 
 
 ## Basic usage

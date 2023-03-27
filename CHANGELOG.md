@@ -6,9 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Added
     - A (non-breaking) functionality that allows the user to not pass the password, and secretly prompt it when using the SDK.
+    - Adding local tests to check the login behavior.
 
 ### Changed
     - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
+    - Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
+
+### Deleted
+    - Account endpoint, we now use the Auth0.
 
 ## [0.1.14]
 
