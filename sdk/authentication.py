@@ -93,7 +93,7 @@ class TokenProvider(ABC):
 
 
 class Auth0TokenProvider(TokenProvider):
-    def __init__(self, username, password):
+    def __init__(self, username: str, password: str):
         self.username = username
         self.password = password
 
@@ -108,7 +108,7 @@ class Auth0TokenProvider(TokenProvider):
 
         # No client secret required for this Application since
         # "Token Endpoint Authentication Method" set to None
-        return token.login(
+        validated_token: dict[str, Any] = token.login(
             client_id=self.public_client_id,
             client_secret="",
             username=self.username,
@@ -118,3 +118,4 @@ class Auth0TokenProvider(TokenProvider):
             realm=self.realm,
             grant_type="http://auth0.com/oauth/grant-type/password-realm",
         )
+        return validated_token

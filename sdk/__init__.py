@@ -30,12 +30,14 @@ class SDK:
 
     def __init__(
         self,
+        group_id: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        token_provider: Optional[TokenProvider] = None,
+        endpoints: Optional[Endpoints] = None,
         webhook: Optional[str] = None,
-        **clients_options,
     ):
-        """ **clients_options are the arguments passed directly to the internal Client.
-        """
-        self._client = Client(**clients_options)
+        self._client = Client(group_id, username, password, token_provider, endpoints)
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 
