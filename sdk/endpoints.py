@@ -22,11 +22,13 @@ else:
     from typing_extensions import Final  # type: ignore
 
 CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
-AUTH0_DOMAIN: Final[str] = "pasqal-dev.eu.auth0.com"
+ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
+AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
 AUTH0_URL: Final[str] = f"https://{AUTH0_DOMAIN}"
 
 @dataclass
 class Endpoints:
     core: str = CORE_API_URL
+    account: str = ACCOUNT_API_URL
     auth0_domain: str = AUTH0_DOMAIN
     auth0_url: str = AUTH0_URL

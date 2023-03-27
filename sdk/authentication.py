@@ -9,6 +9,7 @@ from typing import Any, Optional
 from auth0.v3.authentication import GetToken
 from requests.auth import AuthBase
 
+from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
 
 
@@ -99,9 +100,10 @@ class Auth0TokenProvider(TokenProvider):
 
         #   This is public, so we can put it in the code here.
         self.public_client_id = "5QtfSu1UV118Iz6By6IJRSNoDrLbAiOv"
-        self.audience = "https://apis.dev.pasqal.cloud/account/api/v1"
+        self.audience = Endpoints.account
         self.realm = "pcs-users"
-        self.domain = "pasqal-dev.eu.auth0.com"
+        self.domain = Endpoints.auth0_domain
+
 
     def _query_token(self) -> dict[str, Any]:
         token = GetToken(self.domain)
