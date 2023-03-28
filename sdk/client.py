@@ -23,7 +23,7 @@ from requests.auth import AuthBase
 from sdk.authentication import (
     TokenProvider,
     Auth0TokenProvider,
-    HTTPBearerAuthenticator
+    HTTPBearerAuthenticator,
 )
 from sdk.endpoints import Endpoints
 from sdk.errors import HTTPError
@@ -47,17 +47,52 @@ class Client:
             raise ValueError(
                 "At least a username or TokenProvider object should be provided."
             )
-        
-        if password is None and username is not None:
-            password = getpass("Enter your password:")
+        self._check_token_provider(token_provider)
 
-        self.endpoints = endpoints or Endpoints()
-        self.group_id = group_id
-
-        if username and password:
-            token_provider = Auth0TokenProvider(username, password)
+        if username:
+            token_provider = self._credential_login(username, password)
 
         self.authenticator = HTTPBearerAuthenticator(token_provider)
+        self.endpoints = self._make_endpoints(endpoints)
+        self.group_id = group_id
+
+    @staticmethod
+    def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
+        if endpoints is None:
+            return Endpoints()
+
+        if not isinstance(endpoints, Endpoints):
+            raise ValueError("Endpoints must be a Endpoints instance")
+
+        return endpoints
+
+    @staticmethod
+    def _check_token_provider(token_provider: Optional[TokenProvider]) -> None:
+        if not token_provider:
+            return
+
+        err = ValueError("token_provider must be a TokenProvider subclass")
+        try:
+            # The type ignore is because I wouldn't know how to fix the type problem
+            # but the code should be correct, and is tested
+            if not issubclass(token_provider, TokenProvider):  # type: ignore
+                raise err
+        except (
+            TypeError
+        ):  # This is the error if token_provider is not a class for issubclass
+            raise err
+
+    def _credential_login(
+        self, username: str, password: Optional[str]
+    ) -> TokenProvider:
+        if password is None:
+            password = getpass("Enter your password:")
+
+        if not password:
+            raise ValueError("You cannot provide an empty password.")
+
+        token_provider: TokenProvider = Auth0TokenProvider(username, password)
+        return token_provider
 
     def _request(
         self, method: str, url: str, payload: Optional[Dict[str, Any]] = None

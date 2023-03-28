@@ -14,7 +14,7 @@ INVALID_KEY_ERROR_MSG = "Invalid key {} in Configuration.extra_config. Attempted
 @dataclass
 class BaseConfig:
     """Base class for all device configuration classes.
-    
+
     This class provides a common interface for all device configuration classes.
     It also provides a mechanism to add extra configuration parameters
     that are not part of the default configuration.

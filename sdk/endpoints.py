@@ -26,6 +26,7 @@ ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
 AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
 AUTH0_URL: Final[str] = f"https://{AUTH0_DOMAIN}"
 
+
 @dataclass
 class Endpoints:
     core: str = CORE_API_URL

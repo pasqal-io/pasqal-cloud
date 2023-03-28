@@ -37,7 +37,13 @@ class SDK:
         endpoints: Optional[Endpoints] = None,
         webhook: Optional[str] = None,
     ):
-        self._client = Client(group_id, username, password, token_provider, endpoints)
+        self._client = Client(
+            group_id=group_id,
+            username=username,
+            password=password,
+            token_provider=token_provider,
+            endpoints=endpoints,
+        )
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 

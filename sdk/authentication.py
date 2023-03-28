@@ -6,7 +6,8 @@ from jwt import decode, DecodeError
 from requests import PreparedRequest
 from typing import Any, Optional
 
-from auth0.v3.authentication import GetToken
+from auth0.v3.authentication import GetToken  # type: ignore
+from auth0.v3.exceptions import Auth0Error  # type: ignore
 from requests.auth import AuthBase
 
 from sdk.endpoints import Endpoints
@@ -31,6 +32,10 @@ class TokenProviderError(Exception):
 class TokenProvider(ABC):
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
+
+    def __init__(self, username: str, password: str):
+        self.username = username
+        self.password = password
 
     @abstractmethod
     def _query_token(self) -> dict[str, Any]:
@@ -78,12 +83,12 @@ class TokenProvider(ABC):
             # We assume the token is valid, but might not be in an expected format
             token = token_response.get("access_token")
 
-            if (isinstance(token, str)and "." in token):
+            if isinstance(token, str) and "." in token:
                 token_timestamp = decode(
-                        token,
-                        algorithms=["HS256"],
-                        options={"verify_signature": False},
-                    ).get("exp")
+                    token,
+                    algorithms=["HS256"],
+                    options={"verify_signature": False},
+                ).get("exp")
                 if token_timestamp:
                     return datetime.fromtimestamp(token_timestamp, tz=timezone.utc)
 
@@ -95,15 +100,16 @@ class TokenProvider(ABC):
 
 class Auth0TokenProvider(TokenProvider):
     def __init__(self, username: str, password: str):
-        self.username = username
-        self.password = password
+        super().__init__(username, password)
 
         #   This is public, so we can put it in the code here.
-        self.public_client_id = "5QtfSu1UV118Iz6By6IJRSNoDrLbAiOv"
+        self.public_client_id = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
         self.audience = Endpoints.account
         self.realm = "pcs-users"
         self.domain = Endpoints.auth0_domain
 
+        # Makes a call in order to check the credentials at creation
+        self._query_token()
 
     def _query_token(self) -> dict[str, Any]:
         token = GetToken(self.domain)
@@ -121,3 +127,28 @@ class Auth0TokenProvider(TokenProvider):
             grant_type="http://auth0.com/oauth/grant-type/password-realm",
         )
         return validated_token
+
+
+class FakeAuth0GoodAuthentication(TokenProvider):
+    def _query_token(self) -> dict[str, Any]:
+        return {
+            "access_token": "some_token",
+            "id_token": "id_token",
+            "scope": "openid profile email",
+            "expires_in": 86400,
+            "token_type": "Bearer",
+        }
+
+
+class FakeAuth0BadAuthentication(TokenProvider):
+    def __init__(self, username: str, password: str):
+        super().__init__(username, password)
+
+        #   Makes a call in order to check the credentials at creation
+        #   And raise the Error
+        self._query_token()
+
+    def _query_token(self) -> dict[str, Any]:
+        raise Auth0Error(
+            status_code=403, error_code=403, message="Wrong email or password"
+        )

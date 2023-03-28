@@ -12,7 +12,7 @@ JSON_FILE = "_.{}.json"
 
 def mock_core_response(request):
     path = request.url.split("/api/v1/")[1].split("?")[0]
-    
+
     data = None
     if request.method == "POST":
         data = request.json()
@@ -31,20 +31,10 @@ def mock_core_response(request):
         return result
 
 
-def mock_auth0_response():
-    json_path = "tests/fixtures/auth0/token_response.json"
-    with open(json_path) as json_file:
-        result = json.load(json_file)
-
-    return result
-
-
 def mock_response(request, context):
+    """This acts as a Router to Mock the requests we make with custom behaviors."""
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
-
-    if request.url.startswith(Endpoints.auth0_url):
-        return mock_auth0_response()
 
 
 @pytest.fixture(scope="session")

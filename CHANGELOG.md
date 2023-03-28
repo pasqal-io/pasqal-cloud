@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
     - Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
 
 ### Deleted
-    - Account endpoint, we now use the Auth0.
+    - Account endpoint, we now use Auth0.
 
 ## [0.1.14]
 
