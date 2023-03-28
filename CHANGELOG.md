@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.5] - 2023-04-24
 
-### Changed
+### Added
 
 - Cancel methods added to batches and jobs, from the object itself and the sdk
 - Get a job method from sdk added
