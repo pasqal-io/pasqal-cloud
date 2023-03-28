@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+- Updated Readme to tell users to use the abstract representation of a sequence instead of python serialization when creating a batch.
+
 ## [0.1.14]
 
 ### Changed

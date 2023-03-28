@@ -56,8 +56,8 @@ omega_max = sequence.declare_variable("omega_max")
 generic_pulse = Pulse.ConstantPulse(100, omega_max, 2, 0.0)
 sequence.add(generic_pulse, "rydberg")
 
-# When you are done building your sequence, serialize it into a string
-serialized_sequence = sequence.serialize()
+# When you are done building your sequence, serialize it into a string using the abstract representation
+serialized_sequence = sequence.to_abstract_repr()
 ```
 
 Once you have serialized your sequence, you can send it with the SDK with the following code
