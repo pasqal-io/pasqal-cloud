@@ -42,5 +42,5 @@ class Job:
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
         job_rsp = self._client._cancel_job(self.id)
-        self.status : str = job_rsp.get("status")
+        self.status = job_rsp.get("status", "CANCELED")
         return job_rsp

@@ -133,5 +133,5 @@ class Batch:
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current batch on the PCS."""
         batch_rsp = self._client._cancel_batch(self.id)
-        self.status : str = batch_rsp.get("status")
+        self.status = batch_rsp.get("status", "CANCELED")
         return batch_rsp
