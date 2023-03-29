@@ -85,9 +85,11 @@ class Client:
     def _credential_login(
         self, username: str, password: Optional[str]
     ) -> TokenProvider:
-        if password is None:
+        if not password:
             password = getpass("Enter your password:")
 
+        #   We want to allow an empty string at first, but then
+        #   it results in an error
         if not password:
             raise ValueError("You cannot provide an empty password.")
 

@@ -86,7 +86,9 @@ class TestBadAuth:
                 password=self.password,
             )
 
-    def test_module_no_password(self):
+    @patch("sdk.client.getpass")
+    def test_module_no_password(self, getpass):
+        getpass.return_value = ""
         with pytest.raises(ValueError):
             SDK(
                 group_id=self.group_id,
