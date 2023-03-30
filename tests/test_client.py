@@ -7,7 +7,7 @@ from sdk.authentication import FakeAuth0BadAuthentication, FakeAuth0GoodAuthenti
 
 
 @patch("sdk.client.Auth0TokenProvider", FakeAuth0GoodAuthentication)
-class TestGoodAuth:
+class TestAuthSuccess:
     group_id = "random_group_id"
     username = "random_username"
     password = "random_password"
@@ -40,7 +40,7 @@ class TestGoodAuth:
         assert sdk._client.endpoints.core == self.new_core_endpoint
 
     def test_bad_endpoints(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             SDK(
                 group_id=self.group_id,
                 username=self.username,
@@ -61,7 +61,7 @@ class TestGoodAuth:
         )
 
     def test_bad_auth0(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             SDK(
                 group_id=self.group_id,
                 username=self.username,
@@ -71,7 +71,7 @@ class TestGoodAuth:
 
 
 @patch("sdk.client.Auth0TokenProvider", FakeAuth0BadAuthentication)
-class TestBadAuth:
+class TestAuthFailure:
     group_id = "random_group_id"
     username = "random_username"
     no_username = ""
@@ -96,6 +96,17 @@ class TestBadAuth:
 
         getpass.assert_called_once()
 
+
+
+
+
+class TestAuthInvalidClient:
+    group_id = "random_group_id"
+    username = "random_username"
+    no_username = ""
+    password = "random_password"
+    no_password = ""
+
     def test_module_no_user_with_password(self):
         with pytest.raises(ValueError):
             SDK(
@@ -119,5 +130,5 @@ class TestBadAuth:
             SDK(group_id=self.group_id, username=self.username, password=self.password)
 
     def test_bad_token_provider(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             SDK(group_id=self.group_id, token_provider="token")

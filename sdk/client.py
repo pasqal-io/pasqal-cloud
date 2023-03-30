@@ -48,7 +48,8 @@ class Client:
             raise ValueError(
                 "At least a username or TokenProvider object should be provided."
             )
-        self._check_token_provider(token_provider)
+        if token_provider is not None:
+            self._check_token_provider(token_provider)
 
         if username:
             auth0 = self._make_auth0(auth0)
@@ -64,7 +65,7 @@ class Client:
             return Endpoints()
 
         if not isinstance(endpoints, Endpoints):
-            raise ValueError(f"endpoints must be a {Endpoints.__name__} instance")
+            raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
 
@@ -74,25 +75,18 @@ class Client:
             return Auth0Conf()
         
         if not isinstance(auth0, Auth0Conf):
-            raise ValueError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
+            raise TypeError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
 
         return auth0
 
     @staticmethod
-    def _check_token_provider(token_provider: Optional[TokenProvider]) -> None:
-        if not token_provider:
-            return
-
-        err = ValueError("token_provider must be a TokenProvider subclass")
+    def _check_token_provider(token_provider: TokenProvider) -> None:
         try:
             # The type ignore is because I wouldn't know how to fix the type problem
             # but the code should be correct, and is tested
-            if not issubclass(token_provider, TokenProvider):  # type: ignore
-                raise err
-        except (
-            TypeError
-        ):  # This is the error if token_provider is not a class for issubclass
-            raise err
+            issubclass(token_provider, TokenProvider) # type: ignore
+        except TypeError:
+            raise TypeError("token_provider must be a TokenProvider subclass")
 
     def _credential_login(
         self, username: str, password: Optional[str], auth0: Auth0Conf
