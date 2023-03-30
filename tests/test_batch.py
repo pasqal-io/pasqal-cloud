@@ -4,7 +4,7 @@ import pytest
 
 from sdk import SDK, DeviceType
 from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
-from tests.test_client import FakeAuth0GoodAuthentication
+from sdk.authentication import FakeAuth0GoodAuthentication
 
 
 class TestBatch:

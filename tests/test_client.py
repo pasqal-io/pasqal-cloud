@@ -1,39 +1,8 @@
-from __future__ import annotations
-
-
-from auth0.v3.exceptions import Auth0Error
 import pytest
-from typing import Any
 
 from unittest.mock import patch
 from sdk import SDK, Endpoints, Auth0Conf
-from sdk.authentication import TokenProvider
-
-
-class FakeAuth0GoodAuthentication(TokenProvider):
-    def _query_token(self) -> dict[str, Any]:
-        return {
-            "access_token": "some_token",
-            "id_token": "id_token",
-            "scope": "openid profile email",
-            "expires_in": 86400,
-            "token_type": "Bearer",
-        }
-
-
-class FakeAuth0BadAuthentication(TokenProvider):
-    def __init__(self, *args: tuple, **kwags: dict):
-        """The arguments are not important.
-        What's important is that the init raise the error below.
-        """
-        self._query_token()
-
-    def _query_token(self) -> dict[str, Any]:
-        """The lib raises a Auth0Error, but I raise a ValueError in order
-        not to confused the tests. If a Auth0Error is raised, it's
-        because we didn't mock properly.
-        """
-        raise ValueError()
+from sdk.authentication import FakeAuth0BadAuthentication, FakeAuth0GoodAuthentication
 
 
 @patch("sdk.client.Auth0TokenProvider", FakeAuth0GoodAuthentication)
