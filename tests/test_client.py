@@ -13,7 +13,6 @@ class TestAuthSuccess:
     password = "random_password"
     new_core_endpoint = "random_endpoint"
 
-
     @patch("sdk.client.getpass")
     def test_module_getpass_success(self, getpass):
         getpass.return_value = self.password
@@ -95,9 +94,6 @@ class TestAuthFailure:
             SDK(group_id=self.group_id, username=self.username)
 
         getpass.assert_called_once()
-
-
-
 
 
 class TestAuthInvalidClient:

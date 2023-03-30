@@ -137,8 +137,8 @@ class FakeAuth0GoodAuthentication(TokenProvider):
 
 class FakeAuth0BadAuthentication(TokenProvider):
     def __init__(self, *args: tuple, **kwags: dict):
-        """ The arguments are not important.
-            What's important is that the init raise the error below.
+        """The arguments are not important.
+        What's important is that the init raise the error below.
         """
         self._query_token()
 

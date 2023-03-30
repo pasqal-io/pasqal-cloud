@@ -14,11 +14,10 @@
 from __future__ import annotations
 
 from getpass import getpass
-from requests.auth import AuthBase
 from typing import Any, Dict, List, Optional, Tuple
 
-import requests
 from requests.auth import AuthBase
+import requests
 
 from sdk.authentication import (
     TokenProvider,
@@ -73,7 +72,7 @@ class Client:
     def _make_auth0(auth0: Optional[Auth0Conf]) -> Auth0Conf:
         if auth0 is None:
             return Auth0Conf()
-        
+
         if not isinstance(auth0, Auth0Conf):
             raise TypeError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
 
@@ -84,7 +83,7 @@ class Client:
         try:
             # The type ignore is because I wouldn't know how to fix the type problem
             # but the code should be correct, and is tested
-            issubclass(token_provider, TokenProvider) # type: ignore
+            issubclass(token_provider, TokenProvider)  # type: ignore
         except TypeError:
             raise TypeError("token_provider must be a TokenProvider subclass")
 

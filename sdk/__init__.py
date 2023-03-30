@@ -19,7 +19,6 @@ from sdk.authentication import TokenProvider
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
 from sdk.endpoints import Endpoints, Auth0Conf
-from sdk.job import Job
 from sdk.device.configuration import BaseConfig
 from sdk.device.device_types import DeviceType
 from sdk.job import Job
