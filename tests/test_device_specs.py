@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from sdk import SDK
-from sdk.authentication import FakeAuth0BadAuthentication, FakeAuth0GoodAuthentication
+from tests.test_client import FakeAuth0GoodAuthentication
 
 
 class TestDeviceSpecs:

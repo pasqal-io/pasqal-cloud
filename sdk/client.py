@@ -50,12 +50,13 @@ class Client:
         if token_provider is not None:
             self._check_token_provider(token_provider)
 
+        self.endpoints = self._make_endpoints(endpoints)
+
         if username:
             auth0 = self._make_auth0(auth0)
             token_provider = self._credential_login(username, password, auth0)
 
         self.authenticator = HTTPBearerAuthenticator(token_provider)
-        self.endpoints = self._make_endpoints(endpoints)
         self.group_id = group_id
 
     @staticmethod

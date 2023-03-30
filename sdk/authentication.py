@@ -122,27 +122,3 @@ class Auth0TokenProvider(TokenProvider):
             grant_type="http://auth0.com/oauth/grant-type/password-realm",
         )
         return validated_token
-
-
-class FakeAuth0GoodAuthentication(TokenProvider):
-    def _query_token(self) -> dict[str, Any]:
-        return {
-            "access_token": "some_token",
-            "id_token": "id_token",
-            "scope": "openid profile email",
-            "expires_in": 86400,
-            "token_type": "Bearer",
-        }
-
-
-class FakeAuth0BadAuthentication(TokenProvider):
-    def __init__(self, *args: tuple, **kwags: dict):
-        """The arguments are not important.
-        What's important is that the init raise the error below.
-        """
-        self._query_token()
-
-    def _query_token(self) -> dict[str, Any]:
-        raise Auth0Error(
-            status_code=403, error_code=403, message="Wrong email or password"
-        )
