@@ -10,7 +10,7 @@ from auth0.v3.authentication import GetToken  # type: ignore
 from auth0.v3.exceptions import Auth0Error  # type: ignore
 from requests.auth import AuthBase
 
-from sdk.endpoints import Endpoints
+from sdk.endpoints import Auth0Conf
 from sdk.errors import HTTPError
 
 
@@ -33,9 +33,10 @@ class TokenProvider(ABC):
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
 
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, auth0: Auth0Conf):
         self.username = username
         self.password = password
+        self.auth0 = auth0
 
     @abstractmethod
     def _query_token(self) -> dict[str, Any]:
@@ -99,31 +100,25 @@ class TokenProvider(ABC):
 
 
 class Auth0TokenProvider(TokenProvider):
-    def __init__(self, username: str, password: str):
-        super().__init__(username, password)
-
-        #   This is public, so we can put it in the code here.
-        self.public_client_id = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
-        self.audience = Endpoints.account
-        self.realm = "pcs-users"
-        self.domain = Endpoints.auth0_domain
+    def __init__(self, username: str, password: str, auth0: Auth0Conf):
+        super().__init__(username, password, auth0)
 
         # Makes a call in order to check the credentials at creation
         self._query_token()
 
     def _query_token(self) -> dict[str, Any]:
-        token = GetToken(self.domain)
+        token = GetToken(self.auth0.domain)
 
         # No client secret required for this Application since
         # "Token Endpoint Authentication Method" set to None
         validated_token: dict[str, Any] = token.login(
-            client_id=self.public_client_id,
+            client_id=self.auth0.public_client_id,
             client_secret="",
             username=self.username,
             password=self.password,
-            audience=self.audience,
+            audience=self.auth0.audience,
             scope="openid profile email",
-            realm=self.realm,
+            realm=self.auth0.realm,
             grant_type="http://auth0.com/oauth/grant-type/password-realm",
         )
         return validated_token
@@ -141,11 +136,10 @@ class FakeAuth0GoodAuthentication(TokenProvider):
 
 
 class FakeAuth0BadAuthentication(TokenProvider):
-    def __init__(self, username: str, password: str):
-        super().__init__(username, password)
-
-        #   Makes a call in order to check the credentials at creation
-        #   And raise the Error
+    def __init__(self, *args: tuple, **kwags: dict):
+        """ The arguments are not important.
+            What's important is that the init raise the error below.
+        """
         self._query_token()
 
     def _query_token(self) -> dict[str, Any]:

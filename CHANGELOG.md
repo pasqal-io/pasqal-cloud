@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.1.15] 2023-03-27
 
 ### Added
-    - A (non-breaking) functionality that allows the user to not pass the password, and secretly prompt it when using the SDK.
-    - Adding local tests to check the login behavior.
+    - Adding tests to check the login behavior.
+    - Adding tests to check the override Endpoints behavior.
 
 ### Changed
     - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.

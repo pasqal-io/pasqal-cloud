@@ -21,15 +21,22 @@ if version_info[:2] >= (3, 8):
 else:
     from typing_extensions import Final  # type: ignore
 
-CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
-ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
-AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
-AUTH0_URL: Final[str] = f"https://{AUTH0_DOMAIN}"
 
+CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
 
 @dataclass
 class Endpoints:
     core: str = CORE_API_URL
-    account: str = ACCOUNT_API_URL
-    auth0_domain: str = AUTH0_DOMAIN
-    auth0_url: str = AUTH0_URL
+    
+
+AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
+PUBLIC_CLIENT_ID: Final[str] = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
+AUDIENCE: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
+REALM: Final[str] = "pcs-users"
+
+@dataclass
+class Auth0Conf:
+    domain: str = AUTH0_DOMAIN
+    public_client_id: str = PUBLIC_CLIENT_ID
+    audience: str = AUDIENCE
+    realm: str = REALM

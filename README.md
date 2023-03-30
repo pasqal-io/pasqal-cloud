@@ -71,17 +71,23 @@ class NewTokenProvider(TokenProvider):
 sdk = SDK(token_provider=NewTokenProvider, group_id=group_id)
 ```
 
+/!\ For developers /!\
+
 If you want to redefine the APIs used by the SDK, please, do the following.
 
 ```python
-from sdk import SDK, Endpoints
+from sdk import SDK, Endpoints, Auth0COnf
 
-my_new_endpoints = Endpoints(core = "my_new_core_endpoint")
-sdk = SDK(..., endpoints=my_new_core_endpoints)
+endpoints = Endpoints(core = "my_new_core_endpoint")
+auth0 = Auth0Conf(
+    domain="new_domain",
+    public_client_id="public_id",
+    audience="new_audience"
+)
+sdk = SDK(..., endpoints=endpoints, auth0=auth0)
 ```
 
 This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
-It's useful for instance to keep the `Auth0` endpoints intacts, and to be able to alter the services you want to use.
 
 
 ## Basic usage

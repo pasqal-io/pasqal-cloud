@@ -2,7 +2,7 @@ from auth0.v3.exceptions import Auth0Error
 import pytest
 
 from unittest.mock import patch
-from sdk import SDK, Endpoints
+from sdk import SDK, Endpoints, Auth0Conf
 from sdk.authentication import FakeAuth0BadAuthentication, FakeAuth0GoodAuthentication
 
 
@@ -12,6 +12,7 @@ class TestGoodAuth:
     username = "random_username"
     password = "random_password"
     new_core_endpoint = "random_endpoint"
+
 
     @patch("sdk.client.getpass")
     def test_module_getpass_success(self, getpass):
@@ -37,7 +38,6 @@ class TestGoodAuth:
             endpoints=Endpoints(core=self.new_core_endpoint),
         )
         assert sdk._client.endpoints.core == self.new_core_endpoint
-        assert sdk._client.endpoints.account == Endpoints.account
 
     def test_bad_endpoints(self):
         with pytest.raises(ValueError):
@@ -49,6 +49,24 @@ class TestGoodAuth:
                     "core": "",
                     "account": "",
                 },
+            )
+
+    def test_correct_new_auth0(self):
+        new_auth0 = Auth0Conf(domain="new_domain")
+        SDK(
+            group_id=self.group_id,
+            username=self.username,
+            password=self.password,
+            auth0=new_auth0,
+        )
+
+    def test_bad_auth0(self):
+        with pytest.raises(ValueError):
+            SDK(
+                group_id=self.group_id,
+                username=self.username,
+                password=self.password,
+                auth0="",
             )
 
 

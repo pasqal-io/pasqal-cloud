@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 from sdk.authentication import TokenProvider
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
-from sdk.endpoints import Endpoints
+from sdk.endpoints import Endpoints, Auth0Conf
 from sdk.job import Job
 from sdk.device.configuration import BaseConfig
 from sdk.device.device_types import DeviceType
@@ -35,6 +35,7 @@ class SDK:
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
+        auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
     ):
         self._client = Client(
@@ -43,6 +44,7 @@ class SDK:
             password=password,
             token_provider=token_provider,
             endpoints=endpoints,
+            auth0=auth0,
         )
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook

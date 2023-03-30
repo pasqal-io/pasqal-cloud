@@ -25,7 +25,7 @@ from sdk.authentication import (
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
 )
-from sdk.endpoints import Endpoints
+from sdk.endpoints import Endpoints, Auth0Conf
 from sdk.errors import HTTPError
 from sdk.utils.jsend import JSendPayload
 
@@ -42,6 +42,7 @@ class Client:
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
+        auth0: Optional[Auth0Conf] = None,
     ):
         if not username and not token_provider:
             raise ValueError(
@@ -50,7 +51,8 @@ class Client:
         self._check_token_provider(token_provider)
 
         if username:
-            token_provider = self._credential_login(username, password)
+            auth0 = self._make_auth0(auth0)
+            token_provider = self._credential_login(username, password, auth0)
 
         self.authenticator = HTTPBearerAuthenticator(token_provider)
         self.endpoints = self._make_endpoints(endpoints)
@@ -62,9 +64,19 @@ class Client:
             return Endpoints()
 
         if not isinstance(endpoints, Endpoints):
-            raise ValueError("Endpoints must be a Endpoints instance")
+            raise ValueError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
+
+    @staticmethod
+    def _make_auth0(auth0: Optional[Auth0Conf]) -> Auth0Conf:
+        if auth0 is None:
+            return Auth0Conf()
+        
+        if not isinstance(auth0, Auth0Conf):
+            raise ValueError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
+
+        return auth0
 
     @staticmethod
     def _check_token_provider(token_provider: Optional[TokenProvider]) -> None:
@@ -83,7 +95,7 @@ class Client:
             raise err
 
     def _credential_login(
-        self, username: str, password: Optional[str]
+        self, username: str, password: Optional[str], auth0: Auth0Conf
     ) -> TokenProvider:
         if not password:
             password = getpass("Enter your password:")
@@ -93,7 +105,7 @@ class Client:
         if not password:
             raise ValueError("You cannot provide an empty password.")
 
-        token_provider: TokenProvider = Auth0TokenProvider(username, password)
+        token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
     def _request(
