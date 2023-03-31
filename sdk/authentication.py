@@ -124,7 +124,7 @@ class Auth0TokenProvider(TokenProvider):
         return validated_token
 
 
-class FakeAuth0GoodAuthentication(TokenProvider):
+class FakeAuth0AuthenticationSuccess(TokenProvider):
     def _query_token(self) -> dict[str, Any]:
         return {
             "access_token": "some_token",
@@ -135,11 +135,9 @@ class FakeAuth0GoodAuthentication(TokenProvider):
         }
 
 
-class FakeAuth0BadAuthentication(TokenProvider):
-    def __init__(self, *args: tuple, **kwags: dict):
-        """The arguments are not important.
-        What's important is that the init raise the error below.
-        """
+class FakeAuth0AuthenticationFailure(TokenProvider):
+    def __init__(self, *args: tuple, **kwargs: dict):
+        #   Only to raise an error as the Authentication is failed.
         self._query_token()
 
     def _query_token(self) -> dict[str, Any]:

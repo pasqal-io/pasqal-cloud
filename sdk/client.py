@@ -93,11 +93,10 @@ class Client:
     ) -> TokenProvider:
         if not password:
             password = getpass("Enter your password:")
-
-        #   We want to allow an empty string at first, but then
-        #   it results in an error
-        if not password:
-            raise ValueError("You cannot provide an empty password.")
+            #   We want to allow an empty string at first, but then
+            #   it results in an error
+            if not password:
+                raise ValueError("The prompted password should not be empty")
 
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider

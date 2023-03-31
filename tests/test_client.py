@@ -2,10 +2,13 @@ import pytest
 
 from unittest.mock import patch
 from sdk import SDK, Endpoints, Auth0Conf
-from sdk.authentication import FakeAuth0BadAuthentication, FakeAuth0GoodAuthentication
+from sdk.authentication import (
+    FakeAuth0AuthenticationFailure,
+    FakeAuth0AuthenticationSuccess,
+)
 
 
-@patch("sdk.client.Auth0TokenProvider", FakeAuth0GoodAuthentication)
+@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 class TestAuthSuccess:
     group_id = "random_group_id"
     username = "random_username"
@@ -22,7 +25,7 @@ class TestAuthSuccess:
         SDK(group_id=self.group_id, username=self.username, password=self.password)
 
     def test_good_token_provider(self):
-        SDK(group_id=self.group_id, token_provider=FakeAuth0GoodAuthentication)
+        SDK(group_id=self.group_id, token_provider=FakeAuth0AuthenticationSuccess)
 
     def test_correct_endpoints(self):
         sdk = SDK(
@@ -43,7 +46,7 @@ class TestAuthSuccess:
         )
 
 
-@patch("sdk.client.Auth0TokenProvider", FakeAuth0BadAuthentication)
+@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthFailure:
     group_id = "random_group_id"
     username = "random_username"

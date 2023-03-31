@@ -4,12 +4,12 @@ import pytest
 
 from sdk import SDK, DeviceType
 from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
-from sdk.authentication import FakeAuth0GoodAuthentication
+from sdk.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestBatch:
     @pytest.fixture(autouse=True)
-    @patch("sdk.client.Auth0TokenProvider", FakeAuth0GoodAuthentication)
+    @patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
             username="me@test.com", password="password", group_id=str(uuid4())

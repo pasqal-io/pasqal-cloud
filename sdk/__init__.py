@@ -37,6 +37,12 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
     ):
+        """In order to login, you have to provide either a login/password,
+        or a token_provider.
+        If you do not provide a password in order to fetch a token, that
+        will be used to perform actions from this class, you will be prompted
+        to enter one.
+        """
         self._client = Client(
             group_id=group_id,
             username=username,
