@@ -37,11 +37,11 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
     ):
-        """In order to login, you have to provide either a login/password,
-        or a token_provider.
-        If you do not provide a password in order to fetch a token, that
-        will be used to perform actions from this class, you will be prompted
-        to enter one.
+        """This class provides helper methods to call the PASQAL Cloud endpoints.
+
+        To authenticate to PASQAL Cloud, you have to provide either an
+        email/password combination or a TokenProvider instance.
+        You may omit the password, you will then be prompted to enter one.
         """
         self._client = Client(
             group_id=group_id,

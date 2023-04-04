@@ -1,3 +1,4 @@
+from auth0.v3.exceptions import Auth0Error  # type: ignore
 import pytest
 
 from unittest.mock import patch
@@ -58,13 +59,13 @@ class TestAuthFailure:
     def test_module_getpass_bad_password(self, getpass):
         getpass.return_value = self.password
 
-        with pytest.raises(ValueError):
+        with pytest.raises(Auth0Error):
             SDK(group_id=self.group_id, username=self.username)
 
         getpass.assert_called_once()
 
     def test_module_bad_password(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(Auth0Error):
             SDK(group_id=self.group_id, username=self.username, password=self.password)
 
 

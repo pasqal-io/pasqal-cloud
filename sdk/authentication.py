@@ -104,7 +104,7 @@ class Auth0TokenProvider(TokenProvider):
         super().__init__(username, password, auth0)
 
         # Makes a call in order to check the credentials at creation
-        self._query_token()
+        self.get_token()
 
     def _query_token(self) -> dict[str, Any]:
         token = GetToken(self.auth0.domain)
@@ -141,4 +141,6 @@ class FakeAuth0AuthenticationFailure(TokenProvider):
         self._query_token()
 
     def _query_token(self) -> dict[str, Any]:
-        raise ValueError()
+        raise Auth0Error(
+            status_code=403, error_code=403, message="Wrong email/password"
+        )
