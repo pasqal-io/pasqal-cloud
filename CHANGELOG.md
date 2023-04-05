@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.1.15] 2023-03-27
 
 ### Added
-    - Adding tests to check the login behavior.
-    - Adding tests to check the override Endpoints behavior.
+    - Added tests to check the login behavior.
+    - Added tests to check the override Endpoints behavior.
 
 ### Changed
     - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
