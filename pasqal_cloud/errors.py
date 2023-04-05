@@ -15,7 +15,7 @@
 
 import json
 
-from sdk.utils.jsend import JSendPayload
+from pasqal_cloud.utils.jsend import JSendPayload
 
 
 class HTTPError(Exception):

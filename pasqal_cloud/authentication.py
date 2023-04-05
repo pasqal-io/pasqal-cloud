@@ -10,8 +10,8 @@ from auth0.v3.authentication import GetToken  # type: ignore
 from auth0.v3.exceptions import Auth0Error  # type: ignore
 from requests.auth import AuthBase
 
-from sdk.endpoints import Auth0Conf
-from sdk.errors import HTTPError
+from pasqal_cloud.endpoints import Auth0Conf
+from pasqal_cloud.errors import HTTPError
 
 
 class HTTPBearerAuthenticator(AuthBase):

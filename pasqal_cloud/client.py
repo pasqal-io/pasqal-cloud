@@ -19,14 +19,14 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 from requests.auth import AuthBase
 
-from sdk.authentication import (
+from pasqal_cloud.authentication import (
     TokenProvider,
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
 )
-from sdk.endpoints import Endpoints, Auth0Conf
-from sdk.errors import HTTPError
-from sdk.utils.jsend import JSendPayload
+from pasqal_cloud.endpoints import Endpoints, Auth0Conf
+from pasqal_cloud.errors import HTTPError
+from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 

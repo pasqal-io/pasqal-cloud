@@ -1,4 +1,4 @@
-name: Publish cloud-sdk 📦 to PyPI and TestPyPI
+name: Publish pasqal-cloud 📦 to PyPI and TestPyPI
 on:
   push:
     branches:

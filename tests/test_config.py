@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from sdk.device import EmuFreeConfig
-from sdk.device.configuration.base_config import (
+from pasqal_cloud.device import EmuFreeConfig
+from pasqal_cloud.device.configuration.base_config import (
     BaseConfig,
     INVALID_KEY_ERROR_MSG,
     InvalidConfiguration,
 )
-from sdk.device.configuration.emu_tn import (
+from pasqal_cloud.device.configuration.emu_tn import (
     DT_VALUE_NOT_VALID,
     EmuTNConfig,
     PRECISION_NOT_VALID,

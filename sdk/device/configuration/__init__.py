@@ -1,10 +1,8 @@
-from sdk.device.configuration.base_config import BaseConfig, InvalidConfiguration
-from sdk.device.configuration.emu_free import EmuFreeConfig
-from sdk.device.configuration.emu_tn import EmuTNConfig
+import warnings
 
-__all__ = [
-    "BaseConfig",
-    "InvalidConfiguration",
-    "EmuFreeConfig",
-    "EmuTNConfig",
-]
+warnings.warn(
+    "cloud-sdk package is deprecated, please use pasqal_cloud instead: `pip install pasqal-cloud`",
+    DeprecationWarning,
+)
+
+from pasqal_cloud.device.configuration import *

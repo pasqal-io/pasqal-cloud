@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0]
+
+### Changed
+
+- Package renamed from **cloud-sdk** to **pasqal-cloud**
+- Import name renamed from **sdk** to **pasqal_cloud** (import sdk is now deprecated but still usable)
+
 ## [0.1.16] 2023-04-06
 
 ### Changed
@@ -16,18 +23,15 @@ All notable changes to this project will be documented in this file.
 ## [0.1.15] 2023-03-27
 
 ### Added
-
-    - Added tests to check the login behavior.
-    - Added tests to check the override Endpoints behavior.
+- Added tests to check the login behavior.
+- Added tests to check the override Endpoints behavior.
 
 ### Changed
-
-    - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
-    - Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
+- The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
+- Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
 
 ### Deleted
-
-    - Account endpoint, we now use Auth0.
+- Account endpoint, we now use Auth0.
 
 ## [0.1.14]
 
@@ -96,7 +100,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-Reworked the `wait` logic when [creating a batch](https://github.com/pasqal-io/cloud-sdk/blob/dev/sdk/__init__.py#L46) or [declaring it as complete](<(https://github.com/pasqal-io/cloud-sdk/blob/dev/sdk/batch.py#L95)>). The old `wait` has been split into
+Reworked the `wait` logic when [creating a batch](https://github.com/pasqal-io/pasqal-cloud/blob/dev/sdk/__init__.py#L46) or [declaring it as complete](<(https://github.com/pasqal-io/pasqal-cloud/blob/dev/sdk/batch.py#L95)>). The old `wait` has been split into
 two separate boolean kwargs `wait` and `fetch_results`. - `wait` when set to `True` still makes the python statement blocking until the batch gets assigned a termination status (e.g. `DONE`, `ERROR`, `TIMED_OUT`) but doesn't trigger fetching of results. - `fetch_results` is a boolean which when set to `True` makes the python statement blocking until the batch has a termination status and then fetches the results for all the jobs of the batch.
 
 This enables the user to wait for the results and then implement its own custom logic to retrieve results (e.g. only fetch the results for the last job of the batch).
@@ -110,7 +114,7 @@ This is the last released version before the implementation of the changelog.
 
 ### Added
 
-See commit history before [this commit](https://github.com/pasqal-io/cloud-sdk/commit/7c703534f55012489550f7df116f3f326e741de5).
+See commit history before [this commit](https://github.com/pasqal-io/pasqal-cloud/commit/7c703534f55012489550f7df116f3f326e741de5).
 
 ### Changed
 

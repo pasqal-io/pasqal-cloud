@@ -1,4 +1,4 @@
-from sdk.device.configuration.base_config import BaseConfig
+from pasqal_cloud.device.configuration.base_config import BaseConfig
 
 from dataclasses import dataclass
 

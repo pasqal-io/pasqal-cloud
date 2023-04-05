@@ -1,16 +1,16 @@
-# Cloud SDK
+# PASQAL Cloud
 
 SDK to be used to access Pasqal Cloud Services.
 
 ## Installation
 
-To install the latest release of the `cloud-sdk`, have Python 3.8.0 or higher installed, then use pip:
+To install the latest release of the `pasqal-cloud` (formerly cloud-sdk), have Python 3.8.0 or higher installed, then use pip:
 
 ```bash
-pip install pasqal-sdk
+pip install pasqal-cloud
 ```
 
-If you wish to **install the development version of the cloud_sdk from source** instead, do the following from within this repository after cloning it:
+If you wish to **install the development version of the pasqal_cloud from source** instead, do the following from within this repository after cloning it:
 
 ```bash
 git checkout develop
@@ -18,7 +18,7 @@ pip install -e .
 ```
 
 Bear in mind that this installation will track the contents of your local
-cloud_sdk repository folder, so if you checkout a different branch (e.g. `master`),
+pasqal-cloud repository folder, so if you checkout a different branch (e.g. `master`),
 your installation will change accordingly.
 
 ### Development Requirements (Optional)
@@ -34,7 +34,7 @@ pip install -e .[dev]
 There are several ways to provide a correct authentication using the SDK.
 
 ```python
-from sdk import SDK
+from pasqal_cloud import SDK
 
 group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
 username="your_username" # Replace this value by your username or email on the PASQAL platform.
@@ -76,7 +76,7 @@ sdk = SDK(token_provider=NewTokenProvider, group_id=group_id)
 If you want to redefine the APIs used by the SDK, please, do the following.
 
 ```python
-from sdk import SDK, Endpoints, Auth0COnf
+from pasqal_cloud import SDK, Endpoints, Auth0COnf
 
 endpoints = Endpoints(core = "my_new_core_endpoint")
 auth0 = Auth0Conf(
@@ -123,7 +123,7 @@ serialized_sequence = sequence.serialize()
 Once you have serialized your sequence, you can send it with the SDK with the following code
 
 ```python
-from sdk import SDK
+from pasqal_cloud import SDK
 from pulser import devices, Register, Sequence
 
 group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
@@ -142,7 +142,7 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 
 # You can also choose to run your batch on an emulator using the optional argument 'emulator'
 # For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
-from sdk.device import EmulatorType
+from pasqal_cloud.device import EmulatorType
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
 
 # Once the QPU has returned the results, you can access them with the following:
@@ -161,7 +161,7 @@ For EMU_TN you may add the integrator timestep in nanoseconds, the numerical acc
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device import EmulatorType, EmuTNConfig
+from pasqal_cloud.device import EmulatorType, EmuTNConfig
 
 configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
@@ -172,7 +172,7 @@ For EMU_FREE you may add some default SPAM noise. Beware this makes your job tak
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device import EmulatorType, EmuFreeConfig
+from pasqal_cloud.device import EmulatorType, EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)

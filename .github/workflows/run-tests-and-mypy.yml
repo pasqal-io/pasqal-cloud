@@ -36,9 +36,9 @@ jobs:
 
         - name: Perform unit tests
           run: |
-            pytest -vvv --cov sdk tests
+            pytest -vvv --cov pasqal_cloud tests
 
         - name: Mypy checks only for Python 3.8
           if: ${{ matrix.python-version == 3.8 }}
           run: |
-            mypy sdk
+            mypy pasqal_cloud
