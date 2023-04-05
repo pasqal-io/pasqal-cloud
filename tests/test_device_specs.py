@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from sdk import SDK
-from sdk.authentication import FakeAuth0AuthenticationSuccess
+from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestDeviceSpecs:

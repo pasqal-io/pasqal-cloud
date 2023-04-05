@@ -4,7 +4,7 @@ import pytest
 
 from sdk import SDK, DeviceType
 from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
-from sdk.authentication import FakeAuth0AuthenticationSuccess
+from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestBatch:

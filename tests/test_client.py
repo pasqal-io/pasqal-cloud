@@ -3,7 +3,7 @@ import pytest
 
 from unittest.mock import patch
 from sdk import SDK, Endpoints, Auth0Conf
-from sdk.authentication import (
+from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,
 )
