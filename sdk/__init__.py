@@ -15,11 +15,12 @@
 import time
 from typing import Any, Dict, List, Optional
 
+from sdk.authentication import TokenProvider
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
-from sdk.client import Client, TokenProvider
+from sdk.client import Client
+from sdk.endpoints import Endpoints, Auth0Conf
 from sdk.device.configuration import BaseConfig
 from sdk.device.device_types import DeviceType
-from sdk.endpoints import Endpoints
 from sdk.job import Job
 
 
@@ -33,14 +34,22 @@ class SDK:
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
+        auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
     ):
+        """This class provides helper methods to call the PASQAL Cloud endpoints.
+
+        To authenticate to PASQAL Cloud, you have to provide either an
+        email/password combination or a TokenProvider instance.
+        You may omit the password, you will then be prompted to enter one.
+        """
         self._client = Client(
+            group_id=group_id,
             username=username,
             password=password,
-            group_id=group_id,
             token_provider=token_provider,
             endpoints=endpoints,
+            auth0=auth0,
         )
         self.batches: Dict[str, Batch] = {}
         self.webhook = webhook

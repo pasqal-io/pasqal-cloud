@@ -29,6 +29,67 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
+## Instanciation and Authentication
+
+There are several ways to provide a correct authentication using the SDK.
+
+```python
+from sdk import SDK
+
+group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+username="your_username" # Replace this value by your username or email on the PASQAL platform.
+password="your_password" # Replace this value by your password on the PASQAL platform.
+# Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
+
+""" Method 1: Username + Password
+    If you know your credentials, you can pass them to the SDK instance on creation.
+"""
+sdk = SDK(username=username, password=password, group_id=group_id)
+
+""" Method 2: Username only
+    If you only want to insert your username, but want a solution to have your password being secret
+    you can run the SDK without password. A prompt will then ask for your password
+"""
+sdk = SDK(username=username, group_id=group_id)
+> Please, enter your password:
+
+""" Method 3: Use a token
+    If you already know your token, you can directly pass it as an argument
+    using the following method.
+"""
+class NewTokenProvider(TokenProvider):
+    def _query_token(self):
+        # Custom token query that will be validated by the API Calls later.
+        return {
+            "access_token": "some_token",
+            "id_token": "id_token",
+            "scope": "openid profile email",
+            "expires_in": 86400,
+            "token_type": "Bearer"
+        }
+
+sdk = SDK(token_provider=NewTokenProvider, group_id=group_id)
+```
+
+/!\ For developers /!\
+
+If you want to redefine the APIs used by the SDK, please, do the following.
+
+```python
+from sdk import SDK, Endpoints, Auth0COnf
+
+endpoints = Endpoints(core = "my_new_core_endpoint")
+auth0 = Auth0Conf(
+    domain="new_domain",
+    public_client_id="public_id",
+    audience="new_audience"
+)
+sdk = SDK(..., endpoints=endpoints, auth0=auth0)
+```
+
+This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
+
+
 ## Basic usage
 
 The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
@@ -66,11 +127,9 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 from sdk import SDK
 from pulser import devices, Register, Sequence
 
-username="your_username" # Replace this value by your username or email on the PASQAL platform.
 group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+username="your_username" # Replace this value by your username or email on the PASQAL platform.
 password="your_password" # Replace this value by your password on the PASQAL platform.
-# Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
-
 
 sdk = SDK(username=username, password=password, group_id=group_id)
 
