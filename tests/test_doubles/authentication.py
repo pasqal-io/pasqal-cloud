@@ -5,6 +5,7 @@ from auth0.v3.exceptions import Auth0Error
 
 from sdk.authentication import TokenProvider
 
+
 class FakeAuth0AuthenticationSuccess(TokenProvider):
     def _query_token(self) -> dict[str, Any]:
         return {
