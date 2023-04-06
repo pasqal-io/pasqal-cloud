@@ -1,10 +1,12 @@
-from uuid import uuid4
 from unittest.mock import patch
-import pytest
+from uuid import uuid4
 
-from sdk import SDK, DeviceType
-from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
+import pytest
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+
+from sdk import SDK
+from sdk.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
+from sdk.device.emulator_types import EmulatorType
 
 
 class TestBatch:
@@ -21,13 +23,13 @@ class TestBatch:
         self.job_id = "00000000-0000-0000-0000-000000022010"
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
 
-    @pytest.mark.parametrize("device_type", [d.value for d in DeviceType])
-    def test_create_batch(self, device_type):
+    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    def test_create_batch(self, emulator):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
-            device_type=device_type,
+            emulator=emulator,
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
@@ -128,12 +130,12 @@ class TestBatch:
         assert batch.jobs[self.job_id].result == self.job_result
 
     @pytest.mark.parametrize(
-        "device_type, configuration, expected",
+        "emulator, configuration, expected",
         [
-            (DeviceType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
-            (DeviceType.QPU, None, None),
+            (EmulatorType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
+            (None, None, None),
             (
-                DeviceType.EMU_FREE,
+                EmulatorType.EMU_FREE,
                 EmuFreeConfig(),
                 EmuFreeConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
@@ -144,12 +146,12 @@ class TestBatch:
             ),
         ],
     )
-    def test_create_batch_configuration(self, device_type, configuration, expected):
+    def test_create_batch_configuration(self, emulator, configuration, expected):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
-            device_type=device_type,
+            emulator=emulator,
             configuration=configuration,
         )
         assert batch.configuration == expected

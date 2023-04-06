@@ -1,8 +1,8 @@
 import json
 import os
+
 import pytest
 import requests_mock
-from sdk.device.device_types import DeviceType
 
 from sdk.endpoints import Endpoints
 
@@ -26,7 +26,7 @@ def mock_core_response(request):
             if data.get("emulator"):
                 result["data"]["device_type"] = data["emulator"]
             else:
-                result["data"]["device_type"] = DeviceType.QPU
+                result["data"]["device_type"] = "FRESNEL"
                 result["data"]["configuration"] = None
         return result
 

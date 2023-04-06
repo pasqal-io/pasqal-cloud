@@ -89,7 +89,6 @@ sdk = SDK(..., endpoints=endpoints, auth0=auth0)
 
 This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
 
-
 ## Basic usage
 
 The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
@@ -141,10 +140,10 @@ job2 = {"runs": 50, "variables": {"omega_max": 10.5} }
 # Send the batch of jobs to the QPU and wait for the results
 batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 
-# You can also choose to run your batch on an emulator using the optional argument 'device_type'
-# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" device type.
-from sdk import DeviceType
-batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE)
+# You can also choose to run your batch on an emulator using the optional argument 'emulator'
+# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
+from sdk.device.emulator_types import EmulatorType
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
 
 # Once the QPU has returned the results, you can access them with the following:
 for job in batch.jobs.values():
@@ -162,11 +161,11 @@ For EMU_TN you may add the integrator timestep in nanoseconds, the numerical acc
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device.device_types import DeviceType
+from sdk.device.emulator_types import EmulatorType
 from sdk.device.configuration import EmuTNConfig
 
 configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
-batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_TN, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
 ```
 
 For EMU_FREE you may add some default SPAM noise. Beware this makes your job take much longer.
@@ -174,11 +173,11 @@ For EMU_FREE you may add some default SPAM noise. Beware this makes your job tak
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device.device_types import DeviceType
+from sdk.device.emulator_types import EmulatorType
 from sdk.device.configuration import EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
-batch = sdk.create_batch(serialized_sequence, [job1,job2], device_type=DeviceType.EMU_FREE, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
 ```
 
 ### List of supported device specifications
