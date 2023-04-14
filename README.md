@@ -29,7 +29,58 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
-## Instanciation and Authentication
+
+
+## Basic usage
+
+The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
+to Pasqal APIs using an API token generated in the [user portal](https://portal.pasqal.cloud).
+
+A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch you must set a value for each variable, if any, defined in your sequence.  
+The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
+for more information on how to install the library and create your own sequence.
+
+Once you have created your sequence, you should serialize it as follows:
+
+```python
+# sequence should be a pulser Sequence object
+serialized_sequence = sequence.to_abstract_repr()
+```
+
+Once you have serialized your sequence, you can send it with the SDK with the following code
+
+```python
+from pasqal_cloud import SDK
+from pulser import devices, Register, Sequence
+
+group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+username="your_username" # Replace this value by your username or email on the PASQAL platform.
+password="your_password" # Replace this value by your password on the PASQAL platform.
+
+sdk = SDK(username=username, password=password, group_id=group_id)
+
+# When creating a job, select a number of runs and set the desired values for the variables
+# defined in the sequence
+job1 = {"runs": 20, "variables": {"omega_max": 6} }
+job2 = {"runs": 50, "variables": {"omega_max": 10.5} }
+
+# Send the batch of jobs to the QPU and wait for the results
+batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
+
+# You can also choose to run your batch on an emulator using the optional argument 'emulator'
+# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
+from pasqal_cloud.device import EmulatorType
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
+
+# Once the QPU has returned the results, you can access them with the following:
+for job in batch.jobs.values():
+    print(job.result)
+
+```
+
+## Advanced usage
+
+### Authentication
 
 There are several ways to provide a correct authentication using the SDK.
 
@@ -63,86 +114,6 @@ class CustomTokenProvider(TokenProvider):
 
 
 sdk = SDK(token_provider=CustomTokenProvider(), group_id=group_id)
-```
-
-/!\ For developers /!\
-
-If you want to redefine the APIs used by the SDK, please, do the following.
-
-```python
-from pasqal_cloud import SDK, Endpoints, Auth0COnf
-
-endpoints = Endpoints(core = "my_new_core_endpoint")
-auth0 = Auth0Conf(
-    domain="new_domain",
-    public_client_id="public_id",
-    audience="new_audience"
-)
-sdk = SDK(..., endpoints=endpoints, auth0=auth0)
-```
-
-This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
-
-## Basic usage
-
-The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
-to Pasqal APIs using an API token generated in the [user portal](https://portal.pasqal.cloud).
-
-A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch you must set a value for each variable, if any, defined in your sequence.  
-The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
-for more information on how to install the library and create your own sequence.
-
-Below is an example of the creation of a simple sequence with a single variable and its serialization to a string.
-
-```python
-from pulser import devices, Pulse, Register, Sequence
-from pulser.register.special_layouts import SquareLatticeLayout
-
-# Define a register for your sequence
-register = Register.square(2, spacing=5, prefix="q")
-# Create a sequence for that register
-sequence = Sequence(register, devices.IroiseMVP)
-# Add a channel to your sequence
-sequence.declare_channel("rydberg", "rydberg_global")
-# Declare a variable
-omega_max = sequence.declare_variable("omega_max")
-# Add a pulse to that channel with the amplitude omega_max
-generic_pulse = Pulse.ConstantPulse(100, omega_max, 2, 0.0)
-sequence.add(generic_pulse, "rydberg")
-
-# When you are done building your sequence, serialize it into a string
-serialized_sequence = sequence.serialize()
-```
-
-Once you have serialized your sequence, you can send it with the SDK with the following code
-
-```python
-from pasqal_cloud import SDK
-from pulser import devices, Register, Sequence
-
-group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
-username="your_username" # Replace this value by your username or email on the PASQAL platform.
-password="your_password" # Replace this value by your password on the PASQAL platform.
-
-sdk = SDK(username=username, password=password, group_id=group_id)
-
-# When creating a job, select a number of runs and set the desired values for the variables
-# defined in the sequence
-job1 = {"runs": 20, "variables": {"omega_max": 6} }
-job2 = {"runs": 50, "variables": {"omega_max": 10.5} }
-
-# Send the batch of jobs to the QPU and wait for the results
-batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
-
-# You can also choose to run your batch on an emulator using the optional argument 'emulator'
-# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
-from pasqal_cloud.device import EmulatorType
-batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
-
-# Once the QPU has returned the results, you can access them with the following:
-for job in batch.jobs.values():
-    print(job.result)
-
 ```
 
 ### Extra emulator configuration (Soon publicly available)
@@ -184,3 +155,25 @@ sdk.get_device_specs_list()
 
 The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
 to instantiate a `Device` instance in the `Pulser` library.
+
+
+### Target different API endpoints
+
+This is intended to the package developers.
+
+If you want to redefine the APIs used by the SDK, please, do the following.
+
+```python
+from pasqal_cloud import SDK, Endpoints, Auth0COnf
+
+endpoints = Endpoints(core = "my_new_core_endpoint")
+auth0 = Auth0Conf(
+    domain="new_domain",
+    public_client_id="public_id",
+    audience="new_audience"
+)
+sdk = SDK(..., endpoints=endpoints, auth0=auth0)
+```
+
+This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
+
