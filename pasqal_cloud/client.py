@@ -81,12 +81,8 @@ class Client:
 
     @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
-        try:
-            # The type ignore is because I wouldn't know how to fix the type problem
-            # but the code should be correct, and is tested
-            issubclass(token_provider, TokenProvider)  # type: ignore
-        except TypeError:
-            raise TypeError("token_provider must be a TokenProvider subclass")
+        if not isinstance(token_provider, TokenProvider):
+            raise TypeError("token_provider must be an instance of TokenProvider.")
 
     def _credential_login(
         self, username: str, password: Optional[str], auth0: Auth0Conf

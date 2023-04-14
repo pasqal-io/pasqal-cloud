@@ -39,7 +39,6 @@ setup(
     install_requires=[
         "auth0-python==3.23.1",
         "requests==2.25.1",
-        "requests-mock==1.9.3",
         "pyjwt[crypto]==2.5.0",
     ],
     extras_require={
@@ -51,6 +50,7 @@ setup(
             "pytest==6.2.5",
             "pytest-cov==2.11.1",
             "types-requests==2.25.1",
+            "requests-mock==1.9.3",
         },
         ":python_version == '3.7'": [
             "typing-extensions==4.4.0",

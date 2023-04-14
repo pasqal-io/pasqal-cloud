@@ -53,22 +53,16 @@ sdk = SDK(username=username, password=password, group_id=group_id)
 sdk = SDK(username=username, group_id=group_id)
 > Please, enter your password:
 
-""" Method 3: Use a token
-    If you already know your token, you can directly pass it as an argument
-    using the following method.
+""" Method 3: Use a custom token provider
+    You can define a custom class to provide the token.
+    For example, if you know your token, you can use that token to authenticate directly to our APIs as follows.
 """
-class NewTokenProvider(TokenProvider):
-    def _query_token(self):
-        # Custom token query that will be validated by the API Calls later.
-        return {
-            "access_token": "some_token",
-            "id_token": "id_token",
-            "scope": "openid profile email",
-            "expires_in": 86400,
-            "token_type": "Bearer"
-        }
+class CustomTokenProvider(TokenProvider):
+    def get_token(self):
+        return "your-token" # Replace this value with your token
 
-sdk = SDK(token_provider=NewTokenProvider, group_id=group_id)
+
+sdk = SDK(token_provider=CustomTokenProvider(), group_id=group_id)
 ```
 
 /!\ For developers /!\
