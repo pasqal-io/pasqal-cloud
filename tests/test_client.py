@@ -4,6 +4,7 @@ import pytest
 from auth0.v3.exceptions import Auth0Error  # type: ignore
 
 from pasqal_cloud import Auth0Conf, Endpoints, SDK
+from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,
@@ -31,6 +32,14 @@ class TestAuthSuccess:
             group_id=self.group_id,
             token_provider=FakeAuth0AuthenticationSuccess("username", "password", None),
         )
+    
+    def test_custom_token_provider(self):
+        """Test that the custom provider suggested in the readme is working"""
+        class CustomTokenProvider(TokenProvider):
+            def get_token(self):
+                return "your-token" # Replace this value with your token
+        SDK(token_provider=CustomTokenProvider(), group_id="group_id")
+
 
     def test_correct_endpoints(self):
         sdk = SDK(
