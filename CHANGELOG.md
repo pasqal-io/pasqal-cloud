@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0]
+## [0.2.0] - 2023-04-18
 
 ### Changed
 
@@ -13,34 +13,37 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-    - `device_type` argument replace by `emulator` in sdk create_batch
-    - `DeviceType` replaced with `EmulatorType`
+- `device_type` argument replace by `emulator` in sdk create_batch
+- `DeviceType` replaced with `EmulatorType`
 
 ### Deleted
 
-    - QPU device type and related logic
+- QPU device type and related logic
 
-## [0.1.15] 2023-03-27
+## [0.1.15] - 2023-04-05
 
 ### Added
+
 - Added tests to check the login behavior.
 - Added tests to check the override Endpoints behavior.
 
 ### Changed
+
 - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
 - Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
 
 ### Deleted
+
 - Account endpoint, we now use Auth0.
 
-## [0.1.14]
+## [0.1.14] - 2023-03-27
 
 ### Changed
 
 - Added a get_device_specs_dict function to the sdk
 - Updated Readme for the device specs
 
-## [0.1.13]
+## [0.1.13] - 2023-03-02
 
 ### Changed
 
@@ -55,7 +58,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - The group_id field has been added to the Job schema which is now present in some services returning Job data.
-- Pytest fixtures updated to accomodate this.
+- Pytest fixtures updated to accommodate this.
 
 ## [0.1.11] - 2023-02-21
 
