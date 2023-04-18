@@ -18,7 +18,7 @@ __version__ = ""
 exec(open("pasqal_cloud/_version.py").read())
 
 setup(
-    name="pasqal_cloud",
+    name="pasqal-cloud",
     version=__version__,
     description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),

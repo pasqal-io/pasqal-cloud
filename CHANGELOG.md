@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Package renamed from **cloud-sdk** to **pasqal-cloud**
+- Package renamed from **pasqal-sdk** to **pasqal-cloud**
 - Import name renamed from **sdk** to **pasqal_cloud** (import sdk is now deprecated but still usable)
 
 ## [0.1.16] 2023-04-06
