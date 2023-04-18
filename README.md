@@ -142,7 +142,7 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 
 # You can also choose to run your batch on an emulator using the optional argument 'emulator'
 # For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
-from sdk.device.emulator_types import EmulatorType
+from sdk.device import EmulatorType
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
 
 # Once the QPU has returned the results, you can access them with the following:
@@ -161,8 +161,7 @@ For EMU_TN you may add the integrator timestep in nanoseconds, the numerical acc
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device.emulator_types import EmulatorType
-from sdk.device.configuration import EmuTNConfig
+from sdk.device import EmulatorType, EmuTNConfig
 
 configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
@@ -173,8 +172,7 @@ For EMU_FREE you may add some default SPAM noise. Beware this makes your job tak
 ```python
 # replace the corresponding section in the above code example with this to
 # add further configuration
-from sdk.device.emulator_types import EmulatorType
-from sdk.device.configuration import EmuFreeConfig
+from sdk.device import EmulatorType, EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)

@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Type, Union
 from sdk.client import Client
 from sdk.job import Job
 from sdk.device.configuration import BaseConfig, EmuTNConfig, EmuFreeConfig
-from sdk.device.emulator_types import EmulatorType
+from sdk.device import EmulatorType
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 

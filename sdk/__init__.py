@@ -18,9 +18,9 @@ from typing import Any, Dict, List, Optional
 from sdk.authentication import TokenProvider
 from sdk.batch import Batch, RESULT_POLLING_INTERVAL
 from sdk.client import Client
-from sdk.endpoints import Endpoints, Auth0Conf
-from sdk.device.configuration import BaseConfig
-from sdk.device.emulator_types import EmulatorType
+from sdk.device import BaseConfig
+from sdk.device import EmulatorType
+from sdk.endpoints import Auth0Conf, Endpoints
 from sdk.job import Job
 
 
