@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from __future__ import annotations
+from typing import Any, Optional
 import time
-from typing import Any, Dict, List, Optional
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
@@ -51,13 +51,13 @@ class SDK:
             endpoints=endpoints,
             auth0=auth0,
         )
-        self.batches: Dict[str, Batch] = {}
+        self.batches: dict[str, Batch] = {}
         self.webhook = webhook
 
     def create_batch(
         self,
         serialized_sequence: str,
-        jobs: List[Dict[str, Any]],
+        jobs: list[dict[str, Any]],
         device_type: DeviceType = DeviceType.QPU,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
@@ -137,7 +137,7 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
-    def get_device_specs_dict(self) -> Dict[str, str]:
+    def get_device_specs_dict(self) -> dict[str, str]:
         """Retrieve the list of available device specifications.
 
         Returns:
