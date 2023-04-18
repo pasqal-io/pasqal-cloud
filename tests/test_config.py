@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import pytest
 
+from sdk.device import EmuFreeConfig
 from sdk.device.configuration.base_config import (
     BaseConfig,
-    InvalidConfiguration,
     INVALID_KEY_ERROR_MSG,
+    InvalidConfiguration,
 )
-from sdk.device.configuration import EmuFreeConfig
 from sdk.device.configuration.emu_tn import (
-    EmuTNConfig,
     DT_VALUE_NOT_VALID,
+    EmuTNConfig,
     PRECISION_NOT_VALID,
 )
 

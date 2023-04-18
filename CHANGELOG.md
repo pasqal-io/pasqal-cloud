@@ -2,17 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.16] 2023-04-06
+
+### Changed
+
+    - `device_type` argument replace by `emulator` in sdk create_batch
+    - `DeviceType` replaced with `EmulatorType`
+
+### Deleted
+
+    - QPU device type and related logic
+
 ## [0.1.15] 2023-03-27
 
 ### Added
+
     - Added tests to check the login behavior.
     - Added tests to check the override Endpoints behavior.
 
 ### Changed
+
     - The authentication now directly connects to the Auth0 platform instead of connecting through PasqalCloud.
     - Small refactor of files, with the authentication modules in the `authentication.py` file, instead of `client.py`.
 
 ### Deleted
+
     - Account endpoint, we now use Auth0.
 
 ## [0.1.14]

@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Type, Union
 from sdk.client import Client
 from sdk.job import Job
 from sdk.device.configuration import BaseConfig, EmuTNConfig, EmuFreeConfig
-from sdk.device.device_types import DeviceType
+from sdk.device import EmulatorType
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -65,9 +65,9 @@ class Batch:
         if not isinstance(self.configuration, dict):
             return
         conf_class: Type[BaseConfig] = BaseConfig
-        if self.device_type == DeviceType.EMU_TN.value:
+        if self.device_type == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
-        elif self.device_type == DeviceType.EMU_FREE.value:
+        elif self.device_type == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
 
         self.configuration = conf_class.from_dict(self.configuration)
@@ -108,7 +108,8 @@ class Batch:
 
         Args:
             wait: Whether to wait for the batch to be done
-            fetch_results: Whether to download the results. Implies waiting for the batch.
+            fetch_results: Whether to download the results. Implies
+                waiting for the batch.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
