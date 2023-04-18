@@ -1,4 +1,4 @@
-# cloud-sdk is now pasqal-cloud
+# pasqal-sdk is now pasqal-cloud
 
 This package has been renamed. Use `pip install pasqal-cloud` instead.
 

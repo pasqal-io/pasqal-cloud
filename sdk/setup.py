@@ -13,8 +13,8 @@ def get_long_description():
 
 
 setup(
-    name="cloud-sdk",
-    description="cloud-sdk is now pasqal-cloud",
+    name="pasqal-sdk",
+    description="pasqal-sdk is now pasqal-cloud",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     version=VERSION,
