@@ -16,8 +16,8 @@ from __future__ import annotations
 from getpass import getpass
 from typing import Any, Dict, List, Optional, Tuple
 
-from requests.auth import AuthBase
 import requests
+from requests.auth import AuthBase
 
 from sdk.authentication import (
     TokenProvider,
