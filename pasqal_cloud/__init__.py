@@ -11,16 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import annotations
-from typing import Any, Optional
+
 import time
+from typing import Any, Dict, List, Optional
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
-from pasqal_cloud.endpoints import Endpoints, Auth0Conf
-from pasqal_cloud.device.configuration import BaseConfig
-from pasqal_cloud.device.device_types import DeviceType
+from pasqal_cloud.device import BaseConfig
+from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.job import Job
 
 
@@ -51,14 +51,14 @@ class SDK:
             endpoints=endpoints,
             auth0=auth0,
         )
-        self.batches: dict[str, Batch] = {}
+        self.batches: Dict[str, Batch] = {}
         self.webhook = webhook
 
     def create_batch(
         self,
         serialized_sequence: str,
-        jobs: list[dict[str, Any]],
-        device_type: DeviceType = DeviceType.QPU,
+        jobs: List[Dict[str, Any]],
+        emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
@@ -71,8 +71,8 @@ class SDK:
             serialized_sequence: Serialized pulser sequence.
             jobs: List of jobs to be added to the batch at creation.
                 (#TODO: Make optional after Iroise MVP)
-            device_type: The type of device to use, either an emulator or a QPU
-              If set to QPU, the device_type will be set to the one
+            emulator: The type of emulator to use,
+              If set to None, the device_type will be set to the one
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
@@ -93,8 +93,8 @@ class SDK:
 
         # the emulator field is only added in the case
         # an emulator job is requested otherwise it's left empty
-        if device_type != DeviceType.QPU:
-            req.update({"emulator": device_type})
+        if emulator:
+            req.update({"emulator": emulator})
 
         # The configuration field is only added in the case
         # it's requested
@@ -137,7 +137,7 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
-    def get_device_specs_dict(self) -> dict[str, str]:
+    def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.
 
         Returns:

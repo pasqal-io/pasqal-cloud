@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from sdk import SDK
+from pasqal_cloud import SDK
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 

@@ -1,4 +1,4 @@
-from sdk.utils.strenum import StrEnum
+from pasqal_cloud.utils.strenum import StrEnum
 
 
 class EmulatorType(StrEnum):

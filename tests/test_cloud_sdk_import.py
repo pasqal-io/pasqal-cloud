@@ -17,7 +17,7 @@ def test_verify_import_classes_from_sdk():
     from sdk import Batch
     from sdk import Job
     from sdk import Endpoints
-    from sdk import DeviceType
+    from sdk import EmulatorType
     from sdk.device.configuration import BaseConfig
     from sdk.device.configuration import EmuFreeConfig
     from sdk.device.configuration import EmuTNConfig
