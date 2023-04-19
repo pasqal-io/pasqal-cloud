@@ -1,4 +1,4 @@
-from sdk.device.configuration import (
+from pasqal_cloud.device.configuration import (
     BaseConfig,
     EmuFreeConfig,
     EmuTNConfig,
