@@ -2,14 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.1] - 2023-04-19
+## [0.2.2] - 2023-04-19
 
 ### Changed
 
 - Package renamed from **pasqal-sdk** to **pasqal-cloud**
 - Import name renamed from **sdk** to **pasqal_cloud** (import sdk is now deprecated but still usable)
 
-## [0.1.16] 2023-04-06
+## [0.2.0] 2023-04-06
 
 ### Changed
 
