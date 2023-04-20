@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
-from jwt import decode, DecodeError
-from requests import PreparedRequest
 from typing import Any, Optional
 
 from auth0.v3.authentication import GetToken  # type: ignore
-from auth0.v3.exceptions import Auth0Error  # type: ignore
+from jwt import decode, DecodeError
+from requests import PreparedRequest
 from requests.auth import AuthBase
 
 from pasqal_cloud.endpoints import Auth0Conf
@@ -30,13 +29,17 @@ class TokenProviderError(Exception):
 
 
 class TokenProvider(ABC):
+    def __init__(self, *args: list[Any], **kwargs: dict):
+        ...
+
+    @abstractmethod
+    def get_token(self) -> str:
+        raise NotImplementedError
+
+
+class ExpiringTokenProvider(TokenProvider, ABC):
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
-
-    def __init__(self, username: str, password: str, auth0: Auth0Conf):
-        self.username = username
-        self.password = password
-        self.auth0 = auth0
 
     @abstractmethod
     def _query_token(self) -> dict[str, Any]:
@@ -99,9 +102,11 @@ class TokenProvider(ABC):
         return None
 
 
-class Auth0TokenProvider(TokenProvider):
+class Auth0TokenProvider(ExpiringTokenProvider):
     def __init__(self, username: str, password: str, auth0: Auth0Conf):
-        super().__init__(username, password, auth0)
+        self.username = username
+        self.password = password
+        self.auth0 = auth0
 
         # Makes a call in order to check the credentials at creation
         self.get_token()

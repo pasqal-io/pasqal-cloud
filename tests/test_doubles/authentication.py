@@ -1,12 +1,13 @@
 from __future__ import annotations
+
 from typing import Any
 
 from auth0.v3.exceptions import Auth0Error
 
-from pasqal_cloud.authentication import TokenProvider
+from pasqal_cloud.authentication import Auth0TokenProvider
 
 
-class FakeAuth0AuthenticationSuccess(TokenProvider):
+class FakeAuth0AuthenticationSuccess(Auth0TokenProvider):
     def _query_token(self) -> dict[str, Any]:
         return {
             "access_token": "some_token",
@@ -17,11 +18,7 @@ class FakeAuth0AuthenticationSuccess(TokenProvider):
         }
 
 
-class FakeAuth0AuthenticationFailure(TokenProvider):
-    def __init__(self, *args: tuple, **kwargs: dict):
-        #   Only to raise an error as the Authentication is failed.
-        self._query_token()
-
+class FakeAuth0AuthenticationFailure(Auth0TokenProvider):
     def _query_token(self) -> dict[str, Any]:
         raise Auth0Error(
             status_code=403, error_code=403, message="Wrong email/password"
