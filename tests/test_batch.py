@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from pasqal_cloud import SDK
+from pasqal_cloud import SDK, Batch, Job
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 
 
@@ -72,7 +72,7 @@ class TestBatch:
             assert job.result == self.job_result
         assert request_mock.last_request.method == "GET"
 
-    def test_get_batch(self, request_mock, batch):
+    def test_get_batch(self, batch):
         batch_requested = self.sdk.get_batch(batch.id)
         assert (
             batch_requested.id == self.batch_id
@@ -97,7 +97,7 @@ class TestBatch:
                 == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/cancel"
         )
 
-    def test_get_job(self, request_mock, job):
+    def test_get_job(self, job):
         job_requested = self.sdk.get_job(job.id)
         assert (
             job_requested.id == job.id

@@ -4,6 +4,7 @@ import os
 import pytest
 import requests_mock
 
+from pasqal_cloud import Client, Batch, Job
 from pasqal_cloud.endpoints import Endpoints
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
@@ -50,3 +51,57 @@ def start_mock_request(request_mock):
     request_mock.start()
     yield request_mock
     request_mock.stop()
+
+
+@pytest.fixture
+def pasqal_client():
+    client_data = {
+        "group_id": "00000000-0000-0000-0000-000000000002",
+        "username": "00000000-0000-0000-0000-000000000001",
+        "password": "password"
+    }
+    return Client(**client_data)
+
+
+@pytest.fixture
+def batch(pasqal_client):
+    batch_data = {
+        "complete": False,
+        "created_at": "2022-12-31T23:59:59.999Z",
+        "updated_at": "2023-01-01T00:00:00.000Z",
+        "device_type": "qpu",
+        "group_id": "00000000-0000-0000-0000-000000000002",
+        "id": "00000000-0000-0000-0000-000000000001",
+        "user_id": 1,
+        "priority": 0,
+        "status": "PENDING",
+        "webhook": "https://example.com/webhook",
+        "_client": pasqal_client,
+        "sequence_builder": "pulser",
+        "start_datetime": "2023-01-01T00:00:00.000Z",
+        "end_datetime": None,
+        "device_status": "available",
+        "jobs": {}
+    }
+    return Batch(**batch_data)
+
+
+@pytest.fixture
+def job(pasqal_client):
+    job_data = {
+        "runs": 50,
+        "batch_id": "00000000-0000-0000-0000-000000000001",
+        "id": "00000000-0000-0000-0000-000000022010",
+        "group_id": "00000000-0000-0000-0000-000000000001",
+        "_client": pasqal_client,
+        "status": "PENDING",
+        "created_at": "2022-12-31T23:59:59.999Z",
+        "updated_at": "2023-01-01T00:00:00.000Z",
+        "errors": [],
+        "variables": {
+            "param1": 1,
+            "param2": 2,
+            "param3": 3
+        }
+    }
+    return Job(**job_data)
