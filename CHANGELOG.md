@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2023-04-20
+
+### Fixed
+
+- Fixed bug when using a custom TokenProvider to authenticate to Pasqal Cloud Services
+
+### Changed
+- Reorder documentation for clarity
+- Clarify instructions to use a custom token provider for authentication
+
 ## [0.2.2] - 2023-04-19
 
 ### Changed
