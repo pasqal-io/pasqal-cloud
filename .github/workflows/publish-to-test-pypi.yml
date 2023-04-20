@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - dev
+      - mv/rename-sdk-import
 
 jobs:
   build-n-publish:
@@ -28,14 +29,14 @@ jobs:
           --wheel
           --outdir dist/
           
-        # GET NEW TOKEN FOR TEST PYPI AND PYPI
+        # TEST NEW TOKN PYPI
 
 #      - name: Publish distribution 📦 to Test PyPI
 #        uses: pypa/gh-action-pypi-publish@release/v1
 #        with:
 #          password: ${{ secrets.TEST_PYPI_TOKEN_TEMP }}
 #          repository_url: https://test.pypi.org/legacy/
-#      - name: Publish distribution 📦 to PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PASQAL_CLOUD_PYPI_TOKEN }}
