@@ -4,7 +4,7 @@ import os
 import pytest
 import requests_mock
 
-from sdk.endpoints import Endpoints
+from pasqal_cloud.endpoints import Endpoints
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 JSON_FILE = "_.{}.json"

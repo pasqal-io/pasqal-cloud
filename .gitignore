@@ -10,3 +10,4 @@ build
 venv
 pipfile
 pipfile.lock
+.idea/

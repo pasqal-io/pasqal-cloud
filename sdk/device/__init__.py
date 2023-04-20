@@ -1,13 +1,5 @@
-from sdk.device.configuration import (
-    BaseConfig,
-    EmuFreeConfig,
-    EmuTNConfig,
-)
-from sdk.device.emulator_types import EmulatorType
+from sdk import pasqal_sdk_not_updated
 
-__all__ = [
-    "BaseConfig",
-    "EmuFreeConfig",
-    "EmuTNConfig",
-    "EmulatorType",
-]
+pasqal_sdk_not_updated()
+from pasqal_cloud.device import *
+from pasqal_cloud.device.emulator_types import *

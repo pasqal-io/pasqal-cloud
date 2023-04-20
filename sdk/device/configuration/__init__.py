@@ -1,10 +1,7 @@
-from sdk.device.configuration.base_config import BaseConfig, InvalidConfiguration
-from sdk.device.configuration.emu_free import EmuFreeConfig
-from sdk.device.configuration.emu_tn import EmuTNConfig
+from sdk import pasqal_sdk_not_updated
 
-__all__ = [
-    "BaseConfig",
-    "InvalidConfiguration",
-    "EmuFreeConfig",
-    "EmuTNConfig",
-]
+pasqal_sdk_not_updated()
+from pasqal_cloud.device.configuration import *
+from pasqal_cloud.device.configuration.emu_tn import *
+from pasqal_cloud.device.configuration.base_config import *
+from pasqal_cloud.device.configuration.emu_free import *

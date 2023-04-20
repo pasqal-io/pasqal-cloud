@@ -15,14 +15,14 @@
 from setuptools import find_packages, setup
 
 __version__ = ""
-exec(open("sdk/_version.py").read())
+exec(open("pasqal_cloud/_version.py").read())
 
 setup(
-    name="pasqal-sdk",
+    name="pasqal-cloud",
     version=__version__,
     description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),
-    package_data={"sdk": ["py.typed"]},
+    package_data={"pasqal_cloud": ["py.typed"]},
     include_package_data=True,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -35,7 +35,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
     ],
-    url="https://github.com/pasqal-io/cloud-sdk",
+    url="https://github.com/pasqal-io/pasqal-cloud",
     install_requires=[
         "auth0-python==3.23.1",
         "requests==2.25.1",

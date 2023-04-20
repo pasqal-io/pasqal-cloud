@@ -4,8 +4,8 @@ from uuid import uuid4
 import pytest
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from sdk import SDK
-from sdk.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
+from pasqal_cloud import SDK
+from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 
 
 class TestBatch:

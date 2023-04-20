@@ -3,7 +3,7 @@ from typing import Any
 
 from auth0.v3.exceptions import Auth0Error
 
-from sdk.authentication import TokenProvider
+from pasqal_cloud.authentication import TokenProvider
 
 
 class FakeAuth0AuthenticationSuccess(TokenProvider):
