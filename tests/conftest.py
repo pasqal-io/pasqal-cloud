@@ -56,11 +56,13 @@ def start_mock_request(request_mock):
 
 
 @pytest.fixture
+@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
-    client = Client(group_id="00000000-0000-0000-0000-000000000002",
-                    username="00000000-0000-0000-0000-000000000001",
-                    password="password",
-                    )
+    client = Client(
+        group_id="00000000-0000-0000-0000-000000000002",
+        username="00000000-0000-0000-0000-000000000001",
+        password="password",
+    )
     return client
 
 
