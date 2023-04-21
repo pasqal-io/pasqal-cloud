@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from unittest.mock import patch
 
 import pytest
@@ -53,6 +54,13 @@ def start_mock_request(request_mock):
     request_mock.start()
     yield request_mock
     request_mock.stop()
+
+
+@pytest.fixture(autouse=True)
+def ignore_pasqal_sdk_deprecation_warnings():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pasqal-sdk.*")
+        yield
 
 
 @pytest.fixture
