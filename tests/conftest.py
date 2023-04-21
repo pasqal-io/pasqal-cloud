@@ -1,11 +1,13 @@
 import json
 import os
+from unittest.mock import patch
 
 import pytest
 import requests_mock
 
 from pasqal_cloud import Client, Batch, Job
 from pasqal_cloud.endpoints import Endpoints
+from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 JSON_FILE = "_.{}.json"
@@ -54,17 +56,16 @@ def start_mock_request(request_mock):
 
 
 @pytest.fixture
-def pasqal_client():
-    client_data = {
-        "group_id": "00000000-0000-0000-0000-000000000002",
-        "username": "00000000-0000-0000-0000-000000000001",
-        "password": "password"
-    }
-    return Client(**client_data)
+def pasqal_client_mock():
+    client = Client(group_id="00000000-0000-0000-0000-000000000002",
+                    username="00000000-0000-0000-0000-000000000001",
+                    password="password",
+                    )
+    return client
 
 
 @pytest.fixture
-def batch(pasqal_client):
+def batch(pasqal_client_mock):
     batch_data = {
         "complete": False,
         "created_at": "2022-12-31T23:59:59.999Z",
@@ -76,7 +77,7 @@ def batch(pasqal_client):
         "priority": 0,
         "status": "PENDING",
         "webhook": "https://example.com/webhook",
-        "_client": pasqal_client,
+        "_client": pasqal_client_mock,
         "sequence_builder": "pulser",
         "start_datetime": "2023-01-01T00:00:00.000Z",
         "end_datetime": None,
@@ -87,14 +88,14 @@ def batch(pasqal_client):
 
 
 @pytest.fixture
-def job(pasqal_client):
+def job(pasqal_client_mock):
     job_data = {
         "runs": 50,
         "batch_id": "00000000-0000-0000-0000-000000000001",
         "id": "00000000-0000-0000-0000-000000022010",
         "group_id": "00000000-0000-0000-0000-000000000001",
-        "_client": pasqal_client,
         "status": "PENDING",
+        "_client": pasqal_client_mock,
         "created_at": "2022-12-31T23:59:59.999Z",
         "updated_at": "2023-01-01T00:00:00.000Z",
         "errors": [],

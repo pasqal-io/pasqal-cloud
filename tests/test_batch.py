@@ -99,6 +99,7 @@ class TestBatch:
 
     def test_get_job(self, job):
         job_requested = self.sdk.get_job(job.id)
+        print(self.sdk)
         assert (
             job_requested.id == job.id
         )
