@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2023-04-24
+
+### Added
+
+- Cancel methods added to batches and jobs, from the object itself and the sdk
+- Get a job method from sdk added
+
 ## [0.2.4] - 2023-04-20
 
 ### Changed
@@ -24,7 +31,7 @@ All notable changes to this project will be documented in this file.
 - Package renamed from **pasqal-sdk** to **pasqal-cloud**
 - Import name renamed from **sdk** to **pasqal_cloud** (import sdk is now deprecated but still usable)
 
-## [0.2.0] 2023-04-06
+## [0.2.0] - 2023-04-06
 
 ### Changed
 

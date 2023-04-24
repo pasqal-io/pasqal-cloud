@@ -4,13 +4,13 @@ from uuid import uuid4
 import pytest
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from pasqal_cloud import SDK
+from pasqal_cloud import SDK, Batch, Job
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 
 
 class TestBatch:
     @pytest.fixture(autouse=True)
-    @patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
             username="me@test.com", password="password", group_id=str(uuid4())
@@ -71,6 +71,57 @@ class TestBatch:
             assert self.job_id == job_id
             assert job.result == self.job_result
         assert request_mock.last_request.method == "GET"
+
+    def test_get_batch(self, batch):
+        batch_requested = self.sdk.get_batch(batch.id)
+        assert (
+            batch_requested.id == self.batch_id
+        )
+
+    def test_cancel_batch_self(self, request_mock, batch):
+        batch.cancel()
+        assert batch.status == 'CANCELED'
+        assert request_mock.last_request.method == "PUT"
+        assert (
+            request_mock.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/cancel"
+        )
+
+    def test_cancel_batch_sdk(self, request_mock):
+        client_rsp = self.sdk.cancel_batch(self.batch_id)
+        assert type(client_rsp) == Batch
+        assert client_rsp.status == 'CANCELED'
+        assert request_mock.last_request.method == "PUT"
+        assert (
+                request_mock.last_request.url
+                == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/cancel"
+        )
+
+    def test_get_job(self, job):
+        job_requested = self.sdk.get_job(job.id)
+        print(self.sdk)
+        assert (
+            job_requested.id == job.id
+        )
+
+    def test_cancel_job_self(self, request_mock, job):
+        job.cancel()
+        assert job.status == 'CANCELED'
+        assert request_mock.last_request.method == "PUT"
+        assert (
+            request_mock.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+        )
+
+    def test_cancel_job_sdk(self, request_mock):
+        client_rsp = self.sdk.cancel_job(self.job_id)
+        assert type(client_rsp) == Job
+        assert client_rsp.status == 'CANCELED'
+        assert request_mock.last_request.method == "PUT"
+        assert (
+            request_mock.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+        )
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):

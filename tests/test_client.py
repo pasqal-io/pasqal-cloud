@@ -11,14 +11,14 @@ from tests.test_doubles.authentication import (
 )
 
 
-@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 class TestAuthSuccess:
     group_id = "random_group_id"
     username = "random_username"
     password = "random_password"
     new_core_endpoint = "random_endpoint"
 
-    @patch("sdk.client.getpass")
+    @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_success(self, getpass):
         getpass.return_value = self.password
         SDK(group_id=self.group_id, username=self.username)
@@ -32,14 +32,13 @@ class TestAuthSuccess:
             group_id=self.group_id,
             token_provider=FakeAuth0AuthenticationSuccess("username", "password", None),
         )
-    
+
     def test_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
         class CustomTokenProvider(TokenProvider):
             def get_token(self):
                 return "your-token" # Replace this value with your token
         SDK(token_provider=CustomTokenProvider(), group_id="group_id")
-
 
     def test_correct_endpoints(self):
         sdk = SDK(
@@ -60,7 +59,7 @@ class TestAuthSuccess:
         )
 
 
-@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthFailure:
     group_id = "random_group_id"
     username = "random_username"
@@ -68,7 +67,7 @@ class TestAuthFailure:
     password = "random_password"
     no_password = ""
 
-    @patch("sdk.client.getpass")
+    @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_bad_password(self, getpass):
         getpass.return_value = self.password
 
@@ -97,7 +96,7 @@ class TestAuthInvalidClient:
                 password=self.password,
             )
 
-    @patch("sdk.client.getpass")
+    @patch("pasqal_cloud.client.getpass")
     def test_module_no_password(self, getpass):
         getpass.return_value = ""
         with pytest.raises(ValueError):
@@ -107,7 +106,7 @@ class TestAuthInvalidClient:
                 password=self.no_password,
             )
 
-    @patch("sdk.client.getpass")
+    @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_no_password(self, getpass):
         getpass.return_value = self.no_password
 

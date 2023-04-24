@@ -126,18 +126,6 @@ class Client:
         jobs_data = batch_data.pop("jobs", [])
         return batch_data, jobs_data
 
-    def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
-            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
-        )["data"]
-        return response
-
-    def _send_job(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
-            "POST", f"{self.endpoints.core}/api/v1/jobs", job_data
-        )["data"]
-        return response
-
     def _get_batch(
         self, id: str, fetch_results: bool = False
     ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
@@ -153,9 +141,33 @@ class Client:
                 job_data["result"] = results.get(str(job_data["id"]), None)
         return batch_data, jobs_data
 
+    def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
+        )["data"]
+        return response
+
+    def _cancel_batch(self, batch_id: str) -> Dict[str, Any]:
+        batch: Dict[str, Any] = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
+        )["data"]
+        return batch
+
+    def _send_job(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._request(
+            "POST", f"{self.endpoints.core}/api/v1/jobs", job_data
+        )["data"]
+        return response
+
     def _get_job(self, job_id: str) -> Dict[str, Any]:
         job: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
+        )["data"]
+        return job
+
+    def _cancel_job(self, job_id: str) -> Dict[str, Any]:
+        job: Dict[str, Any] = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
         )["data"]
         return job
 

@@ -1,10 +1,13 @@
 import json
 import os
+from unittest.mock import patch
 
 import pytest
 import requests_mock
 
+from pasqal_cloud import Client, Batch, Job
 from pasqal_cloud.endpoints import Endpoints
+from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 JSON_FILE = "_.{}.json"
@@ -22,7 +25,7 @@ def mock_core_response(request):
     )
     with open(json_path) as json_file:
         result = json.load(json_file)
-        if data:
+        if path == "batches" and data:
             if data.get("emulator"):
                 result["data"]["device_type"] = data["emulator"]
             else:
@@ -50,3 +53,58 @@ def start_mock_request(request_mock):
     request_mock.start()
     yield request_mock
     request_mock.stop()
+
+
+@pytest.fixture
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+def pasqal_client_mock():
+    client = Client(
+        group_id="00000000-0000-0000-0000-000000000002",
+        username="00000000-0000-0000-0000-000000000001",
+        password="password",
+    )
+    return client
+
+
+@pytest.fixture
+def batch(pasqal_client_mock):
+    batch_data = {
+        "complete": False,
+        "created_at": "2022-12-31T23:59:59.999Z",
+        "updated_at": "2023-01-01T00:00:00.000Z",
+        "device_type": "qpu",
+        "group_id": "00000000-0000-0000-0000-000000000002",
+        "id": "00000000-0000-0000-0000-000000000001",
+        "user_id": 1,
+        "priority": 0,
+        "status": "PENDING",
+        "webhook": "https://example.com/webhook",
+        "_client": pasqal_client_mock,
+        "sequence_builder": "pulser",
+        "start_datetime": "2023-01-01T00:00:00.000Z",
+        "end_datetime": None,
+        "device_status": "available",
+        "jobs": {}
+    }
+    return Batch(**batch_data)
+
+
+@pytest.fixture
+def job(pasqal_client_mock):
+    job_data = {
+        "runs": 50,
+        "batch_id": "00000000-0000-0000-0000-000000000001",
+        "id": "00000000-0000-0000-0000-000000022010",
+        "group_id": "00000000-0000-0000-0000-000000000001",
+        "status": "PENDING",
+        "_client": pasqal_client_mock,
+        "created_at": "2022-12-31T23:59:59.999Z",
+        "updated_at": "2023-01-01T00:00:00.000Z",
+        "errors": [],
+        "variables": {
+            "param1": 1,
+            "param2": 2,
+            "param3": 3
+        }
+    }
+    return Job(**job_data)
