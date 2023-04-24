@@ -10,7 +10,7 @@ from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNCo
 
 class TestBatch:
     @pytest.fixture(autouse=True)
-    @patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
             username="me@test.com", password="password", group_id=str(uuid4())

@@ -1,6 +1,5 @@
 import json
 import os
-import warnings
 from unittest.mock import patch
 
 import pytest
@@ -56,16 +55,8 @@ def start_mock_request(request_mock):
     request_mock.stop()
 
 
-# Used to prevent warning to be displayed during the run of pytest tests
-@pytest.fixture(autouse=True)
-def ignore_pasqal_sdk_deprecation_warnings():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=DeprecationWarning, message=".*pasqal-sdk.*")
-        yield
-
-
 @pytest.fixture
-@patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
     client = Client(
         group_id="00000000-0000-0000-0000-000000000002",
