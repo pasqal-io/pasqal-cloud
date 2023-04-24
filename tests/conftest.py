@@ -56,6 +56,7 @@ def start_mock_request(request_mock):
     request_mock.stop()
 
 
+# Used to prevent warning to be displayed during the run of pytest tests
 @pytest.fixture(autouse=True)
 def ignore_pasqal_sdk_deprecation_warnings():
     with warnings.catch_warnings():

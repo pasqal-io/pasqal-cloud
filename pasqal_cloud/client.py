@@ -147,8 +147,8 @@ class Client:
         )["data"]
         return response
 
-    def _cancel_batch(self, batch_id : str) -> Dict[str, Any]:
-        batch = self._request(
+    def _cancel_batch(self, batch_id: str) -> Dict[str, Any]:
+        batch: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
         )["data"]
         return batch
@@ -165,8 +165,8 @@ class Client:
         )["data"]
         return job
 
-    def _cancel_job(self, job_id : str) -> Dict[str, Any]:
-        job = self._request(
+    def _cancel_job(self, job_id: str) -> Dict[str, Any]:
+        job: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
         )["data"]
         return job
