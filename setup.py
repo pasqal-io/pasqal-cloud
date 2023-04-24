@@ -37,9 +37,9 @@ setup(
     ],
     url="https://github.com/pasqal-io/pasqal-cloud",
     install_requires=[
-        "auth0-python==3.23.1",
-        "requests==2.25.1",
-        "pyjwt[crypto]==2.5.0",
+        "auth0-python >= 3.23.1, <4.0.0 ",
+        "requests>=2.25.1, <3.0.0",
+        "pyjwt[crypto]>=2.5.0, <3.0.0",
     ],
     extras_require={
         "dev": {
