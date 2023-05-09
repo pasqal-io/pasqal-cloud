@@ -36,7 +36,7 @@ class Client:
 
     def __init__(
         self,
-        group_id: str,
+        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
@@ -57,7 +57,7 @@ class Client:
             token_provider = self._credential_login(username, password, auth0)
 
         self.authenticator = HTTPBearerAuthenticator(token_provider)
-        self.group_id = group_id
+        self.project_id = project_id
 
     @staticmethod
     def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
@@ -117,7 +117,7 @@ class Client:
     def _send_batch(
         self, batch_data: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
-        batch_data.update({"group_id": self.group_id})
+        batch_data.update({"project_id": self.project_id})
         batch_data = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",

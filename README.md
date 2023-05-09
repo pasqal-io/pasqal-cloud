@@ -53,11 +53,11 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 from pasqal_cloud import SDK
 from pulser import devices, Register, Sequence
 
-group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+project_id="your_project_id" # Replace this value by your project_id on the PASQAL platform.
 username="your_username" # Replace this value by your username or email on the PASQAL platform.
 password="your_password" # Replace this value by your password on the PASQAL platform.
 
-sdk = SDK(username=username, password=password, group_id=group_id)
+sdk = SDK(username=username, password=password, project_id=project_id)
 
 # When creating a job, select a number of runs and set the desired values for the variables
 # defined in the sequence
@@ -87,7 +87,7 @@ There are several ways to provide a correct authentication using the SDK.
 ```python
 from pasqal_cloud import SDK
 
-group_id="your_group_id" # Replace this value by your group_id on the PASQAL platform.
+project_id="your_project_id" # Replace this value by your project_id on the PASQAL platform.
 username="your_username" # Replace this value by your username or email on the PASQAL platform.
 password="your_password" # Replace this value by your password on the PASQAL platform.
 # Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
@@ -95,13 +95,13 @@ password="your_password" # Replace this value by your password on the PASQAL pla
 """ Method 1: Username + Password
     If you know your credentials, you can pass them to the SDK instance on creation.
 """
-sdk = SDK(username=username, password=password, group_id=group_id)
+sdk = SDK(username=username, password=password, project_id=project_id)
 
 """ Method 2: Username only
     If you only want to insert your username, but want a solution to have your password being secret
     you can run the SDK without password. A prompt will then ask for your password
 """
-sdk = SDK(username=username, group_id=group_id)
+sdk = SDK(username=username, project_id=project_id)
 > Please, enter your password:
 
 """ Method 3: Use a custom token provider
@@ -113,7 +113,7 @@ class CustomTokenProvider(TokenProvider):
         return "your-token" # Replace this value with your token
 
 
-sdk = SDK(token_provider=CustomTokenProvider(), group_id=group_id)
+sdk = SDK(token_provider=CustomTokenProvider(), project_id=project_id)
 
 """ Alternatively, create a custom TokenProvider that inherits from ExpiringTokenProvider. You should define a 
     custom _query_token method which fetches your token. See Auth0TokenProvider implementation for an example.

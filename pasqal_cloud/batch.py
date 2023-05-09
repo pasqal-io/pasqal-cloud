@@ -14,7 +14,7 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch:
     """Class for batch data.
 
-    A batch groups up several jobs with the same sequence. When a batch is assigned to
+    A batch projects up several jobs with the same sequence. When a batch is assigned to
     a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
     device until all its jobs are done and declared complete.
 
@@ -23,7 +23,7 @@ class Batch:
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
-        - group_id: ID of the owner group of the batch.
+        - project_id: ID of the owner project of the batch.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
@@ -44,7 +44,7 @@ class Batch:
     created_at: str
     updated_at: str
     device_type: str
-    group_id: str
+    project_id: str
     id: str
     user_id: int
     priority: int

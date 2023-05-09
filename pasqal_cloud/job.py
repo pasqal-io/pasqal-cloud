@@ -17,7 +17,7 @@ class Job:
         - batch_id: ID of the batch which the job belongs to.
         - errors: Error messages that occurred while processing job.
         - id: Unique identifier for the job.
-        - group_id: ID of the group which the users scheduling the job belong to.
+        - project_id: ID of the project which the users scheduling the job belong to.
         - status: Status of the job. Possible values are: PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - _client: A Client instance to connect to PCS.
         - result: Result of the job.
@@ -28,7 +28,7 @@ class Job:
     runs: int
     batch_id: str
     id: str
-    group_id: str
+    project_id: str
     status: str
     _client : Client
     created_at: str

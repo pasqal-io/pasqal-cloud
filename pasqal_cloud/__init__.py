@@ -29,7 +29,7 @@ class SDK:
 
     def __init__(
         self,
-        group_id: str,
+        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
@@ -44,7 +44,7 @@ class SDK:
         You may omit the password, you will then be prompted to enter one.
         """
         self._client = Client(
-            group_id=group_id,
+            project_id=project_id,
             username=username,
             password=password,
             token_provider=token_provider,
