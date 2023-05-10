@@ -63,6 +63,15 @@ class Batch:
 
     def __post_init__(self) -> None:
         """Post init method to convert the configuration to a BaseConfig object."""
+
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not (self.project_id or self.group_id):
+            raise TypeError("Either a group_id or project_id has to be given as argument")
+
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not self.project_id:
+            self.project_id = self.group_id
+
         if not isinstance(self.configuration, dict):
             return
         conf_class: Type[BaseConfig] = BaseConfig

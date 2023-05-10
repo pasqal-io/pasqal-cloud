@@ -40,6 +40,13 @@ class Job:
     group_id: Optional[str] = None
     project_id: Optional[str] = None
 
+    def __post_init__(self):
+        """To be removed, used to avoid a breaking change during the group to project renaming."""
+        if not (self.project_id or self.group_id):
+            raise TypeError("Either a group_id or project_id has to be given as argument")
+        if not self.project_id:
+            self.project_id = self.group_id
+
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
         job_rsp = self._client._cancel_job(self.id)
