@@ -44,7 +44,6 @@ class Batch:
     created_at: str
     updated_at: str
     device_type: str
-    project_id: str
     id: str
     user_id: int
     priority: int
@@ -59,6 +58,8 @@ class Batch:
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
     configuration: Optional[Union[BaseConfig, dict]] = None
+    group_id: Optional[str] = None
+    project_id: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Post init method to convert the configuration to a BaseConfig object."""

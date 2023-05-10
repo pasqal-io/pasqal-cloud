@@ -36,13 +36,22 @@ class Client:
 
     def __init__(
         self,
-        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
+        group_id: Optional[str] = None,
+        project_id: Optional[str] = None
     ):
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not (project_id or group_id):
+            raise TypeError("Either a group_id or project_id has to be given as argument")
+
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not project_id:
+            project_id = group_id
+
         if not username and not token_provider:
             raise ValueError(
                 "At least a username or TokenProvider object should be provided."

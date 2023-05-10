@@ -13,7 +13,7 @@ class TestBatch:
     @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
-            username="me@test.com", password="password", project_id=str(uuid4())
+            username="me@test.com", password="password", group_id=str(uuid4())
         )
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = "00000000-0000-0000-0000-000000000001"

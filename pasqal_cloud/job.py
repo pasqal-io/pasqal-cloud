@@ -28,9 +28,8 @@ class Job:
     runs: int
     batch_id: str
     id: str
-    project_id: str
     status: str
-    _client : Client
+    _client: Client
     created_at: str
     updated_at: str
     errors: List[str]
@@ -38,6 +37,8 @@ class Job:
     end_timestamp: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
     variables: Optional[Dict[str, Any]] = None
+    group_id: Optional[str] = None
+    project_id: Optional[str] = None
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""

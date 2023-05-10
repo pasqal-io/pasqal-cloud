@@ -29,13 +29,14 @@ class SDK:
 
     def __init__(
         self,
-        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
+        group_id: Optional[str] = None,
+        project_id: Optional[str] = None
     ):
         """This class provides helper methods to call the PASQAL Cloud endpoints.
 
@@ -43,6 +44,15 @@ class SDK:
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
         """
+
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not (project_id or group_id):
+            raise TypeError("Either a group_id or project_id has to be given as argument")
+
+        # To be removed, used to avoid a breaking change during the group to project renaming
+        if not project_id:
+            project_id = group_id
+
         self._client = Client(
             project_id=project_id,
             username=username,

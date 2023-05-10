@@ -59,7 +59,7 @@ def start_mock_request(request_mock):
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
     client = Client(
-        project_id="00000000-0000-0000-0000-000000000002",
+        group_id="00000000-0000-0000-0000-000000000002",
         username="00000000-0000-0000-0000-000000000001",
         password="password",
     )
@@ -73,7 +73,7 @@ def batch(pasqal_client_mock):
         "created_at": "2022-12-31T23:59:59.999Z",
         "updated_at": "2023-01-01T00:00:00.000Z",
         "device_type": "qpu",
-        "project_id": "00000000-0000-0000-0000-000000000002",
+        "group_id": "00000000-0000-0000-0000-000000000002",
         "id": "00000000-0000-0000-0000-000000000001",
         "user_id": 1,
         "priority": 0,
@@ -95,7 +95,7 @@ def job(pasqal_client_mock):
         "runs": 50,
         "batch_id": "00000000-0000-0000-0000-000000000001",
         "id": "00000000-0000-0000-0000-000000022010",
-        "project_id": "00000000-0000-0000-0000-000000000001",
+        "group_id": "00000000-0000-0000-0000-000000000001",
         "status": "PENDING",
         "_client": pasqal_client_mock,
         "created_at": "2022-12-31T23:59:59.999Z",
