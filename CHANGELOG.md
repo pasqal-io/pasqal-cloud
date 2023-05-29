@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6] - 2023-05-29
+
+### Changed
+
+- Accepts either group_id or project_id for the sdk, client, batch or job. This is a patch preparing the depreciation of group_id.
+
 ## [0.2.5] - 2023-04-24
 
 ### Added

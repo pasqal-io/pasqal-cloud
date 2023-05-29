@@ -40,7 +40,7 @@ class Job:
     group_id: Optional[str] = None
     project_id: Optional[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Ticket (#622), used to avoid a breaking change during the group to project renaming.
         Method to be entirely removed"""
         if not (self.project_id or self.group_id):
