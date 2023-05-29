@@ -45,11 +45,11 @@ class SDK:
         You may omit the password, you will then be prompted to enter one.
         """
 
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not (project_id or group_id):
             raise TypeError("Either a group_id or project_id has to be given as argument")
 
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not project_id:
             project_id = group_id
 

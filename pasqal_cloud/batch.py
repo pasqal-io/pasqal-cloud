@@ -14,7 +14,7 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch:
     """Class for batch data.
 
-    A batch projects up several jobs with the same sequence. When a batch is assigned to
+    A batch groups up several jobs with the same sequence. When a batch is assigned to
     a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
     device until all its jobs are done and declared complete.
 
@@ -64,11 +64,11 @@ class Batch:
     def __post_init__(self) -> None:
         """Post init method to convert the configuration to a BaseConfig object."""
 
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), used to avoid a breaking change during the group to project renaming
         if not (self.project_id or self.group_id):
             raise TypeError("Either a group_id or project_id has to be given as argument")
 
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), to be removed as well
         if not self.project_id:
             self.project_id = self.group_id
 

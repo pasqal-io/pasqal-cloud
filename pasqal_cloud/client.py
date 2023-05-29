@@ -44,11 +44,11 @@ class Client:
         group_id: Optional[str] = None,
         project_id: Optional[str] = None
     ):
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), used to avoid a breaking change during the group to project renaming
         if not (project_id or group_id):
             raise TypeError("Either a group_id or project_id has to be given as argument")
 
-        # To be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622),to be removed as well
         if not project_id:
             project_id = group_id
 

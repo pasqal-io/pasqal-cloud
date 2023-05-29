@@ -41,7 +41,8 @@ class Job:
     project_id: Optional[str] = None
 
     def __post_init__(self):
-        """To be removed, used to avoid a breaking change during the group to project renaming."""
+        """Ticket (#622), used to avoid a breaking change during the group to project renaming.
+        Method to be entirely removed"""
         if not (self.project_id or self.group_id):
             raise TypeError("Either a group_id or project_id has to be given as argument")
         if not self.project_id:

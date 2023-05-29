@@ -7,6 +7,11 @@ from pasqal_cloud import SDK
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
+"""
+Ticket (#622), Python file to be entirely removed
+"""
+
+
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 class TestSDKAndClientInit:
     group_id = "random_group_id"
