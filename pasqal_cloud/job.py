@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
+from warnings import warn
 
 from pasqal_cloud.client import Client
 
@@ -18,6 +19,7 @@ class Job:
         - errors: Error messages that occurred while processing job.
         - id: Unique identifier for the job.
         - project_id: ID of the project which the users scheduling the job belong to.
+        - group_id: This parameter is deprecated, use project_id instead.
         - status: Status of the job. Possible values are: PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - _client: A Client instance to connect to PCS.
         - result: Result of the job.
@@ -37,6 +39,7 @@ class Job:
     end_timestamp: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
     variables: Optional[Dict[str, Any]] = None
+    # Ticket (#622)
     group_id: Optional[str] = None
     project_id: Optional[str] = None
 
@@ -46,6 +49,10 @@ class Job:
         if not (self.project_id or self.group_id):
             raise TypeError("Either a group_id or project_id has to be given as argument")
         if not self.project_id:
+            warn('The parameter group_id is deprecated, from now use project_id instead',
+                 DeprecationWarning,
+                 stacklevel=2
+                 )
             self.project_id = self.group_id
 
     def cancel(self) -> Dict[str, Any]:

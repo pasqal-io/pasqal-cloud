@@ -14,6 +14,7 @@
 
 import time
 from typing import Any, Dict, List, Optional
+from warnings import warn
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
@@ -51,6 +52,10 @@ class SDK:
 
         # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not project_id:
+            warn('The parameter group_id is deprecated, from now use project_id instead',
+                 DeprecationWarning,
+                 stacklevel=2
+                 )
             project_id = group_id
 
         self._client = Client(

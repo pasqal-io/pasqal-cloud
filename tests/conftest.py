@@ -59,7 +59,7 @@ def start_mock_request(request_mock):
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
     client = Client(
-        group_id="00000000-0000-0000-0000-000000000002",
+        project_id="00000000-0000-0000-0000-000000000002",
         username="00000000-0000-0000-0000-000000000001",
         password="password",
     )

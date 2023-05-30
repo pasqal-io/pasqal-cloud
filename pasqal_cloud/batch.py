@@ -1,6 +1,7 @@
 import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type, Union
+from warnings import warn
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.job import Job
@@ -24,6 +25,7 @@ class Batch:
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
         - project_id: ID of the owner project of the batch.
+        - group_id: This parameter is deprecated, use project_id instead.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
@@ -58,6 +60,7 @@ class Batch:
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
     configuration: Optional[Union[BaseConfig, dict]] = None
+    # Ticket (#622)
     group_id: Optional[str] = None
     project_id: Optional[str] = None
 
@@ -70,6 +73,10 @@ class Batch:
 
         # Ticket (#622), to be removed as well
         if not self.project_id:
+            warn('The parameter group_id is deprecated, from now use project_id instead',
+                 DeprecationWarning,
+                 stacklevel=2
+                 )
             self.project_id = self.group_id
 
         if not isinstance(self.configuration, dict):
