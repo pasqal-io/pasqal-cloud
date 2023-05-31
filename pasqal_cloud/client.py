@@ -36,7 +36,7 @@ class Client:
 
     def __init__(
         self,
-        project_id: Optional[str] = None,
+        project_id,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,

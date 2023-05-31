@@ -13,7 +13,7 @@ class TestDeviceSpecs:
     @patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
-            username="me@test.com", password="password", group_id=str(uuid4())
+            username="me@test.com", password="password", project_id=str(uuid4())
         )
 
     def test_get_device_specs_success(self):

@@ -25,7 +25,6 @@ class Batch:
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
         - project_id: ID of the owner project of the batch.
-        - group_id: This parameter is deprecated, use project_id instead.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
@@ -40,12 +39,14 @@ class Batch:
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
+        - group_id: This parameter is deprecated, use project_id instead.
     """
 
     complete: bool
     created_at: str
     updated_at: str
     device_type: str
+    project_id: str
     id: str
     user_id: int
     priority: int
@@ -62,23 +63,9 @@ class Batch:
     configuration: Optional[Union[BaseConfig, dict]] = None
     # Ticket (#622)
     group_id: Optional[str] = None
-    project_id: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Post init method to convert the configuration to a BaseConfig object."""
-
-        # Ticket (#622), used to avoid a breaking change during the group to project renaming
-        if not (self.project_id or self.group_id):
-            raise TypeError("Either a group_id or project_id has to be given as argument")
-
-        # Ticket (#622), to be removed as well
-        if not self.project_id:
-            warn('The parameter group_id is deprecated, from now use project_id instead',
-                 DeprecationWarning,
-                 stacklevel=2
-                 )
-            self.project_id = self.group_id
-
         if not isinstance(self.configuration, dict):
             return
         conf_class: Type[BaseConfig] = BaseConfig
