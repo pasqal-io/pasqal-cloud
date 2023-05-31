@@ -6,7 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Accepts either group_id or project_id for the sdk, batch or job. This is a patch preparing the depreciation of group_id.
+"Groups" have been renamed as "Projects", hence URL endpoints and attribute names have been changed accordingly.
+For example the `group_id` of a batch has been renamed to `project_id`.
+Note that for backwards compatibility, the `group_id` is still exposed by the APIs as a duplicate of the `project_id`.
 
 ## [0.2.5] - 2023-04-24
 

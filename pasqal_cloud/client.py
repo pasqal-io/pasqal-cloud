@@ -36,7 +36,7 @@ class Client:
 
     def __init__(
         self,
-        # Ticket (#622), this has to don't be optional anymore
+        # Ticket (#622), project_id does not have to be optional anymore
         project_id: Optional[str],
         username: Optional[str] = None,
         password: Optional[str] = None,
