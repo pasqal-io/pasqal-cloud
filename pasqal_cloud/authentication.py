@@ -38,14 +38,28 @@ class TokenProvider(ABC):
 
 
 class ExpiringTokenProvider(TokenProvider, ABC):
+    """TokenProvider class which caches a token up to its expiry date.
+
+    This is an abstract class. Create your custom TokenProvider by inheriting from
+    this class and defining your own `_query_token` method. See Auth0TokenProvider for
+    an implementation example.
+    """
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
 
     @abstractmethod
     def _query_token(self) -> dict[str, Any]:
+        """Return a dictionnary mapping the key 'access_token' to the token value.
+
+        Optionally, your dictionnary may include an 'expires_in' key mapped to the
+        duration before expiration of your token (in seconds).
+        """
         raise NotImplementedError
 
     def get_token(self) -> str:
+        """Returns the token stored in the cache. If token has expired, first refresh
+        the cache by calling the _query_token method.
+        """
         if self.__token_cache:
             expiry, token = self.__token_cache
             if expiry - self.expiry_window > datetime.now(tz=timezone.utc):
@@ -103,7 +117,16 @@ class ExpiringTokenProvider(TokenProvider, ABC):
 
 
 class Auth0TokenProvider(ExpiringTokenProvider):
+    """ExpiringTokenProvider implementation which fetches a token from auth0."""
     def __init__(self, username: str, password: str, auth0: Auth0Conf):
+        """Initializes the token provider with user credentials and
+        an auth0 configuration object
+
+        Args:
+            username: name of the user to log in as
+            password: password of the user to log in as
+            auth0: auth0 configuration object to target the proper auth0 tenant and app
+        """
         self.username = username
         self.password = password
         self.auth0 = auth0

@@ -114,6 +114,10 @@ class CustomTokenProvider(TokenProvider):
 
 
 sdk = SDK(token_provider=CustomTokenProvider(), group_id=group_id)
+
+""" Alternatively, create a custom TokenProvider that inherits from ExpiringTokenProvider. You should define a 
+    custom _query_token method which fetches your token. See Auth0TokenProvider implementation for an example.
+"""
 ```
 
 ### Extra emulator configuration (Soon publicly available)
