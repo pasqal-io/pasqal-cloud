@@ -47,11 +47,9 @@ class SDK:
         """
 
         # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
-        if not (project_id or group_id):
-            raise TypeError("Either a group_id or project_id has to be given as argument")
-
-        # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not project_id:
+            if not group_id:
+                raise TypeError("Either a group_id or project_id has to be given as argument")
             warn('The parameter group_id is deprecated, from now use project_id instead',
                  DeprecationWarning,
                  stacklevel=2
