@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.6] - 2023-05-29
+
+### Changed
+
+"Groups" have been renamed as "Projects", hence URL endpoints and attribute names have been changed accordingly.
+For example the `group_id` of a batch has been renamed to `project_id`.
+Note that for backwards compatibility, the `group_id` is still exposed by the APIs as a duplicate of the `project_id`.
+
 ## [0.2.5] - 2023-04-24
 
 ### Added

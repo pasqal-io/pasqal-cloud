@@ -1,6 +1,7 @@
 import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type, Union
+from warnings import warn
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.job import Job
@@ -23,7 +24,7 @@ class Batch:
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
-        - group_id: ID of the owner group of the batch.
+        - project_id: ID of the owner project of the batch.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
@@ -38,13 +39,14 @@ class Batch:
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
+        - group_id: This parameter is deprecated, use project_id instead.
     """
 
     complete: bool
     created_at: str
     updated_at: str
     device_type: str
-    group_id: str
+    project_id: str
     id: str
     user_id: int
     priority: int
@@ -59,6 +61,8 @@ class Batch:
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
     configuration: Optional[Union[BaseConfig, dict]] = None
+    # Ticket (#622)
+    group_id: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Post init method to convert the configuration to a BaseConfig object."""

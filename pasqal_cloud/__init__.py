@@ -14,6 +14,7 @@
 
 import time
 from typing import Any, Dict, List, Optional
+from warnings import warn
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
@@ -29,13 +30,14 @@ class SDK:
 
     def __init__(
         self,
-        group_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
+        group_id: Optional[str] = None,
+        project_id: Optional[str] = None
     ):
         """This class provides helper methods to call the PASQAL Cloud endpoints.
 
@@ -43,8 +45,19 @@ class SDK:
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
         """
+
+        # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
+        if not project_id:
+            if not group_id:
+                raise TypeError("Either a group_id or project_id has to be given as argument")
+            warn('The parameter group_id is deprecated, from now use project_id instead',
+                 DeprecationWarning,
+                 stacklevel=2
+                 )
+            project_id = group_id
+
         self._client = Client(
-            group_id=group_id,
+            project_id=project_id,
             username=username,
             password=password,
             token_provider=token_provider,
