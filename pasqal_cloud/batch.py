@@ -71,8 +71,10 @@ class Batch(BaseModel):
 
     @validator("configuration", pre=True)
     def _load_configuration(
-        cls, configuration: Union[Dict[str, Any], BaseConfig, None], values
-    ):
+        cls,
+        configuration: Union[Dict[str, Any], BaseConfig, None],
+        values: Dict[str, Any],
+    ) -> Optional[BaseConfig]:
         if not isinstance(configuration, dict):
             return configuration
         conf_class: Type[BaseConfig] = BaseConfig
@@ -84,7 +86,7 @@ class Batch(BaseModel):
         return conf_class.from_dict(configuration)
 
     @root_validator(pre=True)
-    def _build_job_dict(cls, values: Dict[str, Any]):
+    def _build_job_dict(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         jobs = values.get("jobs", [])
         job_dict = {}
         for job in jobs:
