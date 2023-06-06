@@ -12,6 +12,7 @@ with the former folder called `sdk`.
 def test_verify_import_sdk_is_module():
     with pytest.warns(DeprecationWarning):
         import sdk
+
         assert inspect.ismodule(sdk)
 
 

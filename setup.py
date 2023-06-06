@@ -41,7 +41,6 @@ setup(
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic>=1.10",
-
     ],
     extras_require={
         "dev": {

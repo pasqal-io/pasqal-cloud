@@ -41,7 +41,7 @@ class Client:
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
-        auth0: Optional[Auth0Conf] = None
+        auth0: Optional[Auth0Conf] = None,
     ):
         if not username and not token_provider:
             raise ValueError(

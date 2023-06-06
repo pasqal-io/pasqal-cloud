@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pasqal_cloud.device.configuration.base_config import BaseConfig, InvalidConfiguration
+from pasqal_cloud.device.configuration.base_config import (
+    BaseConfig,
+    InvalidConfiguration,
+)
 
 DT_VALUE_NOT_VALID = "dt must be larger than 0. Not {}."
 PRECISION_NOT_VALID = "Precision {} not valid. Must be one of 'low', 'normal', 'high'"

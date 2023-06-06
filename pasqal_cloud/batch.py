@@ -1,7 +1,7 @@
 import time
 from typing import Any, Dict, Optional, Type, Union
 
-from pydantic import BaseModel, Extra, validator, root_validator
+from pydantic import BaseModel, Extra, root_validator, validator
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType

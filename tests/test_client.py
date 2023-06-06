@@ -35,9 +35,11 @@ class TestAuthSuccess:
 
     def test_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
+
         class CustomTokenProvider(TokenProvider):
             def get_token(self):
-                return "your-token" # Replace this value with your token
+                return "your-token"  # Replace this value with your token
+
         SDK(token_provider=CustomTokenProvider(), project_id="project_id")
 
     def test_correct_endpoints(self):
@@ -78,7 +80,11 @@ class TestAuthFailure:
 
     def test_module_bad_password(self):
         with pytest.raises(Auth0Error):
-            SDK(project_id=self.project_id, username=self.username, password=self.password)
+            SDK(
+                project_id=self.project_id,
+                username=self.username,
+                password=self.password,
+            )
 
 
 class TestAuthInvalidClient:
