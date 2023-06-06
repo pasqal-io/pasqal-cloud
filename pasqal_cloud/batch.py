@@ -63,7 +63,7 @@ class Batch(BaseModel):
     jobs: Dict[str, Job] = {}
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
-    configuration: Optional[Union[BaseConfig, dict]] = None
+    configuration: Union[BaseConfig, Dict[str, Any], None] = None
 
     class Config:
         extra = Extra.allow

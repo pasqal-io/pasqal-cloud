@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 
 class InvalidConfiguration(Exception):
@@ -26,7 +26,7 @@ class BaseConfig:
     parameters are added to the configuration dictionary.
     """
 
-    extra_config: Optional[dict[str, Any]] = None
+    extra_config: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> dict[str, Any]:
         """Converts the configuration to a dictionary.
