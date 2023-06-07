@@ -202,7 +202,7 @@ class TestBatch:
         )
         assert batch.configuration == expected
 
-    def test_batch_instanciation_with_extra_field(self, batch):
+    def test_batch_instantiation_with_extra_field(self, batch):
         """Instantiating a batch with an extra field should not raise an error.
 
         This enables us to add new fields in the API response on the batches endpoint

@@ -2,7 +2,7 @@ from pasqal_cloud import Job
 
 
 class TestJob:
-    def test_job_instanciation_with_extra_field(self, job):
+    def test_job_instantiation_with_extra_field(self, job):
         """Instantiating a job with an extra field should not raise an error.
 
         This enables us to add new fields in the API response on the jobs endpoint
