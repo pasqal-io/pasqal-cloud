@@ -58,7 +58,7 @@ class Auth0Conf:
     realm: str = REALM
 
 
-# ---- Pre-made environment configuration ----
+# ---- Pre-filled environment configuration ----
 
 
 PASQAL_ENDPOINTS = {

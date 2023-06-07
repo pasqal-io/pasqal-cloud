@@ -1,5 +1,4 @@
 from unittest.mock import patch
-from uuid import uuid4
 
 import pytest
 
@@ -20,7 +19,8 @@ class TestInitSDKWithGroupId:
     password = "random_password"
 
     @pytest.mark.filterwarnings(
-        "ignore:The parameter group_id is deprecated, from now use project_id instead"
+        "ignore:The parameter 'group_id' is deprecated, from now on use 'project_id'"
+        " instead"
     )
     def test_client_group_parameter(self):
         sdk = SDK(
@@ -40,6 +40,6 @@ class TestInitSDKWithGroupId:
     def test_client_group_and_project_arguments_not_given(self):
         with pytest.raises(
             TypeError,
-            match=r"Either a group_id or project_id has to be given as argument",
+            match=r"Either a 'group_id' or 'project_id' has to be given as argument",
         ):
             SDK(username=self.username, password=self.password)

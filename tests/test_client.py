@@ -156,7 +156,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-class TestSDKAuth0EAndEndpointsDicts(TestSDKCommonAttributes):
+class TestSDKAuth0AndEndpointsDicts(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
         "env, core_endpoint_expected",
         [

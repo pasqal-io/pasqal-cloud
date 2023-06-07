@@ -23,7 +23,6 @@ from pasqal_cloud.device import BaseConfig
 from pasqal_cloud.device import EmulatorType
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, PASQAL_ENDPOINTS, AUTH0_CONFIG
 from pasqal_cloud.job import Job
-from pasqal_cloud.endpoints import *  # dico
 
 
 class SDK:
