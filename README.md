@@ -163,21 +163,18 @@ to instantiate a `Device` instance in the `Pulser` library.
 
 ### Target different API endpoints
 
-This is intended to the package developers.
+This is intended to the package developers or users which were given access to non-prod 
+environments of the PASQAL cloud platform.
 
-If you want to redefine the APIs used by the SDK, please, do the following.
+To target a specific environment (`prod`, `preprod` or `dev`), instantiate the SDK class using 
+`PASQAL_ENDPOINTS['env']` for the parameter `endpoints` and `AUTH0_CONFIG['env']` for 
+`auth0` with env being the environment you want to target.
 
+Example:
 ```python
-from pasqal_cloud import SDK, Endpoints, Auth0COnf
+from pasqal_cloud import SDK
 
-endpoints = Endpoints(core = "my_new_core_endpoint")
-auth0 = Auth0Conf(
-    domain="new_domain",
-    public_client_id="public_id",
-    audience="new_audience"
-)
-sdk = SDK(..., endpoints=endpoints, auth0=auth0)
+sdk = SDK(..., endpoints=PASQAL_ENDPOINTS['preprod'], auth0=AUTH_CONFIG['preprod'])
 ```
 
-This enables you to target backend services running locally on your machine, or other environment like preprod or dev.
-
+By default, the targeted environment for `endpoints` and `auth0` is `prod`.

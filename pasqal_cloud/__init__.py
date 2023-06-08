@@ -21,7 +21,7 @@ from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig
 from pasqal_cloud.device import EmulatorType
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints, PASQAL_ENDPOINTS, AUTH0_CONFIG
 from pasqal_cloud.job import Job
 
 
@@ -36,24 +36,38 @@ class SDK:
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
-        group_id: Optional[str] = None,
         project_id: Optional[str] = None,
+        group_id: Optional[str] = None,  # deprecated
     ):
-        """This class provides helper methods to call the PASQAL Cloud endpoints.
+        """
+        This class provides helper methods to call the PASQAL Cloud endpoints.
 
         To authenticate to PASQAL Cloud, you have to provide either an
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
+
+        Args:
+            username: email of the user to login as.
+            password: password of the user to login as.
+            token_provider: The token provider is an alternative log-in method not for human users.
+            webhook: Webhook where the job results are automatically sent to.
+            endpoints: Endpoints targeted of the public apis.
+            auth0: Auth0Config object to define the auth0 tenant to target.
+            project_id: ID of the owner project of the batch.
+            group_id (deprecated): Use project_id instead.
         """
 
         # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not project_id:
             if not group_id:
                 raise TypeError(
-                    "Either a group_id or project_id has to be given as argument"
+                    "Either a 'group_id' or 'project_id' has to be given as argument"
                 )
             warn(
-                "The parameter group_id is deprecated, from now use project_id instead",
+                (
+                    "The parameter 'group_id' is deprecated, from now on use"
+                    " 'project_id' instead"
+                ),
                 DeprecationWarning,
                 stacklevel=2,
             )

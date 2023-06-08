@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from auth0.v3.exceptions import Auth0Error  # type: ignore
 
-from pasqal_cloud import Auth0Conf, Endpoints, SDK
+from pasqal_cloud import Auth0Conf, Endpoints, SDK, AUTH0_CONFIG, PASQAL_ENDPOINTS
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -11,13 +11,17 @@ from tests.test_doubles.authentication import (
 )
 
 
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-class TestAuthSuccess:
+class TestSDKCommonAttributes:
     project_id = "random_project_id"
     username = "random_username"
     password = "random_password"
     new_core_endpoint = "random_endpoint"
+    no_username = ""
+    no_password = ""
 
+
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+class TestAuthSuccess(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_success(self, getpass):
         getpass.return_value = self.password
@@ -42,6 +46,10 @@ class TestAuthSuccess:
 
         SDK(token_provider=CustomTokenProvider(), project_id="project_id")
 
+    @pytest.mark.filterwarnings(
+        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
+        " 'env' instead"
+    )
     def test_correct_endpoints(self):
         sdk = SDK(
             project_id=self.project_id,
@@ -51,6 +59,10 @@ class TestAuthSuccess:
         )
         assert sdk._client.endpoints.core == self.new_core_endpoint
 
+    @pytest.mark.filterwarnings(
+        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
+        " 'env' instead"
+    )
     def test_correct_new_auth0(self):
         new_auth0 = Auth0Conf(domain="new_domain")
         SDK(
@@ -62,13 +74,7 @@ class TestAuthSuccess:
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
-class TestAuthFailure:
-    project_id = "random_project_id"
-    username = "random_username"
-    no_username = ""
-    password = "random_password"
-    no_password = ""
-
+class TestAuthFailure(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_bad_password(self, getpass):
         getpass.return_value = self.password
@@ -87,13 +93,7 @@ class TestAuthFailure:
             )
 
 
-class TestAuthInvalidClient:
-    project_id = "random_project_id"
-    username = "random_username"
-    no_username = ""
-    password = "random_password"
-    no_password = ""
-
+class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_user_with_password(self):
         with pytest.raises(ValueError):
             SDK(
@@ -138,6 +138,10 @@ class TestAuthInvalidClient:
         with pytest.raises(ValueError):
             SDK(project_id=self.project_id)
 
+    @pytest.mark.filterwarnings(
+        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
+        " 'env' instead"
+    )
     def test_bad_endpoints(self):
         with pytest.raises(TypeError):
             SDK(
@@ -149,3 +153,24 @@ class TestAuthInvalidClient:
                     "account": "",
                 },
             )
+
+
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+class TestEnvSDK(TestSDKCommonAttributes):
+    @pytest.mark.parametrize(
+        "env, core_endpoint_expected",
+        [
+            ("prod", "https://apis.pasqal.cloud/core-fast"),
+            ("preprod", "https://apis.preprod.pasqal.cloud/core-fast"),
+            ("dev", "https://apis.dev.pasqal.cloud/core-fast"),
+        ],
+    )
+    def test_select_env(self, env, core_endpoint_expected):
+        sdk = SDK(
+            project_id=self.project_id,
+            username=self.username,
+            password=self.password,
+            auth0=AUTH0_CONFIG[env],
+            endpoints=PASQAL_ENDPOINTS[env],
+        )
+        assert sdk._client.endpoints.core == core_endpoint_expected
