@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7] - Unreleased
+
+### Changed
+
+- Batch and Job dataclasses have been replaced by pydantic models, which gives more control to unserialize the API response data.
+The SDK is now more resilient to API changes, if a new field is added to the response of the API then the job and batch object instantiation will not raise an exception, meaning this SK version will not become obsolete as soon as the API spec is updated.
+
 ## [0.2.6] - 2023-05-29
 
 ### Changed
