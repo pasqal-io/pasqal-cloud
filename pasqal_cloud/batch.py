@@ -59,7 +59,7 @@ class Batch(BaseModel):
     sequence_builder: str
     start_datetime: Optional[str]
     end_datetime: Optional[str]
-    device_status: Optional[str] = None
+    device_status: Optional[str]
     jobs: Dict[str, Job] = {}
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
