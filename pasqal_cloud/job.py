@@ -1,12 +1,11 @@
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
-from warnings import warn
+
+from pydantic import BaseModel, Extra
 
 from pasqal_cloud.client import Client
 
 
-@dataclass
-class Job:
+class Job(BaseModel):
     """Class for job data.
 
     Attributes:
@@ -35,13 +34,17 @@ class Job:
     _client: Client
     created_at: str
     updated_at: str
-    errors: List[str]
+    errors: Optional[List[str]] = None
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
     variables: Optional[Dict[str, Any]] = None
     # Ticket (#622)
     group_id: Optional[str] = None
+
+    class Config:
+        extra = Extra.allow
+        arbitrary_types_allowed = True
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""

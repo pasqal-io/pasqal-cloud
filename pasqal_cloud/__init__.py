@@ -37,7 +37,7 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
         group_id: Optional[str] = None,
-        project_id: Optional[str] = None
+        project_id: Optional[str] = None,
     ):
         """This class provides helper methods to call the PASQAL Cloud endpoints.
 
@@ -49,11 +49,14 @@ class SDK:
         # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
         if not project_id:
             if not group_id:
-                raise TypeError("Either a group_id or project_id has to be given as argument")
-            warn('The parameter group_id is deprecated, from now use project_id instead',
-                 DeprecationWarning,
-                 stacklevel=2
-                 )
+                raise TypeError(
+                    "Either a group_id or project_id has to be given as argument"
+                )
+            warn(
+                "The parameter group_id is deprecated, from now use project_id instead",
+                DeprecationWarning,
+                stacklevel=2,
+            )
             project_id = group_id
 
         self._client = Client(
@@ -125,9 +128,7 @@ class SDK:
                 batch_rsp, jobs_rsp = self._client._get_batch(
                     batch_id, fetch_results=True
                 )
-        batch = Batch(**batch_rsp, _client=self._client)
-        for job_rsp in jobs_rsp:
-            batch.jobs[job_rsp["id"]] = Job(**job_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
 
         self.batches[batch.id] = batch
         return batch
@@ -144,9 +145,7 @@ class SDK:
         """
 
         batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, _client=self._client)
-        for job_rsp in jobs_rsp:
-            batch.jobs[job_rsp["id"]] = Job(**job_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
         self.batches[batch.id] = batch
         return batch
 

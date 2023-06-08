@@ -40,10 +40,11 @@ setup(
         "auth0-python >= 3.23.1, <4.0.0 ",
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
+        "pydantic>=1.10",
     ],
     extras_require={
         "dev": {
-            "black==20.8b1",
+            "black==22.3.0",
             "flake8==3.9.0",
             "flake8-import-order==0.18.1",
             "mypy==0.982",

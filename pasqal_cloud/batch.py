@@ -1,19 +1,22 @@
 import time
-from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Type, Union
-from warnings import warn
+
+from pydantic import BaseModel, Extra, root_validator, validator
 
 from pasqal_cloud.client import Client
-from pasqal_cloud.job import Job
-from pasqal_cloud.device.configuration import BaseConfig, EmuTNConfig, EmuFreeConfig
 from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device.configuration import (
+    BaseConfig,
+    EmuFreeConfig,
+    EmuTNConfig,
+)
+from pasqal_cloud.job import Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
 
-@dataclass
-class Batch:
-    """Class for batch data.
+class Batch(BaseModel):
+    """Class to load batch data return by the API.
 
     A batch groups up several jobs with the same sequence. When a batch is assigned to
     a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
@@ -51,30 +54,45 @@ class Batch:
     user_id: int
     priority: int
     status: str
-    webhook: str
+    webhook: Optional[str]
     _client: Client
     sequence_builder: str
-    start_datetime: Optional[str] = None
-    end_datetime: Optional[str] = None
-    device_status: Optional[str] = None
-    jobs: Dict[str, Job] = field(default_factory=dict)
+    start_datetime: Optional[str]
+    end_datetime: Optional[str]
+    device_status: Optional[str]
+    jobs: Dict[str, Job] = {}
     jobs_count: int = 0
-    jobs_count_per_status: Dict[str, int] = field(default_factory=dict)
-    configuration: Optional[Union[BaseConfig, dict]] = None
-    # Ticket (#622)
-    group_id: Optional[str] = None
+    jobs_count_per_status: Dict[str, int] = {}
+    configuration: Union[BaseConfig, Dict[str, Any], None] = None
 
-    def __post_init__(self) -> None:
-        """Post init method to convert the configuration to a BaseConfig object."""
-        if not isinstance(self.configuration, dict):
-            return
+    class Config:
+        extra = Extra.allow
+        arbitrary_types_allowed = True
+
+    @validator("configuration", pre=True)
+    def _load_configuration(
+        cls,
+        configuration: Union[Dict[str, Any], BaseConfig, None],
+        values: Dict[str, Any],
+    ) -> Optional[BaseConfig]:
+        if not isinstance(configuration, dict):
+            return configuration
         conf_class: Type[BaseConfig] = BaseConfig
-        if self.device_type == EmulatorType.EMU_TN.value:
+        if values["device_type"] == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
-        elif self.device_type == EmulatorType.EMU_FREE.value:
+        elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
 
-        self.configuration = conf_class.from_dict(self.configuration)
+        return conf_class.from_dict(configuration)
+
+    @root_validator(pre=True)
+    def _build_job_dict(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        jobs = values.get("jobs", [])
+        job_dict = {}
+        for job in jobs:
+            job_dict[job["id"]] = {**job, "_client": values["_client"]}
+        values["jobs"] = job_dict
+        return values
 
     def add_job(
         self,

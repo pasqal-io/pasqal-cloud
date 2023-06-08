@@ -44,6 +44,7 @@ class ExpiringTokenProvider(TokenProvider, ABC):
     this class and defining your own `_query_token` method. See Auth0TokenProvider for
     an implementation example.
     """
+
     __token_cache: Optional[tuple[datetime, str]] = None
     expiry_window: timedelta = timedelta(minutes=1.0)
 
@@ -118,6 +119,7 @@ class ExpiringTokenProvider(TokenProvider, ABC):
 
 class Auth0TokenProvider(ExpiringTokenProvider):
     """ExpiringTokenProvider implementation which fetches a token from auth0."""
+
     def __init__(self, username: str, password: str, auth0: Auth0Conf):
         """Initializes the token provider with user credentials and
         an auth0 configuration object

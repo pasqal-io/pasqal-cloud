@@ -84,7 +84,7 @@ def batch(pasqal_client_mock):
         "start_datetime": "2023-01-01T00:00:00.000Z",
         "end_datetime": None,
         "device_status": "available",
-        "jobs": {}
+        "jobs": {},
     }
     return Batch(**batch_data)
 
@@ -101,10 +101,6 @@ def job(pasqal_client_mock):
         "created_at": "2022-12-31T23:59:59.999Z",
         "updated_at": "2023-01-01T00:00:00.000Z",
         "errors": [],
-        "variables": {
-            "param1": 1,
-            "param2": 2,
-            "param3": 3
-        }
+        "variables": {"param1": 1, "param2": 2, "param3": 3},
     }
     return Job(**job_data)
