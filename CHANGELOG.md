@@ -2,7 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.7] - Unreleased
+## [0.2.7] - 2023-06-08
+
+### Added
+
+Now you can get the environment configuration for `endpoints` and `auth0` of the SDK class with
+`PASQAL_ENDPOINTS['env']`and `AUTH0_CONFIG['env']` with env being `prod`, `preprod` or `dev`.
 
 ### Changed
 

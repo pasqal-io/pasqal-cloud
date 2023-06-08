@@ -23,21 +23,25 @@ else:
 
 # ---- Endpoints ----
 
-PROD_CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
+# Prod Core API URL
+CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
+
 PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/core-fast"
+
 DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
 
 
 @dataclass
 class Endpoints:
-    core: str = PROD_CORE_API_URL
+    core: str = CORE_API_URL
 
 
 # ---- Auth0 ----
 
-PROD_AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
-PROD_PUBLIC_CLIENT_ID: Final[str] = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
-PROD_AUDIENCE: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
+# Prod Auth0 configuration
+AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
+PUBLIC_CLIENT_ID: Final[str] = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
+AUDIENCE: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
 
 PREPROD_AUTH0_DOMAIN: Final[str] = "pasqal-preprod.eu.auth0.com"
 PREPROD_PUBLIC_CLIENT_ID: Final[str] = "2l6A2ldvwJE5sdkghu40BTYLm7sSUAv9"
@@ -52,9 +56,9 @@ REALM: Final[str] = "pcs-users"
 
 @dataclass
 class Auth0Conf:
-    domain: str = PROD_AUTH0_DOMAIN
-    public_client_id: str = PROD_PUBLIC_CLIENT_ID
-    audience: str = PROD_AUDIENCE
+    domain: str = AUTH0_DOMAIN
+    public_client_id: str = PUBLIC_CLIENT_ID
+    audience: str = AUDIENCE
     realm: str = REALM
 
 
@@ -62,16 +66,16 @@ class Auth0Conf:
 
 
 PASQAL_ENDPOINTS = {
-    "prod": Endpoints(core=PROD_CORE_API_URL),
+    "prod": Endpoints(core=CORE_API_URL),
     "preprod": Endpoints(core=PREPROD_CORE_API_URL),
     "dev": Endpoints(core=DEV_CORE_API_URL),
 }
 
 AUTH0_CONFIG = {
     "prod": Auth0Conf(
-        domain=PROD_AUTH0_DOMAIN,
-        public_client_id=PROD_PUBLIC_CLIENT_ID,
-        audience=PROD_AUDIENCE,
+        domain=AUTH0_DOMAIN,
+        public_client_id=PUBLIC_CLIENT_ID,
+        audience=AUDIENCE,
         realm=REALM,
     ),
     "preprod": Auth0Conf(

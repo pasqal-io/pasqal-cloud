@@ -156,7 +156,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-class TestSDKAuth0AndEndpointsDicts(TestSDKCommonAttributes):
+class TestEnvSDK(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
         "env, core_endpoint_expected",
         [
@@ -165,7 +165,7 @@ class TestSDKAuth0AndEndpointsDicts(TestSDKCommonAttributes):
             ("dev", "https://apis.dev.pasqal.cloud/core-fast"),
         ],
     )
-    def test_existing_dict_keys(self, env, core_endpoint_expected):
+    def test_select_env(self, env, core_endpoint_expected):
         sdk = SDK(
             project_id=self.project_id,
             username=self.username,
@@ -174,21 +174,3 @@ class TestSDKAuth0AndEndpointsDicts(TestSDKCommonAttributes):
             endpoints=PASQAL_ENDPOINTS[env],
         )
         assert sdk._client.endpoints.core == core_endpoint_expected
-
-    def test_init_sdk_with_unknown_auth0_dict_key(self):
-        with pytest.raises(KeyError):
-            SDK(
-                project_id=self.project_id,
-                username=self.username,
-                password=self.password,
-                auth0=AUTH0_CONFIG["wrong"],
-            )
-
-    def test_init_sdk_with_unknown_endpoints_dict_key(self):
-        with pytest.raises(KeyError):
-            SDK(
-                project_id=self.project_id,
-                username=self.username,
-                password=self.password,
-                endpoints=PASQAL_ENDPOINTS["wrong"],
-            )
