@@ -87,7 +87,8 @@ There are several ways to provide a correct authentication using the SDK.
 ```python
 from pasqal_cloud import SDK
 
-project_id="your_project_id" # Replace this value by your project_id on the PASQAL platform.
+project_id="your_project_id" # Replace this value by your project_id. It can be found on the user portal under the name "group_id". "Groups" have recently been renamed to "projects" and frontend is currently being updated accordingly.
+
 username="your_username" # Replace this value by your username or email on the PASQAL platform.
 password="your_password" # Replace this value by your password on the PASQAL platform.
 # Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
@@ -154,7 +155,7 @@ They define the physical constraints of our QPUs and these constraints enforce s
 the pulser sequence that can be run on QPUs (e.g. max amount of atoms, available pulse channels, ...)
 
 ```python
-sdk.get_device_specs_list()
+sdk.get_device_specs_dict()
 ```
 
 The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
