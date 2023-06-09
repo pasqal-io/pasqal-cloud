@@ -154,7 +154,7 @@ They define the physical constraints of our QPUs and these constraints enforce s
 the pulser sequence that can be run on QPUs (e.g. max amount of atoms, available pulse channels, ...)
 
 ```python
-sdk.get_device_specs_list()
+sdk.get_device_specs_dict()
 ```
 
 The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
