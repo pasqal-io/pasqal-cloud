@@ -75,7 +75,7 @@ def batch(pasqal_client_mock):
         "device_type": "qpu",
         "project_id": "00000000-0000-0000-0000-000000000002",
         "id": "00000000-0000-0000-0000-000000000001",
-        "user_id": 1,
+        "user_id": "EQZj1ZQE",
         "priority": 0,
         "status": "PENDING",
         "webhook": "https://example.com/webhook",

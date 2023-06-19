@@ -51,7 +51,7 @@ class Batch(BaseModel):
     device_type: str
     project_id: str
     id: str
-    user_id: int
+    user_id: str
     priority: int
     status: str
     webhook: Optional[str]
