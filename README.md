@@ -173,9 +173,9 @@ To target a specific environment (`prod`, `preprod` or `dev`), instantiate the S
 
 Example:
 ```python
-from pasqal_cloud import SDK
+from pasqal_cloud import AUTH0_CONFIG, SDK, PASQAL_ENDPOINTS
 
-sdk = SDK(..., endpoints=PASQAL_ENDPOINTS['preprod'], auth0=AUTH_CONFIG['preprod'])
+sdk = SDK(..., endpoints=PASQAL_ENDPOINTS['preprod'], auth0=AUTH0_CONFIG['preprod'])
 ```
 
 By default, the targeted environment for `endpoints` and `auth0` is `prod`.
