@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.8] - 2023-06-19
+
+### Changed
+
+- Fixed incorrect type hint of user IDs from int to str which was raising a validation exception when loading the data returned by the API.
+
 ## [0.2.7] - 2023-06-08
 
 ### Added
