@@ -18,6 +18,10 @@ class TestBatch:
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = "00000000-0000-0000-0000-000000000001"
         self.job_result = {"1001": 12, "0110": 35, "1111": 1}
+        self.job_full_result = {
+            "counter": {"1001": 12, "0110": 35, "1111": 1},
+            "raw": ["1001", "1001", "0110", "1001", "0110"],
+        }
         self.n_job_runs = 50
         self.job_id = "00000000-0000-0000-0000-000000022010"
         self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
@@ -50,26 +54,8 @@ class TestBatch:
         assert batch.jobs
         for job_id, job in batch.jobs.items():
             assert self.job_id == job_id
-            assert job.result is None
-        assert request_mock.last_request.method == "GET"
-
-    def test_create_batch_and_fetch_results(self, request_mock):
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
-            jobs=[job],
-            wait=True,
-            fetch_results=True,
-        )
-        assert (
-            batch.id == "00000000-0000-0000-0000-000000000001"
-        )  # the batch_id used in the mock data
-        assert batch.sequence_builder == self.pulser_sequence
-        assert batch.complete
-        assert batch.jobs
-        for job_id, job in batch.jobs.items():
-            assert self.job_id == job_id
             assert job.result == self.job_result
+            assert job.full_result == self.job_full_result
         assert request_mock.last_request.method == "GET"
 
     def test_get_batch(self, batch):
@@ -150,6 +136,7 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
         )
         assert job.result == self.job_result
+        assert job.full_result == self.job_full_result
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_declare_complete(self):
@@ -174,6 +161,7 @@ class TestBatch:
         )
         assert batch.jobs[self.job_id].batch_id == batch.id
         assert batch.jobs[self.job_id].result == self.job_result
+        assert batch.jobs[self.job_id].full_result == self.job_full_result
 
     @pytest.mark.parametrize(
         "emulator, configuration, expected",

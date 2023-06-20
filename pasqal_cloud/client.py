@@ -123,23 +123,13 @@ class Client:
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
         )["data"]
-        jobs_data = batch_data.pop("jobs", [])
-        return batch_data, jobs_data
+        return batch_data
 
-    def _get_batch(
-        self, id: str, fetch_results: bool = False
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    def _get_batch(self, id: str) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
         batch_data: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
         )["data"]
-        jobs_data = batch_data.pop("jobs", [])
-        if fetch_results:
-            results = self._request(
-                "GET", f"{self.endpoints.core}/api/v1/batches/{id}/results"
-            )["data"]
-            for job_data in jobs_data:
-                job_data["result"] = results.get(str(job_data["id"]), None)
-        return batch_data, jobs_data
+        return batch_data
 
     def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(

@@ -91,7 +91,6 @@ class SDK:
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
-        fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
         For Iroise MVP, the batch must contain at least one job and will be declared as
@@ -107,8 +106,6 @@ class SDK:
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
             wait: Whether to wait for the batch to be done
-            fetch_results: Whether to download the results. Implies waiting
-                for the batch.
 
 
         Returns:
@@ -131,35 +128,30 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
 
-        batch_rsp, jobs_rsp = self._client._send_batch(req)
+        batch_rsp = self._client._send_batch(req)
         batch_id = batch_rsp["id"]
-        if wait or fetch_results:
+        if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp, jobs_rsp = self._client._get_batch(batch_id)
+                batch_rsp = self._client._get_batch(batch_id)
 
-            if fetch_results:
-                batch_rsp, jobs_rsp = self._client._get_batch(
-                    batch_id, fetch_results=True
-                )
-        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, _client=self._client)
 
         self.batches[batch.id] = batch
         return batch
 
-    def get_batch(self, id: str, fetch_results: bool = False) -> Batch:
+    def get_batch(self, id: str) -> Batch:
         """Retrieve a batch's data and all its jobs.
 
         Args:
             id: ID of the batch.
-            fetch_results: whether to download job results
 
         Returns:
             Batch: the batch stored in the PCS database.
         """
 
-        batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
+        batch_rsp = self._client._get_batch(id)
+        batch = Batch(**batch_rsp, _client=self._client)
         self.batches[batch.id] = batch
         return batch
 

@@ -123,14 +123,11 @@ class Batch(BaseModel):
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(
-        self, wait: bool = False, fetch_results: bool = False
-    ) -> Dict[str, Any]:
+    def declare_complete(self, wait: bool = False) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:
             wait: Whether to wait for the batch to be done.
-            fetch_results: Whether to download the results. Implies waiting for the batch.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
@@ -138,17 +135,13 @@ class Batch(BaseModel):
         """
         batch_rsp = self._client._complete_batch(self.id)
         self.complete = True
-        if wait or fetch_results:
+        if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp, jobs_rsp = self._client._get_batch(
+                batch_rsp = self._client._get_batch(
                     self.id,
                 )
-            if fetch_results:
-                batch_rsp, jobs_rsp = self._client._get_batch(
-                    self.id, fetch_results=True
-                )
-            for job_rsp in jobs_rsp:
+            for job_rsp in batch_rsp["jobs"]:
                 self.jobs[job_rsp["id"]] = Job(**job_rsp)
         return batch_rsp
 
