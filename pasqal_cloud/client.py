@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from getpass import getpass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import requests
 from requests.auth import AuthBase
@@ -114,9 +114,7 @@ class Client:
 
         return data
 
-    def _send_batch(
-        self, batch_data: Dict[str, Any]
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         batch_data = self._request(
             "POST",
@@ -125,7 +123,7 @@ class Client:
         )["data"]
         return batch_data
 
-    def _get_batch(self, id: str) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    def _get_batch(self, id: str) -> Dict[str, Any]:
         batch_data: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
         )["data"]
