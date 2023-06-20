@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9] - 2023-05-20
+
+Deprecated Python 3.7. Python 3.7 may continue to work but we no longer test against this version.
+
 ## [0.2.8] - 2023-06-19
 
 ### Changed

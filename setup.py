@@ -28,7 +28,7 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
     maintainer_email="pcs@pasqal.io",
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     license="Apache 2.0",
     # TODO:
     classifiers=[
