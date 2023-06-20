@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout main code and submodules
@@ -36,11 +36,11 @@ jobs:
           pytest -vvv --cov pasqal_cloud tests
 
       - name: Mypy checks only for Python 3.8
-        if: ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.python-version == "3.8" }}
         run: |
           mypy pasqal_cloud
 
       - name: Check formatting only for Python 3.11
-        if: ${{ matrix.python-version == 3.11 }}
+        if: ${{ matrix.python-version == "3.11" }}
         run: |
           black . --check
