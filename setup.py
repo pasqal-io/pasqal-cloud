@@ -53,8 +53,5 @@ setup(
             "types-requests==2.25.1",
             "requests-mock==1.9.3",
         },
-        ":python_version == '3.7'": [
-            "typing-extensions==4.4.0",
-        ],
     },
 )
