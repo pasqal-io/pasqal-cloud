@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2023-06-22
+
+### Added
+
+- Added `ResultType` enum and `result_types` config option
+- Added validation for result types
+
+### Notes
+
+- Currently none of the devices can choose a different result type than `counter`,
+  hence the feature was not documented.
+
 ## [0.3.0] - 2023-06-20
 
 ### Added

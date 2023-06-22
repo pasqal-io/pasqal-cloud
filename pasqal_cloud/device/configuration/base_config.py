@@ -1,14 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, fields
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
+
+from pasqal_cloud.device.configuration.result_type import ResultType
 
 
 class InvalidConfiguration(Exception):
     pass
 
 
-INVALID_KEY_ERROR_MSG = "Invalid key {} in Configuration.extra_config. Attempted to override a default field."
+INVALID_KEY_ERROR_MSG = (
+    "Invalid key {} in Configuration.extra_config. "
+    + "Attempted to override a default field."
+)
+INVALID_RESULT_TYPES = (
+    "Invalid set result types {} in Configuration. This device allows for {}."
+)
 
 
 @dataclass
@@ -27,6 +35,7 @@ class BaseConfig:
     """
 
     extra_config: Optional[Dict[str, Any]] = None
+    result_types: Optional[List[ResultType]] = None
 
     def to_dict(self) -> dict[str, Any]:
         """Converts the configuration to a dictionary.
@@ -69,8 +78,19 @@ class BaseConfig:
             res.update(conf_dict["extra_config"])
         return res
 
+    @property
+    def allowed_result_types(self) -> List[ResultType]:
+        return [ResultType.COUNTER]
+
     def _validate(self) -> None:
         if self.extra_config:
             for k in self.extra_config.keys():
                 if k in self.__dataclass_fields__.keys():
                     raise InvalidConfiguration(INVALID_KEY_ERROR_MSG.format(k))
+        if self.result_types:
+            if not set(self.result_types) <= set(self.allowed_result_types):
+                raise InvalidConfiguration(
+                    INVALID_RESULT_TYPES.format(
+                        self.result_types, self.allowed_result_types
+                    )
+                )
