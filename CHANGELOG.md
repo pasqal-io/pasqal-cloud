@@ -11,7 +11,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- `fetch_result` kwarg was removed from all functions as the results are by default included with the batch.
+- `fetch_result` kwarg was removed from all internal functions as the results are by default included with the batch.
+  It was marked as deprecated in public functions.
 - Refactored to no longer return `batch_rsp` and `jobs_rsp` as the latter is systematically included in the former.
 - Changed test payloads to reflect data returned by the api.
 

@@ -91,6 +91,7 @@ class SDK:
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
+        fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
         For Iroise MVP, the batch must contain at least one job and will be declared as
@@ -111,6 +112,12 @@ class SDK:
         Returns:
             Batch: The new batch that has been created in the database.
         """
+        if fetch_results:
+            warn(
+                ("The parameter fetch_results has no effect and is deprecated."),
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         req = {
             "sequence_builder": serialized_sequence,
@@ -140,7 +147,7 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
-    def get_batch(self, id: str) -> Batch:
+    def get_batch(self, id: str, fetch_results: bool = False) -> Batch:
         """Retrieve a batch's data and all its jobs.
 
         Args:
@@ -149,7 +156,12 @@ class SDK:
         Returns:
             Batch: the batch stored in the PCS database.
         """
-
+        if fetch_results:
+            warn(
+                ("The parameter fetch_results has no effect and is deprecated."),
+                DeprecationWarning,
+                stacklevel=2,
+            )
         batch_rsp = self._client._get_batch(id)
         batch = Batch(**batch_rsp, _client=self._client)
         self.batches[batch.id] = batch

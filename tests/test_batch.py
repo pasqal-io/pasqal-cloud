@@ -205,3 +205,20 @@ class TestBatch:
         assert (
             new_batch.new_field == "any_value"
         )  # The new value should be stored regardless
+
+    def test_create_batch_fetch_results_deprecated(
+        self,
+    ):
+        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        with pytest.warns(DeprecationWarning):
+            self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[job],
+                fetch_results=True,
+            )
+
+    def test_get_batch_fetch_results_deprecated(
+        self,
+    ):
+        with pytest.warns(DeprecationWarning):
+            self.sdk.get_batch(self.batch_id, fetch_results=True)
