@@ -29,8 +29,6 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
-
-
 ## Basic usage
 
 The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
@@ -76,6 +74,12 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType
 for job in batch.jobs.values():
     print(job.result)
 
+# Note that this results are extracted from the "counter" key of the results.
+# To access the full results, or in the event that the results aren't expected
+# to contain a "counter" you can do:
+for job in batch.jobs.values():
+    print(job.full_result)
+
 ```
 
 ## Advanced usage
@@ -116,7 +120,7 @@ class CustomTokenProvider(TokenProvider):
 
 sdk = SDK(token_provider=CustomTokenProvider(), project_id=project_id)
 
-""" Alternatively, create a custom TokenProvider that inherits from ExpiringTokenProvider. You should define a 
+""" Alternatively, create a custom TokenProvider that inherits from ExpiringTokenProvider. You should define a
     custom _query_token method which fetches your token. See Auth0TokenProvider implementation for an example.
 """
 ```
@@ -161,17 +165,17 @@ sdk.get_device_specs_dict()
 The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
 to instantiate a `Device` instance in the `Pulser` library.
 
-
 ### Target different API endpoints
 
-This is intended to the package developers or users which were given access to non-prod 
+This is intended to the package developers or users which were given access to non-prod
 environments of the PASQAL cloud platform.
 
-To target a specific environment (`prod`, `preprod` or `dev`), instantiate the SDK class using 
-`PASQAL_ENDPOINTS['env']` for the parameter `endpoints` and `AUTH0_CONFIG['env']` for 
+To target a specific environment (`prod`, `preprod` or `dev`), instantiate the SDK class using
+`PASQAL_ENDPOINTS['env']` for the parameter `endpoints` and `AUTH0_CONFIG['env']` for
 `auth0` with env being the environment you want to target.
 
 Example:
+
 ```python
 from pasqal_cloud import AUTH0_CONFIG, SDK, PASQAL_ENDPOINTS
 

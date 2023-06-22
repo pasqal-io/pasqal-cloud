@@ -107,13 +107,17 @@ class SDK:
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
             wait: Whether to wait for the batch to be done
-            fetch_results: Whether to download the results. Implies waiting
-                for the batch.
 
 
         Returns:
             Batch: The new batch that has been created in the database.
         """
+        if fetch_results:
+            warn(
+                ("The parameter fetch_results has no effect and is deprecated."),
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
         req = {
             "sequence_builder": serialized_sequence,
@@ -131,18 +135,14 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
 
-        batch_rsp, jobs_rsp = self._client._send_batch(req)
+        batch_rsp = self._client._send_batch(req)
         batch_id = batch_rsp["id"]
-        if wait or fetch_results:
+        if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp, jobs_rsp = self._client._get_batch(batch_id)
+                batch_rsp = self._client._get_batch(batch_id)
 
-            if fetch_results:
-                batch_rsp, jobs_rsp = self._client._get_batch(
-                    batch_id, fetch_results=True
-                )
-        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
+        batch = Batch(**batch_rsp, _client=self._client)
 
         self.batches[batch.id] = batch
         return batch
@@ -152,14 +152,18 @@ class SDK:
 
         Args:
             id: ID of the batch.
-            fetch_results: whether to download job results
 
         Returns:
             Batch: the batch stored in the PCS database.
         """
-
-        batch_rsp, jobs_rsp = self._client._get_batch(id, fetch_results=fetch_results)
-        batch = Batch(**batch_rsp, jobs=jobs_rsp, _client=self._client)
+        if fetch_results:
+            warn(
+                ("The parameter fetch_results has no effect and is deprecated."),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+        batch_rsp = self._client._get_batch(id)
+        batch = Batch(**batch_rsp, _client=self._client)
         self.batches[batch.id] = batch
         return batch
 

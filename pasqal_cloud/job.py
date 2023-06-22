@@ -38,6 +38,7 @@ class Job(BaseModel):
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
+    full_result: Optional[Dict[str, Any]] = None
     variables: Optional[Dict[str, Any]] = None
     # Ticket (#622)
     group_id: Optional[str] = None
