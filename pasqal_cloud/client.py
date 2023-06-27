@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from getpass import getpass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import requests
 from requests.auth import AuthBase
@@ -114,32 +114,20 @@ class Client:
 
         return data
 
-    def _send_batch(
-        self, batch_data: Dict[str, Any]
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         batch_data = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
         )["data"]
-        jobs_data = batch_data.pop("jobs", [])
-        return batch_data, jobs_data
+        return batch_data
 
-    def _get_batch(
-        self, id: str, fetch_results: bool = False
-    ) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+    def _get_batch(self, id: str) -> Dict[str, Any]:
         batch_data: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
         )["data"]
-        jobs_data = batch_data.pop("jobs", [])
-        if fetch_results:
-            results = self._request(
-                "GET", f"{self.endpoints.core}/api/v1/batches/{id}/results"
-            )["data"]
-            for job_data in jobs_data:
-                job_data["result"] = results.get(str(job_data["id"]), None)
-        return batch_data, jobs_data
+        return batch_data
 
     def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(

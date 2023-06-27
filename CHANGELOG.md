@@ -2,9 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.9] - 2023-05-20
+## [0.3.1] - dev
 
-Deprecated Python 3.7. Python 3.7 may continue to work but we no longer test against this version.
+### Changed
+
+- Dropped support for Python 3.7.
+
+## [0.3.0] - 2023-06-20
+
+### Added
+
+- Added `full_result` attribute to `Job` schema for unformatted results.
+- Updated documentation for `full_result`
+
+### Changed
+
+- `fetch_result` kwarg was removed from all internal functions as the results are by default included with the batch.
+  It was marked as deprecated in public functions.
+- Refactored to no longer return `batch_rsp` and `jobs_rsp` as the latter is systematically included in the former.
+- Changed test payloads to reflect data returned by the api.
 
 ## [0.2.8] - 2023-06-19
 
@@ -22,7 +38,7 @@ Now you can get the environment configuration for `endpoints` and `auth0` of the
 ### Changed
 
 - Batch and Job dataclasses have been replaced by pydantic models, which gives more control to unserialize the API response data.
-The SDK is now more resilient to API changes, if a new field is added to the response of the API then the job and batch object instantiation will not raise an exception, meaning this SK version will not become obsolete as soon as the API spec is updated.
+  The SDK is now more resilient to API changes, if a new field is added to the response of the API then the job and batch object instantiation will not raise an exception, meaning this SDK version will not become obsolete as soon as the API spec is updated.
 
 ## [0.2.6] - 2023-05-29
 
@@ -42,6 +58,7 @@ Note that for backwards compatibility, the `group_id` is still exposed by the AP
 ## [0.2.4] - 2023-04-20
 
 ### Changed
+
 - Relax python dependencies version to prevent conflicts.
 
 ## [0.2.3] - 2023-04-20
@@ -51,6 +68,7 @@ Note that for backwards compatibility, the `group_id` is still exposed by the AP
 - Fixed bug when using a custom TokenProvider to authenticate to Pasqal Cloud Services
 
 ### Changed
+
 - Reorder documentation for clarity
 - Clarify instructions to use a custom token provider for authentication
 
