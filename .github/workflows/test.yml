@@ -8,3 +8,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: jbergstroem/hadolint-gh-action@v1
+        with:
+          dockerfile: Dockerfile
