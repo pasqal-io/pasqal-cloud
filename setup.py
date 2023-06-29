@@ -30,7 +30,6 @@ setup(
     maintainer_email="pcs@pasqal.io",
     python_requires=">=3.7",
     license="Apache 2.0",
-    # TODO:
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
