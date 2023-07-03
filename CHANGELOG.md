@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2023-07-03
+
+### Added
+
+- Pre-commit hooks were added for the contributors of pasqal-cloud to enforce some code linting.
+
+### Notes
+
+- Pins the dependency on `pydantic` to versions before v2.0 due to conflicts with the current code.
+
 ## [0.3.1] - 2023-06-22
 
 ### Added
