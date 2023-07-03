@@ -6,11 +6,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Pre-commit hooks were added for the contributors of pasqal-cloud to enforce some code linting.
+Pre-commit hooks were added for the contributors of pasqal-cloud to enforce some code linting.
 
 ### Notes
 
-- Pins the dependency on `pydantic` to versions before v2.0 due to conflicts with the current code.
+Pins the dependency on `pydantic` to versions before v2.0 due to conflicts with the current code.
 
 ## [0.3.1] - 2023-06-22
 
@@ -21,8 +21,8 @@ All notable changes to this project will be documented in this file.
 
 ### Notes
 
-- Currently none of the devices can choose a different result type than `counter`,
-  hence the feature was not documented.
+Currently none of the devices can choose a different result type than `counter`,
+hence the feature was not documented.
 
 ## [0.3.0] - 2023-06-20
 
@@ -42,7 +42,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Fixed incorrect type hint of user IDs from int to str which was raising a validation exception when loading the data returned by the API.
+Fixed incorrect type hint of user IDs from int to str which was raising a validation exception when loading the data returned by the API.
 
 ## [0.2.7] - 2023-06-08
 
