@@ -30,7 +30,6 @@ setup(
     maintainer_email="pcs@pasqal.io",
     python_requires=">=3.7",
     license="Apache 2.0",
-    # TODO:
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
@@ -40,7 +39,7 @@ setup(
         "auth0-python >= 3.23.1, <4.0.0 ",
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
-        "pydantic>=1.10",
+        "pydantic>=1.10, <2.0",
     ],
     extras_require={
         "dev": {

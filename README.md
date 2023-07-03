@@ -29,12 +29,18 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
+We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
+```bash
+python3 -m pip install pre-commit
+pre-commit install
+```
+
 ## Basic usage
 
 The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
 to Pasqal APIs using an API token generated in the [user portal](https://portal.pasqal.cloud).
 
-A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch you must set a value for each variable, if any, defined in your sequence.  
+A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch you must set a value for each variable, if any, defined in your sequence.
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
