@@ -29,7 +29,7 @@ To run the tutorials or the test suite locally, run the following to install the
 pip install -e .[dev]
 ```
 
-To make sure you have a good code quality, please install pre-commit, it will trigger useful linting checks:
+We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
 ```bash
 python3 -m pip install pre-commit
 pre-commit install
