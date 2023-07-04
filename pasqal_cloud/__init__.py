@@ -114,7 +114,9 @@ class SDK:
         """
         if fetch_results:
             warn(
-                ("The parameter fetch_results has no effect and is deprecated."),
+                (
+                    "The parameter fetch_results will soon be deprecated. Please start using the `wait` parameter instead."
+                ),
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -137,7 +139,7 @@ class SDK:
 
         batch_rsp = self._client._send_batch(req)
         batch_id = batch_rsp["id"]
-        if wait:
+        if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp = self._client._get_batch(batch_id)
@@ -158,7 +160,9 @@ class SDK:
         """
         if fetch_results:
             warn(
-                ("The parameter fetch_results has no effect and is deprecated."),
+                (
+                    "The parameter fetch_results will soon be deprecated. Results are fetched anyway with this function."
+                ),
                 DeprecationWarning,
                 stacklevel=2,
             )
