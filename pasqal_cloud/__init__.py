@@ -19,9 +19,8 @@ from warnings import warn
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import BaseConfig
-from pasqal_cloud.device import EmulatorType
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints, PASQAL_ENDPOINTS, AUTH0_CONFIG
+from pasqal_cloud.device import BaseConfig, EmulatorType
+from pasqal_cloud.endpoints import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS
 from pasqal_cloud.job import Job
 
 
@@ -49,7 +48,8 @@ class SDK:
         Args:
             username: email of the user to login as.
             password: password of the user to login as.
-            token_provider: The token provider is an alternative log-in method not for human users.
+            token_provider: The token provider is an alternative log-in method \
+                not for human users.
             webhook: Webhook where the job results are automatically sent to.
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
@@ -57,17 +57,16 @@ class SDK:
             group_id (deprecated): Use project_id instead.
         """
 
-        # Ticket (#622), to be removed, used to avoid a breaking change during the group to project renaming
+        # Ticket (#622), to be removed,
+        # used to avoid a breaking change during the group to project renaming
         if not project_id:
             if not group_id:
                 raise TypeError(
                     "Either a 'group_id' or 'project_id' has to be given as argument"
                 )
             warn(
-                (
-                    "The parameter 'group_id' is deprecated, from now on use"
-                    " 'project_id' instead"
-                ),
+                "The parameter 'group_id' is deprecated, from now on use"
+                " 'project_id' instead",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -106,7 +105,8 @@ class SDK:
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
-            wait: Whether to wait for the batch to be done
+            wait: Whether to wait for the batch to be done and fetch results
+            fetch_results (Deprecated): Whether to wait for the batch to be done and fetch results
 
 
         Returns:
@@ -114,7 +114,8 @@ class SDK:
         """
         if fetch_results:
             warn(
-                ("The parameter fetch_results has no effect and is deprecated."),
+                "Argument `fetch_results` is deprecated and will be removed in a future"
+                " version. Please use argument `wait` instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -137,7 +138,7 @@ class SDK:
 
         batch_rsp = self._client._send_batch(req)
         batch_id = batch_rsp["id"]
-        if wait:
+        if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp = self._client._get_batch(batch_id)
@@ -158,7 +159,8 @@ class SDK:
         """
         if fetch_results:
             warn(
-                ("The parameter fetch_results has no effect and is deprecated."),
+                "Argument `fetch_results` is deprecated and will be removed in a future"
+                " version. Results are fetched anyway with this function.",
                 DeprecationWarning,
                 stacklevel=2,
             )

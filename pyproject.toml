@@ -1,4 +1,12 @@
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+skip_gitignore = true
+order_by_type = false
+force_alphabetical_sort_within_sections = true
+
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
-

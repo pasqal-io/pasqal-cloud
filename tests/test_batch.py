@@ -2,10 +2,10 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from pasqal_cloud import SDK, Batch, Job
+from pasqal_cloud import Batch, Job, SDK
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
+from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestBatch:
@@ -41,10 +41,14 @@ class TestBatch:
         assert batch.jobs[self.job_id].batch_id == batch.id
         assert batch.jobs[self.job_id].runs == self.n_job_runs
 
-    def test_create_batch_and_wait(self, request_mock):
+    @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
+    def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
         job = {"runs": self.n_job_runs, "variables": self.job_variables}
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[job], wait=True
+            serialized_sequence=self.pulser_sequence,
+            jobs=[job],
+            wait=wait,
+            fetch_results=fetch_results,
         )
         assert (
             batch.id == "00000000-0000-0000-0000-000000000001"

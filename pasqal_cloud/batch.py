@@ -5,11 +5,7 @@ from pydantic import BaseModel, Extra, root_validator, validator
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType
-from pasqal_cloud.device.configuration import (
-    BaseConfig,
-    EmuFreeConfig,
-    EmuTNConfig,
-)
+from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.job import Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
@@ -31,7 +27,8 @@ class Batch(BaseModel):
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
-        - status: Status of the batch. Possible values are: PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+        - status: Status of the batch. Possible values are: \
+            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - webhook: Webhook where the job results are automatically sent to.
         - _client: A Client instance to connect to PCS.
         - sequence_builder: Pulser sequence of the batch.
@@ -123,11 +120,15 @@ class Batch(BaseModel):
                 job = Job(**job_rsp)
         return job
 
-    def declare_complete(self, wait: bool = False) -> Dict[str, Any]:
+    def declare_complete(
+        self, wait: bool = False, fetch_results: bool = False
+    ) -> Dict[str, Any]:
         """Declare to PCS that the batch is complete.
 
         Args:
-            wait: Whether to wait for the batch to be done.
+            wait: Whether to wait for the batch to be done and fetch results.
+            fetch_results (Deprecated): Whether to wait for the batch \
+                to be done and fetch results.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
@@ -135,7 +136,7 @@ class Batch(BaseModel):
         """
         batch_rsp = self._client._complete_batch(self.id)
         self.complete = True
-        if wait:
+        if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp = self._client._get_batch(
