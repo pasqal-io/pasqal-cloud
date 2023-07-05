@@ -20,7 +20,7 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig, EmulatorType
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.endpoints import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS
 from pasqal_cloud.job import Job
 
 
