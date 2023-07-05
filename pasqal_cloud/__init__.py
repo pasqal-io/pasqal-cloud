@@ -105,7 +105,8 @@ class SDK:
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
-            wait: Whether to wait for the batch to be done
+            wait: Whether to wait for the batch to be done and fetch results
+            fetch_results (Deprecated): Whether to wait for the batch to be done and fetch results
 
 
         Returns:
