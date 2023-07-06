@@ -20,11 +20,11 @@ import requests
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
-    TokenProvider,
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
+    TokenProvider,
 )
-from pasqal_cloud.endpoints import Endpoints, Auth0Conf
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.errors import HTTPError
 from pasqal_cloud.utils.jsend import JSendPayload
 

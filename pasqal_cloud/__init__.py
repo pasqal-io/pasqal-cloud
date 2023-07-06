@@ -20,7 +20,12 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig, EmulatorType
-from pasqal_cloud.endpoints import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS
+from pasqal_cloud.endpoints import (  # noqa: F401
+    AUTH0_CONFIG,
+    Auth0Conf,
+    Endpoints,
+    PASQAL_ENDPOINTS,
+)
 from pasqal_cloud.job import Job
 
 
@@ -49,7 +54,7 @@ class SDK:
             username: email of the user to login as.
             password: password of the user to login as.
             token_provider: The token provider is an alternative log-in method \
-                not for human users.
+              not for human users.
             webhook: Webhook where the job results are automatically sent to.
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
@@ -99,14 +104,14 @@ class SDK:
         Args:
             serialized_sequence: Serialized pulser sequence.
             jobs: List of jobs to be added to the batch at creation.
-                (#TODO: Make optional after Iroise MVP)
             emulator: The type of emulator to use,
               If set to None, the device_type will be set to the one
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
-                that accept it.
+             that accept it.
             wait: Whether to wait for the batch to be done and fetch results
-            fetch_results (Deprecated): Whether to wait for the batch to be done and fetch results
+            fetch_results (deprecated): Whether to wait for the batch to
+              be done and fetch results
 
 
         Returns:
@@ -114,8 +119,8 @@ class SDK:
         """
         if fetch_results:
             warn(
-                "Argument `fetch_results` is deprecated and will be removed in a future"
-                " version. Please use argument `wait` instead.",
+                "Argument `fetch_results` is deprecated and will be removed in a"
+                " future version. Please use argument `wait` instead.",
                 DeprecationWarning,
                 stacklevel=2,
             )
@@ -152,6 +157,8 @@ class SDK:
         """Retrieve a batch's data and all its jobs.
 
         Args:
+            fetch_results (deprecated): Whether to wait for the batch to be
+              done and fetch results
             id: ID of the batch.
 
         Returns:
@@ -159,8 +166,8 @@ class SDK:
         """
         if fetch_results:
             warn(
-                "Argument `fetch_results` is deprecated and will be removed in a future"
-                " version. Results are fetched anyway with this function.",
+                "Argument `fetch_results` is deprecated and will be removed in a"
+                " future version. Results are fetched anyway with this function.",
                 DeprecationWarning,
                 stacklevel=2,
             )

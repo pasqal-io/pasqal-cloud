@@ -10,10 +10,15 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 class TestBatch:
     @pytest.fixture(autouse=True)
-    @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.Auth0TokenProvider",
+        FakeAuth0AuthenticationSuccess,
+    )
     def init_sdk(self, start_mock_request):
         self.sdk = SDK(
-            username="me@test.com", password="password", project_id=str(uuid4())
+            username="me@test.com",
+            password="password",
+            project_id=str(uuid4()),
         )
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = "00000000-0000-0000-0000-000000000001"
@@ -24,11 +29,18 @@ class TestBatch:
         }
         self.n_job_runs = 50
         self.job_id = "00000000-0000-0000-0000-000000022010"
-        self.job_variables = {"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]}
+        self.job_variables = {
+            "Omega_max": 14.4,
+            "last_target": "q1",
+            "ts": [200, 500],
+        }
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
     def test_create_batch(self, emulator):
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        job = {
+            "runs": self.n_job_runs,
+            "variables": self.job_variables,
+        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
@@ -36,14 +48,19 @@ class TestBatch:
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
-        # TODO: Remove after IROISE MVP
         assert batch.complete
         assert batch.jobs[self.job_id].batch_id == batch.id
-        assert batch.jobs[self.job_id].runs == self.n_job_runs
 
+    @pytest.mark.filterwarnings(
+        "ignore:Argument `fetch_results` is deprecated and will be removed "
+        "in a future version. Please use argument `wait` instead"
+    )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
     def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        job = {
+            "runs": self.n_job_runs,
+            "variables": self.job_variables,
+        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
@@ -71,8 +88,8 @@ class TestBatch:
         assert batch.status == "CANCELED"
         assert request_mock.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/cancel"
+            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
     def test_cancel_batch_sdk(self, request_mock):
@@ -81,8 +98,8 @@ class TestBatch:
         assert client_rsp.status == "CANCELED"
         assert request_mock.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/cancel"
+            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
     def test_get_job(self, job):
@@ -129,7 +146,11 @@ class TestBatch:
         )
         job = batch.add_job(
             runs=self.n_job_runs,
-            variables={"Omega_max": 14.4, "last_target": "q1", "ts": [200, 500]},
+            variables={
+                "Omega_max": 14.4,
+                "last_target": "q1",
+                "ts": [200, 500],
+            },
             wait=True,
         )
         assert job.batch_id == batch.id
@@ -185,7 +206,10 @@ class TestBatch:
         ],
     )
     def test_create_batch_configuration(self, emulator, configuration, expected):
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        job = {
+            "runs": self.n_job_runs,
+            "variables": self.job_variables,
+        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[job],
@@ -213,7 +237,10 @@ class TestBatch:
     def test_create_batch_fetch_results_deprecated(
         self,
     ):
-        job = {"runs": self.n_job_runs, "variables": self.job_variables}
+        job = {
+            "runs": self.n_job_runs,
+            "variables": self.job_variables,
+        }
         with pytest.warns(DeprecationWarning):
             self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,

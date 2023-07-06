@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from auth0.v3.exceptions import Auth0Error  # type: ignore
 
-from pasqal_cloud import Auth0Conf, Endpoints, SDK, AUTH0_CONFIG, PASQAL_ENDPOINTS
+from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,

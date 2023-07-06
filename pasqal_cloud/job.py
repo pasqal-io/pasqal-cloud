@@ -13,7 +13,8 @@ class Job(BaseModel):
         - batch_id: ID of the batch which the job belongs to.
         - id: Unique identifier for the job.
         - project_id: ID of the project which the users scheduling the job belong to.
-        - status: Status of the job. Possible values are: PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+        - status: Status of the job. Possible values are:
+            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - _client: A Client instance to connect to PCS.
         - created_at: Timestamp of the creation of the job.
         - updated_at: Timestamp of the last update of the job.
@@ -22,8 +23,8 @@ class Job(BaseModel):
         - end_timestamp: The timestamp of when the job finished processing.
         - result: Result of the job.
         - variables: Dictionary of variables of the job.
-          None if the associated batch is non-parametrized.
-        - group_id: This parameter is deprecated, use project_id instead.
+            None if the associated batch is non-parametrized.
+        - group_id (deprecated): Use project_id instead.
     """
 
     runs: int

@@ -19,7 +19,8 @@ class EmuTNConfig(BaseConfig):
     Args:
         dt (float): The time step in nanoseconds of the simulation. Defaults to 10.0.
         precision (str): The precision of the simulation. Defaults to "normal".
-        max_bond_dim (int): The maximum bond dimension of the Matrix Product State (MPS). Defaults to 500.
+        max_bond_dim (int): The maximum bond dimension of the Matrix Product
+          State (MPS). Defaults to 500.
     """
 
     dt: float = 10.0
