@@ -50,7 +50,7 @@ class TestBatch:
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.jobs[self.job_id].batch_id == batch.id
-        assert batch.jobs[self.job_id].runs == self.n_job_runs
+        assert batch.ordered_jobs[0].runs == self.n_job_runs
 
     @pytest.mark.filterwarnings(
         "ignore:Argument `fetch_results` is deprecated and will be removed in "

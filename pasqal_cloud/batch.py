@@ -87,10 +87,10 @@ class Batch(BaseModel):
     @root_validator(pre=True)
     def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """This root validator will modify the 'jobs' attribute (which is a list
-        of jobs dictionaries ordered by creation time), it will duplicate the
-        value of 'jobs' in a new attribute 'ordered_jobs' to keep the jobs
-        ordered by creation time. Also, it will transform the 'jobs'
-        attribute to a dictionary of jobs dictionaries.
+        of jobs dictionaries ordered by creation time before instantiation).
+        It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
+        to keep the jobs ordered by creation time. Also, it will transform
+        the 'jobs' attribute to a dictionary of jobs dictionaries.
         """
         all_jobs_dict = {}
         ordered_jobs_list = []
