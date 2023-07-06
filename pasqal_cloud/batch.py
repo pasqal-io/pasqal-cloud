@@ -1,5 +1,5 @@
 import time
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Extra, root_validator, validator
 
@@ -27,7 +27,7 @@ class Batch(BaseModel):
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
-        - status: Status of the batch. Possible values are: \
+        - status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - webhook: Webhook where the job results are automatically sent to.
         - _client: A Client instance to connect to PCS.
@@ -36,6 +36,8 @@ class Batch(BaseModel):
         - end_datetime: Timestamp of when the batch process was finished.
         - device_status: Status of the device where the batch is running.
         - jobs: Dictionary of all the jobs added to the batch.
+        - ordered_jobs: List of dictionaries of all the jobs added to the batch,
+            ordered by creation time.
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
@@ -58,6 +60,7 @@ class Batch(BaseModel):
     end_datetime: Optional[str]
     device_status: Optional[str]
     jobs: Dict[str, Job] = {}
+    ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
@@ -79,12 +82,18 @@ class Batch(BaseModel):
             conf_class = EmuTNConfig
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
-
         return conf_class.from_dict(configuration)
 
     @root_validator(pre=True)
-    def _build_job_dict(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """This root validator will modify the 'jobs' attribute (which is a list
+        of jobs dictionaries ordered by creation time), it will duplicate the
+        value of 'jobs' in a new attribute 'ordered_jobs' to keep the jobs
+        ordered by creation time. Also, it will transform the 'jobs'
+        attribute to a dictionary of jobs dictionaries.
+        """
         jobs = values.get("jobs", [])
+        values["ordered_jobs"] = jobs
         job_dict = {}
         for job in jobs:
             job_dict[job["id"]] = {**job, "_client": values["_client"]}
