@@ -92,12 +92,18 @@ class Batch(BaseModel):
         ordered by creation time. Also, it will transform the 'jobs'
         attribute to a dictionary of jobs dictionaries.
         """
+        all_jobs_dict = {}
+        ordered_jobs_list = []
+
         jobs = values.get("jobs", [])
-        values["ordered_jobs"] = jobs
-        job_dict = {}
+
         for job in jobs:
-            job_dict[job["id"]] = {**job, "_client": values["_client"]}
-        values["jobs"] = job_dict
+            job_dict = {**job, "_client": values["_client"]}
+            ordered_jobs_list.append(job_dict)
+            all_jobs_dict[job["id"]] = job_dict
+
+        values["ordered_jobs"] = ordered_jobs_list
+        values["jobs"] = all_jobs_dict
         return values
 
     def add_job(
