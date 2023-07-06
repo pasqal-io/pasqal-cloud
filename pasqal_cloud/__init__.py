@@ -54,7 +54,7 @@ class SDK:
             username: email of the user to login as.
             password: password of the user to login as.
             token_provider: The token provider is an alternative log-in method \
-                not for human users.
+              not for human users.
             webhook: Webhook where the job results are automatically sent to.
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
