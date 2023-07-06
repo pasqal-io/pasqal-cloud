@@ -1,10 +1,6 @@
 name: Run tests and mypy
 
-on:
-  push:
-    branches: [dev]
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+on: push
 
 jobs:
   unit_tests:
