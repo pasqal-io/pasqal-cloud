@@ -1,4 +1,4 @@
-name: Run tests and mypy
+name: Run tests, mypy and pre-commit hooks
 
 on: push
 
