@@ -47,10 +47,10 @@ setup(
             "flake8==6.0.0",
             "isort==5.12.0",
             "mypy==0.982",
-            "pytest==6.2.5",
-            "pytest-cov==2.11.1",
-            "types-requests==2.25.1",
-            "requests-mock==1.9.3",
+            "pytest==7.4.0",
+            "pytest-cov==4.1.0",
+            "types-requests==2.31.0.1",
+            "requests-mock==1.11.0",
         }
     },
 )
