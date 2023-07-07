@@ -11,9 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from sys import version_info
-
 from dataclasses import dataclass
+from sys import version_info
 
 if version_info[:2] >= (3, 8):
     from typing import Final

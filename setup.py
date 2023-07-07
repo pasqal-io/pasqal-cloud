@@ -36,24 +36,21 @@ setup(
     ],
     url="https://github.com/pasqal-io/pasqal-cloud",
     install_requires=[
-        "auth0-python >= 3.23.1, <4.0.0 ",
+        "auth0-python >= 3.23.1, <4.0.0",
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic>=1.10, <2.0",
     ],
     extras_require={
         "dev": {
-            "black==22.3.0",
-            "flake8==3.9.0",
-            "flake8-import-order==0.18.1",
+            "black==23.3.0",
+            "flake8==6.0.0",
+            "isort==5.12.0",
             "mypy==0.982",
             "pytest==6.2.5",
             "pytest-cov==2.11.1",
             "types-requests==2.25.1",
             "requests-mock==1.9.3",
-        },
-        ":python_version == '3.7'": [
-            "typing-extensions==4.4.0",
-        ],
+        }
     },
 )

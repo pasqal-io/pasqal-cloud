@@ -1,6 +1,6 @@
-from pasqal_cloud.device.configuration.base_config import BaseConfig
-
 from dataclasses import dataclass
+
+from pasqal_cloud.device.configuration.base_config import BaseConfig
 
 
 @dataclass
