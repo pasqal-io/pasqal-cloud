@@ -35,8 +35,8 @@ class Batch(BaseModel):
         - start_datetime: Timestamp of the time the batch was sent to the QPU.
         - end_datetime: Timestamp of when the batch process was finished.
         - device_status: Status of the device where the batch is running.
-        - jobs: Dictionary of all the jobs added to the batch.
-        - ordered_jobs: List of dictionaries of all the jobs added to the batch,
+        - jobs (deprecated): Dictionary of all the jobs added to the batch.
+        - ordered_jobs: List of all the jobs added to the batch,
             ordered by creation time.
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
@@ -127,6 +127,7 @@ class Batch(BaseModel):
             job_data["variables"] = variables
         job_rsp = self._client._send_job(job_data)
         job = Job(**job_rsp, _client=self._client)
+        self.ordered_jobs.append(job)
         self.jobs[job.id] = job
         if wait:
             while job.status in ["PENDING", "RUNNING"]:
@@ -158,7 +159,20 @@ class Batch(BaseModel):
                     self.id,
                 )
             for job_rsp in batch_rsp["jobs"]:
-                self.jobs[job_rsp["id"]] = Job(**job_rsp)
+                job = Job(**job_rsp)
+                # iterate through the ordered_job list attribute of Batch and find the
+                # index of the job received in the response to replace with updated data
+                dict_index = next(
+                    (
+                        index
+                        for (index, all_jobs) in enumerate(self.ordered_jobs)
+                        if all_jobs["id"] == job
+                    ),
+                    None,
+                )
+                self.ordered_jobs[dict_index] = job
+                self.jobs[job_rsp["id"]] = job
+
         return batch_rsp
 
     def cancel(self) -> Dict[str, Any]:

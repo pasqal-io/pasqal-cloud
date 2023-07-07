@@ -53,8 +53,8 @@ class TestBatch:
         assert batch.ordered_jobs[0].runs == self.n_job_runs
 
     @pytest.mark.filterwarnings(
-        "ignore:Argument `fetch_results` is deprecated and will be removed in "
-        "a future version.Please use argument `wait` instead"
+        "ignore:Argument `fetch_results` is deprecated and will be removed "
+        "in a future version. Please use argument `wait` instead"
     )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
     def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
