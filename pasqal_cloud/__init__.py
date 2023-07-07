@@ -112,7 +112,7 @@ class SDK:
             configuration: A dictionary with extra configuration for the emulators
              that accept it.
             wait: Whether to wait for the batch to be done and fetch results
-            fetch_results (Deprecated): Whether to wait for the batch to
+            fetch_results (deprecated): Whether to wait for the batch to
               be done and fetch results
 
 
@@ -161,7 +161,7 @@ class SDK:
         """Retrieve a batch's data and all its jobs.
 
         Args:
-            fetch_results (Deprecated): Whether to wait for the batch to be
+            fetch_results (deprecated): Whether to wait for the batch to be
               done and fetch results
             id: ID of the batch.
 

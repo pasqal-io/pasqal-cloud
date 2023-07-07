@@ -27,16 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
 
+      - name: Install and run pre-commit hooks
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
+
       - name: Perform unit tests
         run: |
           pytest -vvv --cov pasqal_cloud tests
-
-      - name: Mypy checks only for Python 3.8
-        if: ${{ matrix.python-version == 3.8 }}
-        run: |
-          mypy pasqal_cloud
-
-      - name: Check formatting only for Python 3.11
-        if: ${{ matrix.python-version == 3.11 }}
-        run: |
-          black . --check

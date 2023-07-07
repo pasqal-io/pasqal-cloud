@@ -143,7 +143,7 @@ class Batch(BaseModel):
 
         Args:
             wait: Whether to wait for the batch to be done and fetch results.
-            fetch_results (Deprecated): Whether to wait for the batch \
+            fetch_results (deprecated): Whether to wait for the batch \
                 to be done and fetch results.
 
         A batch that is complete awaits no extra jobs. All jobs previously added
@@ -166,11 +166,12 @@ class Batch(BaseModel):
                     (
                         index
                         for (index, all_jobs) in enumerate(self.ordered_jobs)
-                        if all_jobs["id"] == job
+                        if all_jobs["id"] == job.id
                     ),
                     None,
                 )
-                self.ordered_jobs[dict_index] = job
+                if dict_index:
+                    self.ordered_jobs[dict_index] = job
                 self.jobs[job_rsp["id"]] = job
 
         return batch_rsp
