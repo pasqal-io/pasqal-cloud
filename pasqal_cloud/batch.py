@@ -95,9 +95,9 @@ class Batch(BaseModel):
         jobs_dict = {}
         ordered_jobs_list = []
 
-        jobs = values.get("jobs", [])
+        jobs_received = values.get("jobs", [])
 
-        for job in jobs:
+        for job in jobs_received:
             job_dict = {**job, "_client": values["_client"]}
             ordered_jobs_list.append(job_dict)
             jobs_dict[job["id"]] = job_dict
