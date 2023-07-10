@@ -8,6 +8,9 @@ All notable changes to this project will be documented in this file.
 
 Now jobs are ordered by creation date in a list through the attribute `ordered_jobs` when manipulating a Batch object.
 
+### Changed
+
+- Support for python 3.7 was dropped. Only python 3.8 and above are supported from now.
 
 ## [0.3.3] - 2023-07-05
 

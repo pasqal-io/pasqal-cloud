@@ -92,7 +92,7 @@ class Batch(BaseModel):
         to keep the jobs ordered by creation time. Also, it will transform
         the 'jobs' attribute to a dictionary of jobs dictionaries.
         """
-        all_jobs_dict = {}
+        jobs_dict = {}
         ordered_jobs_list = []
 
         jobs = values.get("jobs", [])
@@ -100,10 +100,10 @@ class Batch(BaseModel):
         for job in jobs:
             job_dict = {**job, "_client": values["_client"]}
             ordered_jobs_list.append(job_dict)
-            all_jobs_dict[job["id"]] = job_dict
+            jobs_dict[job["id"]] = job_dict
 
         values["ordered_jobs"] = ordered_jobs_list
-        values["jobs"] = all_jobs_dict
+        values["jobs"] = jobs_dict
         return values
 
     def add_job(
@@ -159,20 +159,15 @@ class Batch(BaseModel):
                     self.id,
                 )
             for job_rsp in batch_rsp["jobs"]:
-                job = Job(**job_rsp)
+                job_rsp_obj = Job(**job_rsp)
                 # iterate through the ordered_job list attribute of Batch and find the
                 # index of the job received in the response to replace with updated data
-                dict_index = next(
-                    (
-                        index
-                        for (index, all_jobs) in enumerate(self.ordered_jobs)
-                        if all_jobs["id"] == job.id
-                    ),
-                    None,
-                )
-                if dict_index:
-                    self.ordered_jobs[dict_index] = job
-                self.jobs[job_rsp["id"]] = job
+                job_index = [
+                    job_rsp_obj.id == job.id for job in self.ordered_jobs
+                ].index(True)
+
+                self.ordered_jobs[job_index] = job_rsp_obj
+                self.jobs[job_rsp["id"]] = job_rsp_obj
 
         return batch_rsp
 
