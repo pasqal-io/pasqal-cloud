@@ -29,6 +29,5 @@ repos:
     rev: 6.0.0
     hooks:
       - id: flake8
-        exclude: ^sdk/
 
 # See https://pre-commit.com for more information
