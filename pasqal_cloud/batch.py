@@ -27,7 +27,7 @@ class Batch(BaseModel):
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
         - priority: Level of priority of the batch.
-        - status: Status of the batch. Possible values are: \
+        - status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - webhook: Webhook where the job results are automatically sent to.
         - _client: A Client instance to connect to PCS.
@@ -39,7 +39,7 @@ class Batch(BaseModel):
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
-        - group_id: This parameter is deprecated, use project_id instead.
+        - group_id (deprecated): Use project_id instead.
     """
 
     complete: bool
@@ -79,11 +79,14 @@ class Batch(BaseModel):
             conf_class = EmuTNConfig
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
-
         return conf_class.from_dict(configuration)
 
     @root_validator(pre=True)
     def _build_job_dict(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """This root validator will modify the 'jobs' attribute (which is a list
+        of jobs dictionaries ordered by creation time before instantiation) and
+        will transform it to a dictionary of jobs dictionaries.
+        """
         jobs = values.get("jobs", [])
         job_dict = {}
         for job in jobs:
@@ -127,7 +130,7 @@ class Batch(BaseModel):
 
         Args:
             wait: Whether to wait for the batch to be done and fetch results.
-            fetch_results (Deprecated): Whether to wait for the batch \
+            fetch_results (deprecated): Whether to wait for the batch \
                 to be done and fetch results.
 
         A batch that is complete awaits no extra jobs. All jobs previously added

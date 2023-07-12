@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import requests_mock
 
-from pasqal_cloud import Client, Batch, Job
+from pasqal_cloud import Batch, Client, Job
 from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
@@ -84,7 +84,6 @@ def batch(pasqal_client_mock):
         "start_datetime": "2023-01-01T00:00:00.000Z",
         "end_datetime": None,
         "device_status": "available",
-        "jobs": {},
     }
     return Batch(**batch_data)
 

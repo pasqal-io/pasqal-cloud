@@ -1,10 +1,6 @@
-name: Run tests and mypy
+name: Run tests, mypy and pre-commit hooks
 
-on:
-  push:
-    branches: [dev]
-  pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+on: push
 
 jobs:
   unit_tests:
@@ -15,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.11]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
       - name: Checkout main code and submodules
@@ -31,6 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
 
+      - name: Install and run pre-commit hooks
+        run: |
+          pip install pre-commit
+          pre-commit run
+
       - name: Perform unit tests
         run: |
           pytest -vvv --cov pasqal_cloud tests
@@ -39,8 +40,3 @@ jobs:
         if: ${{ matrix.python-version == 3.8 }}
         run: |
           mypy pasqal_cloud
-
-      - name: Check formatting only for Python 3.11
-        if: ${{ matrix.python-version == 3.11 }}
-        run: |
-          black . --check
