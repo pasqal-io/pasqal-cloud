@@ -225,7 +225,7 @@ class SDK:
             "backend": backend,
             "config": config,
         }
-        batch_rsp = self._client.send_workload(req)
+        batch_rsp = self._client._send_workload(req)
         batch_id = batch_rsp["id"]
         if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
