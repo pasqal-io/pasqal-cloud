@@ -87,6 +87,7 @@ class SDK:
             auth0=auth0,
         )
         self.batches: Dict[str, Batch] = {}
+        self.workloads: Dict[str,Workload] ={}
         self.webhook = webhook
 
     def create_batch(
@@ -219,23 +220,23 @@ class SDK:
                     workload_type: str,
                     backend: str,
                     config: Dict[str,Any],
-                    wait: bool = False,):
+                    wait: bool = False,)->Workload:
         req = {
             "workload_type": workload_type,
             "backend": backend,
             "config": config,
         }
-        batch_rsp = self._client._send_workload(req)
-        batch_id = batch_rsp["id"]
+        workload_rsp = self._client._send_workload(req)
+        workload_id = workload_rsp["id"]
         if wait:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._client._get_batch(batch_id)
+                batch_rsp = self._client._get_workload(workload_id)
 
-        batch = Batch(**batch_rsp, _client=self._client)
+        workload = Workload(**workload_rsp, _client=self._client)
 
-        self.batches[batch.id] = batch
-        return batch
+        self.workloads[workload.id] = workload
+        return workload
 
     def get_workload(self,id:str, wait: bool = False)->Workload:
         """Retrieve a workload's data.
