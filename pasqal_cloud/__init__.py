@@ -229,7 +229,7 @@ class SDK:
         workload_rsp = self._client._send_workload(req)
         workload_id = workload_rsp["id"]
         if wait:
-            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
+            while workload_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch_rsp = self._client._get_workload(workload_id)
 
