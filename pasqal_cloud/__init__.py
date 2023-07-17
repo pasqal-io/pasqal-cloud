@@ -27,6 +27,7 @@ from pasqal_cloud.endpoints import (  # noqa: F401
     PASQAL_ENDPOINTS,
 )
 from pasqal_cloud.job import Job
+from pasqal_cloud.workload import Workload
 
 
 class SDK:
@@ -213,6 +214,59 @@ class SDK:
         job_rsp = self._client._cancel_job(id)
         job = Job(**job_rsp, _client=self._client)
         return job
+
+    def create_workload(self,
+                    workload_type: str,
+                    backend: str,
+                    config: Dict[str,Any],
+                    wait: bool = False,):
+        req = {
+            "workload_type": workload_type,
+            "backend": backend,
+            "config": config,
+        }
+        batch_rsp = self._client.send_workload(req)
+        batch_id = batch_rsp["id"]
+        if wait:
+            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
+                time.sleep(RESULT_POLLING_INTERVAL)
+                batch_rsp = self._client._get_batch(batch_id)
+
+        batch = Batch(**batch_rsp, _client=self._client)
+
+        self.batches[batch.id] = batch
+        return batch
+
+    def get_workload(self,id:str, wait: bool = False)->Workload:
+        """Retrieve a workload's data.
+
+                Args:
+                    id: ID of the workload.
+                    wait: Whether to wait for the workload to be done
+
+                Returns:
+                    Job: the workload stored in the PCS database.
+                """
+        workload_rsp = self._client._get_workload(id)
+        if wait:
+            while workload_rsp["status"] in ["PENDING", "RUNNING"]:
+                time.sleep(RESULT_POLLING_INTERVAL)
+                workload_rsp = self._client._get_job(id)
+        workload = Workload(**workload_rsp, _client=self._client)
+        return workload
+
+    def cancel_workload(self,id:str)->Workload:
+        """Cancel the given workload on the PCS
+
+                Args:
+                    id: Workload id.
+                """
+        workload_rsp = self._client._cancel_workload(id)
+        workload = Workload(**workload_rsp, _client=self._client)
+        return workload
+
+
+
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.
