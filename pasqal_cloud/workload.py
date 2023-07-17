@@ -1,7 +1,7 @@
 from __future__ import annotations
 from pydantic import BaseModel
 from pasqal_cloud.client import Client
-from typing import List,Dict,Any
+from typing import List,Dict,Any,Optional
 class Workload(BaseModel) :
     """Class for workload data.
 
@@ -26,12 +26,12 @@ class Workload(BaseModel) :
     project_id: str
     status: str
     _client: Client
-    backend: str | None = None
-    workload_type: str | None = None
-    config: Dict[str, Any] | None = None
+    backend: Optional[str] = None
+    workload_type: Optional[str] = None
+    config: Optional[Dict[str, Any]] = None
     created_at: str
     updated_at: str
-    errors: List[str] = None
-    start_timestamp: str | None = None
-    end_timestamp: str | None = None
-    result: Dict[str, Any] | None = None
+    errors: Optional[List[str]] = None
+    start_timestamp: Optional[str] = None
+    end_timestamp: Optional[str] = None
+    result: Optional[Dict[str, Any]] = None
