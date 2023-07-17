@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from pasqal_cloud.client import Client
 from typing import List,Dict,Any
