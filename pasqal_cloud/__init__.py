@@ -87,7 +87,7 @@ class SDK:
             auth0=auth0,
         )
         self.batches: Dict[str, Batch] = {}
-        self.workloads: Dict[str,Workload] ={}
+        self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
 
     def create_batch(
@@ -216,11 +216,13 @@ class SDK:
         job = Job(**job_rsp, _client=self._client)
         return job
 
-    def create_workload(self,
-                    workload_type: str,
-                    backend: str,
-                    config: Dict[str,Any],
-                    wait: bool = False,)->Workload:
+    def create_workload(
+        self,
+        workload_type: str,
+        backend: str,
+        config: Dict[str, Any],
+        wait: bool = False,
+    ) -> Workload:
         req = {
             "workload_type": workload_type,
             "backend": backend,
@@ -231,23 +233,23 @@ class SDK:
         if wait:
             while workload_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._client._get_workload(workload_id)
+                workload_rsp = self._client._get_workload(workload_id)
 
         workload = Workload(**workload_rsp, _client=self._client)
 
         self.workloads[workload.id] = workload
         return workload
 
-    def get_workload(self,id:str, wait: bool = False)->Workload:
+    def get_workload(self, id: str, wait: bool = False) -> Workload:
         """Retrieve a workload's data.
 
-                Args:
-                    id: ID of the workload.
-                    wait: Whether to wait for the workload to be done
+        Args:
+            id: ID of the workload.
+            wait: Whether to wait for the workload to be done
 
-                Returns:
-                    Job: the workload stored in the PCS database.
-                """
+        Returns:
+            Job: the workload stored in the PCS database.
+        """
         workload_rsp = self._client._get_workload(id)
         if wait:
             while workload_rsp["status"] in ["PENDING", "RUNNING"]:
@@ -256,18 +258,15 @@ class SDK:
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
 
-    def cancel_workload(self,id:str)->Workload:
+    def cancel_workload(self, id: str) -> Workload:
         """Cancel the given workload on the PCS
 
-                Args:
-                    id: Workload id.
-                """
+        Args:
+            id: Workload id.
+        """
         workload_rsp = self._client._cancel_workload(id)
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
-
-
-
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.

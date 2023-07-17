@@ -173,6 +173,7 @@ class Client:
             "GET", f"{self.endpoints.core}/api/v1/workloads/{workload_id}"
         )["data"]
         return workload
+
     def _cancel_workload(self, workload_id: str) -> Dict[str, Any]:
         workload: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
