@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.4] - 2023-07-18
+
+### Added
+
+Workloads are now supported by the sdk with the create_workload, get_workload and cancel_workload methods.
+
 ## [0.3.3] - 2023-07-05
 
 ### Added
