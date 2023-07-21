@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+
+
+## [0.3.5] - 2023-07-21
+
+### Added
+
+Now jobs are ordered by creation date in a list through the attribute `ordered_jobs` when manipulating a Batch object.
+
+
 ## [0.3.4] - 2023-07-18
 
 ### Added
