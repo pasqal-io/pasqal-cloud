@@ -59,6 +59,7 @@ class Batch(BaseModel):
     start_datetime: Optional[str]
     end_datetime: Optional[str]
     device_status: Optional[str]
+    # Ticket TBD
     jobs: Dict[str, Job] = {}
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
@@ -83,6 +84,8 @@ class Batch(BaseModel):
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
+
+    # TODO  Create a way to raise a warning while accessing 'jobs' attribute
 
     @root_validator(pre=True)
     def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
