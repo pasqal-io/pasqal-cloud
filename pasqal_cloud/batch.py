@@ -1,5 +1,6 @@
 import time
 from typing import Any, Dict, List, Optional, Type, Union
+from warnings import warn
 
 from pydantic import BaseModel, Extra, root_validator, validator
 
@@ -70,6 +71,14 @@ class Batch(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
+    def __getattribute__(self, jobs):
+        warn(
+            "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+        return super().__getattribute__(jobs)
+
     @validator("configuration", pre=True)
     def _load_configuration(
         cls,
@@ -84,8 +93,6 @@ class Batch(BaseModel):
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
-
-    # TODO  Create a way to raise a warning while accessing 'jobs' attribute
 
     @root_validator(pre=True)
     def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
