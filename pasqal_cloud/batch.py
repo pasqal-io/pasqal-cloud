@@ -60,7 +60,7 @@ class Batch(BaseModel):
     start_datetime: Optional[str]
     end_datetime: Optional[str]
     device_status: Optional[str]
-    ordered_jobs: List[Job]
+    ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
@@ -88,7 +88,7 @@ class Batch(BaseModel):
         return values
 
     @property
-    def jobs(self) -> dict[str, Job]:
+    def jobs(self) -> Dict[str, Job]:
         """Once the 'ordered_jobs' is build, we need to keep the 'jobs' attribute
         for backward compatibility with the code written by the users of the sdk
         """
