@@ -97,7 +97,7 @@ class Batch(BaseModel):
             DeprecationWarning,
             stacklevel=1,
         )
-        return {**{job.id: job for job in self.ordered_jobs}}
+        return {job.id: job for job in self.ordered_jobs}
 
     @validator("configuration", pre=True)
     def _load_configuration(

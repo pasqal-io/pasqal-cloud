@@ -8,7 +8,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-Now jobs are ordered by creation date in a list through the attribute `ordered_jobs` when manipulating a Batch object.
+Added an `ordered_jobs` list as an attribute to the `Batch` object in which jobs are ordered by creation date.
+
+### Changed
+
+Batch attribute `jobs` is now deprecated, use `ordered_jobs` instead.
 
 
 ## [0.3.4] - 2023-07-18
