@@ -1,5 +1,6 @@
 import time
 from typing import Any, Dict, List, Optional, Type, Union
+from warnings import warn
 
 from pydantic import BaseModel, Extra, root_validator, validator
 
@@ -59,9 +60,7 @@ class Batch(BaseModel):
     start_datetime: Optional[str]
     end_datetime: Optional[str]
     device_status: Optional[str]
-    # Ticket TBD
-    jobs: Dict[str, Job] = {}
-    ordered_jobs: List[Job] = []
+    ordered_jobs: List[Job]
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
@@ -70,13 +69,32 @@ class Batch(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
-    # def __getattribute__(self, jobs):
-    #     warn(
-    #         "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
-    #         DeprecationWarning,
-    #         stacklevel=1,
-    #     )
-    #     return super().__getattribute__(jobs)
+    @property
+    def jobs(self) -> dict[str, Job]:
+        warn(
+            "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+        return {**{job.id: job for job in self.ordered_jobs}}
+
+    @root_validator(pre=True)
+    def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """This root validator will modify the 'jobs' attribute (which is a list
+        of jobs dictionaries ordered by creation time before instantiation).
+        It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
+        to keep the jobs ordered by creation time.
+        """
+        ordered_jobs_list = []
+
+        jobs_received = values.get("jobs", [])
+
+        for job in jobs_received:
+            job_dict = {**job, "_client": values["_client"]}
+            ordered_jobs_list.append(job_dict)
+
+        values["ordered_jobs"] = ordered_jobs_list
+        return values
 
     @validator("configuration", pre=True)
     def _load_configuration(
@@ -92,28 +110,6 @@ class Batch(BaseModel):
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
-
-    @root_validator(pre=True)
-    def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute (which is a list
-        of jobs dictionaries ordered by creation time before instantiation).
-        It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
-        to keep the jobs ordered by creation time. Also, it will transform
-        the 'jobs' attribute to a dictionary of jobs dictionaries.
-        """
-        jobs_dict = {}
-        ordered_jobs_list = []
-
-        jobs_received = values.get("jobs", [])
-
-        for job in jobs_received:
-            job_dict = {**job, "_client": values["_client"]}
-            ordered_jobs_list.append(job_dict)
-            jobs_dict[job["id"]] = job_dict
-
-        values["ordered_jobs"] = ordered_jobs_list
-        values["jobs"] = jobs_dict
-        return values
 
     def add_job(
         self,

@@ -76,6 +76,11 @@ class TestBatch:
         assert batch.ordered_jobs[0].id == self.job_id
         assert batch.ordered_jobs[0].result == self.job_result
         assert batch.ordered_jobs[0].full_result == self.job_full_result
+        # attribute 'jobs' to be removed
+        for job_id, job in batch.jobs.items():
+            assert self.job_id == job_id
+            assert job.result == self.job_result
+            assert job.full_result == self.job_full_result
         assert request_mock.last_request.method == "GET"
 
     def test_get_batch(self, batch):
