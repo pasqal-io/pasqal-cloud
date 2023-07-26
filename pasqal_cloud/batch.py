@@ -165,15 +165,12 @@ class Batch(BaseModel):
                 batch_rsp = self._client._get_batch(
                     self.id,
                 )
-            for job_rsp in batch_rsp["jobs"]:
-                job_rsp_obj = Job(**job_rsp, _client=self._client)
-                # iterate through the ordered_job list attribute of Batch and find the
-                # index of the job received in the response to replace with updated data
-                job_index = [
-                    job_rsp_obj.id == job.id for job in self.ordered_jobs
-                ].index(True)
 
-                self.ordered_jobs[job_index] = job_rsp_obj
+            jobs_list = []
+            for job_data in batch_rsp["jobs"]:
+                job = Job(**job_data, _client=self._client)
+                jobs_list.append(job)
+            self.ordered_jobs = jobs_list
 
         return batch_rsp
 
