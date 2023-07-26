@@ -69,19 +69,10 @@ class Batch(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
-    @property
-    def jobs(self) -> dict[str, Job]:
-        warn(
-            "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
-            DeprecationWarning,
-            stacklevel=1,
-        )
-        return {**{job.id: job for job in self.ordered_jobs}}
-
     @root_validator(pre=True)
     def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute (which is a list
-        of jobs dictionaries ordered by creation time before instantiation).
+        """This root validator will modify the 'jobs' attribute which is a list
+        of jobs dictionaries ordered by creation time before instantiation.
         It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
         to keep the jobs ordered by creation time.
         """
@@ -95,6 +86,18 @@ class Batch(BaseModel):
 
         values["ordered_jobs"] = ordered_jobs_list
         return values
+
+    @property
+    def jobs(self) -> dict[str, Job]:
+        """Once the 'ordered_jobs' is build, we need to keep the 'jobs' attribute
+        for backward compatibility with the code written by the users of the sdk
+        """
+        warn(
+            "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+        return {**{job.id: job for job in self.ordered_jobs}}
 
     @validator("configuration", pre=True)
     def _load_configuration(
