@@ -79,7 +79,7 @@ class Batch(BaseModel):
         return {**{job.id: job for job in self.ordered_jobs}}
 
     @root_validator(pre=True)
-    def _build_job_dict_and_list(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """This root validator will modify the 'jobs' attribute (which is a list
         of jobs dictionaries ordered by creation time before instantiation).
         It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
