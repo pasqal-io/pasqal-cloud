@@ -85,30 +85,25 @@ class TestBatch:
                 assert self.job_id == job_id
                 assert job.result == self.job_result
                 assert job.full_result == self.job_full_result
+            assert len(batch.jobs) == len(batch.ordered_jobs)
         assert request_mock.last_request.method == "GET"
 
     def test_get_batch(self, batch):
         batch_requested = self.sdk.get_batch(batch.id)
         assert batch_requested.id == self.batch_id
 
+    @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):
-        job = {
-            "runs": self.n_job_runs,
-            "variables": self.job_variables,
-        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[job],
         )
-        assert len(batch.ordered_jobs) == 1
-        assert len(batch.jobs) == 1
         job = batch.add_job(
             runs=self.n_job_runs,
             variables=self.job_variables,
         )
         assert request_mock.last_request.json()["batch_id"] == batch.id
         assert job.batch_id == batch.id
-        assert len(batch.jobs) == 2
+        assert job.runs == self.n_job_runs
 
     @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job_and_wait_for_results(self, request_mock):

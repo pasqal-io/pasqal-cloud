@@ -77,13 +77,10 @@ class Batch(BaseModel):
         to keep the jobs ordered by creation time.
         """
         ordered_jobs_list = []
-
         jobs_received = values.get("jobs", [])
-
         for job in jobs_received:
             job_dict = {**job, "_client": values["_client"]}
             ordered_jobs_list.append(job_dict)
-
         values["ordered_jobs"] = ordered_jobs_list
         return values
 
