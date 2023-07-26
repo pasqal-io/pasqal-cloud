@@ -55,6 +55,9 @@ class TestBatch:
         "ignore:Argument `fetch_results` is deprecated and will be removed "
         "in a future version. Please use argument `wait` instead"
     )
+    @pytest.mark.filterwarnings(
+        "ignore:'jobs' attribute is deprecated, use 'ordered_jobs' instead"
+    )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
     def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
         job = {

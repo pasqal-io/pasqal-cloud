@@ -136,7 +136,6 @@ class Batch(BaseModel):
         job_rsp = self._client._send_job(job_data)
         job = Job(**job_rsp, _client=self._client)
         self.ordered_jobs.append(job)
-        self.jobs[job.id] = job
         if wait:
             while job.status in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
@@ -167,7 +166,7 @@ class Batch(BaseModel):
                     self.id,
                 )
             for job_rsp in batch_rsp["jobs"]:
-                job_rsp_obj = Job(**job_rsp)
+                job_rsp_obj = Job(**job_rsp, _client=self._client)
                 # iterate through the ordered_job list attribute of Batch and find the
                 # index of the job received in the response to replace with updated data
                 job_index = [
@@ -175,7 +174,6 @@ class Batch(BaseModel):
                 ].index(True)
 
                 self.ordered_jobs[job_index] = job_rsp_obj
-                self.jobs[job_rsp["id"]] = job_rsp_obj
 
         return batch_rsp
 
