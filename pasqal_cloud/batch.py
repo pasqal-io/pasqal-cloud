@@ -87,9 +87,10 @@ class Batch(BaseModel):
         values["ordered_jobs"] = ordered_jobs_list
         return values
 
+    # Ticket (#704), to be removed or updated
     @property
     def jobs(self) -> Dict[str, Job]:
-        """Once the 'ordered_jobs' is build, we need to keep the 'jobs' attribute
+        """Once the 'ordered_jobs' is built, we need to keep the 'jobs' attribute
         for backward compatibility with the code written by the users of the sdk
         """
         warn(
