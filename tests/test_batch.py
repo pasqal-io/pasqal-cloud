@@ -22,28 +22,28 @@ class TestBatch:
         )
         self.pulser_sequence = "pulser_test_sequence"
         self.batch_id = "00000000-0000-0000-0000-000000000001"
-        self.job_result = {"1001": 12, "0110": 35, "1111": 1}
-        self.job_full_result = {
-            "counter": {"1001": 12, "0110": 35, "1111": 1},
-            "raw": ["1001", "1001", "0110", "1001", "0110"],
-        }
-        self.n_job_runs = 50
         self.job_id = "00000000-0000-0000-0000-000000022010"
+        self.n_job_runs = 50
         self.job_variables = {
             "Omega_max": 14.4,
             "last_target": "q1",
             "ts": [200, 500],
         }
-
-    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
-    def test_create_batch(self, emulator):
-        job = {
+        self.simple_job_args = {
             "runs": self.n_job_runs,
             "variables": self.job_variables,
         }
+        self.job_result = {"1001": 12, "0110": 35, "1111": 1}
+        self.job_full_result = {
+            "counter": {"1001": 12, "0110": 35, "1111": 1},
+            "raw": ["1001", "1001", "0110", "1001", "0110"],
+        }
+
+    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    def test_create_batch(self, emulator):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[job],
+            jobs=[self.simple_job_args],
             emulator=emulator,
         )
         assert batch.id == self.batch_id
@@ -57,13 +57,9 @@ class TestBatch:
     )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
     def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
-        job = {
-            "runs": self.n_job_runs,
-            "variables": self.job_variables,
-        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[job],
+            jobs=[self.simple_job_args, self.simple_job_args],
             wait=wait,
             fetch_results=fetch_results,
         )
@@ -92,10 +88,9 @@ class TestBatch:
         batch_requested = self.sdk.get_batch(batch.id)
         assert batch_requested.id == self.batch_id
 
-    @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job(self, request_mock):
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
+            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
         job = batch.add_job(
             runs=self.n_job_runs,
@@ -104,11 +99,13 @@ class TestBatch:
         assert request_mock.last_request.json()["batch_id"] == batch.id
         assert job.batch_id == batch.id
         assert job.runs == self.n_job_runs
+        assert len(batch.ordered_jobs) == 2
+        # Ticket (#704)
+        assert len(batch.jobs) == 2
 
-    @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_add_job_and_wait_for_results(self, request_mock):
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
+            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
         job = batch.add_job(
             runs=self.n_job_runs,
@@ -129,19 +126,16 @@ class TestBatch:
         assert job.result == self.job_result
         assert job.full_result == self.job_full_result
 
-    @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_declare_complete(self):
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
+            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
         rsp = batch.declare_complete(wait=False)
         assert rsp["complete"]
-        assert len(batch.jobs) == 0
 
-    @pytest.mark.skip(reason="Not enabled during Iroise MVP")
     def test_batch_declare_complete_and_wait_for_results(self, request_mock):
         batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
+            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
         rsp = batch.declare_complete(wait=True)
         assert rsp["complete"]
@@ -215,13 +209,9 @@ class TestBatch:
         ],
     )
     def test_create_batch_configuration(self, emulator, configuration, expected):
-        job = {
-            "runs": self.n_job_runs,
-            "variables": self.job_variables,
-        }
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[job],
+            jobs=[self.simple_job_args],
             emulator=emulator,
             configuration=configuration,
         )
@@ -246,14 +236,10 @@ class TestBatch:
     def test_create_batch_fetch_results_deprecated(
         self,
     ):
-        job = {
-            "runs": self.n_job_runs,
-            "variables": self.job_variables,
-        }
         with pytest.warns(DeprecationWarning):
             self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,
-                jobs=[job],
+                jobs=[self.simple_job_args],
                 fetch_results=True,
             )
 
