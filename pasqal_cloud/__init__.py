@@ -216,6 +216,14 @@ class SDK:
         job = Job(**job_rsp, _client=self._client)
         return job
 
+    def wait_for_workload(
+        self, id: str, workload_rsp: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        while workload_rsp["status"] in ["PENDING", "RUNNING"]:
+            time.sleep(RESULT_POLLING_INTERVAL)
+            workload_rsp = self._client._get_workload(id)
+        return workload_rsp
+
     def create_workload(
         self,
         workload_type: str,
@@ -229,11 +237,8 @@ class SDK:
             "config": config,
         }
         workload_rsp = self._client._send_workload(req)
-        workload_id = workload_rsp["id"]
         if wait:
-            while workload_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                workload_rsp = self._client._get_workload(workload_id)
+            workload_rsp = self.wait_for_workload(workload_rsp["id"], workload_rsp)
 
         workload = Workload(**workload_rsp, _client=self._client)
 
@@ -252,9 +257,7 @@ class SDK:
         """
         workload_rsp = self._client._get_workload(id)
         if wait:
-            while workload_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                workload_rsp = self._client._get_job(id)
+            workload_rsp = self.wait_for_workload(id, workload_rsp)
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
 
