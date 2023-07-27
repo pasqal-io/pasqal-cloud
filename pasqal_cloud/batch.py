@@ -164,8 +164,9 @@ class Batch(BaseModel):
                     self.id,
                 )
 
-            jobs = [Job(**job, _client=self._client) for job in batch_rsp["jobs"]]
-            self.ordered_jobs = jobs
+            self.ordered_jobs = [
+                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+            ]
 
         return batch_rsp
 

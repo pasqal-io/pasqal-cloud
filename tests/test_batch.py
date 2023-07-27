@@ -142,11 +142,11 @@ class TestBatch:
         assert request_mock.last_request.method == "GET"
         assert (
             request_mock.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}"
         )
-        assert batch.jobs[self.job_id].batch_id == batch.id
-        assert batch.jobs[self.job_id].result == self.job_result
-        assert batch.jobs[self.job_id].full_result == self.job_full_result
+        assert batch.ordered_jobs[0].batch_id == batch.id
+        assert batch.ordered_jobs[0].result == self.job_result
+        assert batch.ordered_jobs[0].full_result == self.job_full_result
 
     def test_cancel_batch_self(self, request_mock, batch):
         batch.cancel()
