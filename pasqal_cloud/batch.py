@@ -163,7 +163,6 @@ class Batch(BaseModel):
                 batch_rsp = self._client._get_batch(
                     self.id,
                 )
-
             self.ordered_jobs = [
                 Job(**job, _client=self._client) for job in batch_rsp["jobs"]
             ]
