@@ -101,7 +101,11 @@ class TestBatch:
         assert job.runs == self.n_job_runs
         assert len(batch.ordered_jobs) == 2
         # Ticket (#704)
-        assert len(batch.jobs) == 2
+        with pytest.warns(
+            DeprecationWarning,
+            match="'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+        ):
+            assert len(batch.jobs) == 2
 
     def test_batch_add_job_and_wait_for_results(self, request_mock):
         batch = self.sdk.create_batch(
@@ -150,7 +154,11 @@ class TestBatch:
         assert batch.ordered_jobs[0].full_result == self.job_full_result
         assert len(batch.ordered_jobs) == 2
         # Ticket (#704)
-        assert len(batch.jobs) == 2
+        with pytest.warns(
+            DeprecationWarning,
+            match="'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+        ):
+            assert len(batch.jobs) == 2
 
     def test_cancel_batch_self(self, request_mock, batch):
         batch.cancel()
