@@ -88,6 +88,23 @@ for job in batch.jobs.values():
 
 ```
 
+### Workload Creation
+
+You can create a workload through the SDK with the following command: 
+```python
+workload=sdk.create_workload(workload_type="<WORKLOAD_TYPE>",backend="<BACKEND>",config={"config_param_1":"value"})
+
+#You can cancel the workload by doing:
+sdk.cancel_workload(workload.id)
+
+#Or refresh the workload status/results by with the following:
+workload=sdk.get_workload(workload.id)
+
+#Once the workload has been processed you can fetch the result like this:
+print(workload.result)
+```
+
+
 ## Advanced usage
 
 ### Authentication
