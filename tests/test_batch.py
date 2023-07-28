@@ -93,7 +93,7 @@ class TestBatch:
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
         job = batch.add_job(
-            runs=self.n_job_runs,
+            runs=78,
             variables=self.job_variables,
         )
         assert request_mock.last_request.json()["batch_id"] == batch.id
