@@ -59,7 +59,7 @@ class TestBatch:
     def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[self.simple_job_args, self.simple_job_args],
+            jobs=[self.simple_job_args],
             wait=wait,
             fetch_results=fetch_results,
         )
@@ -100,12 +100,6 @@ class TestBatch:
         assert job.batch_id == batch.id
         assert job.runs == self.n_job_runs
         assert len(batch.ordered_jobs) == 2
-        # Ticket (#704)
-        with pytest.warns(
-            DeprecationWarning,
-            match="'jobs' attribute is deprecated, use 'ordered_jobs' instead",
-        ):
-            assert len(batch.jobs) == 2
 
     def test_batch_add_job_and_wait_for_results(self, request_mock):
         batch = self.sdk.create_batch(
@@ -140,7 +134,7 @@ class TestBatch:
     def test_batch_declare_complete_and_wait_for_results(self, request_mock):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
-            jobs=[self.simple_job_args, self.simple_job_args],
+            jobs=[self.simple_job_args],
         )
         rsp = batch.declare_complete(wait=True)
         assert rsp["complete"]
@@ -152,13 +146,7 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert batch.ordered_jobs[0].result == self.job_result
         assert batch.ordered_jobs[0].full_result == self.job_full_result
-        assert len(batch.ordered_jobs) == 2
-        # Ticket (#704)
-        with pytest.warns(
-            DeprecationWarning,
-            match="'jobs' attribute is deprecated, use 'ordered_jobs' instead",
-        ):
-            assert len(batch.jobs) == 2
+        assert len(batch.ordered_jobs) == 1
 
     def test_cancel_batch_self(self, request_mock, batch):
         batch.cancel()
