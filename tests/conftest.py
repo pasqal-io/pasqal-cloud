@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 import requests_mock
 
-from pasqal_cloud import Batch, Client, Job
+from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
@@ -64,6 +64,23 @@ def pasqal_client_mock():
         password="password",
     )
     return client
+
+
+@pytest.fixture
+def workload(pasqal_client_mock):
+    workload_data = {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "project_id": "00000000-0000-0000-0000-000000000001",
+        "status": "PENDING",
+        "_client": pasqal_client_mock,
+        "created_at": "2022-12-31T23:59:59.999Z",
+        "updated_at": "2023-01-01T00:00:00.000Z",
+        "errors": [],
+        "backend": "backend_test",
+        "workload_type": "workload_type_test",
+        "config": {"test1": "test1", "test2": 2},
+    }
+    return Workload(**workload_data)
 
 
 @pytest.fixture

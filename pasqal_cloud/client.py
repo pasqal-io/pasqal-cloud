@@ -159,6 +159,27 @@ class Client:
         )["data"]
         return job
 
+    def _send_workload(self, workload_data: Dict[str, Any]) -> Dict[str, Any]:
+        workload_data.update({"project_id": self.project_id})
+        workload_data = self._request(
+            "POST",
+            f"{self.endpoints.core}/api/v1/workloads",
+            workload_data,
+        )["data"]
+        return workload_data
+
+    def _get_workload(self, workload_id: str) -> Dict[str, Any]:
+        workload: Dict[str, Any] = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/workloads/{workload_id}"
+        )["data"]
+        return workload
+
+    def _cancel_workload(self, workload_id: str) -> Dict[str, Any]:
+        workload: Dict[str, Any] = self._request(
+            "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
+        )["data"]
+        return workload
+
     def get_device_specs_dict(self) -> Dict[str, str]:
         device_specs: Dict[str, str] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/devices/specs"
