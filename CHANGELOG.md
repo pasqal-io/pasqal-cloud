@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [0.3.5] - 2023-07-21
+
+### Added
+
+Added an `ordered_jobs` list as an attribute to the `Batch` object in which jobs are ordered by creation date.
+
+### Changed
+
+Batch attribute `jobs` is now deprecated, use `ordered_jobs` instead.
+
 ## [0.3.4] - 2023-07-18
 
 ### Added

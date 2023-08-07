@@ -1,5 +1,6 @@
 import time
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
+from warnings import warn
 
 from pydantic import BaseModel, Extra, root_validator, validator
 
@@ -35,7 +36,9 @@ class Batch(BaseModel):
         - start_datetime: Timestamp of the time the batch was sent to the QPU.
         - end_datetime: Timestamp of when the batch process was finished.
         - device_status: Status of the device where the batch is running.
-        - jobs: Dictionary of all the jobs added to the batch.
+        - jobs (deprecated): Dictionary of all the jobs added to the batch.
+        - ordered_jobs: List of all the jobs added to the batch,
+            ordered by creation time.
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
@@ -57,7 +60,7 @@ class Batch(BaseModel):
     start_datetime: Optional[str]
     end_datetime: Optional[str]
     device_status: Optional[str]
-    jobs: Dict[str, Job] = {}
+    ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
@@ -65,6 +68,34 @@ class Batch(BaseModel):
     class Config:
         extra = Extra.allow
         arbitrary_types_allowed = True
+
+    @root_validator(pre=True)
+    def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """This root validator will modify the 'jobs' attribute which is a list
+        of jobs dictionaries ordered by creation time before instantiation.
+        It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
+        to keep the jobs ordered by creation time.
+        """
+        ordered_jobs_list = []
+        jobs_received = values.get("jobs", [])
+        for job in jobs_received:
+            job_dict = {**job, "_client": values["_client"]}
+            ordered_jobs_list.append(job_dict)
+        values["ordered_jobs"] = ordered_jobs_list
+        return values
+
+    # Ticket (#704), to be removed or updated
+    @property
+    def jobs(self) -> Dict[str, Job]:
+        """Once the 'ordered_jobs' is built, we need to keep the 'jobs' attribute
+        for backward compatibility with the code written by the users of the sdk
+        """
+        warn(
+            "'jobs' attribute is deprecated, use 'ordered_jobs' instead",
+            DeprecationWarning,
+            stacklevel=1,
+        )
+        return {job.id: job for job in self.ordered_jobs}
 
     @validator("configuration", pre=True)
     def _load_configuration(
@@ -80,19 +111,6 @@ class Batch(BaseModel):
         elif values["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
-
-    @root_validator(pre=True)
-    def _build_job_dict(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute (which is a list
-        of jobs dictionaries ordered by creation time before instantiation) and
-        will transform it to a dictionary of jobs dictionaries.
-        """
-        jobs = values.get("jobs", [])
-        job_dict = {}
-        for job in jobs:
-            job_dict[job["id"]] = {**job, "_client": values["_client"]}
-        values["jobs"] = job_dict
-        return values
 
     def add_job(
         self,
@@ -115,7 +133,7 @@ class Batch(BaseModel):
             job_data["variables"] = variables
         job_rsp = self._client._send_job(job_data)
         job = Job(**job_rsp, _client=self._client)
-        self.jobs[job.id] = job
+        self.ordered_jobs.append(job)
         if wait:
             while job.status in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
@@ -145,8 +163,10 @@ class Batch(BaseModel):
                 batch_rsp = self._client._get_batch(
                     self.id,
                 )
-            for job_rsp in batch_rsp["jobs"]:
-                self.jobs[job_rsp["id"]] = Job(**job_rsp)
+            self.ordered_jobs = [
+                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+            ]
+
         return batch_rsp
 
     def cancel(self) -> Dict[str, Any]:
