@@ -55,12 +55,12 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 
 ```python
 from pasqal_cloud import SDK
-from pulser import devices, Register, Sequence
 
 project_id="your_project_id" # Replace this value by your project_id on the PASQAL platform.
 username="your_username" # Replace this value by your username or email on the PASQAL platform.
 password="your_password" # Replace this value by your password on the PASQAL platform.
 
+# Initialize the cloud client
 sdk = SDK(username=username, password=password, project_id=project_id)
 
 # When creating a job, select a number of runs and set the desired values for the variables
@@ -77,20 +77,14 @@ from pasqal_cloud.device import EmulatorType
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
 
 # Once the QPU has returned the results, you can access them with the following:
-for job in batch.jobs.values():
+for job in batch.ordered_jobs:
     print(job.result)
-
-# Note that this results are extracted from the "counter" key of the results.
-# To access the full results, or in the event that the results aren't expected
-# to contain a "counter" you can do:
-for job in batch.jobs.values():
-    print(job.full_result)
 
 ```
 
 ### Workload Creation
 
-You can create a workload through the SDK with the following command: 
+You can create a workload through the SDK with the following command:
 ```python
 workload=sdk.create_workload(workload_type="<WORKLOAD_TYPE>",backend="<BACKEND>",config={"config_param_1":"value"})
 
