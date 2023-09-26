@@ -21,7 +21,10 @@ class Job(BaseModel):
         - errors: Error messages that occurred while processing job.
         - start_timestamp: The timestamp of when the job began processing.
         - end_timestamp: The timestamp of when the job finished processing.
-        - result: Result of the job.
+        - full_result: Dictionnary of all the results obtained after complete execution
+            of the job. It maps the type of results (e.g. "counter", "raw")
+            to the associated execution result.
+        - result: Bitstring counter result. Should be equal to `full_results["counter"]`
         - variables: Dictionary of variables of the job.
             None if the associated batch is non-parametrized.
         - group_id (deprecated): Use project_id instead.
