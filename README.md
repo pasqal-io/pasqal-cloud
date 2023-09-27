@@ -51,36 +51,9 @@ Once you have created your sequence, you should serialize it as follows:
 serialized_sequence = sequence.to_abstract_repr()
 ```
 
-Once you have serialized your sequence, you can send it with the SDK with the following code
+Once you have serialized your sequence, you can send it with the SDK with the following code:
 
-```python
-from pasqal_cloud import SDK
-
-project_id="your_project_id" # Replace this value by your project_id on the PASQAL platform.
-username="your_username" # Replace this value by your username or email on the PASQAL platform.
-password="your_password" # Replace this value by your password on the PASQAL platform.
-
-# Initialize the cloud client
-sdk = SDK(username=username, password=password, project_id=project_id)
-
-# When creating a job, select a number of runs and set the desired values for the variables
-# defined in the sequence
-job1 = {"runs": 20, "variables": {"omega_max": 6} }
-job2 = {"runs": 50, "variables": {"omega_max": 10.5} }
-
-# Send the batch of jobs to the QPU and wait for the results
-batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
-
-# You can also choose to run your batch on an emulator using the optional argument 'emulator'
-# For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
-from pasqal_cloud.device import EmulatorType
-batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE)
-
-# Once the QPU has returned the results, you can access them with the following:
-for job in batch.ordered_jobs:
-    print(job.result)
-
-```
+https://github.com/pasqal-io/pasqal-cloud/blob/dev/examples/send_batch_with_jobs.py#L1-L28
 
 ### Workload Creation
 
