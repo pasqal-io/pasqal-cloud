@@ -55,6 +55,8 @@ Once you have serialized your sequence, you can send it with the SDK with the fo
 
 https://github.com/pasqal-io/pasqal-cloud/blob/d60d27d47b734c3b1eaaaf307b0707ce4ab7b748/examples/send_batch_with_jobs.py?plain=1#L1-L28
 
+<script src="https://emgithub.com/embed-v2.js?target=https%3A%2F%2Fgithub.com%2Fpasqal-io%2Fpasqal-cloud%2Fblob%2Fmv%2Fdocusaurus-mr%2Fexamples%2Fsend_batch_with_jobs.py&style=default&type=code&showBorder=on&showLineNumbers=on&showFileMeta=on&showFullPath=on&showCopy=on"></script>
+
 ### Workload Creation
 
 You can create a workload through the SDK with the following command:
