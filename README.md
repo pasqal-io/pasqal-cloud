@@ -53,9 +53,7 @@ serialized_sequence = sequence.to_abstract_repr()
 
 Once you have serialized your sequence, you can send it with the SDK with the following code
 
-https://github.com/pasqal-io/pasqal-cloud/blob/d60d27d47b734c3b1eaaaf307b0707ce4ab7b748/examples/send_batch_with_jobs.py
-
-https://github.com/pasqal-io/pasqal-cloud/blob/d60d27d47b734c3b1eaaaf307b0707ce4ab7b748/examples/send_batch_with_jobs.py#L1-L28
+https://github.com/pasqal-io/pasqal-cloud/blob/dev/examples/send_batch_with_jobs.py#L1-L50
 
 ### Workload Creation
 
