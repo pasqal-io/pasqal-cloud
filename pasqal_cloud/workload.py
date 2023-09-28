@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, validator
+import requests
 
 from pasqal_cloud.client import Client
 
@@ -41,6 +42,7 @@ class Workload(BaseModel):
     errors: Optional[List[str]] = None
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
+    result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
     class Config:
@@ -52,3 +54,17 @@ class Workload(BaseModel):
         workload_rsp = self._client._cancel_workload(self.id)
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
+
+    @validator("result")
+    def result_link_to_result(
+        cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
+    ):
+        if result:
+            return result
+        result_link: Optional[Dict[str, Any]] = values["result_link"]
+        if result_link:
+            try:
+                res = requests.get(result_link)
+                return res.json()
+            except Exception:
+                raise ValueError("Invalid result link.")

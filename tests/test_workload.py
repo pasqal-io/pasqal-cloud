@@ -2,12 +2,22 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
 
 from pasqal_cloud import SDK, Workload
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
+@pytest.mark.only
 class TestWorkload:
+    @pytest.fixture
+    def workload_with_link_id(self):
+        return "00000000-0000-0000-0000-000000000002"
+
+    @pytest.fixture
+    def workload_with_invalid_link_id(self):
+        return "00000000-0000-0000-0000-000000000003"
+
     @pytest.fixture(autouse=True)
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
@@ -55,8 +65,23 @@ class TestWorkload:
         assert workload_requested.id == self.workload_id
         assert (
             request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/workloads/{self.workload_id}"
+            f"/api/v2/workloads/{self.workload_id}"
         )
+
+    def test_get_workload_with_link(
+        self, request_mock, workload_with_link_id, result_link_endpoint
+    ):
+        self.sdk.get_workload(workload_with_link_id)
+        assert request_mock.last_request.url == (
+            f"{result_link_endpoint}{workload_with_link_id}"
+        )
+
+    def test_get_workload_with_invalid_link(
+        self,
+        workload_with_invalid_link_id,
+    ):
+        with pytest.raises(ValidationError, match="Invalid result link."):
+            self.sdk.get_workload(workload_with_invalid_link_id)
 
     def test_cancel_workload_self(self, request_mock, workload):
         workload.cancel()
