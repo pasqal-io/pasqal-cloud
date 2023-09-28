@@ -59,11 +59,9 @@ class Workload(BaseModel):
     def result_link_to_result(
         cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        if result:
-            return result
         result_link: Optional[str] = values["result_link"]
-        if not result_link:
-            return
+        if result or not result_link:
+            return result
         try:
             res = requests.get(result_link)
             data = res.json()
