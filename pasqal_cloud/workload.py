@@ -62,9 +62,13 @@ class Workload(BaseModel):
         if result:
             return result
         result_link: Optional[str] = values["result_link"]
-        if result_link:
-            try:
-                res = requests.get(result_link)
-                return res.json()
-            except Exception:
-                raise ValueError("Invalid result link.")
+        if not result_link:
+            return
+        try:
+            res = requests.get(result_link)
+            data = res.json()
+        except Exception:
+            raise ValueError("Invalid result link.")
+        if not isinstance(data, dict):
+            raise ValueError("Invalid format for results")
+        return data
