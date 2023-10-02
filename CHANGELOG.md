@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.6] - 2023-10-02
+
+### Changed
+
+Use `raise_for_status` on response from client before returning `data` to get accurate exception.
 
 ## [0.3.5] - 2023-07-21
 
