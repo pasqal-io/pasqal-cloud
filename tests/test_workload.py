@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 import pytest
 from pydantic import ValidationError
@@ -11,11 +11,11 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 class TestWorkload:
     @pytest.fixture
     def workload_with_link_id(self):
-        return "00000000-0000-0000-0000-000000000002"
+        return UUID(int=0x2)
 
     @pytest.fixture
     def workload_with_invalid_link_id(self):
-        return "00000000-0000-0000-0000-000000000003"
+        return UUID(int=0x3)
 
     @pytest.fixture(autouse=True)
     @patch(

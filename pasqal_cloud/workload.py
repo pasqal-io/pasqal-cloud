@@ -68,5 +68,5 @@ class Workload(BaseModel):
         except Exception:
             raise ValueError("Invalid result link.")
         if not isinstance(data, dict):
-            raise ValueError("Invalid format for results")
+            raise ValueError("Invalid format for results.")
         return data
