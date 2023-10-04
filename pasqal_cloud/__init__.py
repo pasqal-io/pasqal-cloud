@@ -105,13 +105,11 @@ class SDK:
     def _get_batch(
         self,
         id: str,
-    ):
+    ) -> Dict[str, Any]:
         try:
             return self._client._get_batch(id)
         except HTTPError as e:
-            raise BatchFetchingError(
-                f"Couldn't fetch batch data due to a client error: {e}"
-            )
+            raise BatchFetchingError(e)
 
     def create_batch(
         self,
@@ -173,9 +171,7 @@ class SDK:
         try:
             batch_rsp = self._client._send_batch(req)
         except HTTPError as e:
-            raise BatchCreationError(
-                f"Couldn't create batch due to a client error: {e}"
-            )
+            raise BatchCreationError(e)
 
         batch_id = batch_rsp["id"]
         if wait or fetch_results:
@@ -227,7 +223,7 @@ class SDK:
         batch = Batch(**batch_rsp, _client=self._client)
         return batch
 
-    def _get_job(self, id: str):
+    def _get_job(self, id: str) -> Dict[str, Any]:
         try:
             return self._client._get_job(id)
         except HTTPError as e:
@@ -250,7 +246,7 @@ class SDK:
         if wait:
             while job_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                job_rsp = self._get_job()
+                job_rsp = self._get_job(id)
         job = Job(**job_rsp, _client=self._client)
         return job
 
