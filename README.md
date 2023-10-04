@@ -18,7 +18,7 @@ pip install -e .
 ```
 
 Bear in mind that this installation will track the contents of your local
-pasqal-cloud repository folder, so if you checkout a different branch (e.g. `master`),
+pasqal-cloud repository folder, so if you check out a different branch (e.g. `master`),
 your installation will change accordingly.
 
 ### Development Requirements (Optional)
@@ -60,8 +60,8 @@ sdk = SDK(username=username, password=password, project_id=project_id)
 ```
 
 #### Method 2: Username only
-If you only want to insert your username, but want a solution to have your password being secret
-you can run the SDK without password. A prompt will then ask for your password
+If you only want to insert your username, but want a solution to have your password being secret,
+you can run the SDK without a password. A prompt will then ask for your password
 
 ```python
 sdk = SDK(username=username, project_id=project_id)
@@ -87,7 +87,7 @@ custom _query_token method which fetches your token. See Auth0TokenProvider impl
 The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
 to Pasqal APIs using an API token generated in the [user portal](https://portal.pasqal.cloud).
 
-A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch you must set a value for each variable, if any, defined in your sequence.
+A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch, you must set a value for each variable, if any, defined in your sequence.
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
@@ -112,7 +112,7 @@ Then, send the batch of jobs to the QPU and wait for the results:
 batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 ```
 
-You can also choose to run your batch on an emulator using the optional argument 'emulator'.
+You can also choose to run your batch on an emulator using the optional argument `emulator`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
 
 ```python
@@ -130,6 +130,10 @@ for job in batch.ordered_jobs:
 ```
 
 ### Create a workload
+
+A workload is a single unit of work to be computed by emulators or qpu.
+It is defined by a type (qadence_circuit, algorithm_dqgm, …) and a config.
+This config must be generated with the appropriate library for the desired type.
 
 You can create a workload through the SDK with the following command:
 
@@ -157,7 +161,7 @@ print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload
 
 ## Advanced usage
 
-### Extra emulator configuration (Soon publicly available)
+### Extra emulator configuration
 
 Some emulators, such as EMU_TN and EMU_FREE, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
@@ -171,7 +175,7 @@ configuration = EmuTNConfig(dt = 10.0, precision = "normal", max_bond_dim = 100)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
 ```
 
-For EMU_FREE you may add some default SPAM noise. Beware this makes your job take much longer.
+For EMU_FREE, you may add some default SPAM noise. Beware this makes your job take much longer.
 
 ```python
 from pasqal_cloud.device import EmulatorType, EmuFreeConfig
@@ -184,9 +188,9 @@ Replace the corresponding section in the above code examples with this to add fu
 
 ### List of supported device specifications
 
-The SDK provides a method to retrieve the devices specs currently defined on PASQAL's cloud platform.
-They define the physical constraints of our QPUs and these constraints enforce some rules on
-the pulser sequence that can be run on QPUs (e.g. max amount of atoms, available pulse channels, ...)
+The SDK provides a method to retrieve the device specs currently defined on PASQAL's cloud platform.
+They define the physical constraints of our QPUs, and these constraints enforce some rules on
+the pulser sequence that can be run on QPUs (e.g., max number of atoms, available pulse channels, ...)
 
 ```python
 sdk.get_device_specs_dict()
@@ -197,7 +201,7 @@ to instantiate a `Device` instance in the `Pulser` library.
 
 ### Target different API endpoints
 
-This is intended to the package developers or users which were given access to non-prod
+This is intended for the package developers or users which were given access to non-prod
 environments of the PASQAL cloud platform.
 
 To target a specific environment (`prod`, `preprod` or `dev`), instantiate the SDK class using
