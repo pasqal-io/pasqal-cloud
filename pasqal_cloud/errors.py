@@ -1,46 +1,118 @@
-# Copyright 2020 Pasqal Cloud Services development team
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+class BatchException(BaseException):
+    """
+    Base Exception class for batches
+    """
 
 
-import json
+class BatchCreationError(BatchException):
+    """
+    Exception class when batch creation failed
+    """
 
-from pasqal_cloud.utils.jsend import JSendPayload
-
-
-class HTTPError(Exception):
-    code: int
-    message: str
-    description: str
-    details: JSendPayload
-
-    def __init__(self, data: JSendPayload, *args: object) -> None:
-        super().__init__(*args)
-        self.code = data.get("code", 0)
-
-        # If no error description, display default response message instead
-        if data.get("data", ""):
-            self.description = data["data"].get("description", data.get("message"))
-        else:
-            self.description = data.get("message", "")
-        self.details = data
-
-    def __str__(self) -> str:
-        return (
-            f"Error {self.code}: {self.description}\n"
-            f"Details: {json.dumps(self.details, indent=2)}"
-        )
+    def __init__(self, e: Exception):
+        super().__init__(f"Batch creation failed: {e}")
 
 
-class LoginError(Exception):
-    pass
+class BatchFetchingError(BatchException):
+    """
+    Exception class raised when batch fetching failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Batch fetching failed: {e}")
+
+
+class BatchCancellingError(BatchException):
+    """
+    Exception class raised when batch cancelling failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Batch cancelling failed: {e}")
+
+
+class BatchSetCompleteError(BatchException):
+    """
+    Exception class raised when setting batch to complete failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Batch setting to complete failed: {e}")
+
+
+class JobException(BaseException):
+    """
+    Base Exception class for jobs.
+    """
+
+
+class JobCreationError(JobException):
+    """
+    Exception class raised when job creation failed.
+    """
+
+
+class JobFetchingError(JobException):
+    """
+    Exception class raised when job fetching failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Job fetching failed: {e}")
+
+
+class JobCancellingError(JobException):
+    """
+    Exception class raised when job cancelling failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Job cancelling failed: {e}")
+
+
+class WorkloadException(BaseException):
+    """
+    Base exception class for workloads.
+    """
+
+
+class WorkloadFetchingError(WorkloadException):
+    """
+    Exception class raised when workload fetching failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Workload fetching failed: {e}")
+
+
+class WorkloadCreationError(WorkloadException):
+    """
+    Exception class raised when workload creation failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Job creation failed: {e}")
+
+
+class WorkloadCancellingError(WorkloadException):
+    """
+    Exception class raised when cancelling workload failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Workload cancelling failed: {e}")
+
+
+class DeviceSpecsException(BaseException):
+    """
+    Base Exception class for device specs
+    """
+
+
+class DeviceSpecsFetchingError(DeviceSpecsException):
+    """
+    Exception class raised when fetching of device specs failed.
+    """
+
+    def __init__(self, e: Exception):
+        super().__init__(f"Device specs fetching failed: {e}")

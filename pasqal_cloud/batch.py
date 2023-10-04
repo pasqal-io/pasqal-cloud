@@ -3,10 +3,18 @@ from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
 from pydantic import BaseModel, Extra, root_validator, validator
+from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType
 from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.errors import (
+    BatchFetchingError,
+    BatchSetCompleteError,
+    BatchCancellingError,
+    JobCreationError,
+    JobFetchingError,
+)
 from pasqal_cloud.job import Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
@@ -131,13 +139,19 @@ class Batch(BaseModel):
         job_data: Dict[str, Any] = {"runs": runs, "batch_id": self.id}
         if variables:
             job_data["variables"] = variables
-        job_rsp = self._client._send_job(job_data)
+        try:
+            job_rsp = self._client._send_job(job_data)
+        except HTTPError as e:
+            raise JobCreationError(e)
         job = Job(**job_rsp, _client=self._client)
         self.ordered_jobs.append(job)
         if wait:
             while job.status in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                job_rsp = self._client._get_job(job.id)
+                try:
+                    job_rsp = self._client._get_job(job.id)
+                except HTTPError as e:
+                    raise JobFetchingError(e)
                 job = Job(**job_rsp)
         return job
 
@@ -155,14 +169,20 @@ class Batch(BaseModel):
         will be executed before the batch is terminated. When all its jobs are done,
         the complete batch is unassigned to its running device.
         """
-        batch_rsp = self._client._complete_batch(self.id)
+        try:
+            batch_rsp = self._client._complete_batch(self.id)
+        except HTTPError as e:
+            raise BatchSetCompleteError(e)
         self.complete = True
         if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._client._get_batch(
-                    self.id,
-                )
+                try:
+                    batch_rsp = self._client._get_batch(
+                        self.id,
+                    )
+                except HTTPError as e:
+                    raise BatchFetchingError(e)
             self.ordered_jobs = [
                 Job(**job, _client=self._client) for job in batch_rsp["jobs"]
             ]
@@ -171,6 +191,9 @@ class Batch(BaseModel):
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current batch on the PCS."""
-        batch_rsp = self._client._cancel_batch(self.id)
+        try:
+            batch_rsp = self._client._cancel_batch(self.id)
+        except HTTPError as e:
+            raise BatchCancellingError(e)
         self.status = batch_rsp.get("status", "CANCELED")
         return batch_rsp

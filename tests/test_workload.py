@@ -4,6 +4,11 @@ from uuid import uuid4
 import pytest
 
 from pasqal_cloud import SDK, Workload
+from pasqal_cloud.errors import (
+    WorkloadCancellingError,
+    WorkloadCreationError,
+    WorkloadFetchingError,
+)
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
@@ -13,7 +18,7 @@ class TestWorkload:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    def init_sdk(self, start_mock_request):
+    def init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
             password="password",
@@ -25,7 +30,7 @@ class TestWorkload:
         self.config = {"test1": "test1", "test2": 2}
         self.workload_result = {"1001": 12, "0110": 35, "1111": 1}
 
-    def test_create_workload(self):
+    def test_create_workload(self, mock_request):
         workload = self.sdk.create_workload(
             backend=self.backend,
             workload_type=self.workload_type,
@@ -35,8 +40,27 @@ class TestWorkload:
         assert workload.backend == self.backend
         assert workload.workload_type == self.workload_type
         assert workload.config == self.config
+        assert (
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/workloads"
+        )
+        assert mock_request.last_request.method == "POST"
 
-    def test_create_workload_and_wait(self, request_mock):
+    def test_create_workload_error(self, mock_request_exception):
+        with pytest.raises(WorkloadCreationError):
+            _ = self.sdk.create_workload(
+                backend=self.backend,
+                workload_type=self.workload_type,
+                config=self.config,
+            )
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/workloads"
+        )
+        assert mock_request_exception.last_request.method == "POST"
+
+    def test_create_workload_and_wait(self, mock_request):
         workload = self.sdk.create_workload(
             backend=self.backend,
             workload_type=self.workload_type,
@@ -48,32 +72,64 @@ class TestWorkload:
         assert workload.workload_type == self.workload_type
         assert workload.config == self.config
         assert workload.result == self.workload_result
-        assert request_mock.last_request.method == "GET"
+        assert mock_request.last_request.method == "GET"
 
-    def test_get_workload(self, request_mock, workload):
+    def test_get_workload(self, mock_request, workload):
         workload_requested = self.sdk.get_workload(workload.id)
         assert workload_requested.id == self.workload_id
         assert (
-            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v1/workloads/{self.workload_id}"
         )
 
-    def test_cancel_workload_self(self, request_mock, workload):
+    def test_get_workload_error(self, mock_request_exception, workload):
+        with pytest.raises(WorkloadFetchingError):
+            _ = self.sdk.get_workload(workload.id)
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/workloads/{self.workload_id}"
+        )
+        assert mock_request_exception.last_request.method == "GET"
+
+    def test_cancel_workload_self(self, mock_request, workload):
         workload.cancel()
         assert workload.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v1/workloads/{self.workload_id}/cancel"
         )
 
-    def test_cancel_workload_sdk(self, request_mock, workload):
+    def test_cancel_workload_self_error(self, mock_request_exception, workload):
+        with pytest.raises(WorkloadCancellingError):
+            workload.cancel()
+        assert workload.status == "PENDING"
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/workloads/{self.workload_id}/cancel"
+        )
+
+    def test_cancel_workload_sdk(self, mock_request, workload):
         client_rsp = self.sdk.cancel_workload(self.workload_id)
         assert type(client_rsp) == Workload
         assert client_rsp.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/workloads/{self.workload_id}/cancel"
+        )
+
+    def test_cancel_workload_sdk_error(self, mock_request_exception, workload):
+        with pytest.raises(WorkloadCancellingError):
+            _ = self.sdk.cancel_workload(self.workload_id)
+        assert workload.status == "PENDING"
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
             f"/api/v1/workloads/{self.workload_id}/cancel"
         )
 
