@@ -54,6 +54,6 @@ class Workload(BaseModel):
         try:
             workload_rsp = self._client._cancel_workload(self.id)
         except HTTPError as e:
-            raise WorkloadCancellingError(e)
+            raise WorkloadCancellingError from e
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp

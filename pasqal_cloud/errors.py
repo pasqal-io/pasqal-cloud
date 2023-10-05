@@ -9,8 +9,8 @@ class BatchCreationError(BatchException):
     Exception class when batch creation failed
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Batch creation failed: {e}")
+    def __init__(self):
+        super().__init__("Batch creation failed.")
 
 
 class BatchFetchingError(BatchException):
@@ -18,8 +18,8 @@ class BatchFetchingError(BatchException):
     Exception class raised when batch fetching failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Batch fetching failed: {e}")
+    def __init__(self):
+        super().__init__("Batch fetching failed.")
 
 
 class BatchCancellingError(BatchException):
@@ -27,8 +27,8 @@ class BatchCancellingError(BatchException):
     Exception class raised when batch cancelling failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Batch cancelling failed: {e}")
+    def __init__(self):
+        super().__init__("Batch cancelling failed.")
 
 
 class BatchSetCompleteError(BatchException):
@@ -36,8 +36,8 @@ class BatchSetCompleteError(BatchException):
     Exception class raised when setting batch to complete failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Batch setting to complete failed: {e}")
+    def __init__(self):
+        super().__init__("Batch setting to complete failed.")
 
 
 class JobException(BaseException):
@@ -57,8 +57,8 @@ class JobFetchingError(JobException):
     Exception class raised when job fetching failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Job fetching failed: {e}")
+    def __init__(self):
+        super().__init__("Job fetching failed.")
 
 
 class JobCancellingError(JobException):
@@ -66,8 +66,8 @@ class JobCancellingError(JobException):
     Exception class raised when job cancelling failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Job cancelling failed: {e}")
+    def __init__(self):
+        super().__init__("Job cancelling failed.")
 
 
 class WorkloadException(BaseException):
@@ -81,8 +81,8 @@ class WorkloadFetchingError(WorkloadException):
     Exception class raised when workload fetching failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Workload fetching failed: {e}")
+    def __init__(self):
+        super().__init__("Workload fetching failed.")
 
 
 class WorkloadCreationError(WorkloadException):
@@ -90,8 +90,8 @@ class WorkloadCreationError(WorkloadException):
     Exception class raised when workload creation failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Job creation failed: {e}")
+    def __init__(self):
+        super().__init__("Job creation failed.")
 
 
 class WorkloadCancellingError(WorkloadException):
@@ -99,8 +99,8 @@ class WorkloadCancellingError(WorkloadException):
     Exception class raised when cancelling workload failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Workload cancelling failed: {e}")
+    def __init__(self):
+        super().__init__("Workload cancelling failed.")
 
 
 class DeviceSpecsException(BaseException):
@@ -114,5 +114,5 @@ class DeviceSpecsFetchingError(DeviceSpecsException):
     Exception class raised when fetching of device specs failed.
     """
 
-    def __init__(self, e: Exception):
-        super().__init__(f"Device specs fetching failed: {e}")
+    def __init__(self):
+        super().__init__("Device specs fetching failed.")

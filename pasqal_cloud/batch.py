@@ -142,7 +142,7 @@ class Batch(BaseModel):
         try:
             job_rsp = self._client._send_job(job_data)
         except HTTPError as e:
-            raise JobCreationError(e)
+            raise JobCreationError from e
         job = Job(**job_rsp, _client=self._client)
         self.ordered_jobs.append(job)
         if wait:
@@ -151,7 +151,7 @@ class Batch(BaseModel):
                 try:
                     job_rsp = self._client._get_job(job.id)
                 except HTTPError as e:
-                    raise JobFetchingError(e)
+                    raise JobFetchingError from e
                 job = Job(**job_rsp)
         return job
 
@@ -172,7 +172,7 @@ class Batch(BaseModel):
         try:
             batch_rsp = self._client._complete_batch(self.id)
         except HTTPError as e:
-            raise BatchSetCompleteError(e)
+            raise BatchSetCompleteError from e
         self.complete = True
         if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
@@ -182,7 +182,7 @@ class Batch(BaseModel):
                         self.id,
                     )
                 except HTTPError as e:
-                    raise BatchFetchingError(e)
+                    raise BatchFetchingError from e
             self.ordered_jobs = [
                 Job(**job, _client=self._client) for job in batch_rsp["jobs"]
             ]
@@ -194,6 +194,6 @@ class Batch(BaseModel):
         try:
             batch_rsp = self._client._cancel_batch(self.id)
         except HTTPError as e:
-            raise BatchCancellingError(e)
+            raise BatchCancellingError from e
         self.status = batch_rsp.get("status", "CANCELED")
         return batch_rsp
