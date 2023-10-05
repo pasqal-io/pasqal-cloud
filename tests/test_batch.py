@@ -119,29 +119,19 @@ class TestBatch:
         assert job.runs == self.n_job_runs
         assert len(batch.ordered_jobs) == 2
 
-    def test_batch_add_job_failure(self, request_mock, request_mock_exception):
-        request_mock.start()
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
-        )
-        request_mock.stop()
-        request_mock_exception.start()
+    def test_batch_add_job_failure(self, batch, mock_request_exception):
         with pytest.raises(JobCreationError):
             _ = batch.add_job(
                 runs=self.n_job_runs,
                 variables=self.job_variables,
             )
-        assert request_mock_exception.last_request.method == "POST"
+        assert mock_request_exception.last_request.method == "POST"
         assert (
-            request_mock_exception.last_request.url
+            mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs"
         )
-        request_mock_exception.stop()
 
-    def test_batch_add_job_and_wait_for_results(self, mock_request):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
-        )
+    def test_batch_add_job_and_wait_for_results(self, batch, mock_request):
         job = batch.add_job(
             runs=self.n_job_runs,
             variables={
@@ -162,32 +152,18 @@ class TestBatch:
         assert job.full_result == self.job_full_result
 
     @pytest.mark.usefixtures("mock_request")
-    def test_batch_declare_complete(self):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
-        )
+    def test_batch_declare_complete(self, batch):
         rsp = batch.declare_complete(wait=False)
         assert rsp["complete"]
 
-    def test_batch_declare_complete_failure(self, request_mock, request_mock_exception):
-        request_mock.start()
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
-        )
-        request_mock.stop()
-
-        request_mock_exception.start()
+    def test_batch_declare_complete_failure(self, batch, mock_request_exception):
         with pytest.raises(BatchSetCompleteError):
             _ = batch.declare_complete(wait=False)
 
         assert batch.status == "PENDING"
-        request_mock_exception.stop()
+        mock_request_exception.stop()
 
-    def test_batch_declare_complete_and_wait_for_results(self, mock_request):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
-            jobs=[self.simple_job_args],
-        )
+    def test_batch_declare_complete_and_wait_for_results(self, batch, mock_request):
         rsp = batch.declare_complete(wait=True)
         assert rsp["complete"]
         assert mock_request.last_request.method == "GET"
