@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Use `raise_for_status` on response from client before returning `data` to get accurate exception.
-- Bumped major as new exceptions are raised
+- Bumped minor as new exceptions are raised
 
 ### Removed
 
