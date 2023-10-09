@@ -3,8 +3,10 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Extra
+from requests import HTTPError
 
 from pasqal_cloud.client import Client
+from pasqal_cloud.errors import WorkloadCancellingError
 
 
 class Workload(BaseModel):
@@ -49,6 +51,9 @@ class Workload(BaseModel):
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
-        workload_rsp = self._client._cancel_workload(self.id)
+        try:
+            workload_rsp = self._client._cancel_workload(self.id)
+        except HTTPError as e:
+            raise WorkloadCancellingError from e
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp

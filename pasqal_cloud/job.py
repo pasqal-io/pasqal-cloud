@@ -1,8 +1,10 @@
 from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Extra
+from requests import HTTPError
 
 from pasqal_cloud.client import Client
+from pasqal_cloud.errors import JobCancellingError
 
 
 class Job(BaseModel):
@@ -53,6 +55,9 @@ class Job(BaseModel):
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
-        job_rsp = self._client._cancel_job(self.id)
+        try:
+            job_rsp = self._client._cancel_job(self.id)
+        except HTTPError as e:
+            raise JobCancellingError from e
         self.status = job_rsp.get("status", "CANCELED")
         return job_rsp

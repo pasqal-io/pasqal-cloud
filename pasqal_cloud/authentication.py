@@ -8,9 +8,9 @@ from auth0.v3.authentication import GetToken  # type: ignore
 from jwt import decode, DecodeError
 from requests import PreparedRequest
 from requests.auth import AuthBase
+from requests.exceptions import HTTPError
 
 from pasqal_cloud.endpoints import Auth0Conf
-from pasqal_cloud.errors import HTTPError
 
 
 class HTTPBearerAuthenticator(AuthBase):

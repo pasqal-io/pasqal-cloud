@@ -5,6 +5,14 @@ import pytest
 
 from pasqal_cloud import Batch, Job, SDK
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
+from pasqal_cloud.errors import (
+    BatchCancellingError,
+    BatchCreationError,
+    BatchSetCompleteError,
+    JobCancellingError,
+    JobCreationError,
+    JobFetchingError,
+)
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
@@ -14,7 +22,7 @@ class TestBatch:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    def init_sdk(self, start_mock_request):
+    def init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
             password="password",
@@ -40,7 +48,7 @@ class TestBatch:
         }
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
-    def test_create_batch(self, emulator):
+    def test_create_batch(self, emulator, mock_request):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
@@ -50,13 +58,22 @@ class TestBatch:
         assert batch.sequence_builder == self.pulser_sequence
         assert batch.complete
         assert batch.ordered_jobs[0].batch_id == batch.id
+        assert mock_request.last_request.method == "POST"
+
+    @pytest.mark.usefixtures("mock_request_exception")
+    def test_create_batch_failure(self, mock_request_exception):
+        with pytest.raises(BatchCreationError):
+            _ = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+            )
 
     @pytest.mark.filterwarnings(
         "ignore:Argument `fetch_results` is deprecated and will be removed "
         "in a future version. Please use argument `wait` instead"
     )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
-    def test_create_batch_and_wait(self, request_mock, wait, fetch_results):
+    def test_create_batch_and_wait(self, mock_request, wait, fetch_results):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
@@ -82,13 +99,14 @@ class TestBatch:
                 assert job.result == self.job_result
                 assert job.full_result == self.job_full_result
             assert len(batch.jobs) == len(batch.ordered_jobs)
-        assert request_mock.last_request.method == "GET"
+        assert mock_request.last_request.method == "GET"
 
+    @pytest.mark.usefixtures("mock_request")
     def test_get_batch(self, batch):
         batch_requested = self.sdk.get_batch(batch.id)
         assert batch_requested.id == self.batch_id
 
-    def test_batch_add_job(self, request_mock):
+    def test_batch_add_job(self, mock_request):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
@@ -96,15 +114,24 @@ class TestBatch:
             runs=self.n_job_runs,
             variables=self.job_variables,
         )
-        assert request_mock.last_request.json()["batch_id"] == batch.id
+        assert mock_request.last_request.json()["batch_id"] == batch.id
         assert job.batch_id == batch.id
         assert job.runs == self.n_job_runs
         assert len(batch.ordered_jobs) == 2
 
-    def test_batch_add_job_and_wait_for_results(self, request_mock):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
+    def test_batch_add_job_failure(self, batch, mock_request_exception):
+        with pytest.raises(JobCreationError):
+            _ = batch.add_job(
+                runs=self.n_job_runs,
+                variables=self.job_variables,
+            )
+        assert mock_request_exception.last_request.method == "POST"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/jobs"
         )
+
+    def test_batch_add_job_and_wait_for_results(self, batch, mock_request):
         job = batch.add_job(
             runs=self.n_job_runs,
             variables={
@@ -116,31 +143,32 @@ class TestBatch:
         )
         assert job.batch_id == batch.id
         assert job.runs == self.n_job_runs
-        assert request_mock.last_request.method == "GET"
+        assert mock_request.last_request.method == "GET"
         assert (
-            request_mock.last_request.url
+            mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}"
         )
         assert job.result == self.job_result
         assert job.full_result == self.job_full_result
 
-    def test_batch_declare_complete(self):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
-        )
+    @pytest.mark.usefixtures("mock_request")
+    def test_batch_declare_complete(self, batch):
         rsp = batch.declare_complete(wait=False)
         assert rsp["complete"]
 
-    def test_batch_declare_complete_and_wait_for_results(self, request_mock):
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
-            jobs=[self.simple_job_args],
-        )
+    def test_batch_declare_complete_failure(self, batch, mock_request_exception):
+        with pytest.raises(BatchSetCompleteError):
+            _ = batch.declare_complete(wait=False)
+
+        assert batch.status == "PENDING"
+        mock_request_exception.stop()
+
+    def test_batch_declare_complete_and_wait_for_results(self, batch, mock_request):
         rsp = batch.declare_complete(wait=True)
         assert rsp["complete"]
-        assert request_mock.last_request.method == "GET"
+        assert mock_request.last_request.method == "GET"
         assert (
-            request_mock.last_request.url
+            mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}"
         )
         assert batch.ordered_jobs[0].batch_id == batch.id
@@ -148,46 +176,98 @@ class TestBatch:
         assert batch.ordered_jobs[0].full_result == self.job_full_result
         assert len(batch.ordered_jobs) == 1
 
-    def test_cancel_batch_self(self, request_mock, batch):
+    def test_cancel_batch_self(self, mock_request, batch):
         batch.cancel()
         assert batch.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
-    def test_cancel_batch_sdk(self, request_mock):
+    def test_cancel_batch_self_error(self, mock_request_exception, batch):
+        with pytest.raises(BatchCancellingError):
+            batch.cancel()
+        assert batch.status == "PENDING"
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/cancel"
+        )
+
+    def test_cancel_batch_sdk(self, mock_request):
         client_rsp = self.sdk.cancel_batch(self.batch_id)
         assert type(client_rsp) == Batch
         assert client_rsp.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url == f"{self.sdk._client.endpoints.core}"
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
+    def test_cancel_batch_sdk_error(self, mock_request_exception):
+        with pytest.raises(BatchCancellingError):
+            _ = self.sdk.cancel_batch(self.batch_id)
+
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/cancel"
+        )
+
+    @pytest.mark.usefixtures("mock_request")
     def test_get_job(self, job):
         job_requested = self.sdk.get_job(job.id)
         print(self.sdk)
         assert job_requested.id == job.id
 
-    def test_cancel_job_self(self, request_mock, job):
+    def test_get_job_error(self, job, mock_request_exception):
+        with pytest.raises(JobFetchingError):
+            _ = self.sdk.get_job(job.id)
+        assert mock_request_exception.last_request.method == "GET"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/jobs/{job.id}"
+        )
+
+    def test_cancel_job_self(self, mock_request, job):
         job.cancel()
         assert job.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url
+            mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_sdk(self, request_mock):
+    def test_cancel_job_self_error(self, mock_request_exception, job):
+        with pytest.raises(JobCancellingError):
+            job.cancel()
+        assert job.status == "PENDING"
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+        )
+
+    def test_cancel_job_sdk(self, mock_request):
         client_rsp = self.sdk.cancel_job(self.job_id)
         assert type(client_rsp) == Job
         assert client_rsp.status == "CANCELED"
-        assert request_mock.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PUT"
         assert (
-            request_mock.last_request.url
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+        )
+
+    def test_cancel_job_sdk_error(self, mock_request_exception, job):
+        with pytest.raises(JobCancellingError):
+            _ = self.sdk.cancel_job(self.job_id)
+        assert mock_request_exception.last_request.method == "PUT"
+        assert (
+            mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
         )
 
@@ -208,6 +288,7 @@ class TestBatch:
             ),
         ],
     )
+    @pytest.mark.usefixtures("mock_request")
     def test_create_batch_configuration(self, emulator, configuration, expected):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
@@ -233,6 +314,7 @@ class TestBatch:
             new_batch.new_field == "any_value"
         )  # The new value should be stored regardless
 
+    @pytest.mark.usefixtures("mock_request")
     def test_create_batch_fetch_results_deprecated(
         self,
     ):
@@ -243,6 +325,7 @@ class TestBatch:
                 fetch_results=True,
             )
 
+    @pytest.mark.usefixtures("mock_request")
     def test_get_batch_fetch_results_deprecated(
         self,
     ):
