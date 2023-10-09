@@ -2,10 +2,16 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Extra, validator
 import requests
+from pydantic import BaseModel, Extra, validator
+from requests import HTTPError
 
 from pasqal_cloud.client import Client
+from pasqal_cloud.errors import (
+    InvalidWorkloadResultsFormatError,
+    WorkloadCancellingError,
+    WorkloadResultsDownloadError,
+)
 
 
 class Workload(BaseModel):
@@ -51,7 +57,10 @@ class Workload(BaseModel):
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
-        workload_rsp = self._client._cancel_workload(self.id)
+        try:
+            workload_rsp = self._client._cancel_workload(self.id)
+        except HTTPError as e:
+            raise WorkloadCancellingError from e
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
 
@@ -65,8 +74,8 @@ class Workload(BaseModel):
         try:
             res = requests.get(result_link)
             data = res.json()
-        except Exception:
-            raise ValueError("Invalid result link.")
+        except Exception as e:
+            raise WorkloadResultsDownloadError from e
         if not isinstance(data, dict):
-            raise ValueError("Invalid format for results.")
+            raise InvalidWorkloadResultsFormatError(type(data))
         return data

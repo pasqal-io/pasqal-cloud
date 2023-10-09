@@ -25,7 +25,6 @@ from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
-from pasqal_cloud.errors import HTTPError
 from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -108,9 +107,8 @@ class Client:
             headers={"content-type": "application/json"},
             auth=self.authenticator,
         )
+        rsp.raise_for_status()
         data: JSendPayload = rsp.json()
-        if rsp.status_code >= 400:
-            raise HTTPError(data)
 
         return data
 

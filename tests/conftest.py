@@ -60,11 +60,26 @@ def request_mock(mock=None):
     return mock
 
 
+@pytest.fixture(scope="session")
+@requests_mock.Mocker(kw="mock")
+def request_mock_exception(mock=None):
+    # Configure requests to use the local JSON files a response
+    mock.register_uri(requests_mock.ANY, requests_mock.ANY, status_code=400)
+    return mock
+
+
 @pytest.fixture(scope="function")
-def start_mock_request(request_mock):
+def mock_request(request_mock):
     request_mock.start()
     yield request_mock
     request_mock.stop()
+
+
+@pytest.fixture(scope="function")
+def mock_request_exception(request_mock_exception):
+    request_mock_exception.start()
+    yield request_mock_exception
+    request_mock_exception.stop()
 
 
 @pytest.fixture

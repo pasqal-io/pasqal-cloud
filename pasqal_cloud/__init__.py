@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import time
+from requests.exceptions import HTTPError
 from typing import Any, Dict, List, Optional
 from warnings import warn
 
@@ -25,6 +26,17 @@ from pasqal_cloud.endpoints import (  # noqa: F401
     Auth0Conf,
     Endpoints,
     PASQAL_ENDPOINTS,
+)
+from pasqal_cloud.errors import (
+    BatchCancellingError,
+    BatchCreationError,
+    BatchFetchingError,
+    DeviceSpecsFetchingError,
+    JobCancellingError,
+    JobFetchingError,
+    WorkloadCancellingError,
+    WorkloadCreationError,
+    WorkloadFetchingError,
 )
 from pasqal_cloud.job import Job
 from pasqal_cloud.workload import Workload
@@ -52,8 +64,8 @@ class SDK:
         You may omit the password, you will then be prompted to enter one.
 
         Args:
-            username: email of the user to login as.
-            password: password of the user to login as.
+            username: Email of the user to login as.
+            password: Password of the user to login as.
             token_provider: The token provider is an alternative log-in method \
               not for human users.
             webhook: Webhook where the job results are automatically sent to.
@@ -90,6 +102,15 @@ class SDK:
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
 
+    def _get_batch(
+        self,
+        id: str,
+    ) -> Dict[str, Any]:
+        try:
+            return self._client._get_batch(id)
+        except HTTPError as e:
+            raise BatchFetchingError from e
+
     def create_batch(
         self,
         serialized_sequence: str,
@@ -118,6 +139,10 @@ class SDK:
 
         Returns:
             Batch: The new batch that has been created in the database.
+
+        Raises:
+            BatchCreationError: If batch creation failed
+            BatchFetchingError: If batch fetching failed
         """
         if fetch_results:
             warn(
@@ -143,12 +168,16 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore
 
-        batch_rsp = self._client._send_batch(req)
+        try:
+            batch_rsp = self._client._send_batch(req)
+        except HTTPError as e:
+            raise BatchCreationError from e
+
         batch_id = batch_rsp["id"]
         if wait or fetch_results:
             while batch_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._client._get_batch(batch_id)
+                batch_rsp = self._get_batch(batch_id)
 
         batch = Batch(**batch_rsp, _client=self._client)
 
@@ -165,6 +194,9 @@ class SDK:
 
         Returns:
             Batch: the batch stored in the PCS database.
+
+        Raises:
+            BatchFetchingError: in case fetching failed
         """
         if fetch_results:
             warn(
@@ -173,7 +205,7 @@ class SDK:
                 DeprecationWarning,
                 stacklevel=2,
             )
-        batch_rsp = self._client._get_batch(id)
+        batch_rsp = self._get_batch(id)
         batch = Batch(**batch_rsp, _client=self._client)
         self.batches[batch.id] = batch
         return batch
@@ -184,9 +216,18 @@ class SDK:
         Args:
             id: ID of the batch.
         """
-        batch_rsp = self._client._cancel_batch(id)
+        try:
+            batch_rsp = self._client._cancel_batch(id)
+        except HTTPError as e:
+            raise BatchCancellingError from e
         batch = Batch(**batch_rsp, _client=self._client)
         return batch
+
+    def _get_job(self, id: str) -> Dict[str, Any]:
+        try:
+            return self._client._get_job(id)
+        except HTTPError as e:
+            raise JobFetchingError from e
 
     def get_job(self, id: str, wait: bool = False) -> Job:
         """Retrieve a job's data.
@@ -196,13 +237,16 @@ class SDK:
             wait: Whether to wait for the job to be done
 
         Returns:
-            Job: the job stored in the PCS database.
+            Job: The job stored in the PCS database.
+
+        Raises:
+            JobFetchingError: If fetching failed.
         """
-        job_rsp = self._client._get_job(id)
+        job_rsp = self._get_job(id)
         if wait:
             while job_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
-                job_rsp = self._client._get_job(id)
+                job_rsp = self._get_job(id)
         job = Job(**job_rsp, _client=self._client)
         return job
 
@@ -212,16 +256,26 @@ class SDK:
         Args:
             id: ID of the job.
         """
-        job_rsp = self._client._cancel_job(id)
+        try:
+            job_rsp = self._client._cancel_job(id)
+        except HTTPError as e:
+            raise JobCancellingError from e
+
         job = Job(**job_rsp, _client=self._client)
         return job
+
+    def _get_workload(self, id: str) -> Dict[str, Any]:
+        try:
+            return self._client._get_workload(id)
+        except HTTPError as e:
+            raise WorkloadFetchingError from e
 
     def wait_for_workload(
         self, id: str, workload_rsp: Dict[str, Any]
     ) -> Dict[str, Any]:
         while workload_rsp["status"] in ["PENDING", "RUNNING"]:
             time.sleep(RESULT_POLLING_INTERVAL)
-            workload_rsp = self._client._get_workload(id)
+            workload_rsp = self._get_workload(id)
         return workload_rsp
 
     def create_workload(
@@ -231,15 +285,32 @@ class SDK:
         config: Dict[str, Any],
         wait: bool = False,
     ) -> Workload:
+        """Create a workload to be scheduled for execution.
+
+        Args:
+            workload_type: The type of workload to create.
+            backend: The backend to run the workload on.
+            config: The config that defines the workload.
+            wait: Whether to wait for completion to fetch results.
+
+        Returns:
+            workload: The created workload instance.
+
+        Raises:
+            WorkloadCreationError: If creation failed.
+
+        """
         req = {
             "workload_type": workload_type,
             "backend": backend,
             "config": config,
         }
-        workload_rsp = self._client._send_workload(req)
+        try:
+            workload_rsp = self._client._send_workload(req)
+        except HTTPError as e:
+            raise WorkloadCreationError from e
         if wait:
             workload_rsp = self.wait_for_workload(workload_rsp["id"], workload_rsp)
-
         workload = Workload(**workload_rsp, _client=self._client)
 
         self.workloads[workload.id] = workload
@@ -250,24 +321,36 @@ class SDK:
 
         Args:
             id: ID of the workload.
-            wait: Whether to wait for the workload to be done
+            wait: Whether to wait for the workload to be done.
 
         Returns:
-            Job: the workload stored in the PCS database.
+            workload: The workload stored in the PCS database.
+
+        Raises:
+            WorkloadFetchingError: If fetching failed.
         """
-        workload_rsp = self._client._get_workload(id)
+        workload_rsp = self._get_workload(id)
         if wait:
             workload_rsp = self.wait_for_workload(id, workload_rsp)
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
 
     def cancel_workload(self, id: str) -> Workload:
-        """Cancel the given workload on the PCS
+        """Cancel the given workload on the PCS.
 
         Args:
             id: Workload id.
+
+        Returns:
+            workload: The canceled workload.
+
+        Raises:
+            WorkloadCancelingError: If cancelation failed.
         """
-        workload_rsp = self._client._cancel_workload(id)
+        try:
+            workload_rsp = self._client._cancel_workload(id)
+        except HTTPError as e:
+            raise WorkloadCancellingError from e
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
 
@@ -275,7 +358,13 @@ class SDK:
         """Retrieve the list of available device specifications.
 
         Returns:
-            DeviceSpecs: the list of available device specifications.
+            DeviceSpecs: The list of available device specifications.
+
+        Raises:
+            DeviceSpecsFetchingError: If fetching of specs failed.
         """
 
-        return self._client.get_device_specs_dict()
+        try:
+            return self._client.get_device_specs_dict()
+        except HTTPError as e:
+            raise DeviceSpecsFetchingError from e

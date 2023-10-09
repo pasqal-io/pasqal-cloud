@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.3.6] - 2023-09-28
+## [0.4.1] - 2023-10-09
 
 ### Added
 
@@ -12,6 +12,22 @@ Added `result_link` field to `Workload` object
 
 - `get_workload` now targets v2 of workloads endpoints
 - `result` is built from `result_link` where results are downloaded from temp s3 link
+
+## [0.4.0] - 2023-10-02
+
+### Added
+
+- Added exception classes for all possible failures (mostly related to client errors).
+- Added try-catch to corresponding methods to raise proper error
+
+### Changed
+
+- Use `raise_for_status` on response from client before returning `data` to get accurate exception.
+- Bumped minor as new exceptions are raised
+
+### Removed
+
+- Removed obsolete `HTTPError` and `LoginError` classes.
 
 ## [0.3.5] - 2023-07-21
 
