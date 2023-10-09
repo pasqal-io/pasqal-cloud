@@ -68,7 +68,7 @@ class Workload(BaseModel):
     def result_link_to_result(
         cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
-        result_link: Optional[str] = values["result_link"]
+        result_link: Optional[str] = values.get("result_link")
         if result or not result_link:
             return result
         try:
