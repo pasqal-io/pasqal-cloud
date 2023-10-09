@@ -33,7 +33,7 @@
 - [ ] Tests were run locally.
 
 #### Internal tests pipeline (PASQAL developers only)
-- [ ] Update the internal tests then launch them while targeting the branch of this PR.
+- [ ] Update and run the internal tests while targeting the branch of this PR.
  If your PR hasn't changed any functionality, it still needs to be validated against internal tests.
 
 #### After updating the version (PASQAL developers only)

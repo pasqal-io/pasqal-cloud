@@ -40,7 +40,7 @@ pre-commit install
 
 ### Authentication
 
-There are several ways to provide a correct authentication using the SDK.
+There are several ways to authenticate using the SDK.
 
 ```python
 from pasqal_cloud import SDK
@@ -49,8 +49,6 @@ project_id = "your_project_id"  # Replace this value with your project_id on the
 username = "your_username"  # Replace this value with your username or email on the PASQAL platform.
 password = "your_password"  # Replace this value with your password on the PASQAL platform.
 ```
-
-Ideally, do not write this password in a script but provide in through the command-line or as a secret environment variable.
 
 #### Method 1: Username + Password
 If you know your credentials, you can pass them to the SDK instance on creation.
@@ -69,7 +67,7 @@ sdk = SDK(username=username, project_id=project_id)
 
 #### Method 3: Use a custom token provider
 You can define a custom class to provide the token.
-For example, if you know your token, you can use that token to authenticate directly to our APIs as follows.
+For example, if you have a token, you can use it to authenticate with our APIs:
 
 ```python
 class CustomTokenProvider(TokenProvider):
@@ -84,20 +82,17 @@ custom _query_token method which fetches your token. See Auth0TokenProvider impl
 
 ### Create a batch of jobs
 
-The package main component is a python object called `SDK` which can be used to create a `Batch` and send it automatically
-to Pasqal APIs using an API token generated in the [user portal](https://portal.pasqal.cloud).
+The package main component is a python object called `SDK` which can be used to create a `Batch`.
 
 A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch, you must set a value for each variable, if any, defined in your sequence.
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
-The sequence should be a pulser Sequence object, once you have created it, you should serialize it as follows:
+The sequence should be a pulser Sequence object. Once it's created, you can serialize like so:
 
 ```python
 serialized_sequence = sequence.to_abstract_repr()
 ```
-
-Once you are login and have serialized your sequence, the last step is to define your jobs.
 
 When creating a job, select a number of runs and set the desired values for the variables defined in the sequence.
 
@@ -122,7 +117,7 @@ batch = sdk.create_batch(
 )
 ```
 
-Once the QPU has returned the results, you can access them with the following:
+Once the API has returned the results, you can access them with the following:
 
 ```python
 for job in batch.ordered_jobs:
@@ -131,7 +126,7 @@ for job in batch.ordered_jobs:
 
 ### Create a workload
 
-A workload is a single unit of work to be computed by emulators or qpu.
+A workload is a single unit of work to be computed by emulators or a QPU.
 It is defined by a type (qadence_circuit, algorithm_dqgm, …) and a config.
 This config must be generated with the appropriate library for the desired type.
 
@@ -153,7 +148,7 @@ Or refresh the workload status/results by with the following:
 workload=sdk.get_workload(workload.id)
 ```
 
-Once the workload has been processed you can fetch the result like this:
+Once the workload has been processed, you can fetch the result like this:
 
 ```python
 print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload.result}")
@@ -184,7 +179,7 @@ configuration = EmuFreeConfig(with_noise=True)
 batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
 ```
 
-Replace the corresponding section in the above code examples with this to add further configuration.
+Replace the corresponding section in the code examples above with this to add further configuration.
 
 ### List of supported device specifications
 
