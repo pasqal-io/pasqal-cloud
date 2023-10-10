@@ -10,10 +10,10 @@ To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have 
 pip install pasqal-cloud
 ```
 
-If you wish to **install the development version of the pasqal_cloud from source** instead, do the following from within this repository after cloning it:
+If you wish to **install the development version of the pasqal-cloud from source** instead, do the following from within this repository after cloning it:
 
 ```bash
-git checkout develop
+git checkout dev
 pip install -e .
 ```
 
@@ -40,7 +40,7 @@ pre-commit install
 
 ### Authentication
 
-There are several ways to authenticate using the SDK.
+There are several ways to authenticate using the SDK:
 
 ```python
 from pasqal_cloud import SDK
@@ -51,7 +51,7 @@ password = "your_password"  # Replace this value with your password on the PASQA
 ```
 
 #### Method 1: Username + Password
-If you know your credentials, you can pass them to the SDK instance on creation.
+If you know your credentials, you can pass them to the SDK instance on creation:
 
 ```python
 sdk = SDK(username=username, password=password, project_id=project_id)
@@ -59,7 +59,7 @@ sdk = SDK(username=username, password=password, project_id=project_id)
 
 #### Method 2: Username only
 If you only want to insert your username, but want a solution to have your password being secret,
-you can run the SDK without a password. A prompt will then ask for your password
+you can run the SDK without a password. A prompt will then ask for your password:
 
 ```python
 sdk = SDK(username=username, project_id=project_id)
@@ -89,13 +89,13 @@ A `Batch` is a group of jobs with the same sequence that will run on the same QP
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
-The sequence should be a pulser Sequence object. Once it's created, you can serialize like so:
+The sequence should be a pulser sequence object. Once it's created, you can serialize like so:
 
 ```python
 serialized_sequence = sequence.to_abstract_repr()
 ```
 
-When creating a job, select a number of runs and set the desired values for the variables defined in the sequence.
+When creating a job, select a number of runs and set the desired values for the variables defined in the sequence:
 
 ```python
 job1 = {"runs": 20, "variables": {"omega_max": 6}}
@@ -109,7 +109,7 @@ batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
 ```
 
 You can also choose to run your batch on an emulator using the optional argument `emulator`.
-For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator.
+For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
 ```python
 from pasqal_cloud.device import EmulatorType
