@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Extra
+import requests
+from pydantic import BaseModel, Extra, validator
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
-from pasqal_cloud.errors import WorkloadCancellingError
+from pasqal_cloud.errors import (
+    InvalidWorkloadResultsFormatError,
+    WorkloadCancellingError,
+    WorkloadResultsDownloadError,
+)
 
 
 class Workload(BaseModel):
@@ -43,6 +48,7 @@ class Workload(BaseModel):
     errors: Optional[List[str]] = None
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
+    result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
     class Config:
@@ -57,3 +63,19 @@ class Workload(BaseModel):
             raise WorkloadCancellingError(e) from e
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
+
+    @validator("result")
+    def result_link_to_result(
+        cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        result_link: Optional[str] = values.get("result_link")
+        if result or not result_link:
+            return result
+        try:
+            res = requests.get(result_link)
+            data = res.json()
+        except Exception as e:
+            raise WorkloadResultsDownloadError from e
+        if not isinstance(data, dict):
+            raise InvalidWorkloadResultsFormatError(type(data))
+        return data
