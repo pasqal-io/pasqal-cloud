@@ -109,7 +109,7 @@ class SDK:
         try:
             return self._client._get_batch(id)
         except HTTPError as e:
-            raise BatchFetchingError from e
+            raise BatchFetchingError(e) from e
 
     def create_batch(
         self,
@@ -171,7 +171,7 @@ class SDK:
         try:
             batch_rsp = self._client._send_batch(req)
         except HTTPError as e:
-            raise BatchCreationError from e
+            raise BatchCreationError(e) from e
 
         batch_id = batch_rsp["id"]
         if wait or fetch_results:
@@ -219,7 +219,7 @@ class SDK:
         try:
             batch_rsp = self._client._cancel_batch(id)
         except HTTPError as e:
-            raise BatchCancellingError from e
+            raise BatchCancellingError(e) from e
         batch = Batch(**batch_rsp, _client=self._client)
         return batch
 
@@ -227,7 +227,7 @@ class SDK:
         try:
             return self._client._get_job(id)
         except HTTPError as e:
-            raise JobFetchingError from e
+            raise JobFetchingError(e) from e
 
     def get_job(self, id: str, wait: bool = False) -> Job:
         """Retrieve a job's data.
@@ -259,7 +259,7 @@ class SDK:
         try:
             job_rsp = self._client._cancel_job(id)
         except HTTPError as e:
-            raise JobCancellingError from e
+            raise JobCancellingError(e) from e
 
         job = Job(**job_rsp, _client=self._client)
         return job
@@ -268,7 +268,7 @@ class SDK:
         try:
             return self._client._get_workload(id)
         except HTTPError as e:
-            raise WorkloadFetchingError from e
+            raise WorkloadFetchingError(e) from e
 
     def wait_for_workload(
         self, id: str, workload_rsp: Dict[str, Any]
@@ -308,7 +308,7 @@ class SDK:
         try:
             workload_rsp = self._client._send_workload(req)
         except HTTPError as e:
-            raise WorkloadCreationError from e
+            raise WorkloadCreationError(e) from e
         if wait:
             workload_rsp = self.wait_for_workload(workload_rsp["id"], workload_rsp)
         workload = Workload(**workload_rsp, _client=self._client)
@@ -350,7 +350,7 @@ class SDK:
         try:
             workload_rsp = self._client._cancel_workload(id)
         except HTTPError as e:
-            raise WorkloadCancellingError from e
+            raise WorkloadCancellingError(e) from e
         workload = Workload(**workload_rsp, _client=self._client)
         return workload
 
@@ -367,4 +367,4 @@ class SDK:
         try:
             return self._client.get_device_specs_dict()
         except HTTPError as e:
-            raise DeviceSpecsFetchingError from e
+            raise DeviceSpecsFetchingError(e) from e

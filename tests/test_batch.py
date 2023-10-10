@@ -61,7 +61,7 @@ class TestBatch:
         assert mock_request.last_request.method == "POST"
 
     @pytest.mark.usefixtures("mock_request_exception")
-    def test_create_batch_failure(self, mock_request_exception):
+    def test_create_batch_failure(self):
         with pytest.raises(BatchCreationError):
             _ = self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,
