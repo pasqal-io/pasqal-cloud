@@ -45,7 +45,7 @@ There are several ways to authenticate using the SDK.
 ```python
 from pasqal_cloud import SDK
 
-project_id = "your_project_id"  # Replace this value with your project_id on the PASQAL platform.
+project_id = "your_project_id"  # Replace this value with your project_id on the PASQAL platform. It can be found on the user-portal, in the 'project' section.
 username = "your_username"  # Replace this value with your username or email on the PASQAL platform.
 password = "your_password"  # Replace this value with your password on the PASQAL platform.
 ```
@@ -77,8 +77,9 @@ class CustomTokenProvider(TokenProvider):
 
 sdk = SDK(token_provider=CustomTokenProvider(), project_id=project_id)
 ```
-Alternatively, create a custom TokenProvider that inherits from ExpiringTokenProvider. You should define a
-custom _query_token method which fetches your token. See Auth0TokenProvider implementation for an example.
+Alternatively, create a custom `TokenProvider` that inherits from `ExpiringTokenProvider`.
+You should define a custom '_query_token' method which fetches your token.
+See `Auth0TokenProvider` implementation for an example.
 
 ### Create a batch of jobs
 
@@ -126,9 +127,10 @@ for job in batch.ordered_jobs:
 
 ### Create a workload
 
-A workload is a single unit of work to be computed by emulators or a QPU.
-It is defined by a type (qadence_circuit, algorithm_dqgm, …) and a config.
-This config must be generated with the appropriate library for the desired type.
+A workload is a unit of work to be executed on Pasqal Cloud Services infrastructure.
+
+To submit a new workload, select a type, target one of the available
+backends and provide a configuration object to execute it.
 
 You can create a workload through the SDK with the following command:
 
