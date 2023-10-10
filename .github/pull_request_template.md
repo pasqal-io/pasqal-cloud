@@ -22,9 +22,12 @@
 
 - [ ] The title of the PR follows the right format: [{Label}] {Short Message}. Label examples: IMPROVEMENT, FIX, REFACTORING... Short message is about what your PR changes.
 
+#### Versioning (PASQAL developers only)
+
+- [ ] Update the version of pasqal-cloud in `_version.py` following the changes in your PR and by using [semantic versioning](https://semver.org/).
+
 #### Documentation
 
-- [ ] **[TEMPORARY]** — Update the version of pasqal-cloud in `_version.py` following the changes in your PR and by using [semantic versioning](https://semver.org/).
 - [ ] Update CHANGELOG.md with a description explaining briefly the changes to the users.
 
 #### Tests
