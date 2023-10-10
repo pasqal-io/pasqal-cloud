@@ -1,0 +1,20 @@
+{
+  "code": 200,
+  "data": {
+    "id": "00000000-0000-0000-0000-000000000003",
+    "project_id": "00000000-0000-0000-0000-000000000002",
+    "created_at": "2021-11-10T15:24:38.172109",
+    "errors": [],
+    "result": null,
+    "result_link": "http://invalid-link/00000000-0000-0000-0000-000000000003",
+    "backend": "backend_test",
+    "workload_type": "workload_type_test",
+    "config": { "test1": "test1", "test2": 2 },
+    "status": "DONE",
+    "updated_at": "2021-11-10T15:27:06.698066",
+    "start_timestamp": "21636558026.698066",
+    "end_timestamp": "1636558026.698066"
+  },
+  "message": "OK.",
+  "status": "success"
+}

@@ -103,6 +103,25 @@ class WorkloadCancellingError(WorkloadException):
         super().__init__("Workload cancelling failed.")
 
 
+class WorkloadResultsDownloadError(WorkloadException):
+    """
+    Exception class raised when failed to download results.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Workload results download failed.")
+
+
+class InvalidWorkloadResultsFormatError(WorkloadException):
+    """
+    Exception class raised when download results succeeded but format
+    is not as expected.
+    """
+
+    def __init__(self, result_type: type) -> None:
+        super().__init__(f"Workload results should be dict but received {result_type}")
+
+
 class DeviceSpecsException(BaseException):
     """
     Base Exception class for device specs

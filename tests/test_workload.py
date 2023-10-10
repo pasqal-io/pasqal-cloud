@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -8,11 +8,21 @@ from pasqal_cloud.errors import (
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
+    WorkloadResultsDownloadError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
+@pytest.mark.only
 class TestWorkload:
+    @pytest.fixture
+    def workload_with_link_id(self) -> str:
+        return str(UUID(int=0x2))
+
+    @pytest.fixture
+    def workload_with_invalid_link_id(self) -> str:
+        return str(UUID(int=0x3))
+
     @pytest.fixture(autouse=True)
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
@@ -79,7 +89,25 @@ class TestWorkload:
         assert workload_requested.id == self.workload_id
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/workloads/{self.workload_id}"
+            f"/api/v2/workloads/{self.workload_id}"
+        )
+
+    def test_get_workload_with_link(
+        self, mock_request, workload_with_link_id, result_link_endpoint
+    ):
+        self.sdk.get_workload(workload_with_link_id)
+        assert mock_request.last_request.url == (
+            f"{result_link_endpoint}{workload_with_link_id}"
+        )
+
+    def test_get_workload_with_invalid_link(
+        self, workload_with_invalid_link_id, mock_request
+    ):
+        with pytest.raises(WorkloadResultsDownloadError):
+            self.sdk.get_workload(workload_with_invalid_link_id)
+        assert (
+            mock_request.last_request.url
+            == "http://invalid-link/00000000-0000-0000-0000-000000000003"
         )
 
     def test_get_workload_error(self, mock_request_exception, workload):
@@ -88,7 +116,7 @@ class TestWorkload:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/workloads/{self.workload_id}"
+            f"/api/v2/workloads/{self.workload_id}"
         )
         assert mock_request_exception.last_request.method == "GET"
 

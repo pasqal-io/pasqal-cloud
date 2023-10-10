@@ -10,18 +10,24 @@ from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
+RESULT_LINK_ENDPOINT = "http://result-link/"
 JSON_FILE = "_.{}.json"
 
 
-def mock_core_response(request):
-    path = request.url.split("/api/v1/")[1].split("?")[0]
+@pytest.fixture()
+def result_link_endpoint():
+    return RESULT_LINK_ENDPOINT
 
+
+def mock_core_response(request):
+    version = request.url.split("api/")[1].split("/")[0]
+    path = request.url.split(f"{version}/")[1].split("?")[0]
     data = None
     if request.method == "POST":
         data = request.json()
 
     json_path = os.path.join(
-        TEST_API_FIXTURES_PATH, path, JSON_FILE.format(request.method)
+        TEST_API_FIXTURES_PATH, version, path, JSON_FILE.format(request.method)
     )
     with open(json_path) as json_file:
         result = json.load(json_file)
@@ -34,10 +40,17 @@ def mock_core_response(request):
         return result
 
 
+def mock_result_link_response():
+    """This mocks the response from the s3 result link."""
+    return {"some": "result"}
+
+
 def mock_response(request, context):
     """This acts as a Router to Mock the requests we make with custom behaviors."""
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
+    if request.url.startswith(RESULT_LINK_ENDPOINT):
+        return mock_result_link_response()
 
 
 @pytest.fixture(scope="session")
