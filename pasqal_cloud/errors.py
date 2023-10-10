@@ -1,8 +1,10 @@
+from typing import Optional
+
 from requests import HTTPError, Response
 
 
 class ExceptionWithResponseContext(BaseException):
-    def __init__(self, msg: str, e: HTTPError = None) -> None:
+    def __init__(self, msg: str, e: Optional[HTTPError] = None) -> None:
         if not e:
             return super().__init__(msg)
         data = "without context."
@@ -126,7 +128,16 @@ class WorkloadResultsDownloadError(WorkloadException):
     """
 
     def __init__(self, e: HTTPError) -> None:
-        super().__init__("Workload results download failed.")
+        super().__init__("Workload results download failed.", e)
+
+
+class WorkloadResultsDecodeError(WorkloadException):
+    """
+    Exception class raised when download results succeeded but decoding failed.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Workload results decoding failed.")
 
 
 class InvalidWorkloadResultsFormatError(WorkloadException):
