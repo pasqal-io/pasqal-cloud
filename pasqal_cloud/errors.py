@@ -119,7 +119,7 @@ class InvalidWorkloadResultsFormatError(WorkloadException):
     """
 
     def __init__(self, result_type: type) -> None:
-        super().__init__("Workload results should be dict but received {result_type}")
+        super().__init__(f"Workload results should be dict but received {result_type}")
 
 
 class DeviceSpecsException(BaseException):

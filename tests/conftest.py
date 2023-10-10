@@ -41,6 +41,7 @@ def mock_core_response(request):
 
 
 def mock_result_link_response():
+    """This mocks the response from the s3 result link."""
     return {"some": "result"}
 
 
