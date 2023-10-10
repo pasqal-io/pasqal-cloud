@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.2] - 2023-10-09
+
+### Added
+
+Added new base error class to inject response context data in exception message.
+Added tests for new base error class.
+
+### Changed
+
+Updated existing error to inherit from new response context exception class.
+
 ## [0.4.1] - 2023-10-09
 
 ### Added
