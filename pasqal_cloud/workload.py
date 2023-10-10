@@ -75,7 +75,7 @@ class Workload(BaseModel):
             res = requests.get(result_link)
             data = res.json()
         except Exception as e:
-            raise WorkloadResultsDownloadError from e
+            raise WorkloadResultsDownloadError(e) from e
         if not isinstance(data, dict):
             raise InvalidWorkloadResultsFormatError(type(data))
         return data

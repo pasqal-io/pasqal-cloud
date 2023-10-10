@@ -4,7 +4,7 @@ from requests import HTTPError, Response
 class ExceptionWithResponseContext(BaseException):
     def __init__(self, msg: str, e: HTTPError = None) -> None:
         if not e:
-            super().__init__(msg)
+            return super().__init__(msg)
         data = "without context."
         resp: Response = e.response
         if resp.content:

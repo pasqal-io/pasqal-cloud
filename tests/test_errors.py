@@ -25,3 +25,8 @@ def test_exception_with_response_without_context():
         ExceptionWithResponseContext, match="some message: without context."
     ):
         raise ExceptionWithResponseContext("some message", error)
+
+
+def test_exception_without_response():
+    with pytest.raises(ExceptionWithResponseContext, match="some message"):
+        raise ExceptionWithResponseContext("some message")

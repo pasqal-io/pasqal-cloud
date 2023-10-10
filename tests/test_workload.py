@@ -13,7 +13,6 @@ from pasqal_cloud.errors import (
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
-@pytest.mark.only
 class TestWorkload:
     @pytest.fixture
     def workload_with_link_id(self) -> str:

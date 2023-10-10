@@ -66,9 +66,7 @@ def request_mock(mock=None):
 def request_mock_exception(mock=None):
     # Configure requests to use the local JSON files a response
     mock.register_uri(
-        requests_mock.ANY,
-        requests_mock.ANY,
-        status_code=422,
+        requests_mock.ANY, requests_mock.ANY, status_code=422, json={"some": "error"}
     )
     return mock
 
