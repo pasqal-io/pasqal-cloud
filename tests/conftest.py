@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any, Dict
 from unittest.mock import patch
 
 import pytest
@@ -65,7 +66,44 @@ def request_mock(mock=None):
 @requests_mock.Mocker(kw="mock")
 def request_mock_exception(mock=None):
     # Configure requests to use the local JSON files a response
-    mock.register_uri(requests_mock.ANY, requests_mock.ANY, status_code=400)
+    mock.register_uri(
+        requests_mock.ANY, requests_mock.ANY, status_code=422, json={"some": "error"}
+    )
+    return mock
+
+
+@pytest.fixture(scope="session")
+def batch_creation_error_data() -> Dict[str, Any]:
+    return {
+        "status": "fail",
+        "message": "Unprocessable Entity",
+        "code": "422",
+        "data": {
+            "description": [
+                {
+                    "loc": ["body", "jobs"],
+                    "msg": "The batch sequence is not parametrized and"
+                    + "expects no variables.",
+                    "type": "value_error",
+                }
+            ]
+        },
+    }
+
+
+@pytest.fixture(scope="session")
+@requests_mock.Mocker(kw="mock")
+def request_mock_exception_batch_creation(
+    batch_creation_error_data,
+    mock=None,
+):
+    # Configure requests to use the local JSON files a response
+    mock.register_uri(
+        requests_mock.ANY,
+        requests_mock.ANY,
+        status_code=422,
+        json=batch_creation_error_data,
+    )
     return mock
 
 
@@ -81,6 +119,13 @@ def mock_request_exception(request_mock_exception):
     request_mock_exception.start()
     yield request_mock_exception
     request_mock_exception.stop()
+
+
+@pytest.fixture(scope="function")
+def mock_request_exception_batch_creation(request_mock_exception_batch_creation):
+    request_mock_exception_batch_creation.start()
+    yield request_mock_exception_batch_creation
+    request_mock_exception_batch_creation.stop()
 
 
 @pytest.fixture

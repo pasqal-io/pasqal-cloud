@@ -58,6 +58,6 @@ class Job(BaseModel):
         try:
             job_rsp = self._client._cancel_job(self.id)
         except HTTPError as e:
-            raise JobCancellingError from e
+            raise JobCancellingError(e) from e
         self.status = job_rsp.get("status", "CANCELED")
         return job_rsp

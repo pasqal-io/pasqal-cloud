@@ -8,12 +8,11 @@ from pasqal_cloud.errors import (
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
-    WorkloadResultsDownloadError,
+    WorkloadResultsDecodeError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
-@pytest.mark.only
 class TestWorkload:
     @pytest.fixture
     def workload_with_link_id(self) -> str:
@@ -103,7 +102,7 @@ class TestWorkload:
     def test_get_workload_with_invalid_link(
         self, workload_with_invalid_link_id, mock_request
     ):
-        with pytest.raises(WorkloadResultsDownloadError):
+        with pytest.raises(WorkloadResultsDecodeError):
             self.sdk.get_workload(workload_with_invalid_link_id)
         assert (
             mock_request.last_request.url
