@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from requests import HTTPError, Response
@@ -7,11 +8,21 @@ class ExceptionWithResponseContext(BaseException):
     def __init__(self, msg: str, e: Optional[HTTPError] = None) -> None:
         if not e:
             return super().__init__(msg)
-        data = "without context."
         resp: Response = e.response
-        if resp.content:
-            data = resp.json()
-        super().__init__(f"{msg}: {data}")
+        if not resp.content:
+            return super().__init__(msg)
+        data = resp.json()
+
+        code = data.get("code", 0)
+
+        if data.get("data", ""):
+            description = data["data"].get("description", data.get("message"))
+        else:
+            description = data.get("message", "")
+
+        super().__init__(
+            f"{msg}: {code}: {description}\n Details: {json.dumps(data, indent=2)}"
+        )
 
 
 class BatchException(ExceptionWithResponseContext):
