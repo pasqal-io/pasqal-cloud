@@ -17,7 +17,7 @@ def test_exception_for_response_with_description():
     with pytest.raises(
         ExceptionWithResponseContext,
         match=(
-            f"some message: {code}: {description}\n Details: "
+            f"some message: {code}: {description}\nDetails: "
             + f"{json.dumps(data, indent=2)}"
         ),
     ):
@@ -32,7 +32,7 @@ def test_exception_for_response_without_description():
     error = HTTPError(response=response)
     with pytest.raises(
         ExceptionWithResponseContext,
-        match=(f"some message: 0: message\n Details: {json.dumps(data, indent=2)}"),
+        match=(f"some message: 0: message\nDetails: {json.dumps(data, indent=2)}"),
     ):
         raise ExceptionWithResponseContext("some message", error)
 

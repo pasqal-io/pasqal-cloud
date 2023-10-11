@@ -21,7 +21,7 @@ class ExceptionWithResponseContext(BaseException):
             description = data.get("message", "")
 
         super().__init__(
-            f"{msg}: {code}: {description}\n Details: {json.dumps(data, indent=2)}"
+            f"{msg}: {code}: {description}\nDetails: {json.dumps(data, indent=2)}"
         )
 
 

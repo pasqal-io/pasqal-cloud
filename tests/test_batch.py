@@ -1,3 +1,5 @@
+import json
+import re
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -60,9 +62,19 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
 
-    @pytest.mark.usefixtures("mock_request_exception")
-    def test_create_batch_failure(self):
-        with pytest.raises(BatchCreationError):
+    @pytest.mark.usefixtures("mock_request_exception_batch_creation")
+    def test_create_batch_failure(self, batch_creation_error_data):
+        dat = batch_creation_error_data
+        with pytest.raises(
+            BatchCreationError,
+            match=(
+                re.escape(
+                    f"Batch creation failed: {dat['code']}: "
+                    f"{dat['data']['description']}\n"
+                    f"Details: {json.dumps(dat, indent=2)}"
+                )
+            ),
+        ):
             _ = self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,
                 jobs=[self.simple_job_args],
