@@ -1,10 +1,11 @@
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from pydantic import BaseModel, Extra
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.errors import JobCancellingError
+
 
 class Job(BaseModel):
     """Class for job data.
@@ -61,6 +62,7 @@ class Job(BaseModel):
         self.status = job_rsp.get("status", "CANCELED")
         return job_rsp
 
+
 class CreateJob(TypedDict, total=False):
     runs: int
-    variables: Dict[str, Any] | None
+    variables: Union[Dict[str, Any], None]
