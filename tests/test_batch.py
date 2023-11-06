@@ -18,8 +18,14 @@ from pasqal_cloud.errors import (
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.conftest import mock_core_response
 
-
 class TestBatch:
+    @pytest.fixture(autouse=True)
+    def mock_sleep(self):
+        """Fixture to mock sleep to make tests faster."""
+        with patch("time.sleep"):
+            yield
+
+
     @pytest.fixture(autouse=True)
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
@@ -142,7 +148,6 @@ class TestBatch:
         # Override the batch id so that we load the right API fixtures
         batch.id = "00000000-0000-0000-0000-000000000002"
 
-        call_count = 0
 
         # List of job statuses for each request to the get batch endpoint
         # We should keep fetching until jobs are terminated (DONE or ERROR)
@@ -156,10 +161,12 @@ class TestBatch:
             ),  # Last call, the second job has an ERROR, both jobs are now terminated
         ]
 
-        def custom_get_batch_mock(request, context):
+        call_count = 0 # Count calls to the GET endpoint
+        def custom_get_batch_mock(request, _):
             nonlocal call_count
 
             resp = mock_core_response(request)
+            # Override with custom status the fixture data
             resp["data"]["jobs"][0]["status"] = job_statuses[call_count][0]
             resp["data"]["jobs"][1]["status"] = job_statuses[call_count][1]
             call_count += 1
