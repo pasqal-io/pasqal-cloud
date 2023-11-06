@@ -15,7 +15,7 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobFetchingError,
 )
-from pasqal_cloud.job import Job
+from pasqal_cloud.job import CreateJob, Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -120,40 +120,41 @@ class Batch(BaseModel):
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
 
-    def add_job(
+    def add_jobs(
         self,
-        runs: int = 100,
-        variables: Optional[Dict[str, Any]] = None,
+        jobs: List[CreateJob],
         wait: bool = False,
-    ) -> Job:
-        """Add and send a new job for this batch.
+    ) -> Dict[str, Any]:
+        """Add and send jobs for this batch.
+
+        The batch should not be `complete` otherwise the API will return an error.
 
         Args:
-            runs: number of times the job is run on the QPU.
-            variables (optional): values for variables if sequence is parametrized.
-            wait: Whether to wait for the job to be done.
+            jobs: List of jobs to be added to the batch.
+            wait: If True, blocks until all jobs in the batch are done.
 
         Returns:
             - Job: the created job.
         """
-        job_data: Dict[str, Any] = {"runs": runs, "batch_id": self.id}
-        if variables:
-            job_data["variables"] = variables
+        # TODO: test case where variables are omitted or set to None.
         try:
-            job_rsp = self._client._send_job(job_data)
+            batch_rsp = self._client._add_jobs(self.id, jobs)
         except HTTPError as e:
             raise JobCreationError(e) from e
-        job = Job(**job_rsp, _client=self._client)
-        self.ordered_jobs.append(job)
+        self.ordered_jobs = [
+                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+            ]
         if wait:
-            while job.status in ["PENDING", "RUNNING"]:
+            while any([job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 try:
-                    job_rsp = self._client._get_job(job.id)
+                    batch_rsp = self._client._get_batch(self.id)
                 except HTTPError as e:
                     raise JobFetchingError(e) from e
-                job = Job(**job_rsp)
-        return job
+                self.ordered_jobs = [
+                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+            ]
+        return batch_rsp
 
     def declare_complete(
         self, wait: bool = False, fetch_results: bool = False

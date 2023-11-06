@@ -38,7 +38,7 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import Job
+from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.workload import Workload
 
 
@@ -114,7 +114,7 @@ class SDK:
     def create_batch(
         self,
         serialized_sequence: str,
-        jobs: List[Dict[str, Any]],
+        jobs: List[CreateJob],
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
