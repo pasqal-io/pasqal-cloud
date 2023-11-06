@@ -123,15 +123,14 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
-        batch.add_jobs(
-            [{"runs": self.n_job_runs, "variables": self.job_variables}]
-        )
+        batch.add_jobs([{"runs": self.n_job_runs, "variables": self.job_variables}])
         assert batch.id in mock_request.last_request.url
         assert len(batch.ordered_jobs) == 2
 
     def test_batch_add_jobs_failure(self, batch, mock_request_exception):
         with pytest.raises(JobCreationError):
-            _ = batch.add_jobs([{"runs": self.n_job_runs, "variables": self.job_variables}]
+            _ = batch.add_jobs(
+                [{"runs": self.n_job_runs, "variables": self.job_variables}]
             )
         assert mock_request_exception.last_request.method == "POST"
         assert (
@@ -146,12 +145,15 @@ class TestBatch:
         call_count = 0
 
         # List of job statuses for each request to the get batch endpoint
-        # We should keep fetching until jobs are terminated (DONE or ERROR) 
+        # We should keep fetching until jobs are terminated (DONE or ERROR)
         job_statuses = [
-            ("PENDING", "PENDING"),
-            ("RUNNING", "PENDING"),
-            ("DONE", "PENDING"),
-            ("DONE", "ERROR"),
+            ("PENDING", "PENDING"),  # First call, both jobs are PENDING
+            ("RUNNING", "PENDING"),  # Second call, first job has started
+            ("DONE", "PENDING"),  # Third call, first job is done
+            (
+                "DONE",
+                "ERROR",
+            ),  # Last call, the second job has an ERROR, both jobs are now terminated
         ]
 
         def custom_get_batch_mock(request, context):
@@ -175,12 +177,28 @@ class TestBatch:
         )
 
         assert len(batch.jobs) == 2
-        assert mock_request.call_count == 5 # 1 call to add jobs and 4 get batch calls until jobs are DONE   
-        assert mock_request.request_history[0].url == f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}/jobs"
+        assert (
+            mock_request.call_count == 5
+        )  # 1 call to add jobs and 4 get batch calls until jobs are DONE
+        assert (
+            mock_request.request_history[0].url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}/jobs"
+        )
         assert mock_request.request_history[0].method == "POST"
-        assert all([(req.method, req.url)==("GET", f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}") for req in mock_request.request_history[1:]])
+        assert all(
+            [
+                (req.method, req.url)
+                == (
+                    "GET",
+                    f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}",
+                )
+                for req in mock_request.request_history[1:]
+            ]
+        )
         assert all([job.result == self.job_result for job in batch.ordered_jobs])
-        assert all([job.full_result == self.job_full_result for job in batch.ordered_jobs])
+        assert all(
+            [job.full_result == self.job_full_result for job in batch.ordered_jobs]
+        )
 
     @pytest.mark.usefixtures("mock_request")
     def test_batch_declare_complete(self, batch):
