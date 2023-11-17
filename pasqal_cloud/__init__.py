@@ -115,18 +115,22 @@ class SDK:
         self,
         serialized_sequence: str,
         jobs: List[CreateJob],
+        complete: bool = True,
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
-        For Iroise MVP, the batch must contain at least one job and will be declared as
-        complete immediately.
 
         Args:
             serialized_sequence: Serialized pulser sequence.
             jobs: List of jobs to be added to the batch at creation.
+            complete: True (default), if all jobs are sent at creation.
+              If set to False, jobs can be added using the `Batch.add_jobs` method.
+              Once all the jobs are sent, use the `Batch.declare_complete` method.
+              Otherwise, the batch will be timed out if all jobs have already
+              been terminated and no new jobs are sent.
             emulator: The type of emulator to use,
               If set to None, the device_type will be set to the one
               stored in the serialized sequence
@@ -156,6 +160,7 @@ class SDK:
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
             "jobs": jobs,
+            "complete": complete,
         }
 
         # the emulator field is only added in the case

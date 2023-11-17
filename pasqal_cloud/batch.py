@@ -124,17 +124,16 @@ class Batch(BaseModel):
         self,
         jobs: List[CreateJob],
         wait: bool = False,
-    ) -> Dict[str, Any]:
-        """Add and send jobs for this batch.
+    ) -> None:
+        """Add some jobs to batch for execution on PCS.
 
         The batch should not be `complete` otherwise the API will return an error.
+        The new jobs are appended to the `ordered_jobs` list attribute.
 
         Args:
             jobs: List of jobs to be added to the batch.
             wait: If True, blocks until all jobs in the batch are done.
 
-        Returns:
-            - Job: the created job.
         """
         # TODO: test case where variables are omitted or set to None.
         try:
@@ -142,19 +141,20 @@ class Batch(BaseModel):
         except HTTPError as e:
             raise JobCreationError(e) from e
         self.ordered_jobs = [
-                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
-            ]
+            Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+        ]
         if wait:
-            while any([job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]):
+            while any(
+                [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
+            ):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 try:
                     batch_rsp = self._client._get_batch(self.id)
                 except HTTPError as e:
                     raise JobFetchingError(e) from e
                 self.ordered_jobs = [
-                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
-            ]
-        return batch_rsp
+                    Job(**job, _client=self._client) for job in batch_rsp["jobs"]
+                ]
 
     def declare_complete(
         self, wait: bool = False, fetch_results: bool = False
