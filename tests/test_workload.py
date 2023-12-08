@@ -186,7 +186,6 @@ class TestWorkload:
         with pytest.raises(WorkloadResultsConnectionError):
             Workload(**workload_dict)
 
-    @pytest.mark.only
     def tests_workload_result_set(self, workload):
         workload_dict = workload.dict()
         workload_dict.pop("result")
