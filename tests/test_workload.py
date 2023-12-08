@@ -1,3 +1,5 @@
+import json
+import requests
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
@@ -8,6 +10,7 @@ from pasqal_cloud.errors import (
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
+    WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -175,3 +178,26 @@ class TestWorkload:
         assert (
             new_workload.new_field == "any_value"
         )  # The new value should be stored regardless
+
+    def test_workload_result_raise_connection_error(self, workload):
+        """
+        Check that error is raised when improper url is set.
+        """
+        workload_dict = workload.dict()
+        workload_dict.pop("result")
+        workload_dict["result_link"] = "http://test.test"
+        with pytest.raises(WorkloadResultsConnectionError):
+            Workload(**workload_dict)
+
+    def tests_workload_result_set(self, workload):
+        """
+        Check that result is set when only result_link is provided.
+        """
+        workload_dict = workload.dict()
+        workload_dict.pop("result")
+        workload_dict["result_link"] = "http://test.test"
+        resp = requests.Response()
+        resp._content = json.dumps({"some": "data"}).encode("utf-8")
+        with patch("requests.get", lambda x: resp):
+            res = Workload(**workload_dict)
+        assert res.result == {"some": "data"}

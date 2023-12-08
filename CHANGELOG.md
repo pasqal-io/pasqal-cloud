@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2024-12-08
+
+### Added
+
+- CRUCIAL BUGFIX - download results properly from result link
+- Added exception case for results download
+
 ## [0.4.2] - 2023-10-09
 
 ### Added

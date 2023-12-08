@@ -10,6 +10,7 @@ from pasqal_cloud.client import Client
 from pasqal_cloud.errors import (
     InvalidWorkloadResultsFormatError,
     WorkloadCancellingError,
+    WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
     WorkloadResultsDownloadError,
 )
@@ -65,7 +66,7 @@ class Workload(BaseModel):
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
 
-    @validator("result")
+    @validator("result", always=True)
     def result_link_to_result(
         cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
@@ -76,6 +77,8 @@ class Workload(BaseModel):
             res = requests.get(result_link)
         except HTTPError as e:
             raise WorkloadResultsDownloadError(e) from e
+        except requests.ConnectionError as e:
+            raise WorkloadResultsConnectionError(e) from e
         try:
             data = res.json()
         except Exception as e:
