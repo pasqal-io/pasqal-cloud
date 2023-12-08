@@ -1,3 +1,5 @@
+import json
+import requests
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
@@ -177,9 +179,20 @@ class TestWorkload:
             new_workload.new_field == "any_value"
         )  # The new value should be stored regardless
 
-    def test_workload_result_set_when_no_result(self, workload):
+    def test_workload_result_raise_connection_error(self, workload):
         workload_dict = workload.dict()
         workload_dict.pop("result")
         workload_dict["result_link"] = "http://test.test"
         with pytest.raises(WorkloadResultsConnectionError):
             Workload(**workload_dict)
+
+    @pytest.mark.only
+    def tests_workload_result_set(self, workload):
+        workload_dict = workload.dict()
+        workload_dict.pop("result")
+        workload_dict["result_link"] = "http://test.test"
+        resp = requests.Response()
+        resp._content = json.dumps({"some": "data"}).encode("utf-8")
+        with patch("requests.get", lambda x: resp):
+            res = Workload(**workload_dict)
+        assert res.result == {"some": "data"}
