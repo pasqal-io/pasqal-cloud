@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- CRUCIAL BUGFIX - added `always=True` to result validator to download results from link
+- CRUCIAL BUGFIX - download results properly from result link
 - Added exception case for results download
 
 ## [0.4.2] - 2023-10-09
