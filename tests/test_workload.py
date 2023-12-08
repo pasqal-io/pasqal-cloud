@@ -8,6 +8,7 @@ from pasqal_cloud.errors import (
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
+    WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -175,3 +176,11 @@ class TestWorkload:
         assert (
             new_workload.new_field == "any_value"
         )  # The new value should be stored regardless
+
+    @pytest.mark.only
+    def test_workload_result_set_when_no_result(self, workload):
+        workload_dict = workload.dict()
+        workload_dict.pop("result")
+        workload_dict["result_link"] = "http://test.test"
+        with pytest.raises(WorkloadResultsConnectionError):
+            Workload(**workload_dict)

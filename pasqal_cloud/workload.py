@@ -10,6 +10,7 @@ from pasqal_cloud.client import Client
 from pasqal_cloud.errors import (
     InvalidWorkloadResultsFormatError,
     WorkloadCancellingError,
+    WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
     WorkloadResultsDownloadError,
 )
@@ -76,6 +77,8 @@ class Workload(BaseModel):
             res = requests.get(result_link)
         except HTTPError as e:
             raise WorkloadResultsDownloadError(e) from e
+        except requests.ConnectionError as e:
+            raise WorkloadResultsConnectionError(e) from e
         try:
             data = res.json()
         except Exception as e:

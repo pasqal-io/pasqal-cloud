@@ -1,7 +1,7 @@
 import json
 from typing import Optional
 
-from requests import HTTPError, Response
+from requests import ConnectionError, HTTPError, Response
 
 
 class ExceptionWithResponseContext(BaseException):
@@ -140,6 +140,16 @@ class WorkloadResultsDownloadError(WorkloadException):
 
     def __init__(self, e: HTTPError) -> None:
         super().__init__("Workload results download failed.", e)
+
+
+class WorkloadResultsConnectionError(BaseException):
+    """
+    Exception class raised when failed to download results
+    for a connection error.
+    """
+
+    def __init__(self, e: ConnectionError) -> None:
+        super().__init__("Workload results download failed from connection error.", e)
 
 
 class WorkloadResultsDecodeError(WorkloadException):
