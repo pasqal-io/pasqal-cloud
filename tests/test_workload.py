@@ -180,6 +180,9 @@ class TestWorkload:
         )  # The new value should be stored regardless
 
     def test_workload_result_raise_connection_error(self, workload):
+        """
+        Check that error is raised when improper url is set.
+        """
         workload_dict = workload.dict()
         workload_dict.pop("result")
         workload_dict["result_link"] = "http://test.test"
@@ -187,6 +190,9 @@ class TestWorkload:
             Workload(**workload_dict)
 
     def tests_workload_result_set(self, workload):
+        """
+        Check that result is set when only result_link is provided.
+        """
         workload_dict = workload.dict()
         workload_dict.pop("result")
         workload_dict["result_link"] = "http://test.test"
