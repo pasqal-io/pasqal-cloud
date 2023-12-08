@@ -177,7 +177,6 @@ class TestWorkload:
             new_workload.new_field == "any_value"
         )  # The new value should be stored regardless
 
-    @pytest.mark.only
     def test_workload_result_set_when_no_result(self, workload):
         workload_dict = workload.dict()
         workload_dict.pop("result")
