@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.3] - 2024-12-08
+
+### Added
+
+- CRUCIAL BUGFIX - added `always=True` to result validator to download results from link
+- Added exception case for results download
+
 ## [0.4.2] - 2023-10-09
 
 ### Added
