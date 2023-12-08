@@ -65,7 +65,7 @@ class Workload(BaseModel):
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
 
-    @validator("result")
+    @validator("result", always=True)
     def result_link_to_result(
         cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
     ) -> Optional[Dict[str, Any]]:
