@@ -86,6 +86,7 @@ See `Auth0TokenProvider` implementation for an example.
 The package main component is a python object called `SDK` which can be used to create a `Batch`.
 
 A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch, you must set a value for each variable, if any, defined in your sequence.
+Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
@@ -102,10 +103,28 @@ job1 = {"runs": 20, "variables": {"omega_max": 6}}
 job2 = {"runs": 50, "variables": {"omega_max": 10.5}}
 ```
 
-Then, send the batch of jobs to the QPU and wait for the results:
+Batches can either be "open" or "closed" (also called "complete"). 
+Open batch may be used to schedule variational algorithm where the next job parameter are derived from the results of the previous jobs, without losing access to the QPU.
+
+
+You can create a batch of jobs using the `create_batch` method of the SDK.
+By default, this will create a closed batch, so all jobs should be passed as arguments right away.
+You may set the `wait` argument to `True` to wait for the batch to end up in a termination status before proceeding to the next statement.  
 
 ```python
+# Create a closed batch with 2 jobs and wait for its termination
 batch = sdk.create_batch(serialized_sequence, [job1,job2], wait=True)
+```
+
+To create an open batch, set the `complete` argument to `False`, you can then add jobs to your batch.
+Don't forget to mark your batch as closed/complete when you are done adding new jobs to it.
+
+```python
+# Create an open batch with 1 job
+batch = sdk.create_batch(serialized_sequence, [job1], complete=False)
+# Add some jobs to it and wait for the jobs to be terminated
+job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
+batch.add_jobs([job2, job3], wait=True)
 ```
 
 You can also choose to run your batch on an emulator using the optional argument `emulator`.

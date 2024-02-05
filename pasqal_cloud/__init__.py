@@ -155,6 +155,10 @@ class SDK:
                 DeprecationWarning,
                 stacklevel=2,
             )
+            wait = wait or fetch_results
+
+        if wait and not complete:
+            raise ValueError("Cannot wait for an open batch.")
 
         req = {
             "sequence_builder": serialized_sequence,
