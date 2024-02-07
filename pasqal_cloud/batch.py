@@ -135,7 +135,6 @@ class Batch(BaseModel):
             wait: If True, blocks until all jobs in the batch are done.
 
         """
-        # TODO: test case where variables are omitted or set to None.
         try:
             batch_rsp = self._client._add_jobs(self.id, jobs)
         except HTTPError as e:
@@ -152,9 +151,7 @@ class Batch(BaseModel):
                     batch_rsp = self._client._get_batch(self.id)
                 except HTTPError as e:
                     raise JobFetchingError(e) from e
-                self.ordered_jobs = [
-                    Job(**job, _client=self._client) for job in batch_rsp["jobs"]
-                ]
+                self = Batch(**batch_rsp, _client=self._client)
 
     def declare_complete(
         self, wait: bool = False, fetch_results: bool = False
@@ -184,9 +181,7 @@ class Batch(BaseModel):
                     )
                 except HTTPError as e:
                     raise BatchFetchingError(e) from e
-            self.ordered_jobs = [
-                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
-            ]
+            self = Batch(**batch_rsp, _client=self._client)
 
         return batch_rsp
 
