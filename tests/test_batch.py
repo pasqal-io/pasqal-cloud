@@ -18,13 +18,13 @@ from pasqal_cloud.errors import (
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.conftest import mock_core_response
 
+
 class TestBatch:
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
         """Fixture to mock sleep to make tests faster."""
         with patch("time.sleep"):
             yield
-
 
     @pytest.fixture(autouse=True)
     @patch(
@@ -129,7 +129,9 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
-        batch.add_jobs([{"runs": self.n_job_runs, "variables": self.job_variables}])
+        batch = batch.add_jobs(
+            [{"runs": self.n_job_runs, "variables": self.job_variables}]
+        )
         assert batch.id in mock_request.last_request.url
         assert len(batch.ordered_jobs) == 2
 
@@ -148,7 +150,6 @@ class TestBatch:
         # Override the batch id so that we load the right API fixtures
         batch.id = "00000000-0000-0000-0000-000000000002"
 
-
         # List of job statuses for each request to the get batch endpoint
         # We should keep fetching until jobs are terminated (DONE or ERROR)
         job_statuses = [
@@ -161,7 +162,8 @@ class TestBatch:
             ),  # Last call, the second job has an ERROR, both jobs are now terminated
         ]
 
-        call_count = 0 # Count calls to the GET endpoint
+        call_count = 0  # Count calls to the GET endpoint
+
         def custom_get_batch_mock(request, _):
             nonlocal call_count
 
@@ -178,7 +180,7 @@ class TestBatch:
 
         # Reset history so that we can count calls later
         mock_request.reset_mock()
-        batch.add_jobs(
+        batch = batch.add_jobs(
             [{"runs": self.n_job_runs}, {"runs": self.n_job_runs}],
             wait=True,
         )
@@ -209,8 +211,8 @@ class TestBatch:
 
     @pytest.mark.usefixtures("mock_request")
     def test_batch_declare_complete(self, batch):
-        rsp = batch.declare_complete(wait=False)
-        assert rsp["complete"]
+        batch = batch.declare_complete(wait=False)
+        assert batch.complete
 
     def test_batch_declare_complete_failure(self, batch, mock_request_exception):
         with pytest.raises(BatchSetCompleteError):
@@ -220,8 +222,8 @@ class TestBatch:
         mock_request_exception.stop()
 
     def test_batch_declare_complete_and_wait_for_results(self, batch, mock_request):
-        rsp = batch.declare_complete(wait=True)
-        assert rsp["complete"]
+        batch = batch.declare_complete(wait=True)
+        assert batch.complete
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.url

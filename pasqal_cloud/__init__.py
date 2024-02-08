@@ -136,7 +136,7 @@ class SDK:
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
              that accept it.
-            wait: Whether to wait for the batch to be done and fetch results
+            wait: Whether to block on this statement until all the submitted jobs are terminated
             fetch_results (deprecated): Whether to wait for the batch to
               be done and fetch results
 
@@ -156,9 +156,6 @@ class SDK:
                 stacklevel=2,
             )
             wait = wait or fetch_results
-
-        if wait and not complete:
-            raise ValueError("Cannot wait for an open batch.")
 
         req = {
             "sequence_builder": serialized_sequence,
@@ -182,13 +179,18 @@ class SDK:
         except HTTPError as e:
             raise BatchCreationError(e) from e
 
-        batch_id = batch_rsp["id"]
-        if wait or fetch_results:
-            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._get_batch(batch_id)
-
         batch = Batch(**batch_rsp, _client=self._client)
+
+        if wait:
+            while any(
+                [job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs]
+            ):
+                time.sleep(RESULT_POLLING_INTERVAL)
+                try:
+                    batch_rsp = self._client._get_batch(batch.id)
+                except HTTPError as e:
+                    raise JobFetchingError(e) from e
+                batch = Batch(**batch_rsp, _client=self._client)
 
         self.batches[batch.id] = batch
         return batch
