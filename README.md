@@ -124,10 +124,10 @@ Don't forget to mark your batch as closed/complete when you are done adding new 
 batch = sdk.create_batch(serialized_sequence, [job1], complete=False)
 # Add some jobs to it and wait for the jobs to be terminated
 job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
-batch = batch.add_jobs([job2, job3], wait=True)
+batch.add_jobs([job2, job3], wait=True)
 # When you have sent all the jobs to your batch, don't forget to mark it as complete
 # Otherwise your batch will be timed out by the scheduler
-batch = batch.declare_complete()
+batch.declare_complete()
 ```
 
 You can also choose to run your batch on an emulator using the optional argument `emulator`.
