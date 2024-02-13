@@ -139,8 +139,8 @@ class Batch(BaseModel):
             batch_rsp = self._client._add_jobs(self.id, jobs)
         except HTTPError as e:
             raise JobCreationError(e) from e
-        batch = Batch(**batch_rsp, _client=self._client)
-        self.copy(batch, deep=True)
+        self._update_from_api_response(batch_rsp)
+
         if wait:
             while any(
                 [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
@@ -164,8 +164,7 @@ class Batch(BaseModel):
             batch_rsp = self._client._complete_batch(self.id)
         except HTTPError as e:
             raise BatchSetCompleteError(e) from e
-        complete_batch = Batch(**batch_rsp, _client=self._client)
-        self.copy(complete_batch, deep=True)
+        self._update_from_api_response(batch_rsp)
         if wait or fetch_results:
             while any(
                 [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
@@ -179,9 +178,7 @@ class Batch(BaseModel):
             batch_rsp = self._client._cancel_batch(self.id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
-        canceled_batch = Batch(**batch_rsp, _client=self._client)
-        self.copy(canceled_batch)
-        return batch_rsp
+        self._update_from_api_response(batch_rsp)
 
     def refresh(self) -> None:
         """Fetch the batch from the API and update it in place."""
@@ -189,5 +186,10 @@ class Batch(BaseModel):
             batch_rsp = self._client._get_batch(self.id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
-        updated_batch = Batch(**batch_rsp, _client=self._client)
-        self.copy(updated_batch, deep=True)
+        self._update_from_api_response(batch_rsp)
+
+    def _update_from_api_response(self, data: Dict[str, Any]) -> None:
+        """Update the instance in place with the response body of the batch API"""
+        updated_batch = Batch(**data, _client=self._client)
+        for field, value in updated_batch:
+            setattr(self, field, value)

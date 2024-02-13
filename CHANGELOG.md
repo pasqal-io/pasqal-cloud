@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
   - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK
   - To add jobs to an open batch, use the `add_jobs` method
 - Updated documentation to add examples to create open batches.
+- The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated. 
 
 
 ## [0.4.3] - 2024-12-08

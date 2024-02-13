@@ -109,7 +109,7 @@ Open batch may be used to schedule variational algorithm where the next job para
 
 You can create a batch of jobs using the `create_batch` method of the SDK.
 By default, this will create a closed batch, so all jobs should be passed as arguments right away.
-You may set the `wait` argument to `True` to wait for the batch to end up in a termination status before proceeding to the next statement.  
+You may set the `wait` argument to `True` to wait for all the jobs to end up in a termination status before proceeding to the next statement.  
 
 ```python
 # Create a closed batch with 2 jobs and wait for its termination

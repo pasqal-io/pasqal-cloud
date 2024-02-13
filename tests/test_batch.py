@@ -129,9 +129,7 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
-        batch = batch.add_jobs(
-            [{"runs": self.n_job_runs, "variables": self.job_variables}]
-        )
+        batch.add_jobs([{"runs": self.n_job_runs, "variables": self.job_variables}])
         assert batch.id in mock_request.last_request.url
         assert len(batch.ordered_jobs) == 2
 
@@ -180,7 +178,7 @@ class TestBatch:
 
         # Reset history so that we can count calls later
         mock_request.reset_mock()
-        batch = batch.add_jobs(
+        batch.add_jobs(
             [{"runs": self.n_job_runs}, {"runs": self.n_job_runs}],
             wait=True,
         )
@@ -211,7 +209,7 @@ class TestBatch:
 
     @pytest.mark.usefixtures("mock_request")
     def test_batch_declare_complete(self, batch):
-        batch = batch.declare_complete(wait=False)
+        batch.declare_complete(wait=False)
         assert batch.complete
 
     def test_batch_declare_complete_failure(self, batch, mock_request_exception):
@@ -222,7 +220,7 @@ class TestBatch:
         mock_request_exception.stop()
 
     def test_batch_declare_complete_and_wait_for_results(self, batch, mock_request):
-        batch = batch.declare_complete(wait=True)
+        batch.declare_complete(wait=True)
         assert batch.complete
         assert mock_request.last_request.method == "GET"
         assert (
