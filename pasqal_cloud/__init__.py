@@ -186,11 +186,7 @@ class SDK:
                 [job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs]
             ):
                 time.sleep(RESULT_POLLING_INTERVAL)
-                try:
-                    batch_rsp = self._client._get_batch(batch.id)
-                except HTTPError as e:
-                    raise JobFetchingError(e) from e
-                batch = Batch(**batch_rsp, _client=self._client)
+                batch.refresh()
 
         self.batches[batch.id] = batch
         return batch

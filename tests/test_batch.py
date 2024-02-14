@@ -183,7 +183,7 @@ class TestBatch:
             wait=True,
         )
 
-        assert len(batch.jobs) == 2
+        assert len(batch.ordered_jobs) == 2
         assert (
             mock_request.call_count == 5
         )  # 1 call to add jobs and 4 get batch calls until jobs are DONE
