@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypedDict, Union
 
 from pydantic import BaseModel, Extra
 from requests import HTTPError
@@ -61,3 +61,8 @@ class Job(BaseModel):
             raise JobCancellingError(e) from e
         self.status = job_rsp.get("status", "CANCELED")
         return job_rsp
+
+
+class CreateJob(TypedDict, total=False):
+    runs: int
+    variables: Union[Dict[str, Any], None]

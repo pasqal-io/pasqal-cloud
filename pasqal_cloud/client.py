@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from getpass import getpass
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
 from requests.auth import AuthBase
@@ -97,7 +97,10 @@ class Client:
         return token_provider
 
     def _request(
-        self, method: str, url: str, payload: Optional[Dict[str, Any]] = None
+        self,
+        method: str,
+        url: str,
+        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
     ) -> JSendPayload:
         rsp = requests.request(
             method,
@@ -139,9 +142,11 @@ class Client:
         )["data"]
         return batch
 
-    def _send_job(self, job_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _add_jobs(
+        self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
+    ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
-            "POST", f"{self.endpoints.core}/api/v1/jobs", job_data
+            "POST", f"{self.endpoints.core}/api/v1/batches/{batch_id}/jobs", jobs_data
         )["data"]
         return response
 

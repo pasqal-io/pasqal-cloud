@@ -38,7 +38,7 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import Job
+from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.workload import Workload
 
 
@@ -114,25 +114,29 @@ class SDK:
     def create_batch(
         self,
         serialized_sequence: str,
-        jobs: List[Dict[str, Any]],
+        jobs: List[CreateJob],
+        complete: bool = True,
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
     ) -> Batch:
         """Create a new batch and send it to the API.
-        For Iroise MVP, the batch must contain at least one job and will be declared as
-        complete immediately.
 
         Args:
             serialized_sequence: Serialized pulser sequence.
             jobs: List of jobs to be added to the batch at creation.
+            complete: True (default), if all jobs are sent at creation.
+              If set to False, jobs can be added using the `Batch.add_jobs` method.
+              Once all the jobs are sent, use the `Batch.declare_complete` method.
+              Otherwise, the batch will be timed out if all jobs have already
+              been terminated and no new jobs are sent.
             emulator: The type of emulator to use,
               If set to None, the device_type will be set to the one
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
              that accept it.
-            wait: Whether to wait for the batch to be done and fetch results
+            wait: Whether to block on this statement until all the submitted jobs are terminated
             fetch_results (deprecated): Whether to wait for the batch to
               be done and fetch results
 
@@ -151,11 +155,13 @@ class SDK:
                 DeprecationWarning,
                 stacklevel=2,
             )
+            wait = wait or fetch_results
 
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
             "jobs": jobs,
+            "complete": complete,
         }
 
         # the emulator field is only added in the case
@@ -173,13 +179,14 @@ class SDK:
         except HTTPError as e:
             raise BatchCreationError(e) from e
 
-        batch_id = batch_rsp["id"]
-        if wait or fetch_results:
-            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                batch_rsp = self._get_batch(batch_id)
-
         batch = Batch(**batch_rsp, _client=self._client)
+
+        if wait:
+            while any(
+                [job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs]
+            ):
+                time.sleep(RESULT_POLLING_INTERVAL)
+                batch.refresh()
 
         self.batches[batch.id] = batch
         return batch
