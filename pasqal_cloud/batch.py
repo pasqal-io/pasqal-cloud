@@ -15,7 +15,7 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobFetchingError,
 )
-from pasqal_cloud.job import Job
+from pasqal_cloud.job import CreateJob, Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -120,45 +120,36 @@ class Batch(BaseModel):
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
 
-    def add_job(
+    def add_jobs(
         self,
-        runs: int = 100,
-        variables: Optional[Dict[str, Any]] = None,
+        jobs: List[CreateJob],
         wait: bool = False,
-    ) -> Job:
-        """Add and send a new job for this batch.
+    ) -> None:
+        """Add some jobs to batch for execution on PCS and returns the updated batch.
+
+        The batch should not be `complete` otherwise the API will return an error.
+        The new jobs are appended to the `ordered_jobs` list attribute.
 
         Args:
-            runs: number of times the job is run on the QPU.
-            variables (optional): values for variables if sequence is parametrized.
-            wait: Whether to wait for the job to be done.
+            jobs: List of jobs to be added to the batch.
+            wait: If True, blocks until all jobs in the batch are done.
 
-        Returns:
-            - Job: the created job.
         """
-        job_data: Dict[str, Any] = {"runs": runs, "batch_id": self.id}
-        if variables:
-            job_data["variables"] = variables
         try:
-            job_rsp = self._client._send_job(job_data)
+            batch_rsp = self._client._add_jobs(self.id, jobs)
         except HTTPError as e:
             raise JobCreationError(e) from e
-        job = Job(**job_rsp, _client=self._client)
-        self.ordered_jobs.append(job)
-        if wait:
-            while job.status in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                try:
-                    job_rsp = self._client._get_job(job.id)
-                except HTTPError as e:
-                    raise JobFetchingError(e) from e
-                job = Job(**job_rsp)
-        return job
+        self._update_from_api_response(batch_rsp)
 
-    def declare_complete(
-        self, wait: bool = False, fetch_results: bool = False
-    ) -> Dict[str, Any]:
-        """Declare to PCS that the batch is complete.
+        if wait:
+            while any(
+                [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
+            ):
+                time.sleep(RESULT_POLLING_INTERVAL)
+                self.refresh()
+
+    def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> None:
+        """Declare to PCS that the batch is complete and returns an updated batch instance.
 
         Args:
             wait: Whether to wait for the batch to be done and fetch results.
@@ -173,27 +164,32 @@ class Batch(BaseModel):
             batch_rsp = self._client._complete_batch(self.id)
         except HTTPError as e:
             raise BatchSetCompleteError(e) from e
-        self.complete = True
+        self._update_from_api_response(batch_rsp)
         if wait or fetch_results:
-            while batch_rsp["status"] in ["PENDING", "RUNNING"]:
+            while any(
+                [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
+            ):
                 time.sleep(RESULT_POLLING_INTERVAL)
-                try:
-                    batch_rsp = self._client._get_batch(
-                        self.id,
-                    )
-                except HTTPError as e:
-                    raise BatchFetchingError(e) from e
-            self.ordered_jobs = [
-                Job(**job, _client=self._client) for job in batch_rsp["jobs"]
-            ]
+                self.refresh()
 
-        return batch_rsp
-
-    def cancel(self) -> Dict[str, Any]:
+    def cancel(self) -> None:
         """Cancel the current batch on the PCS."""
         try:
             batch_rsp = self._client._cancel_batch(self.id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
-        self.status = batch_rsp.get("status", "CANCELED")
-        return batch_rsp
+        self._update_from_api_response(batch_rsp)
+
+    def refresh(self) -> None:
+        """Fetch the batch from the API and update it in place."""
+        try:
+            batch_rsp = self._client._get_batch(self.id)
+        except HTTPError as e:
+            raise BatchFetchingError(e) from e
+        self._update_from_api_response(batch_rsp)
+
+    def _update_from_api_response(self, data: Dict[str, Any]) -> None:
+        """Update the instance in place with the response body of the batch API"""
+        updated_batch = Batch(**data, _client=self._client)
+        for field, value in updated_batch:
+            setattr(self, field, value)
