@@ -71,6 +71,7 @@ class Batch(BaseModel):
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
+    parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
 
     class Config:

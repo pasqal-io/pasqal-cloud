@@ -13,6 +13,7 @@
 # limitations under the License.
 from __future__ import annotations
 
+from datetime import datetime
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
@@ -28,6 +29,10 @@ from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
+
+
+class EmptyFilter:
+    pass
 
 
 class Client:
@@ -101,6 +106,7 @@ class Client:
         method: str,
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
         rsp = requests.request(
             method,
@@ -109,6 +115,7 @@ class Client:
             timeout=TIMEOUT,
             headers={"content-type": "application/json"},
             auth=self.authenticator,
+            params=params,
         )
         rsp.raise_for_status()
         data: JSendPayload = rsp.json()
@@ -141,6 +148,37 @@ class Client:
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
         )["data"]
         return batch
+
+    def rebatch(
+        self,
+        batch_id: str,
+        job_ids: List[str] | EmptyFilter,
+        status: str | List[str] | EmptyFilter,
+        min_runs: int | EmptyFilter,
+        max_runs: int | EmptyFilter,
+        start_date: datetime | EmptyFilter,
+        end_date: datetime | EmptyFilter,
+    ) -> Dict[str, Any]:
+        query_params: dict[str, str | list[str]] = {}
+        if job_ids is not EmptyFilter:
+            query_params["id"] = job_ids
+        if status is not EmptyFilter:
+            query_params["status"] = status
+        if min_runs is not EmptyFilter:
+            query_params["min_runs"] = min_runs
+        if max_runs is not EmptyFilter:
+            query_params["max_runs"] = max_runs
+        if start_date is not EmptyFilter:
+            query_params["start_date"] = start_date.isoformat()
+        if end_date is not EmptyFilter:
+            query_params["end_date"] = end_date.isoformat()
+
+        new_batch: dict[str, Any] = self._request(
+            "POST",
+            f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
+            params=query_params,
+        )["data"]
+        return new_batch
 
     def _add_jobs(
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]

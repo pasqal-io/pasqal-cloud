@@ -48,6 +48,7 @@ class Job(BaseModel):
     variables: Optional[Dict[str, Any]] = None
     # Ticket (#622)
     group_id: Optional[str] = None
+    parent_id: Optional[str] = None
 
     class Config:
         extra = Extra.allow

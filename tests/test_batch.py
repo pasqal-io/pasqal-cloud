@@ -1,7 +1,10 @@
+from collections import OrderedDict
 import json
 import re
+from datetime import datetime
+from typing import Any, Dict
 from unittest.mock import patch
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -14,6 +17,7 @@ from pasqal_cloud.errors import (
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
+    RebatchError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.conftest import mock_core_response
@@ -387,3 +391,67 @@ class TestBatch:
     ):
         with pytest.warns(DeprecationWarning):
             self.sdk.get_batch(self.batch_id, fetch_results=True)
+
+    @pytest.mark.parametrize(
+        "filters",
+        (
+            {"job_ids": [str(UUID(int=0x1))]},
+            {"start_date": datetime(2023, 1, 1)},
+            {"end_date": datetime(2023, 1, 1)},
+            {"status": "DONE"},
+            {"status": ["DONE", "PENDING"]},
+            {"min_runs": 10},
+            {"max_runs": 10},
+            OrderedDict(
+                job_ids=[str(UUID(int=0x1))],
+                status=["DONE", "PENDING"],
+                min_runs=10,
+                max_runs=10,
+                start_date=datetime(2023, 1, 1),
+                end_date=datetime(2023, 1, 1),
+            ),
+        ),
+    )
+    def test_rebatch_success(
+        self,
+        mock_request,
+        filters: Dict[str, Any],
+    ):
+        batch = self.sdk.rebatch(self.batch_id, **filters)
+        assert mock_request.last_request.method == "POST"
+
+        if ids := filters.pop("job_ids", None):
+            filters["id"] = ids
+            # Move id to beginning to construct query param string like the sdk does.
+            if isinstance(filters, OrderedDict):
+                filters.move_to_end("id", last=False)
+
+        # Constructing the query param string
+        query_params = "?"
+        for filter, value in filters.items():
+            if isinstance(value, list):
+                for val in value:
+                    query_params += f"{filter}={val}&"
+            else:
+                if isinstance(value, datetime):
+                    value = value.isoformat()
+                query_params += f"{filter}={value}&"
+        # Replace : by %3A for datetimes
+        query_params = query_params.replace(":", "%3A")[:-1]
+
+        # Check that correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/rebatch{query_params}"
+        )
+        assert batch.parent_id == self.batch_id
+        assert batch.ordered_jobs[0].parent_id
+
+    def test_retry_batch_sdk_error(self, mock_request_exception):
+        with pytest.raises(RebatchError):
+            _ = self.sdk.rebatch(self.batch_id)
+        assert mock_request_exception.last_request.method == "POST"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/rebatch"
+        )

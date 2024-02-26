@@ -24,7 +24,7 @@ def mock_core_response(request):
     version = request.url.split("api/")[1].split("/")[0]
     path = request.url.split(f"{version}/")[1].split("?")[0]
     data = None
-    if request.method == "POST":
+    if request.method == "POST" and request.body:
         data = request.json()
 
     json_path = os.path.join(
