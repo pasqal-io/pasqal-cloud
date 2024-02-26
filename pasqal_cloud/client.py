@@ -160,17 +160,17 @@ class Client:
         end_date: datetime | EmptyFilter,
     ) -> Dict[str, Any]:
         query_params: dict[str, str | list[str]] = {}
-        if job_ids is not EmptyFilter:
+        if not isinstance(job_ids, EmptyFilter):
             query_params["id"] = job_ids
-        if status is not EmptyFilter:
+        if not isinstance(status, EmptyFilter):
             query_params["status"] = status
-        if min_runs is not EmptyFilter:
-            query_params["min_runs"] = min_runs
-        if max_runs is not EmptyFilter:
-            query_params["max_runs"] = max_runs
-        if start_date is not EmptyFilter:
+        if not isinstance(min_runs, EmptyFilter):
+            query_params["min_runs"] = str(min_runs)
+        if not isinstance(max_runs, EmptyFilter):
+            query_params["max_runs"] = str(max_runs)
+        if not isinstance(start_date, EmptyFilter):
             query_params["start_date"] = start_date.isoformat()
-        if end_date is not EmptyFilter:
+        if not isinstance(end_date, EmptyFilter):
             query_params["end_date"] = end_date.isoformat()
 
         new_batch: dict[str, Any] = self._request(

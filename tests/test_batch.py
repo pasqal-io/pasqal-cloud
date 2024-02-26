@@ -442,7 +442,8 @@ class TestBatch:
         # Check that correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/rebatch{query_params}"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            + f"{self.batch_id}/rebatch{query_params}"
         )
         assert batch.parent_id == self.batch_id
         assert batch.ordered_jobs[0].parent_id
@@ -453,5 +454,6 @@ class TestBatch:
         assert mock_request_exception.last_request.method == "POST"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}/rebatch"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            + f"{self.batch_id}/rebatch"
         )

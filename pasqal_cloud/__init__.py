@@ -235,12 +235,12 @@ class SDK:
     def rebatch(
         self,
         id: str,
-        job_ids: List[str] | EmptyFilter = EmptyFilter,
-        status: List[str] | EmptyFilter = EmptyFilter,
-        min_runs: int | EmptyFilter = EmptyFilter,
-        max_runs: int | EmptyFilter = EmptyFilter,
-        start_date: datetime | EmptyFilter = EmptyFilter,
-        end_date: datetime | EmptyFilter = EmptyFilter,
+        job_ids: List[str] | EmptyFilter = EmptyFilter(),
+        status: List[str] | EmptyFilter = EmptyFilter(),
+        min_runs: int | EmptyFilter = EmptyFilter(),
+        max_runs: int | EmptyFilter = EmptyFilter(),
+        start_date: datetime | EmptyFilter = EmptyFilter(),
+        end_date: datetime | EmptyFilter = EmptyFilter(),
     ) -> Batch:
         """
         Retry a list of jobs matching filters in a new batch.
