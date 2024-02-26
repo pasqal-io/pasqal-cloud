@@ -11,12 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import annotations
-
 from datetime import datetime
 import time
 from requests.exceptions import HTTPError
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from warnings import warn
 
 from pasqal_cloud.authentication import TokenProvider
@@ -236,12 +234,12 @@ class SDK:
     def rebatch(
         self,
         id: str,
-        job_ids: List[str] | EmptyFilter = EmptyFilter(),
-        status: List[str] | EmptyFilter = EmptyFilter(),
-        min_runs: int | EmptyFilter = EmptyFilter(),
-        max_runs: int | EmptyFilter = EmptyFilter(),
-        start_date: datetime | EmptyFilter = EmptyFilter(),
-        end_date: datetime | EmptyFilter = EmptyFilter(),
+        job_ids: Union[List[str], EmptyFilter] = EmptyFilter(),
+        status: Union[List[str], EmptyFilter] = EmptyFilter(),
+        min_runs: Union[int, EmptyFilter] = EmptyFilter(),
+        max_runs: Union[int, EmptyFilter] = EmptyFilter(),
+        start_date: Union[datetime, EmptyFilter] = EmptyFilter(),
+        end_date: Union[datetime, EmptyFilter] = EmptyFilter(),
     ) -> Batch:
         """
         Retry a list of jobs matching filters in a new batch.

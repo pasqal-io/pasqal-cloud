@@ -152,12 +152,12 @@ class Client:
     def rebatch(
         self,
         batch_id: str,
-        job_ids: List[str] | EmptyFilter,
-        status: str | List[str] | EmptyFilter,
-        min_runs: int | EmptyFilter,
-        max_runs: int | EmptyFilter,
-        start_date: datetime | EmptyFilter,
-        end_date: datetime | EmptyFilter,
+        job_ids: Union[List[str], EmptyFilter],
+        status: Union[List[str], EmptyFilter],
+        min_runs: Union[int, EmptyFilter],
+        max_runs: Union[int, EmptyFilter],
+        start_date: Union[datetime, EmptyFilter],
+        end_date: Union[datetime, EmptyFilter],
     ) -> Dict[str, Any]:
         query_params: dict[str, str | list[str]] = {}
         if not isinstance(job_ids, EmptyFilter):
