@@ -245,6 +245,7 @@ class SDK:
         Retry a list of jobs matching filters in a new batch.
 
         Args:
+            id: the id of the batch to rebatch jobs from.
             job_ids: list of ids of jobs to retry.
             status: status or list of statuses.
                 Will retry jobs currently matching this/these status/es.
@@ -254,7 +255,7 @@ class SDK:
             end_date: retry jobs created at or before this date.
 
         Raises:
-
+            RebatchError if rebatch call failed.
         """
         try:
             new_batch_data = self._client.rebatch(
