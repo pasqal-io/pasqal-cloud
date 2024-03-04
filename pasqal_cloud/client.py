@@ -173,11 +173,12 @@ class Client:
         if not isinstance(end_date, EmptyFilter):
             query_params["end_date"] = end_date.isoformat()
 
-        return self._request(
+        new_batch: Dict[str, Any] = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
             params=query_params,
         )["data"]
+        return new_batch
 
     def _add_jobs(
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
