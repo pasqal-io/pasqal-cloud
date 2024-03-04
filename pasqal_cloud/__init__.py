@@ -246,13 +246,13 @@ class SDK:
 
         Args:
             id: the id of the batch to rebatch jobs from.
-            job_ids: list of ids of jobs to retry.
+            job_ids: list of job ids to retry.
             status: status or list of statuses.
                 Will retry jobs currently matching this/these status/es.
             min_runs: retry jobs with more or as many as this amount of runs.
             mas_runs: retry jobs with less or as many as this amount of runs.
-            start_date: retry jobs created at or after this date.
-            end_date: retry jobs created at or before this date.
+            start_date: retry jobs created at or after this datetime.
+            end_date: retry jobs created at or before this datetime.
 
         Raises:
             RebatchError if rebatch call failed.

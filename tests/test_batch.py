@@ -417,6 +417,12 @@ class TestBatch:
         mock_request,
         filters: Dict[str, Any],
     ):
+        """
+        As a user using the SDK with proper credentials,
+        I can rebatch an existing batch with specific filters.
+        The resulting request will create a new batch which includes
+        copies of the jobs that match the filters.
+        """
         batch = self.sdk.rebatch(self.batch_id, **filters)
         assert mock_request.last_request.method == "POST"
 
@@ -449,6 +455,11 @@ class TestBatch:
         assert batch.ordered_jobs[0].parent_id
 
     def test_retry_batch_sdk_error(self, mock_request_exception):
+        """
+        As a user using the SDK with proper credentials,
+        if my request for rebatching returns a non 200 status code,
+        I am faced with the RebatchError exception.
+        """
         with pytest.raises(RebatchError):
             _ = self.sdk.rebatch(self.batch_id)
         assert mock_request_exception.last_request.method == "POST"
