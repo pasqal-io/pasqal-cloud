@@ -11,15 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from datetime import datetime
 import time
 from requests.exceptions import HTTPError
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 from warnings import warn
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
-from pasqal_cloud.client import Client
+from pasqal_cloud.client import Client, EmptyFilter
 from pasqal_cloud.device import BaseConfig, EmulatorType
 from pasqal_cloud.endpoints import (  # noqa: F401
     AUTH0_CONFIG,
@@ -34,6 +34,7 @@ from pasqal_cloud.errors import (
     DeviceSpecsFetchingError,
     JobCancellingError,
     JobFetchingError,
+    RebatchError,
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
@@ -229,6 +230,46 @@ class SDK:
             raise BatchCancellingError(e) from e
         batch = Batch(**batch_rsp, _client=self._client)
         return batch
+
+    def rebatch(
+        self,
+        id: str,
+        job_ids: Union[List[str], EmptyFilter] = EmptyFilter(),
+        status: Union[List[str], EmptyFilter] = EmptyFilter(),
+        min_runs: Union[int, EmptyFilter] = EmptyFilter(),
+        max_runs: Union[int, EmptyFilter] = EmptyFilter(),
+        start_date: Union[datetime, EmptyFilter] = EmptyFilter(),
+        end_date: Union[datetime, EmptyFilter] = EmptyFilter(),
+    ) -> Batch:
+        """
+        Retry a list of jobs matching filters in a new batch.
+
+        Args:
+            id: the id of the batch to rebatch jobs from.
+            job_ids: list of job ids to retry.
+            status: status or list of statuses.
+                Will retry jobs currently matching this/these status/es.
+            min_runs: retry jobs with more or as many as this amount of runs.
+            mas_runs: retry jobs with less or as many as this amount of runs.
+            start_date: retry jobs created at or after this datetime.
+            end_date: retry jobs created at or before this datetime.
+
+        Raises:
+            RebatchError if rebatch call failed.
+        """
+        try:
+            new_batch_data = self._client.rebatch(
+                id,
+                job_ids=job_ids,
+                status=status,
+                min_runs=min_runs,
+                max_runs=max_runs,
+                start_date=start_date,
+                end_date=end_date,
+            )
+        except HTTPError as e:
+            raise RebatchError(e) from e
+        return Batch(**new_batch_data, _client=self._client)
 
     def _get_job(self, id: str) -> Dict[str, Any]:
         try:

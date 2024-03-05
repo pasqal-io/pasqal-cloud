@@ -67,6 +67,13 @@ class BatchSetCompleteError(BatchException):
         super().__init__("Batch setting to complete failed", e)
 
 
+class RebatchError(BatchException):
+    """Exception class raised when batch retry failed."""
+
+    def __init__(self, e: HTTPError) -> None:
+        super().__init__("Batch retry failed", e)
+
+
 class JobException(ExceptionWithResponseContext):
     """
     Base Exception class for jobs.

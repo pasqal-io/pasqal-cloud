@@ -30,13 +30,13 @@ pip install -e .[dev]
 ```
 
 We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
+
 ```bash
 python3 -m pip install pre-commit
 pre-commit install
 ```
 
 ## Basic usage
-
 
 ### Authentication
 
@@ -51,6 +51,7 @@ password = "your_password"  # Replace this value with your password on the PASQA
 ```
 
 #### Method 1: Username + Password
+
 If you know your credentials, you can pass them to the SDK instance on creation:
 
 ```python
@@ -58,6 +59,7 @@ sdk = SDK(username=username, password=password, project_id=project_id)
 ```
 
 #### Method 2: Username only
+
 If you only want to insert your username, but want a solution to have your password being secret,
 you can run the SDK without a password. A prompt will then ask for your password:
 
@@ -66,6 +68,7 @@ sdk = SDK(username=username, project_id=project_id)
 ```
 
 #### Method 3: Use a custom token provider
+
 You can define a custom class to provide the token.
 For example, if you have a token, you can use it to authenticate with our APIs:
 
@@ -77,8 +80,9 @@ class CustomTokenProvider(TokenProvider):
 
 sdk = SDK(token_provider=CustomTokenProvider(), project_id=project_id)
 ```
+
 Alternatively, create a custom `TokenProvider` that inherits from `ExpiringTokenProvider`.
-You should define a custom '_query_token' method which fetches your token.
+You should define a custom '\_query_token' method which fetches your token.
 See `Auth0TokenProvider` implementation for an example.
 
 ### Create a batch of jobs
@@ -103,13 +107,12 @@ job1 = {"runs": 20, "variables": {"omega_max": 6}}
 job2 = {"runs": 50, "variables": {"omega_max": 10.5}}
 ```
 
-Batches can either be "open" or "closed" (also called "complete"). 
+Batches can either be "open" or "closed" (also called "complete").
 Open batch may be used to schedule variational algorithm where the next job parameter are derived from the results of the previous jobs, without losing access to the QPU.
-
 
 You can create a batch of jobs using the `create_batch` method of the SDK.
 By default, this will create a closed batch, so all jobs should be passed as arguments right away.
-You may set the `wait` argument to `True` to wait for all the jobs to end up in a termination status before proceeding to the next statement.  
+You may set the `wait` argument to `True` to wait for all the jobs to end up in a termination status before proceeding to the next statement.
 
 ```python
 # Create a closed batch with 2 jobs and wait for its termination
@@ -145,6 +148,27 @@ Once the API has returned the results, you can access them with the following:
 ```python
 for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
+```
+
+### Retry a batch of jobs
+
+It is possible to retry a selection of jobs from a CLOSED batch with the `rebatch` method.
+
+```python
+# Retry all jobs from a given batch
+sdk.rebatch(batch.id)
+
+# Retry the first job of a batch
+sdk.rebatch(batch.id, job_ids=[batch.ordered_jobs[0].id])
+
+# Retry all jobs in error
+sdk.rebatch(batch.id, status="ERROR")
+
+# Retry canceled jobs created in a given period
+sdk.rebatch(batch.id, status="CANCELED", start_date=datetime(...), end_date=datetime(...))
+
+# Retry jobs that have a run number between 5 and 10
+sdk.rebatch(batch.id, min_runs=5, max_runs=10)
 ```
 
 ### Create a workload
