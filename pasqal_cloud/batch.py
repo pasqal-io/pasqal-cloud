@@ -152,7 +152,9 @@ class Batch(BaseModel):
 
     def retry(self, job: Job, wait: bool = False) -> None:
         """
-        Retry a jop in the same batch.
+        Retry a job in the same batch.
+        The batch should not be 'complete'.
+        The new job is appended to the `ordered_jobs` list attribute.
 
         Args:
             job: The job to retry
