@@ -107,6 +107,15 @@ class JobCancellingError(JobException):
         super().__init__("Job cancelling failed", e)
 
 
+class JobRetryError(Exception):
+    """
+    Exception class raised when job retry failed.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Job retry failed.")
+
+
 class WorkloadException(ExceptionWithResponseContext):
     """
     Base exception class for workloads.

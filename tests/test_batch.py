@@ -17,6 +17,7 @@ from pasqal_cloud.errors import (
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
+    JobRetryError,
     RebatchError,
 )
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -454,7 +455,7 @@ class TestBatch:
         assert batch.parent_id == self.batch_id
         assert batch.ordered_jobs[0].parent_id
 
-    def test_retry_batch_sdk_error(self, mock_request_exception):
+    def test_rebatch_sdk_error(self, mock_request_exception):
         """
         As a user using the SDK with proper credentials,
         if my request for rebatching returns a non 200 status code,
@@ -467,4 +468,54 @@ class TestBatch:
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
             + f"{self.batch_id}/rebatch"
+        )
+
+    def test_retry(
+        self,
+        mock_request,
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can retry a job from a given batch.
+        The resulting job is added to the batch ordered jobs
+        and shares the same variables and results as the original job.
+        The endpoint to add jobs was called.
+        """
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[self.simple_job_args],
+        )
+        assert len(batch.ordered_jobs) == 1
+        batch.retry(batch.ordered_jobs[0])
+        assert len(batch.ordered_jobs) == 2
+        assert batch.ordered_jobs[1].variables == batch.ordered_jobs[0].variables
+        assert batch.ordered_jobs[1].runs == batch.ordered_jobs[0].runs
+        assert mock_request.last_request.method == "POST"
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            + f"{self.batch_id}/jobs"
+        )
+
+    def test_rebatch_sdk_error(
+        self,
+        batch: Batch,
+        job: Job,
+        mock_request_exception,
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        if my request for retrying a job returns a non 200 status code,
+        I am faced with the JobRetryError exception.
+        """
+        batch.ordered_jobs = [job]
+        with pytest.raises(JobRetryError):
+            batch.retry(job)
+
+        assert len(batch.ordered_jobs) == 1
+        assert mock_request_exception.last_request.method == "POST"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            + f"{self.batch_id}/jobs"
         )

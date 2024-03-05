@@ -171,6 +171,21 @@ sdk.rebatch(batch.id, status="CANCELED", start_date=datetime(...), end_date=date
 sdk.rebatch(batch.id, min_runs=5, max_runs=10)
 ```
 
+### Retry a job in an open batch
+
+It is possible to rety a single job in a same open batch as an original job using `batch.retry`.
+The batch must be open in order for this method to work.
+
+```python
+
+batch = sdk.create_batch(..., complete=False)
+
+batch.retry(batch.ordered_jobs[0])
+
+# Like for adding a job you can choose to wait for results.
+batch.retry(batch.ordered_jobs[0], wait=True)
+```
+
 ### Create a workload
 
 A workload is a unit of work to be executed on Pasqal Cloud Services infrastructure.
