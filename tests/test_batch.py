@@ -497,7 +497,7 @@ class TestBatch:
             + f"{self.batch_id}/jobs"
         )
 
-    def test_rebatch_sdk_error(
+    def test_retry_sdk_error(
         self,
         batch: Batch,
         job: Job,
