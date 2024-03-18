@@ -14,6 +14,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     JobCreationError,
     JobFetchingError,
+    JobRetryError,
 )
 from pasqal_cloud.job import CreateJob, Job
 
@@ -148,6 +149,25 @@ class Batch(BaseModel):
             ):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 self.refresh()
+
+    def retry(self, job: Job, wait: bool = False) -> None:
+        """
+        Retry a job in the same batch.
+        The batch should not be 'complete'.
+        The new job is appended to the `ordered_jobs` list attribute.
+
+        Args:
+            job: The job to retry
+            wait: Whether to wait for job completion
+
+        Raises:
+            JobRetryError if there was an error adding the job to the batch.
+        """
+        retried_job = CreateJob(runs=job.runs, variables=job.variables)
+        try:
+            self.add_jobs([retried_job], wait=wait)
+        except JobCreationError as e:
+            raise JobRetryError from e
 
     def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> None:
         """Declare to PCS that the batch is complete and returns an updated batch instance.

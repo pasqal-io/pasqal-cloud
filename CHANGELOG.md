@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2024-03-05
+
+### Added
+
+- Added feature to retry a job for an open batch.
+- Added unit tests.
+- Updated documentation.
+
 ## [0.6.0] - 2024-02-26
 
 ### Added
