@@ -139,26 +139,6 @@ class Client:
             iteration += 1
 
         return data
-        # exp: Exception = None
-        # for v in range(HTTP_RETRIES):
-        #     delay = (1 * 2) ** v
-        #     try:
-        #         exp = None
-        #         rsp = requests.request(
-        #             method,
-        #             url,
-        #             json=payload,
-        #             timeout=TIMEOUT,
-        #             headers={"content-type": "application/json"},
-        #             auth=self.authenticator,
-        #             params=params,
-        #         )
-        #         data: JSendPayload = rsp.json()
-        #     except Exception as e:
-        #         exp = e
-        #         time.sleep(delay)
-        #         # rsp.raise_for_status()
-        # return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
