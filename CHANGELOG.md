@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2024-03-26
+
+### Added
+- A HTTP retry mechanism for the _request() method. The delay between each retry increases exponentially until we reach a retry limit or have a successful request.
 ## [0.7.0] - 2024-03-05
 
 ### Added
