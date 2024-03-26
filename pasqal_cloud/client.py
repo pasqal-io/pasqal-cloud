@@ -27,8 +27,12 @@ from pasqal_cloud.authentication import (
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.jsend import JSendPayload
+import time
+from requests.adapters import Retry
 
 TIMEOUT = 30  # client http requests timeout after 30s
+
+HTTP_RETRIES = 5  # HTTP client will raise an exception after too many consecutive fails
 
 
 class EmptyFilter:
@@ -108,19 +112,53 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
-        rsp = requests.request(
-            method,
-            url,
-            json=payload,
-            timeout=TIMEOUT,
-            headers={"content-type": "application/json"},
-            auth=self.authenticator,
-            params=params,
-        )
-        rsp.raise_for_status()
-        data: JSendPayload = rsp.json()
+
+        successful_request: bool = False
+        iteration: int = 0
+
+        while not successful_request and iteration <= HTTP_RETRIES:
+            # time = (interval seconds * exponent rule) ^ retries
+            delay = (1 * 2) ** iteration
+            try:
+                rsp = requests.request(
+                    method,
+                    url,
+                    json=payload,
+                    timeout=TIMEOUT,
+                    headers={"content-type": "application/json"},
+                    auth=self.authenticator,
+                    params=params,
+                )
+                data: JSendPayload = rsp.json()
+                successful_request = True
+            except Exception as e:
+                # Raise an exception if we exhaust our retries
+                if iteration == HTTP_RETRIES:
+                    rsp.raise_for_status()
+                time.sleep(delay)
+            iteration += 1
 
         return data
+        # exp: Exception = None
+        # for v in range(HTTP_RETRIES):
+        #     delay = (1 * 2) ** v
+        #     try:
+        #         exp = None
+        #         rsp = requests.request(
+        #             method,
+        #             url,
+        #             json=payload,
+        #             timeout=TIMEOUT,
+        #             headers={"content-type": "application/json"},
+        #             auth=self.authenticator,
+        #             params=params,
+        #         )
+        #         data: JSendPayload = rsp.json()
+        #     except Exception as e:
+        #         exp = e
+        #         time.sleep(delay)
+        #         # rsp.raise_for_status()
+        # return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
