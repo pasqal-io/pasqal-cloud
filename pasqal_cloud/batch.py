@@ -2,7 +2,7 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import BaseModel, Extra, field_validator, model_validator
+from pydantic import BaseModel, Extra, ValidationInfo, field_validator, model_validator
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -62,12 +62,12 @@ class Batch(BaseModel):
     user_id: str
     priority: int
     status: str
-    webhook: Optional[str]
+    webhook: Optional[str] = None
     _client: Client
     sequence_builder: str
-    start_datetime: Optional[str]
-    end_datetime: Optional[str]
-    device_status: Optional[str]
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
+    device_status: Optional[str] = None
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
@@ -77,6 +77,11 @@ class Batch(BaseModel):
     class Config:
         extra = Extra.allow
         arbitrary_types_allowed = True
+
+    def __init__(self, _client: Client, **data):
+        data.update(_client=_client)
+        super().__init__(**data)
+        self._client = _client
 
     @model_validator(mode="before")
     def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -106,18 +111,23 @@ class Batch(BaseModel):
         )
         return {job.id: job for job in self.ordered_jobs}
 
+    @jobs.setter
+    def jobs(self, _):
+        # logger qlq chose
+        pass
+
     @field_validator("configuration", mode="before")
     def _load_configuration(
         cls,
         configuration: Union[Dict[str, Any], BaseConfig, None],
-        values: Dict[str, Any],
+        values: ValidationInfo,
     ) -> Optional[BaseConfig]:
         if not isinstance(configuration, dict):
             return configuration
         conf_class: Type[BaseConfig] = BaseConfig
-        if values["device_type"] == EmulatorType.EMU_TN.value:
+        if values.data["device_type"] == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
-        elif values["device_type"] == EmulatorType.EMU_FREE.value:
+        elif values.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
 
