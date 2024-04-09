@@ -2,7 +2,7 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import BaseModel, Extra, root_validator, validator
+from pydantic import BaseModel, Extra, field_validator, model_validator
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -13,7 +13,6 @@ from pasqal_cloud.errors import (
     BatchSetCompleteError,
     BatchCancellingError,
     JobCreationError,
-    JobFetchingError,
     JobRetryError,
 )
 from pasqal_cloud.job import CreateJob, Job
@@ -79,7 +78,7 @@ class Batch(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """This root validator will modify the 'jobs' attribute which is a list
         of jobs dictionaries ordered by creation time before instantiation.
@@ -107,7 +106,7 @@ class Batch(BaseModel):
         )
         return {job.id: job for job in self.ordered_jobs}
 
-    @validator("configuration", pre=True)
+    @field_validator("configuration", mode="before")
     def _load_configuration(
         cls,
         configuration: Union[Dict[str, Any], BaseConfig, None],
