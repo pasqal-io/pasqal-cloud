@@ -156,8 +156,8 @@ class Batch(BaseModel):
         """
         try:
             batch_rsp = self._client._add_jobs(self.id, jobs)
-        except Exception as e:
-            raise JobCreationError(e)
+        except HTTPError as e:
+            raise JobCreationError(e) from e
         self._update_from_api_response(batch_rsp)
 
         if wait:
