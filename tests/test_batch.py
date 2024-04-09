@@ -38,18 +38,6 @@ class TestBatch:
             response_content = json.load(f)
         return response_content
 
-    @pytest.fixture
-    def mock_requests_lib_batch_response_200_success(self) -> Response:
-        """Create a requests Response object for overriding the HTTP layer inside tests"""
-        response = None
-        # Create Requests response
-        with open("tests/fixtures/api/v1/batches/_.POST.json") as f:
-            response_content = json.load(f)
-        response = Response()
-        response.status_code = 200
-        response._content = response_content
-        return response
-
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
         """Fixture to mock sleep to make tests faster."""
