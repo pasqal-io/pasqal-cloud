@@ -57,6 +57,11 @@ class Workload(BaseModel):
         extra = Extra.allow
         arbitrary_types_allowed = True
 
+    def __init__(self, _client: Client, **data):
+        data.update(_client=_client)
+        super().__init__(**data)
+        self._client = _client
+
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
         try:
