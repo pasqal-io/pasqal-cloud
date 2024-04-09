@@ -9,6 +9,10 @@ class ExceptionWithResponseContext(BaseException):
         if not e:
             return super().__init__(msg)
         resp: Response = e.response
+
+        if resp is None:
+            return super().__init__(msg)
+
         if not resp.content:
             return super().__init__(msg)
         data = resp.json()

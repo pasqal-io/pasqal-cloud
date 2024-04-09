@@ -179,7 +179,7 @@ class SDK:
         try:
             batch_rsp = self._client._send_batch(req)
         except HTTPError as e:
-            raise BatchCreationError(e) from e
+            raise BatchCreationError(e)
 
         batch = Batch(**batch_rsp, _client=self._client)
 

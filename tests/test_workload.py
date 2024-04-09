@@ -13,6 +13,7 @@ from pasqal_cloud.errors import (
     WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
 )
+from typing import Any, Generator
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
@@ -42,7 +43,13 @@ class TestWorkload:
         self.config = {"test1": "test1", "test2": 2}
         self.workload_result = {"1001": 12, "0110": 35, "1111": 1}
 
-    def test_create_workload(self, mock_request):
+    @pytest.fixture(autouse=True)
+    def mock_sleep(self):
+        """Fixture to mock sleep to make tests faster."""
+        with patch("time.sleep"):
+            yield
+
+    def test_create_workload(self, mock_request: Generator[Any, Any, None]):
         workload = self.sdk.create_workload(
             backend=self.backend,
             workload_type=self.workload_type,
@@ -58,7 +65,9 @@ class TestWorkload:
         )
         assert mock_request.last_request.method == "POST"
 
-    def test_create_workload_error(self, mock_request_exception):
+    def test_create_workload_error(
+        self, mock_request_exception: Generator[Any, Any, None]
+    ):
         with pytest.raises(WorkloadCreationError):
             _ = self.sdk.create_workload(
                 backend=self.backend,
@@ -72,7 +81,7 @@ class TestWorkload:
         )
         assert mock_request_exception.last_request.method == "POST"
 
-    def test_create_workload_and_wait(self, mock_request):
+    def test_create_workload_and_wait(self, mock_request: Generator[Any, Any, None]):
         workload = self.sdk.create_workload(
             backend=self.backend,
             workload_type=self.workload_type,
@@ -86,7 +95,9 @@ class TestWorkload:
         assert workload.result == self.workload_result
         assert mock_request.last_request.method == "GET"
 
-    def test_get_workload(self, mock_request, workload):
+    def test_get_workload(
+        self, mock_request: Generator[Any, Any, None], workload: Workload
+    ):
         workload_requested = self.sdk.get_workload(workload.id)
         assert workload_requested.id == self.workload_id
         assert (
@@ -95,7 +106,10 @@ class TestWorkload:
         )
 
     def test_get_workload_with_link(
-        self, mock_request, workload_with_link_id, result_link_endpoint
+        self,
+        mock_request: Generator[Any, Any, None],
+        workload_with_link_id: Workload,
+        result_link_endpoint: str,
     ):
         self.sdk.get_workload(workload_with_link_id)
         assert mock_request.last_request.url == (
@@ -103,7 +117,9 @@ class TestWorkload:
         )
 
     def test_get_workload_with_invalid_link(
-        self, workload_with_invalid_link_id, mock_request
+        self,
+        workload_with_invalid_link_id: Workload,
+        mock_request: Generator[Any, Any, None],
     ):
         with pytest.raises(WorkloadResultsDecodeError):
             self.sdk.get_workload(workload_with_invalid_link_id)
@@ -112,7 +128,9 @@ class TestWorkload:
             == "http://invalid-link/00000000-0000-0000-0000-000000000003"
         )
 
-    def test_get_workload_error(self, mock_request_exception, workload):
+    def test_get_workload_error(
+        self, mock_request_exception: Generator[Any, Any, None], workload: Workload
+    ):
         with pytest.raises(WorkloadFetchingError):
             _ = self.sdk.get_workload(workload.id)
         assert (
@@ -122,7 +140,9 @@ class TestWorkload:
         )
         assert mock_request_exception.last_request.method == "GET"
 
-    def test_cancel_workload_self(self, mock_request, workload):
+    def test_cancel_workload_self(
+        self, mock_request: Generator[Any, Any, None], workload: Workload
+    ):
         workload.cancel()
         assert workload.status == "CANCELED"
         assert mock_request.last_request.method == "PUT"
@@ -142,7 +162,7 @@ class TestWorkload:
             f"/api/v1/workloads/{self.workload_id}/cancel"
         )
 
-    def test_cancel_workload_sdk(self, mock_request, workload):
+    def test_cancel_workload_sdk(self, mock_request: Generator[Any, Any, None]):
         client_rsp = self.sdk.cancel_workload(self.workload_id)
         assert type(client_rsp) == Workload
         assert client_rsp.status == "CANCELED"
@@ -152,7 +172,9 @@ class TestWorkload:
             f"/api/v1/workloads/{self.workload_id}/cancel"
         )
 
-    def test_cancel_workload_sdk_error(self, mock_request_exception, workload):
+    def test_cancel_workload_sdk_error(
+        self, mock_request_exception: Generator[Any, Any, None], workload: Workload
+    ):
         with pytest.raises(WorkloadCancellingError):
             _ = self.sdk.cancel_workload(self.workload_id)
         assert workload.status == "PENDING"
@@ -163,7 +185,7 @@ class TestWorkload:
             f"/api/v1/workloads/{self.workload_id}/cancel"
         )
 
-    def test_workload_instantiation_with_extra_field(self, workload):
+    def test_workload_instantiation_with_extra_field(self, workload: Workload):
         """Instantiating a workload with an extra field should not raise an error.
 
         This enables us to add new fields in the API response on the workloads endpoint
@@ -179,7 +201,7 @@ class TestWorkload:
             new_workload.new_field == "any_value"
         )  # The new value should be stored regardless
 
-    def test_workload_result_raise_connection_error(self, workload):
+    def test_workload_result_raise_connection_error(self, workload: Workload):
         """
         Check that error is raised when an improper url is set.
         """
@@ -189,7 +211,7 @@ class TestWorkload:
         with pytest.raises(WorkloadResultsConnectionError):
             Workload(**workload_dict)
 
-    def tests_workload_result_set(self, workload):
+    def tests_workload_result_set(self, workload: Workload):
         """
         Check that result is set when only result_link is provided.
         """

@@ -16,8 +16,9 @@ from __future__ import annotations
 from datetime import datetime
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
-
+import time
 import requests
+from requests import HTTPError
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -29,6 +30,7 @@ from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
+HTTP_RETRIES = 5  # HTTP client will raise an exception after too many consecutive fails
 
 
 class EmptyFilter:
@@ -108,18 +110,28 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
-        rsp = requests.request(
-            method,
-            url,
-            json=payload,
-            timeout=TIMEOUT,
-            headers={"content-type": "application/json"},
-            auth=self.authenticator,
-            params=params,
-        )
-        rsp.raise_for_status()
-        data: JSendPayload = rsp.json()
-
+        successful_request: bool = False
+        iteration: int = 0
+        while not successful_request and iteration <= HTTP_RETRIES:
+            # time = (interval seconds * exponent rule) ^ retries
+            delay = (1 * 2) ** iteration
+            # resp: requests.Request = None
+            try:
+                rsp = requests.request(
+                    method,
+                    url,
+                    json=payload,
+                    timeout=TIMEOUT,
+                    headers={"content-type": "application/json"},
+                    auth=self.authenticator,
+                    params=params,
+                )
+                data: JSendPayload = rsp.json()
+            except Exception as e:
+                if iteration == HTTP_RETRIES:
+                    raise HTTPError
+                time.sleep(delay)
+            iteration += 1
         return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -218,8 +230,11 @@ class Client:
     def _cancel_workload(self, workload_id: str) -> Dict[str, Any]:
         workload: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
-        )["data"]
-        return workload
+        )
+        print("*" * 100)
+        print(workload)
+        print("*" * 100)
+        return workload["data"]
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         device_specs: Dict[str, str] = self._request(
