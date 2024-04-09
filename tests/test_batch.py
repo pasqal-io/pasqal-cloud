@@ -168,7 +168,11 @@ class TestBatch:
         assert isinstance(batch_requested, BatchModel)
 
     def test_batch_add_jobs(self, mock_request: Generator[Any, Any, None]):
-        """ """
+        """
+        Test that after successfully creating, and adding jobs, the total number of jobs
+        associated with a batch is correct, and the batch id is in the URL that was most
+        recently called.
+        """
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
@@ -329,7 +333,13 @@ class TestBatch:
     def test_cancel_batch_sdk_error(
         self, mock_request_exception: Generator[Any, Any, None]
     ):
-        """ """
+        """
+        Assert that a BatchCancellingError is raised appropriatrely for
+        failling requests when calling sdk.cancel_batch(...)
+
+        This test also assert the most recently used HTTP method and URL
+        are correct.
+        """
         with pytest.raises(BatchCancellingError):
             _ = self.sdk.cancel_batch(self.batch_id)
 

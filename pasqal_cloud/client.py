@@ -115,7 +115,6 @@ class Client:
         while not successful_request and iteration <= HTTP_RETRIES:
             # time = (interval seconds * exponent rule) ^ retries
             delay = (1 * 2) ** iteration
-            # resp: requests.Request = None
             try:
                 rsp = requests.request(
                     method,
@@ -231,9 +230,6 @@ class Client:
         workload: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
         )
-        print("*" * 100)
-        print(workload)
-        print("*" * 100)
         return workload["data"]
 
     def get_device_specs_dict(self) -> Dict[str, str]:

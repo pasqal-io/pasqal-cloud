@@ -8,10 +8,11 @@ class ExceptionWithResponseContext(BaseException):
     def __init__(self, msg: str, e: Optional[HTTPError] = None) -> None:
         if not e:
             return super().__init__(msg)
-        resp: Response = e.response
 
-        if resp is None:
+        if e.response is None:
             return super().__init__(msg)
+
+        resp: Response = e.response
 
         if not resp.content:
             return super().__init__(msg)
