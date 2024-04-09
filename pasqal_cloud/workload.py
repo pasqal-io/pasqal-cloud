@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel, Extra, validator
+from pydantic import BaseModel, field_validator
+from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -16,7 +17,7 @@ from pasqal_cloud.errors import (
 )
 
 
-class Workload(BaseModel):
+class Workload(BaseModel, extra="allow", validate_default=True):
     """Class for workload data.
 
     Attributes:
@@ -53,10 +54,6 @@ class Workload(BaseModel):
     result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
-    class Config:
-        extra = Extra.allow
-        arbitrary_types_allowed = True
-
     def __init__(self, _client: Client, **data):
         data.update(_client=_client)
         super().__init__(**data)
@@ -71,13 +68,13 @@ class Workload(BaseModel):
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
 
-    @validator("result", always=True)
+    @field_validator("result")
     def result_link_to_result(
-        cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
+        cls, v: Optional[Dict[str, Any]], info: ValidationInfo
     ) -> Optional[Dict[str, Any]]:
-        result_link: Optional[str] = values.get("result_link")
-        if result or not result_link:
-            return result
+        result_link: Optional[str] = info.data.get("result_link")
+        if v or not result_link:
+            return v
         try:
             res = requests.get(result_link)
         except HTTPError as e:

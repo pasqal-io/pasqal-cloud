@@ -366,7 +366,7 @@ class TestBatch:
         without breaking compatibility for users with old versions of the SDK where
         the field is not present in the Batch class.
         """
-        batch_dict = batch.dict()  # Batch data expected by the SDK
+        batch_dict = batch.model_dump()  # Batch data expected by the SDK
         # We add an extra field to mimick the API exposing new values to the user
         batch_dict["new_field"] = "any_value"
 

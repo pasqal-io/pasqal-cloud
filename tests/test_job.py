@@ -9,7 +9,7 @@ class TestJob:
         without breaking compatibility for users with old versions of the SDK where
         the field is not present in the Job class.
         """
-        job_dict = job.dict()  # job data expected by the SDK
+        job_dict = job.model_dump()  # job data expected by the SDK
         # We add an extra field to mimick the API exposing new values to the user
         job_dict["new_field"] = "any_value"
 

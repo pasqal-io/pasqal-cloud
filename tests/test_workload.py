@@ -170,7 +170,7 @@ class TestWorkload:
         without breaking compatibility for users with old versions of the SDK where
         the field is not present in the Batch class.
         """
-        workload_dict = workload.dict()  # Batch data expected by the SDK
+        workload_dict = workload.model_dump()  # Batch data expected by the SDK
         # We add an extra field to mimick the API exposing new values to the user
         workload_dict["new_field"] = "any_value"
 
@@ -181,9 +181,9 @@ class TestWorkload:
 
     def test_workload_result_raise_connection_error(self, workload):
         """
-        Check that error is raised when improper url is set.
+        Check that error is raised when an improper url is set.
         """
-        workload_dict = workload.dict()
+        workload_dict = workload.model_dump()
         workload_dict.pop("result")
         workload_dict["result_link"] = "http://test.test"
         with pytest.raises(WorkloadResultsConnectionError):
@@ -193,7 +193,7 @@ class TestWorkload:
         """
         Check that result is set when only result_link is provided.
         """
-        workload_dict = workload.dict()
+        workload_dict = workload.model_dump()
         workload_dict.pop("result")
         workload_dict["result_link"] = "http://test.test"
         resp = requests.Response()

@@ -2,7 +2,7 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import BaseModel, Extra, ValidationInfo, field_validator, model_validator
+from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -20,11 +20,11 @@ from pasqal_cloud.job import CreateJob, Job
 RESULT_POLLING_INTERVAL = 2  # seconds
 
 
-class Batch(BaseModel):
+class Batch(BaseModel, extra="allow"):
     """Class to load batch data return by the API.
 
     A batch groups up several jobs with the same sequence. When a batch is assigned to
-    a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
+    a QPU, all its jobs are run sequentially and no other batch can be assigned to the
     device until all its jobs are done and declared complete.
 
     Attributes:
@@ -62,21 +62,17 @@ class Batch(BaseModel):
     user_id: str
     priority: int
     status: str
-    webhook: Optional[str] = None
     _client: Client
     sequence_builder: str
-    start_datetime: Optional[str] = None
-    end_datetime: Optional[str] = None
-    device_status: Optional[str] = None
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
+    webhook: Optional[str] = None
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
+    device_status: Optional[str] = None
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
-
-    class Config:
-        extra = Extra.allow
-        arbitrary_types_allowed = True
 
     def __init__(self, _client: Client, **data):
         data.update(_client=_client)
@@ -85,7 +81,7 @@ class Batch(BaseModel):
 
     @model_validator(mode="before")
     def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute which is a list
+        """This root validator will modify the 'jobs' attribute, which is a list
         of jobs dictionaries ordered by creation time before instantiation.
         It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
         to keep the jobs ordered by creation time.
@@ -113,7 +109,7 @@ class Batch(BaseModel):
 
     @jobs.setter
     def jobs(self, _):
-        # logger qlq chose
+        # Do not set jobs attribute as it built from ordered_jobs
         pass
 
     @field_validator("configuration", mode="before")
