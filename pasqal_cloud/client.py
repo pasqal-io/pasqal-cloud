@@ -18,7 +18,6 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 import time
 import requests
-from requests import HTTPError
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -126,11 +125,13 @@ class Client:
                     params=params,
                 )
                 data: JSendPayload = rsp.json()
+                successful_request = True
             except Exception as e:
                 if iteration == HTTP_RETRIES:
-                    raise HTTPError
+                    raise e
                 time.sleep(delay)
             iteration += 1
+
         return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:

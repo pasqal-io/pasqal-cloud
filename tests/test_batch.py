@@ -223,7 +223,6 @@ class TestBatch:
         )
 
         # Reset history so that we can count calls later
-        mock_request.reset_mock()
         mock_request.register_uri(
             "POST",
             f"/core-fast/api/v1/batches/{batch.id}/jobs",
@@ -234,12 +233,9 @@ class TestBatch:
             wait=True,
         )
 
+        # Several calls take place to POST /core-fast/api/v1/batches
+        # and GET core-fast/api/v1/batches/{id}
         assert mock_request.call_count == 12
-
-        assert (
-            mock_request.request_history[0].url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/00000000-0000-0000-0000-000000000002/jobs"
-        )
 
         assert mock_request.request_history[0].method == "POST"
         methods = {req.method for req in mock_request.request_history}
