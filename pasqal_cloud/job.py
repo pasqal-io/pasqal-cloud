@@ -52,7 +52,7 @@ class Job(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    def __init__(self, _client: Client, **data):
+    def __init__(self, _client: Client, **data: Any):
         data.update(_client=_client)
         super().__init__(**data)
         self._client = _client

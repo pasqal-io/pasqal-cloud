@@ -82,7 +82,7 @@ class Batch(BaseModel):
 
     model_config = ConfigDict(extra="allow")
 
-    def __init__(self, _client: Client, **data):
+    def __init__(self, _client: Client, **data: Any):
         data.update(_client=_client)
         super().__init__(**data)
         self._client = _client
@@ -116,7 +116,7 @@ class Batch(BaseModel):
         return {job.id: job for job in self.ordered_jobs}
 
     @jobs.setter
-    def jobs(self, _):
+    def jobs(self, _: Any) -> None:
         # Do not set jobs attribute as it built from ordered_jobs
         pass
 
