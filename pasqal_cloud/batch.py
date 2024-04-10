@@ -2,7 +2,13 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+    ConfigDict,
+)
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -20,7 +26,7 @@ from pasqal_cloud.job import CreateJob, Job
 RESULT_POLLING_INTERVAL = 2  # seconds
 
 
-class Batch(BaseModel, extra="allow"):
+class Batch(BaseModel):
     """Class to load batch data return by the API.
 
     A batch groups up several jobs with the same sequence. When a batch is assigned to
@@ -73,6 +79,8 @@ class Batch(BaseModel, extra="allow"):
     device_status: Optional[str] = None
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
+
+    model_config = ConfigDict(extra="allow")
 
     def __init__(self, _client: Client, **data):
         data.update(_client=_client)

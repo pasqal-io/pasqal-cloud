@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
@@ -17,7 +17,7 @@ from pasqal_cloud.errors import (
 )
 
 
-class Workload(BaseModel, extra="allow", validate_default=True):
+class Workload(BaseModel):
     """Class for workload data.
 
     Attributes:
@@ -53,6 +53,8 @@ class Workload(BaseModel, extra="allow", validate_default=True):
     end_timestamp: Optional[str] = None
     result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
+
+    model_config = ConfigDict(extra="allow", validate_default=True)
 
     def __init__(self, _client: Client, **data):
         data.update(_client=_client)

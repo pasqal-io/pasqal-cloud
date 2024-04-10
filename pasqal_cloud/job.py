@@ -1,13 +1,13 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.errors import JobCancellingError
 
 
-class Job(BaseModel, extra="allow"):
+class Job(BaseModel):
     """Class for job data.
 
     Attributes:
@@ -49,6 +49,8 @@ class Job(BaseModel, extra="allow"):
     # Ticket (#622)
     group_id: Optional[str] = None
     parent_id: Optional[str] = None
+
+    model_config = ConfigDict(extra="allow")
 
     def __init__(self, _client: Client, **data):
         data.update(_client=_client)
