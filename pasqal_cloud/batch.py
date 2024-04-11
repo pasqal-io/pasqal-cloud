@@ -82,7 +82,7 @@ class Batch(BaseModel):
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
-    def __init__(self, **data):
+    def __init__(self, **data: Any) -> None:
         """
         Makes sure the '_client' is set when instantiating a Batch
         as Pydantic V2 does not support private attributes.
