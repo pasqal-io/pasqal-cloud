@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel, field_validator, ConfigDict
+from pydantic import BaseModel, field_validator, ConfigDict, PrivateAttr
 from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
@@ -42,7 +42,7 @@ class Workload(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client
+    _client: Client = PrivateAttr(default=None)
     backend: str
     workload_type: str
     config: Dict[str, Any]
@@ -54,12 +54,15 @@ class Workload(BaseModel):
     result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
-    model_config = ConfigDict(extra="allow", validate_default=True)
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True, validate_default=True)
 
-    def __init__(self, _client: Client, **data: Any):
-        data.update(_client=_client)
+    def __init__(self, **data):
+        """
+        Makes sure the _client is set when instantiating a Workload
+        as Pydantic V2 does not support private attributes.
+        """
         super().__init__(**data)
-        self._client = _client
+        self._client = data["_client"]
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""

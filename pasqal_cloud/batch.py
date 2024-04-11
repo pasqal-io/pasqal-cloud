@@ -7,7 +7,7 @@ from pydantic import (
     ValidationInfo,
     field_validator,
     model_validator,
-    ConfigDict,
+    ConfigDict, PrivateAttr,
 )
 from requests import HTTPError
 
@@ -68,7 +68,7 @@ class Batch(BaseModel):
     user_id: str
     priority: int
     status: str
-    _client: Client
+    _client: Client = PrivateAttr(default=None)
     sequence_builder: str
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
@@ -80,27 +80,26 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
-    def __init__(self, _client: Client, **data: Any):
-        data.update(_client=_client)
+    def __init__(self, **data):
+        """
+        Makes sure the _client is set when instantiating a Batch
+        as Pydantic V2 does not support private attributes.
+        """
         super().__init__(**data)
-        self._client = _client
+        self._client = data["_client"]
 
     @model_validator(mode="before")
-    def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_ordered_jobs(cls, data: Dict[str, Any]) -> Dict[str, Any]:
         """This root validator will modify the 'jobs' attribute, which is a list
         of jobs dictionaries ordered by creation time before instantiation.
         It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
         to keep the jobs ordered by creation time.
         """
-        ordered_jobs_list = []
-        jobs_received = values.get("jobs", [])
-        for job in jobs_received:
-            job_dict = {**job, "_client": values["_client"]}
-            ordered_jobs_list.append(job_dict)
-        values["ordered_jobs"] = ordered_jobs_list
-        return values
+        jobs_received = data.get("jobs", [])
+        data["ordered_jobs"] = [{**job, "_client": data["_client"]} for job in jobs_received]
+        return data
 
     # Ticket (#704), to be removed or updated
     @property
@@ -117,23 +116,23 @@ class Batch(BaseModel):
 
     @jobs.setter
     def jobs(self, _: Any) -> None:
-        # Do not set jobs attribute as it built from ordered_jobs
+        # Does not set jobs attribute as it is built from 'ordered_jobs'
         pass
 
     @field_validator("configuration", mode="before")
     def _load_configuration(
         cls,
-        configuration: Union[Dict[str, Any], BaseConfig, None],
-        values: ValidationInfo,
+        v: Union[Dict[str, Any], BaseConfig, None],
+        info: ValidationInfo,
     ) -> Optional[BaseConfig]:
-        if not isinstance(configuration, dict):
-            return configuration
+        if not isinstance(v, dict):
+            return v
         conf_class: Type[BaseConfig] = BaseConfig
-        if values.data["device_type"] == EmulatorType.EMU_TN.value:
+        if info.data["device_type"] == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
-        elif values.data["device_type"] == EmulatorType.EMU_FREE.value:
+        elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
-        return conf_class.from_dict(configuration)
+        return conf_class.from_dict(v)
 
     def add_jobs(
         self,
