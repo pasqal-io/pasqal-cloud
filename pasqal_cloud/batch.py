@@ -116,7 +116,7 @@ class Batch(BaseModel):
 
     @jobs.setter
     def jobs(self, _: Any) -> None:
-        # Does not set jobs attribute as it is built from 'ordered_jobs'
+        # Does not set 'jobs' as it is built from 'ordered_jobs'
         pass
 
     @field_validator("configuration", mode="before")
