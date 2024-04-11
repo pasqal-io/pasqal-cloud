@@ -54,7 +54,7 @@ class Job(BaseModel):
 
     def __init__(self, **data: Any):
         """
-        Makes sure the _client is set when instantiating a Job
+        Makes sure the '_client' is set when instantiating a Job
         as Pydantic V2 does not support private attributes.
         """
         super().__init__(**data)

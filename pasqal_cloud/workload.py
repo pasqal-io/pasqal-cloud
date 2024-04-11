@@ -58,7 +58,7 @@ class Workload(BaseModel):
 
     def __init__(self, **data):
         """
-        Makes sure the _client is set when instantiating a Workload
+        Makes sure the '_client' is set when instantiating a Workload
         as Pydantic V2 does not support private attributes.
         """
         super().__init__(**data)

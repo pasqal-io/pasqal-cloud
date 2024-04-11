@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Upgrading Pydantic from V1.10 to V2.6.4
+- Upgrading Pydantic from V1.10 to V2.6.4.
 - Updated documentation.
 
 ## [0.7.0] - 2024-03-05
@@ -21,17 +21,17 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Added feature to "rebatch" for a closed batch
-- Added `parent_id` param to batch and job
-- Updated documentation
+- Added feature to "rebatch" for a closed batch.
+- Added `parent_id` param to batch and job.
+- Updated documentation.
 
 ## [0.5.0] - 2024-02-05
 
 ### Added
 
 - Added feature to create an "open" batch.
-  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK
-  - To add jobs to an open batch, use the `add_jobs` method
+  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+  - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 
@@ -39,8 +39,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- CRUCIAL BUGFIX - download results properly from result link
-- Added exception case for results download
+- CRUCIAL BUGFIX - download results properly from result link.
+- Added exception case for results download.
 
 ## [0.4.2] - 2023-10-09
 
@@ -57,24 +57,24 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Added `result_link` field to `Workload` object
+- Added `result_link` field to `Workload` object.
 
 ### Changed
 
-- `get_workload` now targets v2 of workloads endpoints
-- `result` is built from `result_link` where results are downloaded from temp s3 link
+- `get_workload` now targets v2 of workloads endpoints.
+- `result` is built from `result_link` where results are downloaded from temp s3 link.
 
 ## [0.4.0] - 2023-10-02
 
 ### Added
 
 - Added exception classes for all possible failures (mostly related to client errors).
-- Added try-catch to corresponding methods to raise proper error
+- Added try-catch to corresponding methods to raise proper error.
 
 ### Changed
 
 - Use `raise_for_status` on response from client before returning `data` to get accurate exception.
-- Bumped minor as new exceptions are raised
+- Bumped minor as new exceptions are raised.
 
 ### Removed
 

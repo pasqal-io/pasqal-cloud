@@ -84,7 +84,7 @@ class Batch(BaseModel):
 
     def __init__(self, **data):
         """
-        Makes sure the _client is set when instantiating a Batch
+        Makes sure the '_client' is set when instantiating a Batch
         as Pydantic V2 does not support private attributes.
         """
         super().__init__(**data)
