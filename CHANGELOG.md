@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1] - 2024-03-11
+
+### Added
+
+- Upgrading Pydantic from V1.10 to V2.6.4
+- Updated documentation.
+
 ## [0.7.0] - 2024-03-05
 
 ### Added
