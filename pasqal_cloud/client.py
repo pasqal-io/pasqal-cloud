@@ -13,10 +13,11 @@
 # limitations under the License.
 from __future__ import annotations
 
+import time
 from datetime import datetime
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
-import time
+
 import requests
 from requests.auth import AuthBase
 
@@ -150,18 +151,18 @@ class Client:
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
-        batch_data = self._request(
+        response: Dict[str, Any] = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
         )["data"]
-        return batch_data
+        return response
 
-    def _get_batch(self, id: str) -> Dict[str, Any]:
-        batch_data: Dict[str, Any] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/batches/{id}"
+    def _get_batch(self, batch_id: str) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/batches/{batch_id}"
         )["data"]
-        return batch_data
+        return response
 
     def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
@@ -170,10 +171,10 @@ class Client:
         return response
 
     def _cancel_batch(self, batch_id: str) -> Dict[str, Any]:
-        batch: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
         )["data"]
-        return batch
+        return response
 
     def rebatch(
         self,
@@ -199,12 +200,12 @@ class Client:
         if not isinstance(end_date, EmptyFilter):
             query_params["end_date"] = end_date.isoformat()
 
-        new_batch: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
             params=query_params,
         )["data"]
-        return new_batch
+        return response
 
     def _add_jobs(
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
@@ -215,40 +216,40 @@ class Client:
         return response
 
     def _get_job(self, job_id: str) -> Dict[str, Any]:
-        job: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
         )["data"]
-        return job
+        return response
 
     def _cancel_job(self, job_id: str) -> Dict[str, Any]:
-        job: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
         )["data"]
-        return job
+        return response
 
     def _send_workload(self, workload_data: Dict[str, Any]) -> Dict[str, Any]:
         workload_data.update({"project_id": self.project_id})
-        workload_data = self._request(
+        response: Dict[str, Any] = self._request(
             "POST",
             f"{self.endpoints.core}/api/v1/workloads",
             workload_data,
         )["data"]
-        return workload_data
+        return response
 
     def _get_workload(self, workload_id: str) -> Dict[str, Any]:
-        workload: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v2/workloads/{workload_id}"
         )["data"]
-        return workload
+        return response
 
     def _cancel_workload(self, workload_id: str) -> Dict[str, Any]:
-        workload: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
         )["data"]
-        return workload
+        return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
-        device_specs: Dict[str, str] = self._request(
+        response: Dict[str, str] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/devices/specs"
         )["data"]
-        return device_specs
+        return response

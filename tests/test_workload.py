@@ -1,9 +1,10 @@
 import json
-import requests
+from typing import Any, Generator
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests
 
 from pasqal_cloud import SDK, Workload
 from pasqal_cloud.errors import (
@@ -13,16 +14,15 @@ from pasqal_cloud.errors import (
     WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
 )
-from typing import Any, Generator
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestWorkload:
-    @pytest.fixture
+    @pytest.fixture()
     def workload_with_link_id(self) -> str:
         return str(UUID(int=0x2))
 
-    @pytest.fixture
+    @pytest.fixture()
     def workload_with_invalid_link_id(self) -> str:
         return str(UUID(int=0x3))
 
@@ -31,7 +31,7 @@ class TestWorkload:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    def init_sdk(self):
+    def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
             password="password",
@@ -44,7 +44,7 @@ class TestWorkload:
         self.workload_result = {"1001": 12, "0110": 35, "1111": 1}
 
     @pytest.fixture(autouse=True)
-    def mock_sleep(self):
+    def _mock_sleep(self):
         """
         This fixture overrides sleeps, so tests don't need to wait for
         the entire duration of a sleep command.
@@ -223,6 +223,6 @@ class TestWorkload:
         workload_dict["result_link"] = "http://test.test"
         resp = requests.Response()
         resp._content = json.dumps({"some": "data"}).encode("utf-8")
-        with patch("requests.get", lambda x: resp):
+        with patch("requests.get", return_value=resp):
             res = Workload(**workload_dict)
         assert res.result == {"some": "data"}

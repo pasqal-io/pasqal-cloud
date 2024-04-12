@@ -1,3 +1,5 @@
+# ruff: noqa: E402 F403
+
 from sdk import pasqal_sdk_not_updated
 
 pasqal_sdk_not_updated()

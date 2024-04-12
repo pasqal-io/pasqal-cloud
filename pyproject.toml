@@ -1,12 +1,63 @@
-[tool.black]
-line-length = 88
-
-[tool.isort]
-profile = "black"
-skip_gitignore = true
-order_by_type = false
-force_alphabetical_sort_within_sections = true
-
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+
+# Assume Python 3.8
+target-version = "py38"
+
+[tool.ruff.lint]
+# Rules applied by ruff, more information on https://docs.astral.sh/ruff/rules/
+select = [
+    "F",
+    "E",
+    "W",
+    "C90",
+    "I",
+    "C4",
+    "T10",
+    "LOG",
+    "PIE",
+    "T20",
+    "PT",
+    "Q",
+    "RSE",
+    "RET",
+    "SIM",
+    "ARG",
+    "ERA",
+    "FLY",
+    "PERF",
+    "RUF",
+]
+ignore = ["W191", "E111", "E114", "E117", "SIM115"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Excluded paths to lint
+exclude = []
+
+[tool.ruff.lint.isort]
+# Order imports by type, which is determined by case, in addition to alphabetically.
+order-by-type = false
+
+known-third-party = []
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Excluded paths to format
+exclude = []

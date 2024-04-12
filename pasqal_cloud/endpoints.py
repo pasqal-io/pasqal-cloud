@@ -17,7 +17,7 @@ from sys import version_info
 if version_info[:2] >= (3, 8):
     from typing import Final
 else:
-    from typing_extensions import Final  # type: ignore
+    from typing_extensions import Final  # type: ignore[assignment]
 
 
 # ---- Endpoints ----

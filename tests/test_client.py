@@ -1,7 +1,10 @@
+import contextlib
+from typing import Any, Generator
 from unittest.mock import patch
+from uuid import uuid4
 
 import pytest
-from auth0.v3.exceptions import Auth0Error  # type: ignore
+from auth0.v3.exceptions import Auth0Error
 
 from pasqal_cloud import (
     AUTH0_CONFIG,
@@ -9,16 +12,12 @@ from pasqal_cloud import (
     Endpoints,
     PASQAL_ENDPOINTS,
     SDK,
-    Client,
 )
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,
 )
-import json
-from typing import Any, Generator, Dict
-from uuid import uuid4
 
 
 class TestSDKCommonAttributes:
@@ -105,7 +104,10 @@ class TestAuthFailure(TestSDKCommonAttributes):
 
 class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_user_with_password(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="At least a username or TokenProvider object should be provided",
+        ):
             SDK(
                 project_id=self.project_id,
                 username=self.no_username,
@@ -115,7 +117,9 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
     def test_module_no_password(self, getpass):
         getpass.return_value = ""
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The prompted password should not be empty"
+        ):
             SDK(
                 project_id=self.project_id,
                 username=self.username,
@@ -126,7 +130,9 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_getpass_no_password(self, getpass):
         getpass.return_value = self.no_password
 
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError, match="The prompted password should not be empty"
+        ):
             SDK(project_id=self.project_id, username=self.username)
 
         getpass.assert_called_once()
@@ -145,7 +151,10 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             )
 
     def test_authentication_no_credentials_provided(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(
+            ValueError,
+            match="At least a username or TokenProvider object should be provided",
+        ):
             SDK(project_id=self.project_id)
 
     @pytest.mark.filterwarnings(
@@ -168,7 +177,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 class TestEnvSDK(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
-        "env, core_endpoint_expected",
+        ("env", "core_endpoint_expected"),
         [
             ("prod", "https://apis.pasqal.cloud/core-fast"),
             ("preprod", "https://apis.preprod.pasqal.cloud/core-fast"),
@@ -198,7 +207,7 @@ class TestSDKRetry:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    def init_sdk(self):
+    def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
             password="password",
@@ -206,7 +215,7 @@ class TestSDKRetry:
         )
 
     @pytest.fixture(autouse=True)
-    def mock_sleep(self):
+    def _mock_sleep(self):
         """
         This fixture overrides sleeps, so tests don't need to wait for
         the entire duration of a sleep command.
@@ -227,10 +236,8 @@ class TestSDKRetry:
         """
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=status_code)
-        try:
+        with contextlib.suppress(Exception):
             self.sdk._client._request("GET", "http://test-domain")
-        except Exception:
-            ...
         assert len(mock_request.request_history) == 6
 
     def test_sdk_doesnt_retry_on_exceptions(
@@ -245,10 +252,8 @@ class TestSDKRetry:
         """
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=400)
-        try:
+        with contextlib.suppress(Exception):
             self.sdk._client._request("GET", "http://test-domain")
-        except Exception:
-            ...
         assert len(mock_request.request_history) == 1
 
     def test_sdk_200_avoids_all_exception_handling(

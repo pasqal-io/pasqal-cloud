@@ -5,7 +5,7 @@ from requests import ConnectionError, HTTPError, Response
 
 
 class ExceptionWithResponseContext(BaseException):
-    def __init__(self, msg: str, e: Optional[HTTPError] = None) -> None:
+    def __init__(self, msg: str, e: Optional[HTTPError] = None):
         if not e:
             return super().__init__(msg)
 
@@ -25,7 +25,7 @@ class ExceptionWithResponseContext(BaseException):
         else:
             description = data.get("message", "")
 
-        super().__init__(
+        return super().__init__(
             f"{msg}: {code}: {description}\nDetails: {json.dumps(data, indent=2)}"
         )
 

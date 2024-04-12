@@ -7,7 +7,7 @@ from pasqal_cloud.device.configuration.emu_tn import EmuTNConfig
 
 __all__ = [
     "BaseConfig",
-    "InvalidConfiguration",
     "EmuFreeConfig",
     "EmuTNConfig",
+    "InvalidConfiguration",
 ]
