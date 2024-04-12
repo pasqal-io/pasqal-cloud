@@ -134,7 +134,8 @@ class Client:
 
             time.sleep(delay)
             iteration += 1
-        return rsp.json()
+        data: JSendPayload = rsp.json()
+        return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
