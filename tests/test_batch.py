@@ -22,12 +22,9 @@ from pasqal_cloud.batch import Batch as BatchModel
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from requests import HTTPError
-from tests.conftest import mock_core_response
-import requests_mock
 
+from tests.conftest import mock_core_response
 from unittest.mock import patch
-from requests.models import Response
 
 
 class TestBatch:
@@ -97,7 +94,7 @@ class TestBatch:
         self, mock_request_exception: Generator[Any, Any, None]
     ):
         """
-        Assert the correct exception is raised when failign to create a batch
+        Assert the correct exception is raised when failing to create a batch
         and that the correct methods and URLs are used.
         """
         with pytest.raises(BatchCreationError):
@@ -173,7 +170,7 @@ class TestBatch:
     ):
         """
         When trying to add jobs to a batch, we test that we catch
-        an exception JobCreationError while later validationg the HTTP method
+        an exception JobCreationError while later validating the HTTP method
         and URL executed.
         """
         with pytest.raises(JobCreationError):
@@ -192,6 +189,7 @@ class TestBatch:
         mock_request: Generator[Any, Any, None],
         load_mock_batch_json_response: Dict[str, Any],
     ):
+        mock_request.reset_mock()
         # Override the batch id so that we load the right API fixtures
         batch.id = "00000000-0000-0000-0000-000000000002"
 
@@ -222,7 +220,6 @@ class TestBatch:
             "GET", f"/core-fast/api/v1/batches/{batch.id}", json=custom_get_batch_mock
         )
 
-        # Reset history so that we can count calls later
         mock_request.register_uri(
             "POST",
             f"/core-fast/api/v1/batches/{batch.id}/jobs",
@@ -318,7 +315,7 @@ class TestBatch:
         self, mock_request_exception: Generator[Any, Any, None]
     ):
         """
-        Assert that a BatchCancellingError is raised appropriatrely for
+        Assert that a BatchCancellingError is raised appropriately for
         failling requests when calling sdk.cancel_batch(...)
 
         This test also assert the most recently used HTTP method and URL
@@ -555,7 +552,7 @@ class TestBatch:
         assert batch.parent_id == self.batch_id
         assert batch.ordered_jobs[0].parent_id
 
-    def test_rebatch_sdk_error(self, mock_request_exception):
+    def test_rebatch_sdk_error(self, mock_request_exception: Generator[Any, Any, None]):
         """
         As a user using the SDK with proper credentials,
         if my request for rebatching returns a non 200 status code,

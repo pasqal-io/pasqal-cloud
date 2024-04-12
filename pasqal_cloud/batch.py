@@ -187,7 +187,8 @@ class Batch(BaseModel):
             raise JobRetryError from e
 
     def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> None:
-        """Declare to PCS that the batch is complete and returns an updated batch instance.
+        """Declare to PCS that the batch is complete and returns an updated
+        batch instance.
 
         Args:
             wait: Whether to wait for the batch to be done and fetch results.

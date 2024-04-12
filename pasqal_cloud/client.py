@@ -114,25 +114,27 @@ class Client:
         while not successful_request and iteration <= HTTP_RETRIES:
             # time = (interval seconds * exponent rule) ^ retries
             delay = (1 * 2) ** iteration
+            rsp = requests.request(
+                method,
+                url,
+                json=payload,
+                timeout=TIMEOUT,
+                headers={"content-type": "application/json"},
+                auth=self.authenticator,
+                params=params,
+            )
             try:
-                rsp = requests.request(
-                    method,
-                    url,
-                    json=payload,
-                    timeout=TIMEOUT,
-                    headers={"content-type": "application/json"},
-                    auth=self.authenticator,
-                    params=params,
-                )
-                data: JSendPayload = rsp.json()
-                successful_request = True
+                rsp.raise_for_status()
             except Exception as e:
-                if iteration == HTTP_RETRIES:
+                if (
+                    rsp.status_code not in {408, 425, 429, 500, 502, 503, 504}
+                    or iteration == HTTP_RETRIES
+                ):
                     raise e
-                time.sleep(delay)
-            iteration += 1
 
-        return data
+            time.sleep(delay)
+            iteration += 1
+        return rsp.json()
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})

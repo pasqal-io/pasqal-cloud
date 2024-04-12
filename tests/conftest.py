@@ -10,7 +10,7 @@ from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from requests import HTTPError
-from typing import Generator, Any
+from typing import Generator, Any, Optional
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 RESULT_LINK_ENDPOINT = "http://result-link/"
@@ -61,7 +61,7 @@ def mock_response(request, context) -> Dict[str, Any]:
 
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
-def request_mock(mock=None):
+def request_mock(mock=None) -> Optional[Any]:
     # Configure requests to use the local JSON files a response
     mock.register_uri(
         requests_mock.ANY,
@@ -73,7 +73,7 @@ def request_mock(mock=None):
 
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
-def request_mock_exception(mock=None):
+def request_mock_exception(mock=None) -> Optional[Any]:
     mock.register_uri(
         requests_mock.ANY,
         requests_mock.ANY,
@@ -106,7 +106,7 @@ def batch_creation_error_data() -> Dict[str, Any]:
 def request_mock_exception_batch_creation(
     batch_creation_error_data,
     mock=None,
-):
+) -> Optional[Any]:
     # Configure requests to use the local JSON files a response
     mock.register_uri(
         requests_mock.ANY,

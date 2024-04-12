@@ -9,6 +9,7 @@ from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,
 )
+from typing import Any, Generator
 
 
 class TestSDKCommonAttributes:
@@ -165,7 +166,7 @@ class TestEnvSDK(TestSDKCommonAttributes):
             ("dev", "https://apis.dev.pasqal.cloud/core-fast"),
         ],
     )
-    def test_select_env(self, env, core_endpoint_expected):
+    def test_select_env(self, env: str, core_endpoint_expected: str):
         sdk = SDK(
             project_id=self.project_id,
             username=self.username,

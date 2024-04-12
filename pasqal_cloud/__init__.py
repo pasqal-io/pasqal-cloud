@@ -138,7 +138,8 @@ class SDK:
               stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
              that accept it.
-            wait: Whether to block on this statement until all the submitted jobs are terminated
+            wait: Whether to block on this statement until all the submitted jobs are
+                terminated
             fetch_results (deprecated): Whether to wait for the batch to
               be done and fetch results
 
