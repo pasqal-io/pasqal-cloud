@@ -34,6 +34,8 @@ class BaseConfig:
     parameters are added to the configuration dictionary.
     """
 
+    strict_validation: bool = False
+    """Whether to validate an emulator job as though it were for FRESNEL."""
     extra_config: Optional[Dict[str, Any]] = None
     result_types: Optional[List[ResultType]] = None
 

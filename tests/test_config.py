@@ -31,6 +31,7 @@ from pasqal_cloud.device.configuration.result_type import ResultType
                 },
             ),
             {
+                "strict_validation": False,
                 "dt": 10.0,
                 "precision": "normal",
                 "max_bond_dim": 500,
@@ -42,6 +43,7 @@ from pasqal_cloud.device.configuration.result_type import ResultType
         (
             EmuTNConfig(result_types=[ResultType.COUNTER]),
             {
+                "strict_validation": False,
                 "dt": 10.0,
                 "precision": "normal",
                 "max_bond_dim": 500,
@@ -51,6 +53,7 @@ from pasqal_cloud.device.configuration.result_type import ResultType
         (
             EmuFreeConfig(),
             {
+                "strict_validation": False,
                 "with_noise": False,
                 "result_types": None,
             },
@@ -58,6 +61,7 @@ from pasqal_cloud.device.configuration.result_type import ResultType
         (
             EmuFreeConfig(with_noise=True),
             {
+                "strict_validation": False,
                 "with_noise": True,
                 "result_types": None,
             },
@@ -65,18 +69,28 @@ from pasqal_cloud.device.configuration.result_type import ResultType
         (
             BaseConfig(),
             {
+                "strict_validation": False,
+                "result_types": None,
+            },
+        ),
+        (
+            BaseConfig(strict_validation=True),
+            {
+                "strict_validation": True,
                 "result_types": None,
             },
         ),
         (
             BaseConfig(extra_config={"extra": "parameter"}),
             {
+                "strict_validation": False,
                 "extra": "parameter",
                 "result_types": None,
             },
         ),
     ],
 )
+@pytest.mark.only
 def test_configuration_to_dict(config: BaseConfig, expected: dict):
     assert config.to_dict() == expected
 
