@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel, field_validator, ConfigDict, PrivateAttr
+from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr
 from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 

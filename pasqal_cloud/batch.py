@@ -4,10 +4,11 @@ from warnings import warn
 
 from pydantic import (
     BaseModel,
-    ValidationInfo,
+    ConfigDict,
     field_validator,
     model_validator,
-    ConfigDict, PrivateAttr,
+    PrivateAttr,
+    ValidationInfo,
 )
 from requests import HTTPError
 
@@ -15,9 +16,9 @@ from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType
 from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.errors import (
+    BatchCancellingError,
     BatchFetchingError,
     BatchSetCompleteError,
-    BatchCancellingError,
     JobCreationError,
     JobRetryError,
 )
