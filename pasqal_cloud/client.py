@@ -108,7 +108,7 @@ class Client:
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
-    ) -> JSendPayload:
+    ) -> Optional[JSendPayload]:
         successful_request: bool = False
         iteration: int = 0
         while iteration <= HTTP_RETRIES and not successful_request:
@@ -139,6 +139,8 @@ class Client:
 
             time.sleep(delay)
             iteration += 1
+
+        return
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
