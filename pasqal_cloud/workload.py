@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 import requests
-from pydantic import BaseModel, Extra, validator
+from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr
+from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -41,7 +42,7 @@ class Workload(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client
+    _client: Client = PrivateAttr(default=None)
     backend: str
     workload_type: str
     config: Dict[str, Any]
@@ -53,9 +54,18 @@ class Workload(BaseModel):
     result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
-    class Config:
-        extra = Extra.allow
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(
+        extra="allow", arbitrary_types_allowed=True, validate_default=True
+    )
+
+    def __init__(self, **data: Any) -> None:
+        """
+        Workaround to make the private attribute '_client' working
+        like we need with Pydantic V2, more information on:
+        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
+        """
+        super().__init__(**data)
+        self._client = data["_client"]
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
@@ -66,11 +76,11 @@ class Workload(BaseModel):
         self.status = workload_rsp.get("status", "CANCELED")
         return workload_rsp
 
-    @validator("result", always=True)
+    @field_validator("result")
     def result_link_to_result(
-        cls, result: Optional[Dict[str, Any]], values: Dict[str, Any]
+        cls, result: Optional[Dict[str, Any]], info: ValidationInfo
     ) -> Optional[Dict[str, Any]]:
-        result_link: Optional[str] = values.get("result_link")
+        result_link: Optional[str] = info.data.get("result_link")
         if result or not result_link:
             return result
         try:

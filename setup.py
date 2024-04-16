@@ -39,14 +39,14 @@ setup(
         "auth0-python >= 3.23.1, <4.0.0",
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
-        "pydantic>=1.10, <2.0",
+        "pydantic >= 2.6.0, <3.0.0",
     ],
     extras_require={
         "dev": {
             "black==23.3.0",
             "flake8==6.0.0",
             "isort==5.12.0",
-            "mypy==0.982",
+            "mypy==1.9.0",
             "pytest==7.4.0",
             "pytest-cov==4.1.0",
             "types-requests==2.31.0.1",
