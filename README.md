@@ -224,8 +224,10 @@ print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload
 Some emulators, such as EMU_TN and EMU_FREE, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
 
-For both emulators, you may choose to validate the sequence and jobs as though they were running
-on the FRESNEL qpu with the `strict_validation` key of the configuration. Defaults to False.
+By default, validation rules are more permissive for jobs targeting an emulator than on the Fresnel QPU when submitting jobs to the cloud platform.
+
+You may however wish to validate that your job running on an emulator is compatible with Fresnel.
+To that extent, set the `strict_validation` key in the configuration to `True`. Defaults to False.
 
 ```python
 
