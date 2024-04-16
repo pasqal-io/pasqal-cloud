@@ -111,7 +111,7 @@ class Client:
     ) -> JSendPayload:
         successful_request: bool = False
         iteration: int = 0
-        while not successful_request and iteration <= HTTP_RETRIES:
+        while iteration <= HTTP_RETRIES and not successful_request:
             # time = (interval seconds * exponent rule) ^ retries
             delay = (1 * 2) ** iteration
             rsp = requests.request(
@@ -125,6 +125,7 @@ class Client:
             )
             try:
                 rsp.raise_for_status()
+                successful_request = True
             except Exception as e:
                 if (
                     rsp.status_code not in {408, 425, 429, 500, 502, 503, 504}
@@ -132,10 +133,12 @@ class Client:
                 ):
                     raise e
 
+            if successful_request:
+                data: JSendPayload = rsp.json()
+                return data
+
             time.sleep(delay)
             iteration += 1
-        data: JSendPayload = rsp.json()
-        return data
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})

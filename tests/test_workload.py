@@ -45,7 +45,10 @@ class TestWorkload:
 
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
-        """Fixture to mock sleep to make tests faster."""
+        """
+        This fixture overrides sleeps, so tests don't need to wait for
+        the entire duration of a sleep command.
+        """
         with patch("time.sleep"):
             yield
 

@@ -21,7 +21,10 @@ class TestDeviceSpecs:
 
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
-        """Fixture to mock sleep to make tests faster."""
+        """
+        This fixture overrides sleeps, so tests don't need to wait for
+        the total elapsed time.
+        """
         with patch("time.sleep"):
             yield
 

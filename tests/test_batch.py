@@ -37,7 +37,10 @@ class TestBatch:
 
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
-        """Fixture to mock sleep to make tests faster."""
+        """
+        This fixture overrides sleeps, so tests don't need to wait for
+        the entire duration of a sleep command.
+        """
         with patch("time.sleep"):
             yield
 
@@ -232,7 +235,7 @@ class TestBatch:
 
         # Several calls take place to POST /core-fast/api/v1/batches
         # and GET core-fast/api/v1/batches/{id}
-        assert mock_request.call_count == 12
+        assert mock_request.call_count == 2
 
         assert mock_request.request_history[0].method == "POST"
         methods = {req.method for req in mock_request.request_history}
