@@ -85,8 +85,9 @@ class Batch(BaseModel):
 
     def __init__(self, **data: Any) -> None:
         """
-        Makes sure the '_client' is set when instantiating a Batch
-        as Pydantic V2 does not support private attributes.
+        Workaround to make the private attribute '_client' working
+        like we need with Pydantic V2, more information on:
+        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         """
         super().__init__(**data)
         self._client = data["_client"]
@@ -99,7 +100,9 @@ class Batch(BaseModel):
         to keep the jobs ordered by creation time.
         """
         jobs_received = data.get("jobs", [])
-        data["ordered_jobs"] = [{**job, "_client": data["_client"]} for job in jobs_received]
+        data["ordered_jobs"] = [
+            {**job, "_client": data["_client"]} for job in jobs_received
+        ]
         return data
 
     # Ticket (#704), to be removed or updated
@@ -117,23 +120,24 @@ class Batch(BaseModel):
 
     @jobs.setter
     def jobs(self, _: Any) -> None:
-        # Does not set 'jobs' as it is built from 'ordered_jobs'
+        # Override the jobs setter to be a no-op.
+        # `jobs` is a read-only attribute which is derived from the `ordered_jobs` key.
         pass
 
     @field_validator("configuration", mode="before")
     def _load_configuration(
         cls,
-        v: Union[Dict[str, Any], BaseConfig, None],
+        configuration: Union[Dict[str, Any], BaseConfig, None],
         info: ValidationInfo,
     ) -> Optional[BaseConfig]:
-        if not isinstance(v, dict):
-            return v
+        if not isinstance(configuration, dict):
+            return configuration
         conf_class: Type[BaseConfig] = BaseConfig
         if info.data["device_type"] == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
         elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
-        return conf_class.from_dict(v)
+        return conf_class.from_dict(configuration)
 
     def add_jobs(
         self,

@@ -54,12 +54,15 @@ class Workload(BaseModel):
     result_link: Optional[str] = None
     result: Optional[Dict[str, Any]] = None
 
-    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True, validate_default=True)
+    model_config = ConfigDict(
+        extra="allow", arbitrary_types_allowed=True, validate_default=True
+    )
 
     def __init__(self, **data: Any) -> None:
         """
-        Makes sure the '_client' is set when instantiating a Workload
-        as Pydantic V2 does not support private attributes.
+        Workaround to make the private attribute '_client' working
+        like we need with Pydantic V2, more information on:
+        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         """
         super().__init__(**data)
         self._client = data["_client"]
@@ -75,11 +78,11 @@ class Workload(BaseModel):
 
     @field_validator("result")
     def result_link_to_result(
-        cls, v: Optional[Dict[str, Any]], info: ValidationInfo
+        cls, result: Optional[Dict[str, Any]], info: ValidationInfo
     ) -> Optional[Dict[str, Any]]:
         result_link: Optional[str] = info.data.get("result_link")
-        if v or not result_link:
-            return v
+        if result or not result_link:
+            return result
         try:
             res = requests.get(result_link)
         except HTTPError as e:
