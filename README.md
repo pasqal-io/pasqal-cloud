@@ -224,6 +224,24 @@ print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload
 Some emulators, such as EMU_TN and EMU_FREE, accept further configuration to control the emulation.
 This is because these emulators are more advanced numerical simulation of the quantum system.
 
+By default, validation rules are more permissive for jobs targeting an emulator than on the Fresnel QPU when submitting jobs to the cloud platform.
+
+You may however wish to validate that your job running on an emulator is compatible with Fresnel.
+To that extent, set the `strict_validation` key in the configuration to `True`. Defaults to False.
+
+```python
+
+from pasqal_cloud.device import EmulatorType, EmuFreeConfig, EmuTNConfig
+
+configuration = EmuTNConfig(strict_validation=True)
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
+
+# or
+
+configuration = EmuFreeConfig(strict_validation=True)
+batch = sdk.create_batch(serialized_sequence, [job1,job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
+```
+
 For EMU_TN you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network compression, and the maximal bond dimension of tensor network state.
 
 ```python
