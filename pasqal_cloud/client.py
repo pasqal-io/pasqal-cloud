@@ -29,7 +29,6 @@ from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
-HTTP_RETRIES = 5  # HTTP client will raise an exception after too many consecutive fails
 
 
 class EmptyFilter:
@@ -109,9 +108,12 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
+        max_retries = (
+            5  # HTTP client will raise an exception after too many consecutive fails
+        )
         successful_request: bool = False
         iteration: int = 0
-        while iteration <= HTTP_RETRIES and not successful_request:
+        while iteration <= max_retries and not successful_request:
             # time = (interval seconds * exponent rule) ^ retries
             delay = (1 * 2) ** iteration
             rsp = requests.request(
@@ -129,7 +131,7 @@ class Client:
             except Exception as e:
                 if (
                     rsp.status_code not in {408, 425, 429, 500, 502, 503, 504}
-                    or iteration == HTTP_RETRIES
+                    or iteration == max_retries
                 ):
                     raise e
 

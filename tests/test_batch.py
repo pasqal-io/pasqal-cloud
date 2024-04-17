@@ -279,9 +279,6 @@ class TestBatch:
         assert len(batch.ordered_jobs) == 1
 
     def test_cancel_batch_self(self, mock_request, batch):
-        """
-        TODO
-        """
         batch.cancel()
         assert batch.status == "CANCELED"
         assert mock_request.last_request.method == "PUT"
@@ -291,9 +288,6 @@ class TestBatch:
         )
 
     def test_cancel_batch_self_error(self, mock_request_exception, batch):
-        """
-        TODO
-        """
         with pytest.raises(BatchCancellingError):
             batch.cancel()
         assert batch.status == "PENDING"

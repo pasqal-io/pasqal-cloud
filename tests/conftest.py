@@ -51,7 +51,7 @@ def mock_result_link_response() -> Dict[str, str]:
 def mock_response(request, context) -> Dict[str, Any]:
     """This acts as a Router to Mock the requests we make with custom behaviors.
 
-    A linter might suggest context is unused, but is required for some tests to execute.
+    A linter might suggest 'context' is unused, but is required for some tests to execute.
     """
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
@@ -66,6 +66,7 @@ def request_mock(mock=None) -> Optional[Any]:
     mock.register_uri(
         requests_mock.ANY,
         requests_mock.ANY,
+        status_code=200,
         json=mock_response,
     )
     return mock
@@ -101,22 +102,6 @@ def batch_creation_error_data() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
-@requests_mock.Mocker(kw="mock")
-def request_mock_exception_batch_creation(
-    batch_creation_error_data,
-    mock=None,
-) -> Optional[Any]:
-    # Configure requests to use the local JSON files a response
-    mock.register_uri(
-        requests_mock.ANY,
-        requests_mock.ANY,
-        status_code=422,
-        json=batch_creation_error_data,
-    )
-    return mock
-
-
 @pytest.fixture(scope="function")
 def mock_request(request_mock) -> Generator[Any, Any, None]:
     request_mock.start()
@@ -129,15 +114,6 @@ def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
     request_mock_exception.start()
     yield request_mock_exception
     request_mock_exception.stop()
-
-
-@pytest.fixture(scope="function")
-def mock_request_exception_batch_creation(
-    request_mock_exception_batch_creation,
-) -> Generator[Any, Any, None]:
-    request_mock_exception_batch_creation.start()
-    yield request_mock_exception_batch_creation
-    request_mock_exception_batch_creation.stop()
 
 
 @pytest.fixture
