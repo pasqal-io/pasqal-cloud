@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -37,7 +37,7 @@ class Job(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client
+    _client: Client = PrivateAttr(default=None)
     created_at: str
     updated_at: str
     errors: Optional[List[str]] = None
@@ -50,9 +50,16 @@ class Job(BaseModel):
     group_id: Optional[str] = None
     parent_id: Optional[str] = None
 
-    class Config:
-        extra = Extra.allow
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
+
+    def __init__(self, **data: Any) -> None:
+        """
+        Workaround to make the private attribute '_client' working
+        like we need with Pydantic V2, more information on:
+        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
+        """
+        super().__init__(**data)
+        self._client = data["_client"]
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""

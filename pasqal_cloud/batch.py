@@ -2,18 +2,24 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import BaseModel, Extra, root_validator, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    field_validator,
+    model_validator,
+    PrivateAttr,
+    ValidationInfo,
+)
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType
 from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.errors import (
+    BatchCancellingError,
     BatchFetchingError,
     BatchSetCompleteError,
-    BatchCancellingError,
     JobCreationError,
-    JobFetchingError,
     JobRetryError,
 )
 from pasqal_cloud.job import CreateJob, Job
@@ -25,7 +31,7 @@ class Batch(BaseModel):
     """Class to load batch data return by the API.
 
     A batch groups up several jobs with the same sequence. When a batch is assigned to
-    a QPU, all its jobs are ran sequentially and no other batch can be assigned to the
+    a QPU, all its jobs are run sequentially and no other batch can be assigned to the
     device until all its jobs are done and declared complete.
 
     Attributes:
@@ -63,36 +69,41 @@ class Batch(BaseModel):
     user_id: str
     priority: int
     status: str
-    webhook: Optional[str]
-    _client: Client
+    _client: Client = PrivateAttr(default=None)
     sequence_builder: str
-    start_datetime: Optional[str]
-    end_datetime: Optional[str]
-    device_status: Optional[str]
     ordered_jobs: List[Job] = []
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
+    webhook: Optional[str] = None
+    start_datetime: Optional[str] = None
+    end_datetime: Optional[str] = None
+    device_status: Optional[str] = None
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
 
-    class Config:
-        extra = Extra.allow
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
-    @root_validator(pre=True)
-    def _build_ordered_jobs(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute which is a list
+    def __init__(self, **data: Any) -> None:
+        """
+        Workaround to make the private attribute '_client' working
+        like we need with Pydantic V2, more information on:
+        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
+        """
+        super().__init__(**data)
+        self._client = data["_client"]
+
+    @model_validator(mode="before")
+    def _build_ordered_jobs(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """This root validator will modify the 'jobs' attribute, which is a list
         of jobs dictionaries ordered by creation time before instantiation.
         It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
         to keep the jobs ordered by creation time.
         """
-        ordered_jobs_list = []
-        jobs_received = values.get("jobs", [])
-        for job in jobs_received:
-            job_dict = {**job, "_client": values["_client"]}
-            ordered_jobs_list.append(job_dict)
-        values["ordered_jobs"] = ordered_jobs_list
-        return values
+        jobs_received = data.get("jobs", [])
+        data["ordered_jobs"] = [
+            {**job, "_client": data["_client"]} for job in jobs_received
+        ]
+        return data
 
     # Ticket (#704), to be removed or updated
     @property
@@ -107,18 +118,24 @@ class Batch(BaseModel):
         )
         return {job.id: job for job in self.ordered_jobs}
 
-    @validator("configuration", pre=True)
+    @jobs.setter
+    def jobs(self, _: Any) -> None:
+        # Override the jobs setter to be a no-op.
+        # `jobs` is a read-only attribute which is derived from the `ordered_jobs` key.
+        pass
+
+    @field_validator("configuration", mode="before")
     def _load_configuration(
         cls,
         configuration: Union[Dict[str, Any], BaseConfig, None],
-        values: Dict[str, Any],
+        info: ValidationInfo,
     ) -> Optional[BaseConfig]:
         if not isinstance(configuration, dict):
             return configuration
         conf_class: Type[BaseConfig] = BaseConfig
-        if values["device_type"] == EmulatorType.EMU_TN.value:
+        if info.data["device_type"] == EmulatorType.EMU_TN.value:
             conf_class = EmuTNConfig
-        elif values["device_type"] == EmulatorType.EMU_FREE.value:
+        elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
         return conf_class.from_dict(configuration)
 

@@ -20,7 +20,7 @@ class TestDeviceSpecs:
     @pytest.mark.usefixtures("mock_request")
     def test_get_device_specs_success(self):
         device_specs_dict = self.sdk.get_device_specs_dict()
-        assert type(device_specs_dict) == dict
+        assert isinstance(device_specs_dict, dict)
         specs = device_specs_dict["FRESNEL"]
         json.loads(specs)
 

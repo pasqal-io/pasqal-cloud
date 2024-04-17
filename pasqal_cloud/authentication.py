@@ -29,8 +29,7 @@ class TokenProviderError(Exception):
 
 
 class TokenProvider(ABC):
-    def __init__(self, *args: list[Any], **kwargs: dict):
-        ...
+    def __init__(self, *args: list[Any], **kwargs: dict): ...
 
     @abstractmethod
     def get_token(self) -> str:

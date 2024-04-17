@@ -11,11 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from datetime import datetime
 import time
-from requests.exceptions import HTTPError
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 from warnings import warn
+
+from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
