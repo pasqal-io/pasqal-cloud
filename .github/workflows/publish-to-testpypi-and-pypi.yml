@@ -2,7 +2,7 @@ name: Publish pasqal-cloud 📦 to PyPI and TestPyPI
 on:
   push:
     branches:
-      - dev
+      - mm/publish-to-pypi
 
 jobs:
   build-n-publish:
@@ -28,11 +28,11 @@ jobs:
           --wheel
           --outdir dist/
 
-      - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PASQAL_CLOUD_TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+      # - name: Publish distribution 📦 to Test PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PASQAL_CLOUD_TEST_PYPI_TOKEN }}
+      #     repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
