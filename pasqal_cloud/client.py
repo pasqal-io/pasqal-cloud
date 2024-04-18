@@ -16,7 +16,7 @@ from __future__ import annotations
 from datetime import datetime
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
-
+import time
 import requests
 from requests.auth import AuthBase
 
@@ -108,19 +108,45 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
-        rsp = requests.request(
-            method,
-            url,
-            json=payload,
-            timeout=TIMEOUT,
-            headers={"content-type": "application/json"},
-            auth=self.authenticator,
-            params=params,
+        max_retries = (
+            5  # HTTP client will raise an exception after too many consecutive fails
         )
-        rsp.raise_for_status()
-        data: JSendPayload = rsp.json()
+        successful_request: bool = False
+        iteration: int = 0
+        while iteration <= max_retries and not successful_request:
+            # time = (interval seconds * exponent rule) ^ retries
+            delay = (1 * 2) ** iteration
+            rsp = requests.request(
+                method,
+                url,
+                json=payload,
+                timeout=TIMEOUT,
+                headers={"content-type": "application/json"},
+                auth=self.authenticator,
+                params=params,
+            )
+            try:
+                rsp.raise_for_status()
+                successful_request = True
+            except Exception as e:
+                if (
+                    rsp.status_code not in {408, 425, 429, 500, 502, 503, 504}
+                    or iteration == max_retries
+                ):
+                    raise e
 
-        return data
+            if successful_request:
+                data: JSendPayload = rsp.json()
+                return data
+
+            time.sleep(delay)
+            iteration += 1
+
+        # There is no scenario where we want to reach this
+        # so we can raise a generic Exception
+        raise Exception(
+            "HTTP Client has encountered an issue it is unable to recover from."
+        )
 
     def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})

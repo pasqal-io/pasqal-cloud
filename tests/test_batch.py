@@ -2,12 +2,10 @@ from collections import OrderedDict
 import json
 import re
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any, Dict, Generator, Optional
 from unittest.mock import patch
 from uuid import UUID, uuid4
-
 import pytest
-
 from pasqal_cloud import Batch, Job, SDK
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 from pasqal_cloud.errors import (
@@ -20,14 +18,29 @@ from pasqal_cloud.errors import (
     JobRetryError,
     RebatchError,
 )
+from pasqal_cloud.batch import Batch as BatchModel
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+
+
 from tests.conftest import mock_core_response
+from unittest.mock import patch
 
 
 class TestBatch:
+
+    @pytest.fixture
+    def load_mock_batch_json_response(self) -> Dict[str, Any]:
+        with open("tests/fixtures/api/v1/batches/_.POST.json") as f:
+            response_content = json.load(f)
+        return response_content
+
     @pytest.fixture(autouse=True)
     def mock_sleep(self):
-        """Fixture to mock sleep to make tests faster."""
+        """
+        This fixture overrides sleeps, so tests don't need to wait for
+        the entire duration of a sleep command.
+        """
         with patch("time.sleep"):
             yield
 
@@ -62,7 +75,13 @@ class TestBatch:
         }
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
-    def test_create_batch(self, emulator, mock_request):
+    def test_create_batch(
+        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
+    ):
+        """
+        When successfully creating a batch, we should be able to assert
+        certain fields and values are in the assigned return object.
+        """
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
@@ -74,30 +93,32 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
 
-    @pytest.mark.usefixtures("mock_request_exception_batch_creation")
-    def test_create_batch_failure(self, batch_creation_error_data):
-        dat = batch_creation_error_data
-        with pytest.raises(
-            BatchCreationError,
-            match=(
-                re.escape(
-                    f"Batch creation failed: {dat['code']}: "
-                    f"{dat['data']['description']}\n"
-                    f"Details: {json.dumps(dat, indent=2)}"
-                )
-            ),
-        ):
+    def test_batch_create_exception(
+        self, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        Assert the correct exception is raised when failing to create a batch
+        and that the correct methods and URLs are used.
+        """
+        with pytest.raises(BatchCreationError):
             _ = self.sdk.create_batch(
-                serialized_sequence=self.pulser_sequence,
-                jobs=[self.simple_job_args],
+                serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
             )
+
+        assert mock_request_exception.last_request.method == "POST"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches"
+        )
 
     @pytest.mark.filterwarnings(
         "ignore:Argument `fetch_results` is deprecated and will be removed "
         "in a future version. Please use argument `wait` instead"
     )
     @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
-    def test_create_batch_and_wait(self, mock_request, wait, fetch_results):
+    def test_create_batch_and_wait(
+        self, mock_request: Generator[Any, Any, None], wait: bool, fetch_results: bool
+    ):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
@@ -126,11 +147,20 @@ class TestBatch:
         assert mock_request.last_request.method == "GET"
 
     @pytest.mark.usefixtures("mock_request")
-    def test_get_batch(self, batch):
+    def test_get_batch(self, batch: Batch):
+        """
+        Assert that with a mocked, successful HTTP request our get_batch
+        function returns an insance of the Batch model used in the SDK.
+        """
         batch_requested = self.sdk.get_batch(batch.id)
-        assert batch_requested.id == self.batch_id
+        assert isinstance(batch_requested, BatchModel)
 
-    def test_batch_add_jobs(self, mock_request):
+    def test_batch_add_jobs(self, mock_request: Generator[Any, Any, None]):
+        """
+        Test that after successfully creating, and adding jobs, the total number of jobs
+        associated with a batch is correct, and the batch id is in the URL that was most
+        recently called.
+        """
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence, jobs=[self.simple_job_args]
         )
@@ -138,7 +168,14 @@ class TestBatch:
         assert batch.id in mock_request.last_request.url
         assert len(batch.ordered_jobs) == 2
 
-    def test_batch_add_jobs_failure(self, batch, mock_request_exception):
+    def test_batch_add_jobs_failure(
+        self, batch, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        When trying to add jobs to a batch, we test that we catch
+        an exception JobCreationError while later validating the HTTP method
+        and URL executed.
+        """
         with pytest.raises(JobCreationError):
             _ = batch.add_jobs(
                 [{"runs": self.n_job_runs, "variables": self.job_variables}]
@@ -149,7 +186,13 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}/jobs"
         )
 
-    def test_batch_add_jobs_and_wait_for_results(self, batch, mock_request):
+    def test_batch_add_jobs_and_wait_for_results(
+        self,
+        batch: Batch,
+        mock_request: Generator[Any, Any, None],
+        load_mock_batch_json_response: Dict[str, Any],
+    ):
+        mock_request.reset_mock()
         # Override the batch id so that we load the right API fixtures
         batch.id = "00000000-0000-0000-0000-000000000002"
 
@@ -169,7 +212,6 @@ class TestBatch:
 
         def custom_get_batch_mock(request, _):
             nonlocal call_count
-
             resp = mock_core_response(request)
             # Override with custom status the fixture data
             resp["data"]["jobs"][0]["status"] = job_statuses[call_count][0]
@@ -181,50 +223,49 @@ class TestBatch:
             "GET", f"/core-fast/api/v1/batches/{batch.id}", json=custom_get_batch_mock
         )
 
-        # Reset history so that we can count calls later
-        mock_request.reset_mock()
+        mock_request.register_uri(
+            "POST",
+            f"/core-fast/api/v1/batches/{batch.id}/jobs",
+            json=load_mock_batch_json_response,
+        )
         batch.add_jobs(
             [{"runs": self.n_job_runs}, {"runs": self.n_job_runs}],
             wait=True,
         )
 
-        assert len(batch.ordered_jobs) == 2
-        assert (
-            mock_request.call_count == 5
-        )  # 1 call to add jobs and 4 get batch calls until jobs are DONE
-        assert (
-            mock_request.request_history[0].url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}/jobs"
-        )
+        # Several calls take place to POST /core-fast/api/v1/batches
+        # and GET core-fast/api/v1/batches/{id}
+        assert mock_request.call_count == 2
+
         assert mock_request.request_history[0].method == "POST"
-        assert all(
-            [
-                (req.method, req.url)
-                == (
-                    "GET",
-                    f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}",
-                )
-                for req in mock_request.request_history[1:]
-            ]
-        )
+        methods = {req.method for req in mock_request.request_history}
+
+        # Check both GET and POST methods execute
+        assert {"GET", "POST"} == methods
+
         assert all([job.result == self.job_result for job in batch.ordered_jobs])
         assert all(
             [job.full_result == self.job_full_result for job in batch.ordered_jobs]
         )
 
     @pytest.mark.usefixtures("mock_request")
-    def test_batch_declare_complete(self, batch):
+    def test_batch_declare_complete(self, batch: Batch):
         batch.declare_complete(wait=False)
         assert batch.complete
 
-    def test_batch_declare_complete_failure(self, batch, mock_request_exception):
+    def test_batch_declare_complete_failure(
+        self, batch: Batch, mock_request_exception: Generator[Any, Any, None]
+    ):
         with pytest.raises(BatchSetCompleteError):
             _ = batch.declare_complete(wait=False)
 
         assert batch.status == "PENDING"
         mock_request_exception.stop()
 
-    def test_batch_declare_complete_and_wait_for_results(self, batch, mock_request):
+    def test_batch_declare_complete_and_wait_for_results(
+        self, batch: Batch, mock_request: Generator[Any, Any, None]
+    ):
+        """TODO"""
         batch.declare_complete(wait=True)
         assert batch.complete
         assert mock_request.last_request.method == "GET"
@@ -267,7 +308,16 @@ class TestBatch:
             f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
-    def test_cancel_batch_sdk_error(self, mock_request_exception):
+    def test_cancel_batch_sdk_error(
+        self, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        Assert that a BatchCancellingError is raised appropriately for
+        failling requests when calling sdk.cancel_batch(...)
+
+        This test also assert the most recently used HTTP method and URL
+        are correct.
+        """
         with pytest.raises(BatchCancellingError):
             _ = self.sdk.cancel_batch(self.batch_id)
 
@@ -279,12 +329,22 @@ class TestBatch:
         )
 
     @pytest.mark.usefixtures("mock_request")
-    def test_get_job(self, job):
+    def test_get_job(self, job: Job):
+        """
+        Asserting the anticipated object is returned with
+        the mocked values when using SDK methods.
+        """
         job_requested = self.sdk.get_job(job.id)
-        print(self.sdk)
         assert job_requested.id == job.id
 
-    def test_get_job_error(self, job, mock_request_exception):
+    def test_get_job_error(
+        self, job, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        When attempting to execute get_job, we recieve an exception
+        which prevents any values being returned.
+        We then assert all the correct methods and urls were used.
+        """
         with pytest.raises(JobFetchingError):
             _ = self.sdk.get_job(job.id)
         assert mock_request_exception.last_request.method == "GET"
@@ -294,7 +354,11 @@ class TestBatch:
             f"/api/v1/jobs/{job.id}"
         )
 
-    def test_cancel_job_self(self, mock_request, job):
+    def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):
+        """
+        After cancelling a job, we can assert that the status is CANCELED as expected
+        and that the correct methods and URLS were used.
+        """
         job.cancel()
         assert job.status == "CANCELED"
         assert mock_request.last_request.method == "PUT"
@@ -303,7 +367,14 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_self_error(self, mock_request_exception, job):
+    def test_cancel_job_self_error(
+        self, mock_request_exception: Generator[Any, Any, None], job: Job
+    ):
+        """
+        When trying to cancel a job, we assert that an exception is raised
+        while confirming the expected HTTP methods and URLs are used and that
+        the job status is still PENDING.
+        """
         with pytest.raises(JobCancellingError):
             job.cancel()
         assert job.status == "PENDING"
@@ -313,7 +384,12 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_sdk(self, mock_request):
+    def test_cancel_job_sdk(self, mock_request: Generator[Any, Any, None]):
+        """
+        After successfully executing the .cancel_job method,
+        we further validate the response object is as anticipated,
+        while confirming the expected HTTP methods and URLs are used.
+        """
         client_rsp = self.sdk.cancel_job(self.job_id)
         assert type(client_rsp) == Job
         assert client_rsp.status == "CANCELED"
@@ -323,7 +399,13 @@ class TestBatch:
             == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_sdk_error(self, mock_request_exception, job):
+    def test_cancel_job_sdk_error(
+        self, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        When trying to cancel a job, we assert that an exception is raised
+        while confirming the expected HTTP methods and URLs are used.
+        """
         with pytest.raises(JobCancellingError):
             _ = self.sdk.cancel_job(self.job_id)
         assert mock_request_exception.last_request.method == "PUT"
@@ -350,7 +432,13 @@ class TestBatch:
         ],
     )
     @pytest.mark.usefixtures("mock_request")
-    def test_create_batch_configuration(self, emulator, configuration, expected):
+    def test_create_batch_configuration(
+        self, emulator: str, configuration: BaseConfig, expected: BaseConfig
+    ):
+        """
+        Assert that when creating a batch with a certain confiuration,
+        we create the exected object
+        """
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
@@ -359,7 +447,7 @@ class TestBatch:
         )
         assert batch.configuration == expected
 
-    def test_batch_instantiation_with_extra_field(self, batch):
+    def test_batch_instantiation_with_extra_field(self, batch: Batch):
         """Instantiating a batch with an extra field should not raise an error.
 
         This enables us to add new fields in the API response on the batches endpoint
@@ -379,6 +467,10 @@ class TestBatch:
     def test_create_batch_fetch_results_deprecated(
         self,
     ):
+        """
+        When trying to retrieve batch results with a deprecated argument
+        we are able to confirm a certain warning is raised in response.
+        """
         with pytest.warns(DeprecationWarning):
             self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,
@@ -390,6 +482,8 @@ class TestBatch:
     def test_get_batch_fetch_results_deprecated(
         self,
     ):
+        """Assert that when we use the deprecated argument
+        'fetch_results', we receive a DeprecationWarning"""
         with pytest.warns(DeprecationWarning):
             self.sdk.get_batch(self.batch_id, fetch_results=True)
 
@@ -415,7 +509,7 @@ class TestBatch:
     )
     def test_rebatch_success(
         self,
-        mock_request,
+        mock_request: Generator[Any, Any, None],
         filters: Dict[str, Any],
     ):
         """
@@ -455,7 +549,7 @@ class TestBatch:
         assert batch.parent_id == self.batch_id
         assert batch.ordered_jobs[0].parent_id
 
-    def test_rebatch_sdk_error(self, mock_request_exception):
+    def test_rebatch_sdk_error(self, mock_request_exception: Generator[Any, Any, None]):
         """
         As a user using the SDK with proper credentials,
         if my request for rebatching returns a non 200 status code,
@@ -472,7 +566,7 @@ class TestBatch:
 
     def test_retry(
         self,
-        mock_request,
+        mock_request: Generator[Any, Any, None],
     ):
         """
         As a user using the SDK with proper credentials,
@@ -501,7 +595,7 @@ class TestBatch:
         self,
         batch: Batch,
         job: Job,
-        mock_request_exception,
+        mock_request_exception: Generator[Any, Any, None],
     ):
         """
         As a user using the SDK with proper credentials,

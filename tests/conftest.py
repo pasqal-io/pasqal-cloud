@@ -9,6 +9,8 @@ import requests_mock
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from requests import HTTPError
+from typing import Generator, Any, Optional
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 RESULT_LINK_ENDPOINT = "http://result-link/"
@@ -16,7 +18,7 @@ JSON_FILE = "_.{}.json"
 
 
 @pytest.fixture()
-def result_link_endpoint():
+def result_link_endpoint() -> str:
     return RESULT_LINK_ENDPOINT
 
 
@@ -41,13 +43,16 @@ def mock_core_response(request):
         return result
 
 
-def mock_result_link_response():
+def mock_result_link_response() -> Dict[str, str]:
     """This mocks the response from the s3 result link."""
     return {"some": "result"}
 
 
-def mock_response(request, context):
-    """This acts as a Router to Mock the requests we make with custom behaviors."""
+def mock_response(request, context) -> Dict[str, Any]:
+    """This acts as a Router to Mock the requests we make with custom behaviors.
+
+    A linter might suggest 'context' is unused, but is required for some tests to execute.
+    """
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
     if request.url.startswith(RESULT_LINK_ENDPOINT):
@@ -56,18 +61,24 @@ def mock_response(request, context):
 
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
-def request_mock(mock=None):
+def request_mock(mock=None) -> Optional[Any]:
     # Configure requests to use the local JSON files a response
-    mock.register_uri(requests_mock.ANY, requests_mock.ANY, json=mock_response)
+    mock.register_uri(
+        requests_mock.ANY,
+        requests_mock.ANY,
+        status_code=200,
+        json=mock_response,
+    )
     return mock
 
 
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
-def request_mock_exception(mock=None):
-    # Configure requests to use the local JSON files a response
+def request_mock_exception(mock=None) -> Optional[Any]:
     mock.register_uri(
-        requests_mock.ANY, requests_mock.ANY, status_code=422, json={"some": "error"}
+        requests_mock.ANY,
+        requests_mock.ANY,
+        exc=HTTPError,
     )
     return mock
 
@@ -91,41 +102,18 @@ def batch_creation_error_data() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="session")
-@requests_mock.Mocker(kw="mock")
-def request_mock_exception_batch_creation(
-    batch_creation_error_data,
-    mock=None,
-):
-    # Configure requests to use the local JSON files a response
-    mock.register_uri(
-        requests_mock.ANY,
-        requests_mock.ANY,
-        status_code=422,
-        json=batch_creation_error_data,
-    )
-    return mock
-
-
 @pytest.fixture(scope="function")
-def mock_request(request_mock):
+def mock_request(request_mock) -> Generator[Any, Any, None]:
     request_mock.start()
     yield request_mock
     request_mock.stop()
 
 
 @pytest.fixture(scope="function")
-def mock_request_exception(request_mock_exception):
+def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
     request_mock_exception.start()
     yield request_mock_exception
     request_mock_exception.stop()
-
-
-@pytest.fixture(scope="function")
-def mock_request_exception_batch_creation(request_mock_exception_batch_creation):
-    request_mock_exception_batch_creation.start()
-    yield request_mock_exception_batch_creation
-    request_mock_exception_batch_creation.stop()
 
 
 @pytest.fixture
@@ -157,8 +145,8 @@ def workload(pasqal_client_mock):
 
 
 @pytest.fixture
-def batch(pasqal_client_mock):
-    batch_data = {
+def batch_data_fixture() -> Dict[str, Any]:
+    return {
         "complete": False,
         "created_at": "2022-12-31T23:59:59.999Z",
         "updated_at": "2023-01-01T00:00:00.000Z",
@@ -169,13 +157,16 @@ def batch(pasqal_client_mock):
         "priority": 0,
         "status": "PENDING",
         "webhook": "https://example.com/webhook",
-        "_client": pasqal_client_mock,
         "sequence_builder": "pulser",
         "start_datetime": "2023-01-01T00:00:00.000Z",
         "end_datetime": None,
         "device_status": "available",
     }
-    return Batch(**batch_data)
+
+
+@pytest.fixture
+def batch(batch_data_fixture: Dict[str, Any], pasqal_client_mock) -> Batch:
+    return Batch(**batch_data_fixture, **{"_client": pasqal_client_mock})
 
 
 @pytest.fixture

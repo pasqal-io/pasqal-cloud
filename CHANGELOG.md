@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2024-04-15
+
+### Added
+
+- Add a retry mechanism to the HTTP requests on certain status codes
+- Add some typehints and basic test descriptions
+
 ## [0.8.0] - 2024-04-15
 
 ### Added
