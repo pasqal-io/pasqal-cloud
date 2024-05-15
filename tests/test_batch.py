@@ -1,27 +1,26 @@
 import json
-from collections import OrderedDict
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional
+from typing import Any, Dict, Generator, Optional, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
 
-from pasqal_cloud import Batch, Job, SDK
+from pasqal_cloud import Batch, Job, RebatchFilters, SDK
 from pasqal_cloud.batch import Batch as BatchModel
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchCreationError,
     BatchSetCompleteError,
-    JobCancellingError,
     JobCreationError,
-    JobFetchingError,
     JobRetryError,
     RebatchError,
 )
+from pasqal_cloud.utils.constants import JobStatus
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from tests.utils import build_query_params
 
 
 class TestBatch:
@@ -324,92 +323,6 @@ class TestBatch:
             f"/api/v1/batches/{self.batch_id}/cancel"
         )
 
-    @pytest.mark.usefixtures("mock_request")
-    def test_get_job(self, job: Job):
-        """
-        Asserting the anticipated object is returned with
-        the mocked values when using SDK methods.
-        """
-        job_requested = self.sdk.get_job(job.id)
-        assert job_requested.id == job.id
-
-    def test_get_job_error(
-        self, job, mock_request_exception: Generator[Any, Any, None]
-    ):
-        """
-        When attempting to execute get_job, we recieve an exception
-        which prevents any values being returned.
-        We then assert all the correct methods and urls were used.
-        """
-        with pytest.raises(JobFetchingError):
-            _ = self.sdk.get_job(job.id)
-        assert mock_request_exception.last_request.method == "GET"
-        assert (
-            mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}"
-            f"/api/v2/jobs/{job.id}"
-        )
-
-    def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):
-        """
-        After cancelling a job, we can assert that the status is CANCELED as expected
-        and that the correct methods and URLS were used.
-        """
-        job.cancel()
-        assert job.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
-        assert (
-            mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
-        )
-
-    def test_cancel_job_self_error(
-        self, mock_request_exception: Generator[Any, Any, None], job: Job
-    ):
-        """
-        When trying to cancel a job, we assert that an exception is raised
-        while confirming the expected HTTP methods and URLs are used and that
-        the job status is still PENDING.
-        """
-        with pytest.raises(JobCancellingError):
-            job.cancel()
-        assert job.status == "PENDING"
-        assert mock_request_exception.last_request.method == "PUT"
-        assert (
-            mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
-        )
-
-    def test_cancel_job_sdk(self, mock_request: Generator[Any, Any, None]):
-        """
-        After successfully executing the .cancel_job method,
-        we further validate the response object is as anticipated,
-        while confirming the expected HTTP methods and URLs are used.
-        """
-        client_rsp = self.sdk.cancel_job(self.job_id)
-        assert type(client_rsp) == Job
-        assert client_rsp.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
-        assert (
-            mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
-        )
-
-    def test_cancel_job_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
-    ):
-        """
-        When trying to cancel a job, we assert that an exception is raised
-        while confirming the expected HTTP methods and URLs are used.
-        """
-        with pytest.raises(JobCancellingError):
-            _ = self.sdk.cancel_job(self.job_id)
-        assert mock_request_exception.last_request.method == "PUT"
-        assert (
-            mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
-        )
-
     @pytest.mark.parametrize(
         ("emulator", "configuration", "expected"),
         [
@@ -486,16 +399,28 @@ class TestBatch:
     @pytest.mark.parametrize(
         "filters",
         [
-            {"job_ids": [str(UUID(int=0x1))]},
-            {"start_date": datetime(2023, 1, 1)},
-            {"end_date": datetime(2023, 1, 1)},
-            {"status": "DONE"},
-            {"status": ["DONE", "PENDING"]},
-            {"min_runs": 10},
-            {"max_runs": 10},
-            OrderedDict(
-                job_ids=[str(UUID(int=0x1))],
-                status=["DONE", "PENDING"],
+            # No filters provided
+            None,
+            # Empty object
+            RebatchFilters(),
+            # Job ID as UUID
+            RebatchFilters(id=[UUID(int=0x1)]),
+            # Start date
+            RebatchFilters(start_date=datetime(2023, 1, 1)),
+            # End date
+            RebatchFilters(end_date=datetime(2023, 1, 1)),
+            # Single job status
+            RebatchFilters(status=JobStatus.DONE),
+            # List of job statuses
+            RebatchFilters(status=[JobStatus.DONE, JobStatus.PENDING]),
+            # Minimum runs
+            RebatchFilters(min_runs=10),
+            # Maximum runs
+            RebatchFilters(max_runs=10),
+            # Combined
+            RebatchFilters(
+                id=[UUID(int=0x1)],
+                status=[JobStatus.DONE, JobStatus.PENDING],
                 min_runs=10,
                 max_runs=10,
                 start_date=datetime(2023, 1, 1),
@@ -506,7 +431,7 @@ class TestBatch:
     def test_rebatch_success(
         self,
         mock_request: Generator[Any, Any, None],
-        filters: Dict[str, Any],
+        filters: Union[RebatchFilters, None],
     ):
         """
         As a user using the SDK with proper credentials,
@@ -514,29 +439,15 @@ class TestBatch:
         The resulting request will create a new batch which includes
         copies of the jobs that match the filters.
         """
-        batch = self.sdk.rebatch(self.batch_id, **filters)
+        batch = self.sdk.rebatch(self.batch_id, filters=filters)
         assert mock_request.last_request.method == "POST"
 
-        if ids := filters.pop("job_ids", None):
-            filters["id"] = ids
-            # Move id to beginning to construct query param string like the sdk does.
-            if isinstance(filters, OrderedDict):
-                filters.move_to_end("id", last=False)
+        # Convert filters to the appropriate format for query parameters
+        query_params = build_query_params(
+            filters.model_dump(exclude_unset=True) if filters is not None else None,
+        )
 
-        # Constructing the query param string
-        query_params = "?"
-        for filter, value in filters.items():
-            if isinstance(value, list):
-                for val in value:
-                    query_params += f"{filter}={val}&"
-            else:
-                if isinstance(value, datetime):
-                    value = value.isoformat()
-                query_params += f"{filter}={value}&"
-        # Replace : by %3A for datetimes
-        query_params = query_params.replace(":", "%3A")[:-1]
-
-        # Check that correct url was requested with query params
+        # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
@@ -548,7 +459,8 @@ class TestBatch:
     def test_rebatch_sdk_error(self, mock_request_exception: Generator[Any, Any, None]):
         """
         As a user using the SDK with proper credentials,
-        if my request for rebatching returns a non 200 status code,
+        if my request for rebatching returns a status code
+        different from 200,
         I am faced with the RebatchError exception.
         """
         with pytest.raises(RebatchError):
@@ -595,7 +507,8 @@ class TestBatch:
     ):
         """
         As a user using the SDK with proper credentials,
-        if my request for retrying a job returns a non 200 status code,
+        if my request for retrying a job returns a status code
+        different from 200,
         I am faced with the JobRetryError exception.
         """
         batch.ordered_jobs = [job]
@@ -684,3 +597,13 @@ class TestBatch:
         """
         with pytest.raises(BatchSetCompleteError):
             _ = self.sdk.close_batch(self.batch_id)
+
+    def test_rebatch_raises_value_error_on_invalid_filters(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a dictionary instead of RebatchFilters, a ValueError should be raised.
+        """
+        with pytest.raises(
+            ValueError, match="Filters needs to be a RebatchFilters instance"
+        ):
+            _ = self.sdk.rebatch(UUID(int=0x1), {"min_runs": 10})

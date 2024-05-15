@@ -13,9 +13,9 @@
 # limitations under the License.
 from __future__ import annotations
 
-from datetime import datetime
 from getpass import getpass
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Union
+from uuid import UUID
 
 import requests
 from requests.auth import AuthBase
@@ -27,6 +27,7 @@ from pasqal_cloud.authentication import (
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
+from pasqal_cloud.utils.models import JobFilters, PaginationParams, RebatchFilters
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -240,35 +241,26 @@ class Client:
         )["data"]
         return response
 
-    def rebatch(
-        self,
-        batch_id: str,
-        job_ids: Union[List[str], EmptyFilter],
-        status: Union[List[str], EmptyFilter],
-        min_runs: Union[int, EmptyFilter],
-        max_runs: Union[int, EmptyFilter],
-        start_date: Union[datetime, EmptyFilter],
-        end_date: Union[datetime, EmptyFilter],
+    def _rebatch(
+        self, batch_id: Union[UUID, str], filters: RebatchFilters
     ) -> Dict[str, Any]:
-        query_params: dict[str, str | list[str]] = {}
-        if not isinstance(job_ids, EmptyFilter):
-            query_params["id"] = job_ids
-        if not isinstance(status, EmptyFilter):
-            query_params["status"] = status
-        if not isinstance(min_runs, EmptyFilter):
-            query_params["min_runs"] = str(min_runs)
-        if not isinstance(max_runs, EmptyFilter):
-            query_params["max_runs"] = str(max_runs)
-        if not isinstance(start_date, EmptyFilter):
-            query_params["start_date"] = start_date.isoformat()
-        if not isinstance(end_date, EmptyFilter):
-            query_params["end_date"] = end_date.isoformat()
-
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
-            params=query_params,
+            params=filters.model_dump(exclude_unset=True),
         )["data"]
+        return response
+
+    def _get_jobs(
+        self, filters: JobFilters, pagination_params: PaginationParams
+    ) -> JSendPayload:
+        filters_params = filters.model_dump(exclude_unset=True)
+        filters_params.update(pagination_params.model_dump())
+        response: JSendPayload = self._request(
+            "GET",
+            f"{self.endpoints.core}/api/v2/jobs",
+            params=filters_params,
+        )
         return response
 
     def add_jobs(

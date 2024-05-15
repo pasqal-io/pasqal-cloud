@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import time
-from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
+from uuid import UUID
 from warnings import warn
 
 from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
-from pasqal_cloud.client import Client, EmptyFilter
+from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig, EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
@@ -43,6 +43,13 @@ from pasqal_cloud.errors import (
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
+from pasqal_cloud.utils.models import (
+    JobFilters,
+    PaginatedResponse,
+    PaginationParams,
+    RebatchFilters,
+)
 from pasqal_cloud.workload import Workload
 
 
@@ -236,26 +243,18 @@ class SDK:
 
     def rebatch(
         self,
-        id: str,
-        job_ids: Union[List[str], EmptyFilter] = EmptyFilter(),
-        status: Union[List[str], EmptyFilter] = EmptyFilter(),
-        min_runs: Union[int, EmptyFilter] = EmptyFilter(),
-        max_runs: Union[int, EmptyFilter] = EmptyFilter(),
-        start_date: Union[datetime, EmptyFilter] = EmptyFilter(),
-        end_date: Union[datetime, EmptyFilter] = EmptyFilter(),
+        id: Union[UUID, str],
+        filters: Optional[RebatchFilters] = None,
     ) -> Batch:
         """
         Retry a list of jobs matching filters in a new batch.
 
         Args:
-            id: the id of the batch to rebatch jobs from.
-            job_ids: list of job ids to retry.
-            status: status or list of statuses.
-                Will retry jobs currently matching this/these status/es.
-            min_runs: retry jobs with more or as many as this amount of runs.
-            mas_runs: retry jobs with less or as many as this amount of runs.
-            start_date: retry jobs created at or after this datetime.
-            end_date: retry jobs created at or before this datetime.
+            id: id of the batch to re-create
+            filters: filters to be applied to find the jobs that will be retried
+
+        Returns:
+            Batch: the new re-created batch
 
         Returns:
             An instance of a rescheduled Batch model. The fields
@@ -265,19 +264,94 @@ class SDK:
         Raises:
             RebatchError if rebatch call failed.
         """
+        if filters is None:
+            filters = RebatchFilters()
+        elif not isinstance(filters, RebatchFilters):
+            raise ValueError(
+                f"Filters needs to be a RebatchFilters instance, not a {type(filters)}"
+            )
+
         try:
-            new_batch_data = self._client.rebatch(
-                id,
-                job_ids=job_ids,
-                status=status,
-                min_runs=min_runs,
-                max_runs=max_runs,
-                start_date=start_date,
-                end_date=end_date,
+            new_batch_data = self._client._rebatch(
+                batch_id=id,
+                filters=filters,
             )
         except HTTPError as e:
             raise RebatchError(e) from e
         return Batch(**new_batch_data, _client=self._client)
+
+    def get_jobs(
+        self,
+        filters: Optional[JobFilters] = None,
+        pagination_params: Optional[PaginationParams] = None,
+    ) -> PaginatedResponse:
+        """
+        Retrieve a list of jobs matching filters using a pagination system.
+
+        Jobs are sorted by their creation date in descending order.
+
+        If no 'pagination_params' are provided, the first 100 jobs
+        matching the query will be returned by default.
+
+        Args:
+            filters: Filters to be applied to the jobs.
+            pagination_params: Pagination to be applied to the query.
+
+        Examples:
+        >>> get_jobs(filters=JobFilters(status=JobStatus.ERROR))
+        Returns the first 100 jobs with an ERROR status.
+
+        >>> get_jobs(filters=JobFilters(status=JobStatus.ERROR),
+                     pagination_params=PaginationParams(offset=100))
+        Returns jobs 101-200 with an ERROR status.
+
+        >>> get_jobs(filters=JobFilters(status=JobStatus.ERROR),
+                     pagination_params=PaginationParams(offset=200))
+        Returns jobs 201-300 with an ERROR status.
+
+        Returns:
+            PaginatedResponse: A class instance with two fields:
+                - total: An integer representing the total number of jobs
+                         matching the filters.
+                - results: A list of jobs matching the filters and pagination
+                           parameters provided.
+
+        Raises:
+            JobFetchingError: If fetching jobs call failed.
+            ValueError: If `filters` is not an instance of JobFilters
+                    or if `pagination_params` is not an instance of PaginationParams.
+        """
+
+        if pagination_params is None:
+            pagination_params = PaginationParams()
+        elif not isinstance(pagination_params, PaginationParams):
+            raise ValueError(
+                f"Pagination parameters needs to be a PaginationParams instance, "
+                f"not a {type(pagination_params)}"
+            )
+
+        if filters is None:
+            filters = JobFilters()
+        elif not isinstance(filters, JobFilters):
+            raise ValueError(
+                f"Filters needs to be a JobFilters instance, not a {type(filters)}"
+            )
+
+        try:
+            response = self._client._get_jobs(
+                filters=filters, pagination_params=pagination_params
+            )
+            jobs = response["data"]
+            pagination_response = response.get("pagination")
+            # It should return a pagination all the time
+            total_nb_jobs = pagination_response["total"] if pagination_response else 0
+        except HTTPError as e:
+            raise JobFetchingError(e) from e
+        return PaginatedResponse(
+            total=total_nb_jobs,
+            offset=pagination_params.offset,
+            results=[Job(**job, _client=self._client) for job in jobs],
+        )
 
     def _get_job(self, id: str) -> Dict[str, Any]:
         try:
