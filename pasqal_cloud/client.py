@@ -241,7 +241,7 @@ class Client:
         )["data"]
         return response
 
-    def rebatch(
+    def _rebatch(
         self, batch_id: Union[UUID, str], filters: RebatchFilters
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
@@ -249,6 +249,18 @@ class Client:
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
             params=filters.model_dump(exclude_unset=True),
         )["data"]
+        return response
+
+    def _get_jobs(
+        self, filters: JobFilters, pagination_params: PaginationParams
+    ) -> JSendPayload:
+        filters_params = filters.model_dump(exclude_unset=True)
+        filters_params.update(pagination_params.model_dump())
+        response: JSendPayload = self._request(
+            "GET",
+            f"{self.endpoints.core}/api/v2/jobs",
+            params=filters_params,
+        )
         return response
 
     def get_jobs(
