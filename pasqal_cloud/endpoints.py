@@ -38,15 +38,15 @@ class Endpoints:
 # ---- Auth0 ----
 
 # Prod Auth0 configuration
-AUTH0_DOMAIN: Final[str] = "pasqal.eu.auth0.com"
+AUTH0_DOMAIN: Final[str] = "authenticate.pasqal.cloud"
 PUBLIC_CLIENT_ID: Final[str] = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
 AUDIENCE: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
 
-PREPROD_AUTH0_DOMAIN: Final[str] = "pasqal-preprod.eu.auth0.com"
+PREPROD_AUTH0_DOMAIN: Final[str] = "authenticate.preprod.pasqal.cloud"
 PREPROD_PUBLIC_CLIENT_ID: Final[str] = "2l6A2ldvwJE5sdkghu40BTYLm7sSUAv9"
 PREPROD_AUDIENCE: Final[str] = "https://apis.preprod.pasqal.cloud/account/api/v1"
 
-DEV_AUTH0_DOMAIN: Final[str] = "pasqal-dev.eu.auth0.com"
+DEV_AUTH0_DOMAIN: Final[str] = "authenticate.dev.pasqal.cloud"
 DEV_PUBLIC_CLIENT_ID: Final[str] = "5QtfSu1UV118Iz6By6IJRSNoDrLbAiOv"
 DEV_AUDIENCE: Final[str] = "https://apis.dev.pasqal.cloud/account/api/v1"
 

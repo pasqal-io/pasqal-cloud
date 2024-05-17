@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2024-05-15
+
+### Changed
+
+- Use the new authentication url: authenticate.pasqal.cloud
+
 ## [0.8.1] - 2024-04-15
 
 ### Added
