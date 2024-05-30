@@ -1,0 +1,8 @@
+{
+    "status": "success",
+    "message": "OK.",
+    "code": "200",
+    "data": {
+        "results_link": "http://jobs-result-link/00000000-0000-0000-0000-000000022010"
+    }
+}

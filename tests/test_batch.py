@@ -230,7 +230,7 @@ class TestBatch:
 
         # Several calls take place to POST /core-fast/api/v1/batches
         # and GET core-fast/api/v1/batches/{id}
-        assert mock_request.call_count == 2
+        assert mock_request.call_count == 3
 
         assert mock_request.request_history[0].method == "POST"
         methods = {req.method for req in mock_request.request_history}
@@ -266,7 +266,7 @@ class TestBatch:
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{self.batch_id}"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs?batch_id={batch.id}"
         )
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert batch.ordered_jobs[0].result == self.job_result
@@ -346,7 +346,7 @@ class TestBatch:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/jobs/{job.id}"
+            f"/api/v2/jobs/{job.id}"
         )
 
     def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):

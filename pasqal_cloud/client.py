@@ -19,6 +19,7 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
+from requests import Response
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -102,13 +103,13 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    def _request(
+    def _send_request(
         self,
         method: str,
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
-    ) -> JSendPayload:
+    ) -> Response:
         max_retries = (
             5  # HTTP client will raise an exception after too many consecutive fails
         )
@@ -137,8 +138,7 @@ class Client:
                     raise e
 
             if successful_request:
-                data: JSendPayload = rsp.json()
-                return data
+                return rsp
 
             time.sleep(delay)
             iteration += 1
@@ -148,6 +148,18 @@ class Client:
         raise Exception(
             "HTTP Client has encountered an issue it is unable to recover from."
         )
+
+    def _request(
+        self,
+        method: str,
+        url: str,
+        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        params: Optional[Mapping[str, Any]] = None,
+    ) -> JSendPayload:
+        response = self._send_request(
+            method=method, url=url, payload=payload, params=params
+        )
+        return response.json()
 
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
@@ -160,9 +172,42 @@ class Client:
 
     def get_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/batches/{batch_id}"
+            "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
         )["data"]
         return response
+
+    def _get_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
+        response = self._send_request(
+            "GET", f"{self.endpoints.core}/api/v2/jobs", params={"batch_id": batch_id}
+        )
+        data = response.json()["data"]
+        content_range: str = response.headers.get("content-range", "1-1/1")
+
+        current_page = content_range.split("/")[0]
+        _, end = current_page.split("-")
+        total_elements = int(content_range.split("/")[1])
+
+        while int(end) < total_elements:
+            response = self._send_request(
+                "GET",
+                f"{self.endpoints.core}/api/v2/jobs",
+                params={"batch_id": batch_id},
+            )
+            data += response.json()["data"]
+            content_range: str = response.headers.get("content-range", "1-1/1")
+            current_page = content_range.split("/")[0]
+            _, end = current_page.split("-")
+            total_elements = int(content_range.split("/")[1])
+
+        return data
+
+    def _get_job_results(self, job_id: str) -> Dict[str, Any]:
+        results_link = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
+        )["data"]["results_link"]
+
+        results = self._request("GET", results_link)
+        return results
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
@@ -217,7 +262,7 @@ class Client:
 
     def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
+            "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
         )["data"]
         return response
 
