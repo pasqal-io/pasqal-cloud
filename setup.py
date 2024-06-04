@@ -43,14 +43,12 @@ setup(
     ],
     extras_require={
         "dev": {
-            "black==23.3.0",
-            "flake8==6.0.0",
-            "isort==5.12.0",
-            "mypy==1.9.0",
-            "pytest==7.4.0",
-            "pytest-cov==4.1.0",
+            "ruff==0.4.7",
+            "mypy==1.10.0",
+            "pytest==8.1.1",
+            "pytest-cov==5.0.0",
             "types-requests==2.31.0.1",
-            "requests-mock==1.11.0",
+            "requests-mock==1.12.1",
         }
     },
 )

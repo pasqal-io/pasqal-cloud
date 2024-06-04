@@ -1,12 +1,13 @@
-# flake8: noqa
+# ruff: noqa: F401
+
 import inspect
 
 import pytest
 
 """
-Tests written to verify if the backward compatibility is working between the new name of the package `pasqal-cloud`
-and its main folder renamed to `pasqal_cloud` and the previous package name that was `pasqal-cloud`
-with the former folder called `sdk`.
+Tests written to verify if the backward compatibility is working between the new name
+of the package `pasqal-cloud` and its main folder renamed to `pasqal_cloud` and the
+previous package name that was `pasqal-cloud` with the former folder called `sdk`.
 """
 
 

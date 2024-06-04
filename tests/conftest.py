@@ -1,16 +1,15 @@
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Generator, Optional
 from unittest.mock import patch
 
 import pytest
 import requests_mock
+from requests import HTTPError
 
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
-from requests import HTTPError
-from typing import Generator, Any, Optional
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 RESULT_LINK_ENDPOINT = "http://result-link/"
@@ -48,15 +47,17 @@ def mock_result_link_response() -> Dict[str, str]:
     return {"some": "result"}
 
 
-def mock_response(request, context) -> Dict[str, Any]:
+def mock_response(request, _) -> Dict[str, Any]:
     """This acts as a Router to Mock the requests we make with custom behaviors.
 
-    A linter might suggest 'context' is unused, but is required for some tests to execute.
+    A linter might suggest 'context' is unused, but is required for some
+    tests to execute.
     """
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
     if request.url.startswith(RESULT_LINK_ENDPOINT):
         return mock_result_link_response()
+    return None
 
 
 @pytest.fixture(scope="session")
@@ -102,32 +103,31 @@ def batch_creation_error_data() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def mock_request(request_mock) -> Generator[Any, Any, None]:
     request_mock.start()
     yield request_mock
     request_mock.stop()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
     request_mock_exception.start()
     yield request_mock_exception
     request_mock_exception.stop()
 
 
-@pytest.fixture
+@pytest.fixture()
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
-    client = Client(
+    return Client(
         project_id="00000000-0000-0000-0000-000000000002",
         username="00000000-0000-0000-0000-000000000001",
         password="password",
     )
-    return client
 
 
-@pytest.fixture
+@pytest.fixture()
 def workload(pasqal_client_mock):
     workload_data = {
         "id": "00000000-0000-0000-0000-000000000001",
@@ -144,7 +144,7 @@ def workload(pasqal_client_mock):
     return Workload(**workload_data)
 
 
-@pytest.fixture
+@pytest.fixture()
 def batch_data_fixture() -> Dict[str, Any]:
     return {
         "complete": False,
@@ -164,12 +164,12 @@ def batch_data_fixture() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture
+@pytest.fixture()
 def batch(batch_data_fixture: Dict[str, Any], pasqal_client_mock) -> Batch:
-    return Batch(**batch_data_fixture, **{"_client": pasqal_client_mock})
+    return Batch(**batch_data_fixture, _client=pasqal_client_mock)
 
 
-@pytest.fixture
+@pytest.fixture()
 def job(pasqal_client_mock):
     job_data = {
         "runs": 50,

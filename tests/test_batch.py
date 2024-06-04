@@ -1,12 +1,14 @@
-from collections import OrderedDict
 import json
-import re
+from collections import OrderedDict
 from datetime import datetime
 from typing import Any, Dict, Generator, Optional
 from unittest.mock import patch
 from uuid import UUID, uuid4
+
 import pytest
+
 from pasqal_cloud import Batch, Job, SDK
+from pasqal_cloud.batch import Batch as BatchModel
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 from pasqal_cloud.errors import (
     BatchCancellingError,
@@ -18,25 +20,18 @@ from pasqal_cloud.errors import (
     JobRetryError,
     RebatchError,
 )
-from pasqal_cloud.batch import Batch as BatchModel
-
+from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
-from tests.conftest import mock_core_response
-from unittest.mock import patch
-
-
 class TestBatch:
-
-    @pytest.fixture
+    @pytest.fixture()
     def load_mock_batch_json_response(self) -> Dict[str, Any]:
         with open("tests/fixtures/api/v1/batches/_.POST.json") as f:
-            response_content = json.load(f)
-        return response_content
+            return json.load(f)
 
     @pytest.fixture(autouse=True)
-    def mock_sleep(self):
+    def _mock_sleep(self):
         """
         This fixture overrides sleeps, so tests don't need to wait for
         the entire duration of a sleep command.
@@ -49,7 +44,7 @@ class TestBatch:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    def init_sdk(self):
+    def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
             password="password",
@@ -115,7 +110,7 @@ class TestBatch:
         "ignore:Argument `fetch_results` is deprecated and will be removed "
         "in a future version. Please use argument `wait` instead"
     )
-    @pytest.mark.parametrize("wait,fetch_results", [(True, False), (False, True)])
+    @pytest.mark.parametrize(("wait", "fetch_results"), [(True, False), (False, True)])
     def test_create_batch_and_wait(
         self, mock_request: Generator[Any, Any, None], wait: bool, fetch_results: bool
     ):
@@ -243,9 +238,9 @@ class TestBatch:
         # Check both GET and POST methods execute
         assert {"GET", "POST"} == methods
 
-        assert all([job.result == self.job_result for job in batch.ordered_jobs])
+        assert all(job.result == self.job_result for job in batch.ordered_jobs)
         assert all(
-            [job.full_result == self.job_full_result for job in batch.ordered_jobs]
+            job.full_result == self.job_full_result for job in batch.ordered_jobs
         )
 
     @pytest.mark.usefixtures("mock_request")
@@ -415,7 +410,7 @@ class TestBatch:
         )
 
     @pytest.mark.parametrize(
-        "emulator, configuration, expected",
+        ("emulator", "configuration", "expected"),
         [
             (EmulatorType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
             (None, None, None),
@@ -489,7 +484,7 @@ class TestBatch:
 
     @pytest.mark.parametrize(
         "filters",
-        (
+        [
             {"job_ids": [str(UUID(int=0x1))]},
             {"start_date": datetime(2023, 1, 1)},
             {"end_date": datetime(2023, 1, 1)},
@@ -505,7 +500,7 @@ class TestBatch:
                 start_date=datetime(2023, 1, 1),
                 end_date=datetime(2023, 1, 1),
             ),
-        ),
+        ],
     )
     def test_rebatch_success(
         self,

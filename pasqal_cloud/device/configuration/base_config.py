@@ -70,13 +70,13 @@ class BaseConfig:
 
         # ensure that no extra config is passed as None
         if not conf:
-            conf = None  # type: ignore
+            conf = None  # type: ignore[assignment]
         return cls(**base_conf, extra_config=conf)
 
     @staticmethod
     def _unnest_extra_config(conf_dict: dict[str, Any]) -> dict[str, Any]:
-        res = {k: v for (k, v) in conf_dict.items() if not k == "extra_config"}
-        if conf_dict.get("extra_config", None):
+        res = {k: v for (k, v) in conf_dict.items() if k != "extra_config"}
+        if conf_dict.get("extra_config"):
             res.update(conf_dict["extra_config"])
         return res
 
@@ -86,13 +86,14 @@ class BaseConfig:
 
     def _validate(self) -> None:
         if self.extra_config:
-            for k in self.extra_config.keys():
-                if k in self.__dataclass_fields__.keys():
+            for k in self.extra_config:
+                if k in self.__dataclass_fields__:
                     raise InvalidConfiguration(INVALID_KEY_ERROR_MSG.format(k))
-        if self.result_types:
-            if not set(self.result_types) <= set(self.allowed_result_types):
-                raise InvalidConfiguration(
-                    INVALID_RESULT_TYPES.format(
-                        self.result_types, self.allowed_result_types
-                    )
+        if self.result_types and not set(self.result_types) <= set(
+            self.allowed_result_types
+        ):
+            raise InvalidConfiguration(
+                INVALID_RESULT_TYPES.format(
+                    self.result_types, self.allowed_result_types
                 )
+            )

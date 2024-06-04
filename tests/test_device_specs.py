@@ -1,4 +1,5 @@
 import json
+from typing import Any, Generator
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -8,19 +9,17 @@ from pasqal_cloud import SDK
 from pasqal_cloud.errors import DeviceSpecsFetchingError
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-from typing import Any, Generator
-
 
 class TestDeviceSpecs:
     @pytest.fixture(autouse=True)
     @patch("sdk.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-    def init_sdk(self):
+    def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com", password="password", project_id=str(uuid4())
         )
 
     @pytest.fixture(autouse=True)
-    def mock_sleep(self):
+    def _mock_sleep(self):
         """
         This fixture overrides sleeps, so tests don't need to wait for
         the total elapsed time.

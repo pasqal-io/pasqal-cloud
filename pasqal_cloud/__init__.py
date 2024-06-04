@@ -22,11 +22,11 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client, EmptyFilter
 from pasqal_cloud.device import BaseConfig, EmulatorType
-from pasqal_cloud.endpoints import (  # noqa: F401
-    AUTH0_CONFIG,
+from pasqal_cloud.endpoints import (
+    AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
     Endpoints,
-    PASQAL_ENDPOINTS,
+    PASQAL_ENDPOINTS,  # noqa: F401
 )
 from pasqal_cloud.errors import (
     BatchCancellingError,
@@ -175,7 +175,7 @@ class SDK:
         # The configuration field is only added in the case
         # it's requested
         if configuration:
-            req.update({"configuration": configuration.to_dict()})  # type: ignore
+            req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
 
         try:
             batch_rsp = self._client._send_batch(req)
@@ -186,7 +186,7 @@ class SDK:
 
         if wait:
             while any(
-                [job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs]
+                job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs
             ):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 batch.refresh()
@@ -230,8 +230,7 @@ class SDK:
             batch_rsp = self._client._cancel_batch(id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
-        batch = Batch(**batch_rsp, _client=self._client)
-        return batch
+        return Batch(**batch_rsp, _client=self._client)
 
     def rebatch(
         self,
@@ -297,8 +296,7 @@ class SDK:
             while job_rsp["status"] in ["PENDING", "RUNNING"]:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 job_rsp = self._get_job(id)
-        job = Job(**job_rsp, _client=self._client)
-        return job
+        return Job(**job_rsp, _client=self._client)
 
     def cancel_job(self, id: str) -> Job:
         """Cancel the given job on the PCS
@@ -311,8 +309,7 @@ class SDK:
         except HTTPError as e:
             raise JobCancellingError(e) from e
 
-        job = Job(**job_rsp, _client=self._client)
-        return job
+        return Job(**job_rsp, _client=self._client)
 
     def _get_workload(self, id: str) -> Dict[str, Any]:
         try:
@@ -382,8 +379,7 @@ class SDK:
         workload_rsp = self._get_workload(id)
         if wait:
             workload_rsp = self.wait_for_workload(id, workload_rsp)
-        workload = Workload(**workload_rsp, _client=self._client)
-        return workload
+        return Workload(**workload_rsp, _client=self._client)
 
     def cancel_workload(self, id: str) -> Workload:
         """Cancel the given workload on the PCS.
@@ -401,8 +397,7 @@ class SDK:
             workload_rsp = self._client._cancel_workload(id)
         except HTTPError as e:
             raise WorkloadCancellingError(e) from e
-        workload = Workload(**workload_rsp, _client=self._client)
-        return workload
+        return Workload(**workload_rsp, _client=self._client)
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         """Retrieve the list of available device specifications.

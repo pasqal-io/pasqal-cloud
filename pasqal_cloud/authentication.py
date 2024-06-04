@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-from auth0.v3.authentication import GetToken  # type: ignore
+from auth0.v3.authentication import GetToken  # type: ignore[import-untyped]
 from jwt import decode, DecodeError
 from requests import PreparedRequest
 from requests.auth import AuthBase
@@ -93,7 +93,7 @@ class ExpiringTokenProvider(TokenProvider, ABC):
         Returns:
             The time the token will expire, or None if it can't be calculated
         """
-        expires_in = token_response.get("expires_in", None)
+        expires_in = token_response.get("expires_in")
         if expires_in:
             return datetime.now(tz=timezone.utc) + timedelta(seconds=float(expires_in))
 

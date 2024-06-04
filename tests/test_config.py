@@ -20,7 +20,7 @@ from pasqal_cloud.device.configuration.result_type import ResultType
 
 
 @pytest.mark.parametrize(
-    "config, expected",
+    ("config", "expected"),
     [
         (
             EmuTNConfig(
@@ -95,7 +95,7 @@ def test_configuration_to_dict(config: BaseConfig, expected: dict):
 
 
 @pytest.mark.parametrize(
-    "config_class, expected, config",
+    ("config_class", "expected", "config"),
     [
         (
             EmuTNConfig,
@@ -157,7 +157,7 @@ def test_configuration_from_dict(
 
 
 @pytest.mark.parametrize(
-    "config, extra_config, expected",
+    ("config", "extra_config", "expected"),
     [
         (EmuTNConfig(), {"dt": 10.0}, INVALID_KEY_ERROR_MSG.format("dt")),
         (EmuTNConfig(dt=-1), None, DT_VALUE_NOT_VALID.format(-1)),

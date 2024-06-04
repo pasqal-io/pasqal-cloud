@@ -162,7 +162,7 @@ class Batch(BaseModel):
 
         if wait:
             while any(
-                [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
+                job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs
             ):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 self.refresh()
@@ -206,7 +206,7 @@ class Batch(BaseModel):
         self._update_from_api_response(batch_rsp)
         if wait or fetch_results:
             while any(
-                [job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs]
+                job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs
             ):
                 time.sleep(RESULT_POLLING_INTERVAL)
                 self.refresh()
