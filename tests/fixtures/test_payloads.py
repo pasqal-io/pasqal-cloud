@@ -10,7 +10,6 @@ def successful_batch_payload_response() -> Dict[str, Any]:
             "device_type": "MOCK_DEVICE",
             "project_id": "00000000-0000-0000-0000-000000000001",
             "id": "00000000-0000-0000-0000-000000000001",
-            "priority": 10,
             "sequence_builder": "pulser_test_sequence",
             "status": "PENDING",
             "updated_at": "2021-11-10T15:27:44.110274",
