@@ -90,7 +90,7 @@ class Batch(BaseModel):
     @property
     def ordered_jobs(self) -> list[Job]:
         if self._ordered_jobs is None:
-            raw_jobs = self._client._get_jobs(batch_id=self.id)
+            raw_jobs = self._client._get_batch_jobs(batch_id=self.id)
             self._ordered_jobs = [
                 Job(**raw_job, _client=self._client) for raw_job in raw_jobs
             ]
@@ -226,6 +226,6 @@ class Batch(BaseModel):
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""
         updated_batch = Batch(**data, _client=self._client)
-        for field in list(updated_batch.model_fields) + ["_ordered_jobs"]:
+        for field in [*list(updated_batch.model_fields), "_ordered_jobs"]:
             value = getattr(updated_batch, field)
             setattr(self, field, value)

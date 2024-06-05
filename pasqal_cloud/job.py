@@ -61,15 +61,16 @@ class Job(BaseModel):
         self._client = data["_client"]
 
     @property
-    def full_result(self) -> Dict[str, Any] | None:
+    def full_result(self) -> dict[str, Any] | None:
         if self._full_result is None:
             self._full_result = self._client._get_job_results(self.id)
         return self._full_result
 
     @property
-    def result(self) -> Dict[str, Any] | None:
-        if self.full_result is not None:
-            return self.full_result["counter"]
+    def result(self) -> dict[str, Any] | None:
+        if self.full_result:
+            return self.full_result.get("counter")
+        return None
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""

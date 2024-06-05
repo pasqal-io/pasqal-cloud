@@ -19,7 +19,6 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
-from requests import Response
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -103,13 +102,13 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    def _send_request(
+    def _request(
         self,
         method: str,
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
-    ) -> Response:
+    ) -> JSendPayload:
         max_retries = (
             5  # HTTP client will raise an exception after too many consecutive fails
         )
@@ -138,7 +137,8 @@ class Client:
                     raise e
 
             if successful_request:
-                return rsp
+                data: JSendPayload = rsp.json()
+                return data
 
             time.sleep(delay)
             iteration += 1
@@ -149,17 +149,43 @@ class Client:
             "HTTP Client has encountered an issue it is unable to recover from."
         )
 
-    def _request(
+    def _request_with_pagination(
         self,
         method: str,
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
-        params: Optional[Mapping[str, Any]] = None,
-    ) -> JSendPayload:
-        response = self._send_request(
+        params: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        if not params:
+            params = {}
+        first_page_response = self._request(
             method=method, url=url, payload=payload, params=params
         )
-        return response.json()
+        all_items: List[Dict] = first_page_response["data"]
+        pagination_data = first_page_response.get("pagination")
+
+        if not pagination_data:
+            return all_items
+
+        total_nb_items = pagination_data["total"]
+        end = pagination_data["end"]
+        while end < total_nb_items:
+            params["offset"] = end
+            response: JSendPayload = self._request(
+                method=method, url=url, payload=payload, params=params
+            )
+
+            # Added to make sure the type is correctly set for mypy
+            # Should not happen
+            all_items.extend(response["data"])
+            pagination_data = response.get("pagination")
+
+            if not pagination_data:
+                break
+
+            total_nb_items = pagination_data["total"]
+            end = pagination_data["end"]
+        return all_items
 
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
@@ -176,38 +202,17 @@ class Client:
         )["data"]
         return response
 
-    def _get_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
-        response = self._send_request(
+    def _get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
+        return self._request_with_pagination(
             "GET", f"{self.endpoints.core}/api/v2/jobs", params={"batch_id": batch_id}
         )
-        data = response.json()["data"]
-        content_range: str = response.headers.get("content-range", "1-1/1")
-
-        current_page = content_range.split("/")[0]
-        _, end = current_page.split("-")
-        total_elements = int(content_range.split("/")[1])
-
-        while int(end) < total_elements:
-            response = self._send_request(
-                "GET",
-                f"{self.endpoints.core}/api/v2/jobs",
-                params={"batch_id": batch_id},
-            )
-            data += response.json()["data"]
-            content_range: str = response.headers.get("content-range", "1-1/1")
-            current_page = content_range.split("/")[0]
-            _, end = current_page.split("-")
-            total_elements = int(content_range.split("/")[1])
-
-        return data
 
     def _get_job_results(self, job_id: str) -> Dict[str, Any]:
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
 
-        results = self._request("GET", results_link)
-        return results
+        return self._request("GET", results_link)
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
