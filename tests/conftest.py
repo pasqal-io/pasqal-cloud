@@ -154,7 +154,6 @@ def batch_data_fixture() -> Dict[str, Any]:
         "project_id": "00000000-0000-0000-0000-000000000002",
         "id": "00000000-0000-0000-0000-000000000001",
         "user_id": "EQZj1ZQE",
-        "priority": 0,
         "status": "PENDING",
         "webhook": "https://example.com/webhook",
         "sequence_builder": "pulser",

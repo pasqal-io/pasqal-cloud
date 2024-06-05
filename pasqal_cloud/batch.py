@@ -42,7 +42,6 @@ class Batch(BaseModel):
         - project_id: ID of the owner project of the batch.
         - id: Unique identifier for the batch.
         - user_id: Unique identifier of the user that created the batch.
-        - priority: Level of priority of the batch.
         - status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         - webhook: Webhook where the job results are automatically sent to.
@@ -67,7 +66,6 @@ class Batch(BaseModel):
     project_id: str
     id: str
     user_id: str
-    priority: int
     status: str
     _client: Client = PrivateAttr(default=None)
     sequence_builder: str

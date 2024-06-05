@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.0] - 2024-06-05
+
+### Changed
+
+- Drop priority from Batch attributes
+
 ## [0.9.0] - 2024-05-15
 
 ### Changed
