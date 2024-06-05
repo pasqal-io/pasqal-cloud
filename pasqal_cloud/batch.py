@@ -220,7 +220,6 @@ class Batch(BaseModel):
             batch_rsp = self._client.get_batch(self.id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
-        self._ordered_jobs = None
         self._update_from_api_response(batch_rsp)
 
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
