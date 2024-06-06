@@ -62,7 +62,7 @@ class Batch(BaseModel):
     status: str
     _client: Client = PrivateAttr(default=None)
     sequence_builder: str
-    _ordered_jobs: List[Job] | None = PrivateAttr(default=None)
+    _ordered_jobs: Optional[List[Job]] = PrivateAttr(default=None)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     webhook: Optional[str] = None
