@@ -211,8 +211,9 @@ class Client:
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
-
-        return self._request("GET", results_link)
+        if results_link:
+            return self._request("GET", results_link)
+        return None
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
