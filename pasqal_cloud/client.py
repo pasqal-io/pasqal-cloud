@@ -19,6 +19,7 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
+from requests import HTTPError
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -204,7 +205,13 @@ class Client:
 
     def _get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_with_pagination(
-            "GET", f"{self.endpoints.core}/api/v2/jobs", params={"batch_id": batch_id}
+            "GET",
+            f"{self.endpoints.core}/api/v2/jobs",
+            params={
+                "batch_id": batch_id,
+                "order_by": "ordered_id",
+                "order_by_direction": "ASC",
+            },
         )
 
     def _get_job_results(self, job_id: str) -> Dict[str, Any]:
@@ -212,7 +219,10 @@ class Client:
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
         if results_link:
-            return self._request("GET", results_link)
+            try:
+                return self._request("GET", results_link)
+            except HTTPError:
+                pass
         return None
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:

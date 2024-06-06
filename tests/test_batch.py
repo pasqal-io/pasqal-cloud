@@ -267,6 +267,7 @@ class TestBatch:
         assert (
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs?batch_id={batch.id}"
+            "&order_by=ordered_id&order_by_direction=ASC"
         )
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert batch.ordered_jobs[0].result == self.job_result
