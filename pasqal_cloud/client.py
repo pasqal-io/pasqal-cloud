@@ -150,7 +150,7 @@ class Client:
             "HTTP Client has encountered an issue it is unable to recover from."
         )
 
-    def _request_with_pagination(
+    def _request_all_pages(
         self,
         method: str,
         url: str,
@@ -204,7 +204,7 @@ class Client:
         return response
 
     def _get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
-        return self._request_with_pagination(
+        return self._request_all_pages(
             "GET",
             f"{self.endpoints.core}/api/v2/jobs",
             params={
@@ -214,7 +214,7 @@ class Client:
             },
         )
 
-    def _get_job_results(self, job_id: str) -> Dict[str, Any]:
+    def _get_job_results(self, job_id: str) -> Any:
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
