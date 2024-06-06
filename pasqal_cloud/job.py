@@ -73,9 +73,10 @@ class Job(BaseModel):
 
     @property
     def result(self) -> Optional[Dict[str, Any]]:
+        counter_result = None
         if self.full_result:
-            return self.full_result["counter"]
-        return None
+            counter_result = self.full_result["counter"]
+        return counter_result
 
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
