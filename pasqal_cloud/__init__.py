@@ -34,6 +34,7 @@ from pasqal_cloud.errors import (
     BatchFetchingError,
     DeviceSpecsFetchingError,
     JobCancellingError,
+    JobCreationError,
     JobFetchingError,
     RebatchError,
     WorkloadCancellingError,
@@ -109,7 +110,7 @@ class SDK:
         id: str,
     ) -> Dict[str, Any]:
         try:
-            return self._client._get_batch(id)
+            return self._client.get_batch(id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
 
@@ -178,7 +179,7 @@ class SDK:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
 
         try:
-            batch_rsp = self._client._send_batch(req)
+            batch_rsp = self._client.send_batch(req)
         except HTTPError as e:
             raise BatchCreationError(e) from e
 
@@ -227,7 +228,7 @@ class SDK:
             id: ID of the batch.
         """
         try:
-            batch_rsp = self._client._cancel_batch(id)
+            batch_rsp = self._client.cancel_batch(id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
@@ -305,7 +306,7 @@ class SDK:
             id: ID of the job.
         """
         try:
-            job_rsp = self._client._cancel_job(id)
+            job_rsp = self._client.cancel_job(id)
         except HTTPError as e:
             raise JobCancellingError(e) from e
 
@@ -313,7 +314,7 @@ class SDK:
 
     def _get_workload(self, id: str) -> Dict[str, Any]:
         try:
-            return self._client._get_workload(id)
+            return self._client.get_workload(id)
         except HTTPError as e:
             raise WorkloadFetchingError(e) from e
 
@@ -322,7 +323,7 @@ class SDK:
     ) -> Dict[str, Any]:
         while workload_rsp["status"] in ["PENDING", "RUNNING"]:
             time.sleep(RESULT_POLLING_INTERVAL)
-            workload_rsp = self._get_workload(id)
+            workload_rsp = self.get_workload(id)
         return workload_rsp
 
     def create_workload(
@@ -353,7 +354,7 @@ class SDK:
             "config": config,
         }
         try:
-            workload_rsp = self._client._send_workload(req)
+            workload_rsp = self._client.send_workload(req)
         except HTTPError as e:
             raise WorkloadCreationError(e) from e
         if wait:
@@ -376,7 +377,7 @@ class SDK:
         Raises:
             WorkloadFetchingError: If fetching failed.
         """
-        workload_rsp = self._get_workload(id)
+        workload_rsp = self.get_workload(id)
         if wait:
             workload_rsp = self.wait_for_workload(id, workload_rsp)
         return Workload(**workload_rsp, _client=self._client)
