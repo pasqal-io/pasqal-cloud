@@ -377,7 +377,7 @@ class SDK:
         Raises:
             WorkloadFetchingError: If fetching failed.
         """
-        workload_rsp = self.get_workload(id)
+        workload_rsp = self._get_workload(id)
         if wait:
             workload_rsp = self.wait_for_workload(id, workload_rsp)
         return Workload(**workload_rsp, _client=self._client)
@@ -395,7 +395,7 @@ class SDK:
             WorkloadCancelingError: If cancelation failed.
         """
         try:
-            workload_rsp = self._client._cancel_workload(id)
+            workload_rsp = self._client.cancel_workload(id)
         except HTTPError as e:
             raise WorkloadCancellingError(e) from e
         return Workload(**workload_rsp, _client=self._client)
