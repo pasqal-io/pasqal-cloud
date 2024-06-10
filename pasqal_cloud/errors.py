@@ -72,6 +72,13 @@ class BatchSetCompleteError(BatchException):
         super().__init__("Batch setting to complete failed", e)
 
 
+class BatchAlreadyCompleteError(BaseException):
+    """
+    Exception class raised when attempting to update an already
+    complete batch.
+    """
+
+
 class RebatchError(BatchException):
     """Exception class raised when batch retry failed."""
 

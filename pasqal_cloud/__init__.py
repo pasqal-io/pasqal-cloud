@@ -32,6 +32,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchCreationError,
     BatchFetchingError,
+    BatchAlreadyCompleteError,
     DeviceSpecsFetchingError,
     JobCancellingError,
     JobCreationError,
@@ -255,7 +256,8 @@ class SDK:
             mas_runs: retry jobs with less or as many as this amount of runs.
             start_date: retry jobs created at or after this datetime.
             end_date: retry jobs created at or before this datetime.
-
+        Returns:
+            An instance of a Batch model
         Raises:
             RebatchError if rebatch call failed.
         """
@@ -298,6 +300,33 @@ class SDK:
                 time.sleep(RESULT_POLLING_INTERVAL)
                 job_rsp = self._get_job(id)
         return Job(**job_rsp, _client=self._client)
+
+    def add_jobs(self, batch_id: str, jobs: List[CreateJob]):
+        """
+        Add jobs to an already existing batch.
+
+        Args:
+            batch_ID: A unique identifier for the batch
+            Jobs: a collection of CreateJob payloads
+
+        Returns:
+            An instance of a Batch model from the PCS database
+
+        Raises:
+            JobCreationError, which spawns from a HTTPError.
+            BatchAlreadyCompleteError.
+        """
+        batch = self.get_batch(batch_id)
+
+        if batch.complete:
+            raise BatchAlreadyCompleteError
+
+
+        try:
+            resp = self._client.add_jobs(batch_id, jobs)
+        except HTTPError as e:
+            raise JobCreationError(e)
+        return Batch(**resp, _client=self._client)
 
     def cancel_job(self, id: str) -> Job:
         """Cancel the given job on the PCS

@@ -19,6 +19,7 @@ from pasqal_cloud.errors import (
     JobFetchingError,
     JobRetryError,
     RebatchError,
+    BatchAlreadyCompleteError,
 )
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -607,4 +608,70 @@ class TestBatch:
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
             + f"{self.batch_id}/jobs"
+        )
+
+    def test_add_jobs_calls_the_correct_features(
+        self,
+        mock_request: Generator[Any, Any, None],
+    ):
+        """
+        Assert than we calling add_jobs that the correct
+        HTTP request method and URL are used.
+
+        We also confirm an instance the correct model
+        is returned. The inline mock function allows the reuse
+        of an already existing fixture while just overriding a
+        the values we want.
+        """
+        mock_request.reset_mock()
+
+        def inline_mock_batch_response(request, _):
+            resp = mock_core_response(request)
+            resp["data"]["complete"] = False
+            resp["data"]["id"] = self.batch_id
+            return resp
+
+        # Inline mock assures we reach the end of the function body to call `core`.
+        # The add_jobs method has a condition to raise an Exception
+        # if the batch is complete.
+        mock_request.register_uri(
+            "GET",
+            f"/core-fast/api/v1/batches/{self.batch_id}",
+            json=inline_mock_batch_response,
+        )
+
+        b = self.sdk.add_jobs(self.batch_id, [])
+
+        assert (
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/jobs"
+        )
+        assert isinstance(b, Batch)
+
+    def test_add_jobs_call_raises_batch_already_complete_exception(
+        self,
+        mock_request: Generator[Any, Any, None],
+        load_mock_batch_json_response: Dict[str, Any],
+    ):
+        """
+        Assert than we calling add_jobs that the correct
+        HTTP request method and URL are used.
+
+        We also confirm that when a batch is marked as complete
+        we raise the correct exception. The value
+        load_mock_batch_json_response provides a prefabricated data structure
+        with a `complete: true` value set.
+        """
+
+        mock_request.register_uri(
+            "GET",
+            f"/core-fast/api/v1/batches/{self.batch_id}",
+            json=load_mock_batch_json_response,
+        )
+        with pytest.raises(BatchAlreadyCompleteError):
+            _ = self.sdk.add_jobs(self.batch_id, [])
+
+        assert (
+            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}"
         )
