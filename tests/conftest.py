@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from requests import HTTPError
+from requests import HTTPError, Request
 
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
@@ -43,7 +43,16 @@ def mock_core_response(request):
         return result
 
 
-def mock_s3_presigned_url_response(request):
+def mock_s3_presigned_url_response(request: Request) -> Dict[str, Any]:
+    """
+    Mock the response of a presigned URL and return expected results
+
+    Args:
+        request (Request): The incoming HTTP request
+
+    Returns:
+        Dict[str, Any]: The parsed JSON content from the results file
+    """
     resource_id = request.url.split("/")[-1]
     results_path = os.path.join(
         TEST_API_FIXTURES_PATH, "v1", f"jobs/{resource_id}/results_link/result.json"
