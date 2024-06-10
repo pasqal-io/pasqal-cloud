@@ -275,7 +275,7 @@ class SDK:
 
     def _get_job(self, id: str) -> Dict[str, Any]:
         try:
-            return self._client._get_job(id)
+            return self._client.get_job(id)
         except HTTPError as e:
             raise JobFetchingError(e) from e
 
@@ -304,6 +304,9 @@ class SDK:
 
         Args:
             id: ID of the job.
+
+        Returns:
+            Job: The job stored in the PCS database.
         """
         try:
             job_rsp = self._client.cancel_job(id)
@@ -323,7 +326,7 @@ class SDK:
     ) -> Dict[str, Any]:
         while workload_rsp["status"] in ["PENDING", "RUNNING"]:
             time.sleep(RESULT_POLLING_INTERVAL)
-            workload_rsp = self.get_workload(id)
+            workload_rsp = self._get_workload(id)
         return workload_rsp
 
     def create_workload(

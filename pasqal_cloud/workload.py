@@ -70,7 +70,7 @@ class Workload(BaseModel):
     def cancel(self) -> Dict[str, Any]:
         """Cancel the current job on the PCS."""
         try:
-            workload_rsp = self._client._cancel_workload(self.id)
+            workload_rsp = self._client.cancel_workload(self.id)
         except HTTPError as e:
             raise WorkloadCancellingError(e) from e
         self.status = workload_rsp.get("status", "CANCELED")
