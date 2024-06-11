@@ -226,7 +226,7 @@ class Batch(BaseModel):
         """Update the instance in place with the response body of the batch API"""
         updated_batch = Batch(**data, _client=self._client)
         # Private fields are not exposed by the model_fields method, so we need to
-        # explicitly add _ordered_jobs to ensure it is compied from the updated_batch
+        # explicitly add _ordered_jobs to ensure it is copied from the updated_batch
         # model.
         batch_model_fields = [*list(updated_batch.model_fields), "_ordered_jobs"]
         for field in batch_model_fields:
