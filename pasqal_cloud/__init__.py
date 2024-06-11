@@ -260,7 +260,7 @@ class SDK:
         Returns:
             An instance of a rescheduled Batch model. The fields
             can differ from the original batch as the record
-            is recreated as to prevent modfifying the original batch.
+            is recreated as to prevent modifying the original batch.
 
         Raises:
             RebatchError if rebatch call failed.
