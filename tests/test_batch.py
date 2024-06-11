@@ -19,7 +19,6 @@ from pasqal_cloud.errors import (
     JobFetchingError,
     JobRetryError,
     RebatchError,
-    BatchAlreadyCompleteError,
 )
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -648,10 +647,10 @@ class TestBatch:
         )
         assert isinstance(b, Batch)
 
-    def test_add_jobs_call_raises_batch_already_complete_exception(
+    def test_add_jobs_call_raises_job_creation_error(
         self,
-        mock_request: Generator[Any, Any, None],
-        load_mock_batch_json_response: Dict[str, Any],
+        mock_request_exception: Generator[Any, Any, None],
+        load_mock_batch_json_response: Generator[Any, Any, None],
     ):
         """
         Assert than we calling add_jobs that the correct
@@ -662,16 +661,25 @@ class TestBatch:
         load_mock_batch_json_response provides a prefabricated data structure
         with a `complete: true` value set.
         """
-
-        mock_request.register_uri(
-            "GET",
+        mock_request_exception.register_uri(
+            "POST",
             f"/core-fast/api/v1/batches/{self.batch_id}",
             json=load_mock_batch_json_response,
         )
-        with pytest.raises(BatchAlreadyCompleteError):
+
+        with pytest.raises(JobCreationError):
             _ = self.sdk.add_jobs(self.batch_id, [])
 
         assert (
-            mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}"
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v1/batches/{self.batch_id}/jobs"
         )
+
+    def test_close_batch_raises_batch_set_complete_error(self):
+        """
+        Assert that when calling close_batch, we're capable of
+        encapsulating the HTTPError as a BatchSetCompleteError instead.
+        """
+        with pytest.raises(BatchSetCompleteError):
+            _ = self.sdk.close_batch(self.batch_id)

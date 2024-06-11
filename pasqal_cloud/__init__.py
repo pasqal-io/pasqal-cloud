@@ -32,7 +32,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchCreationError,
     BatchFetchingError,
-    BatchAlreadyCompleteError,
+    BatchSetCompleteError,
     DeviceSpecsFetchingError,
     JobCancellingError,
     JobCreationError,
@@ -301,12 +301,12 @@ class SDK:
                 job_rsp = self._get_job(id)
         return Job(**job_rsp, _client=self._client)
 
-    def add_jobs(self, batch_id: str, jobs: List[CreateJob]):
+    def add_jobs(self, batch_id: str, jobs: List[CreateJob]) -> Batch:
         """
         Add jobs to an already existing batch.
 
         Args:
-            batch_ID: A unique identifier for the batch
+            batch_ID: A unique identifier for the batch data.
             Jobs: a collection of CreateJob payloads
 
         Returns:
@@ -316,16 +316,32 @@ class SDK:
             JobCreationError, which spawns from a HTTPError.
             BatchAlreadyCompleteError.
         """
-        batch = self.get_batch(batch_id)
-
-        if batch.complete:
-            raise BatchAlreadyCompleteError
-
 
         try:
             resp = self._client.add_jobs(batch_id, jobs)
         except HTTPError as e:
             raise JobCreationError(e)
+        return Batch(**resp, _client=self._client)
+
+    def close_batch(self, batch_id: str) -> Batch:
+        """
+        Set a batch 'complete' field as True, indicating no more Jobs
+        can be submitted.
+
+        Args:
+            batch_ID: A unique identifier for the batch data.
+
+            Returns:
+                An instance of a Batch model from the PCS database
+
+        Raises:
+            BatchSetCompleteError which spawns from a HTTPError
+        """
+        try:
+            resp = self._client.complete_batch(batch_id)
+        except HTTPError as e:
+            raise BatchSetCompleteError(e)
+
         return Batch(**resp, _client=self._client)
 
     def cancel_job(self, id: str) -> Job:

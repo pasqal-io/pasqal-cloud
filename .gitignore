@@ -11,3 +11,5 @@ venv*
 pipfile
 pipfile.lock
 .idea/
+
+.vscode
