@@ -256,8 +256,12 @@ class SDK:
             mas_runs: retry jobs with less or as many as this amount of runs.
             start_date: retry jobs created at or after this datetime.
             end_date: retry jobs created at or before this datetime.
+
         Returns:
-            An instance of a Batch model
+            An instance of a rescheduled Batch model. The fields
+            can differ from the original batch as the record
+            is recreated as to prevent modfifying the original batch.
+
         Raises:
             RebatchError if rebatch call failed.
         """
