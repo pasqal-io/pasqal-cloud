@@ -28,8 +28,7 @@ from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
-from pasqal_cloud.job import JobResult
-from pasqal_cloud.utils.jsend import JSendPayload
+from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 

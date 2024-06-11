@@ -13,12 +13,17 @@
 # limitations under the License.
 
 from sys import version_info
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import TypedDict
 else:
     from typing_extensions import TypedDict
+
+
+class JobResult(TypedDict):
+    raw: List[str]
+    counter: Dict[str, Any]
 
 
 class PaginationType(TypedDict):

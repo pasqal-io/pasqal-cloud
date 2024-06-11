@@ -5,11 +5,7 @@ from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.errors import JobCancellingError
-
-
-class JobResult(TypedDict):
-    raw: List[str]
-    counter: Dict[str, Any]
+from pasqal_cloud.utils.jsend import JobResult
 
 
 class Job(BaseModel):
