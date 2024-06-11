@@ -28,6 +28,7 @@ from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.job import JobResult
 from pasqal_cloud.utils.jsend import JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -157,6 +158,20 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Dict[str, Any]] = None,
     ) -> List[Dict[str, Any]]:
+        """
+        Request all pages of a paginated endpoint and return a list of all items from
+        the requested pages
+
+        Args:
+            method: HTTP method
+            url: requested endpoint url
+            payload: query payload
+            params: query params
+
+        Returns:
+            A list of items from the requested pages.
+        """
+
         if not params:
             params = {}
         first_page_response = self._request(
@@ -176,11 +191,11 @@ class Client:
                 method=method, url=url, payload=payload, params=params
             )
 
-            # Added to make sure the type is correctly set for mypy
-            # Should not happen
             all_items.extend(response["data"])
             pagination_data = response.get("pagination")
 
+            # Added to make sure the type is correctly set for mypy
+            # Should not happen
             if not pagination_data:
                 break
 
@@ -212,15 +227,22 @@ class Client:
                 "order_by": "ordered_id",
                 "order_by_direction": "ASC",
             },
+            # The order-by parameters are required to ensure that the jobs appear in
+            # the same order as they do in the GET /batches/{id} response
         )
 
-    def _get_job_results(self, job_id: str) -> Any:
+    def _get_job_results(self, job_id: str) -> Optional[JobResult]:
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
         if results_link:
             try:
-                return self._request("GET", results_link)
+                response = requests.get(results_link)
+                response.raise_for_status()
+                data = response.json()
+                return JobResult(
+                    raw=data.pop("raw", None), counter=data.pop("counter", None), **data
+                )
             except HTTPError:
                 pass
         return None

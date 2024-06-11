@@ -7,7 +7,7 @@ from pasqal_cloud.client import Client
 from pasqal_cloud.errors import JobCancellingError
 
 
-class ResultType(TypedDict):
+class JobResult(TypedDict):
     raw: List[str]
     counter: Dict[str, Any]
 
@@ -48,7 +48,7 @@ class Job(BaseModel):
     errors: Optional[List[str]] = None
     start_timestamp: Optional[str] = None
     end_timestamp: Optional[str] = None
-    _full_result: Optional[ResultType] = PrivateAttr(default=None)
+    _full_result: Optional[JobResult] = PrivateAttr(default=None)
     variables: Optional[Dict[str, Any]] = None
     # Ticket (#622)
     group_id: Optional[str] = None
@@ -66,7 +66,7 @@ class Job(BaseModel):
         self._client = data["_client"]
 
     @property
-    def full_result(self) -> ResultType:
+    def full_result(self) -> Optional[JobResult]:
         if self._full_result is None:
             self._full_result = self._client._get_job_results(self.id)
         return self._full_result
