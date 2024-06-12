@@ -32,8 +32,10 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchCreationError,
     BatchFetchingError,
+    BatchSetCompleteError,
     DeviceSpecsFetchingError,
     JobCancellingError,
+    JobCreationError,
     JobFetchingError,
     RebatchError,
     WorkloadCancellingError,
@@ -109,7 +111,7 @@ class SDK:
         id: str,
     ) -> Dict[str, Any]:
         try:
-            return self._client._get_batch(id)
+            return self._client.get_batch(id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
 
@@ -178,7 +180,7 @@ class SDK:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
 
         try:
-            batch_rsp = self._client._send_batch(req)
+            batch_rsp = self._client.send_batch(req)
         except HTTPError as e:
             raise BatchCreationError(e) from e
 
@@ -227,7 +229,7 @@ class SDK:
             id: ID of the batch.
         """
         try:
-            batch_rsp = self._client._cancel_batch(id)
+            batch_rsp = self._client.cancel_batch(id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
@@ -255,6 +257,11 @@ class SDK:
             start_date: retry jobs created at or after this datetime.
             end_date: retry jobs created at or before this datetime.
 
+        Returns:
+            An instance of a rescheduled Batch model. The fields
+            can differ from the original batch as the record
+            is recreated as to prevent modifying the original batch.
+
         Raises:
             RebatchError if rebatch call failed.
         """
@@ -274,7 +281,7 @@ class SDK:
 
     def _get_job(self, id: str) -> Dict[str, Any]:
         try:
-            return self._client._get_job(id)
+            return self._client.get_job(id)
         except HTTPError as e:
             raise JobFetchingError(e) from e
 
@@ -298,14 +305,60 @@ class SDK:
                 job_rsp = self._get_job(id)
         return Job(**job_rsp, _client=self._client)
 
+    def add_jobs(self, batch_id: str, jobs: List[CreateJob]) -> Batch:
+        """
+        Add jobs to an already existing batch.
+
+        Args:
+            batch_ID: A unique identifier for the batch data.
+            Jobs: a collection of CreateJob payloads
+
+        Returns:
+            An instance of a Batch model from the PCS database
+
+        Raises:
+            JobCreationError, which spawns from a HTTPError.
+            BatchAlreadyCompleteError.
+        """
+
+        try:
+            resp = self._client.add_jobs(batch_id, jobs)
+        except HTTPError as e:
+            raise JobCreationError(e)
+        return Batch(**resp, _client=self._client)
+
+    def close_batch(self, batch_id: str) -> Batch:
+        """
+        Set a batch 'complete' field as True, indicating no more Jobs
+        can be submitted.
+
+        Args:
+            batch_ID: A unique identifier for the batch data.
+
+            Returns:
+                An instance of a Batch model from the PCS database
+
+        Raises:
+            BatchSetCompleteError which spawns from a HTTPError
+        """
+        try:
+            resp = self._client.complete_batch(batch_id)
+        except HTTPError as e:
+            raise BatchSetCompleteError(e)
+
+        return Batch(**resp, _client=self._client)
+
     def cancel_job(self, id: str) -> Job:
         """Cancel the given job on the PCS
 
         Args:
             id: ID of the job.
+
+        Returns:
+            Job: The job stored in the PCS database.
         """
         try:
-            job_rsp = self._client._cancel_job(id)
+            job_rsp = self._client.cancel_job(id)
         except HTTPError as e:
             raise JobCancellingError(e) from e
 
@@ -313,7 +366,7 @@ class SDK:
 
     def _get_workload(self, id: str) -> Dict[str, Any]:
         try:
-            return self._client._get_workload(id)
+            return self._client.get_workload(id)
         except HTTPError as e:
             raise WorkloadFetchingError(e) from e
 
@@ -353,7 +406,7 @@ class SDK:
             "config": config,
         }
         try:
-            workload_rsp = self._client._send_workload(req)
+            workload_rsp = self._client.send_workload(req)
         except HTTPError as e:
             raise WorkloadCreationError(e) from e
         if wait:
@@ -394,7 +447,7 @@ class SDK:
             WorkloadCancelingError: If cancelation failed.
         """
         try:
-            workload_rsp = self._client._cancel_workload(id)
+            workload_rsp = self._client.cancel_workload(id)
         except HTTPError as e:
             raise WorkloadCancellingError(e) from e
         return Workload(**workload_rsp, _client=self._client)

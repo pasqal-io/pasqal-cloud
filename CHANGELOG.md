@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.0] - 2024-06-05
+
+### Changed
+
+- Expose add_jobs and close_batch functions in the SDK interface
+- Refactor non-private methods that were prefixed with _
+- Add test coverage for new functions
+
 ## [0.9.0] - 2024-06-05
 
 ### Changed

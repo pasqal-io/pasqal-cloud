@@ -149,7 +149,7 @@ class Client:
             "HTTP Client has encountered an issue it is unable to recover from."
         )
 
-    def _send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
+    def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._request(
             "POST",
@@ -158,19 +158,19 @@ class Client:
         )["data"]
         return response
 
-    def _get_batch(self, batch_id: str) -> Dict[str, Any]:
+    def get_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/batches/{batch_id}"
         )["data"]
         return response
 
-    def _complete_batch(self, batch_id: str) -> Dict[str, Any]:
+    def complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]
         return response
 
-    def _cancel_batch(self, batch_id: str) -> Dict[str, Any]:
+    def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
         )["data"]
@@ -207,7 +207,7 @@ class Client:
         )["data"]
         return response
 
-    def _add_jobs(
+    def add_jobs(
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
@@ -215,19 +215,19 @@ class Client:
         )["data"]
         return response
 
-    def _get_job(self, job_id: str) -> Dict[str, Any]:
+    def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
         )["data"]
         return response
 
-    def _cancel_job(self, job_id: str) -> Dict[str, Any]:
+    def cancel_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
         )["data"]
         return response
 
-    def _send_workload(self, workload_data: Dict[str, Any]) -> Dict[str, Any]:
+    def send_workload(self, workload_data: Dict[str, Any]) -> Dict[str, Any]:
         workload_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._request(
             "POST",
@@ -236,13 +236,13 @@ class Client:
         )["data"]
         return response
 
-    def _get_workload(self, workload_id: str) -> Dict[str, Any]:
+    def get_workload(self, workload_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "GET", f"{self.endpoints.core}/api/v2/workloads/{workload_id}"
         )["data"]
         return response
 
-    def _cancel_workload(self, workload_id: str) -> Dict[str, Any]:
+    def cancel_workload(self, workload_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
         )["data"]

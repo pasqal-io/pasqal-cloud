@@ -153,7 +153,7 @@ class Batch(BaseModel):
 
         """
         try:
-            batch_rsp = self._client._add_jobs(self.id, jobs)
+            batch_rsp = self._client.add_jobs(self.id, jobs)
         except HTTPError as e:
             raise JobCreationError(e) from e
         self._update_from_api_response(batch_rsp)
@@ -198,7 +198,7 @@ class Batch(BaseModel):
         the complete batch is unassigned to its running device.
         """
         try:
-            batch_rsp = self._client._complete_batch(self.id)
+            batch_rsp = self._client.complete_batch(self.id)
         except HTTPError as e:
             raise BatchSetCompleteError(e) from e
         self._update_from_api_response(batch_rsp)
@@ -212,7 +212,7 @@ class Batch(BaseModel):
     def cancel(self) -> None:
         """Cancel the current batch on the PCS."""
         try:
-            batch_rsp = self._client._cancel_batch(self.id)
+            batch_rsp = self._client.cancel_batch(self.id)
         except HTTPError as e:
             raise BatchCancellingError(e) from e
         self._update_from_api_response(batch_rsp)
@@ -220,7 +220,7 @@ class Batch(BaseModel):
     def refresh(self) -> None:
         """Fetch the batch from the API and update it in place."""
         try:
-            batch_rsp = self._client._get_batch(self.id)
+            batch_rsp = self._client.get_batch(self.id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
         self._update_from_api_response(batch_rsp)

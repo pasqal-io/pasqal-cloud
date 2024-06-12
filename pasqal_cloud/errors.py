@@ -69,7 +69,7 @@ class BatchSetCompleteError(BatchException):
     """
 
     def __init__(self, e: HTTPError) -> None:
-        super().__init__("Batch setting to complete failed", e)
+        super().__init__("Unable to set batch as complete.", e)
 
 
 class RebatchError(BatchException):
