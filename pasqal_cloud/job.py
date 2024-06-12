@@ -64,7 +64,7 @@ class Job(BaseModel):
     @property
     def full_result(self) -> Optional[JobResult]:
         if self._full_result is None:
-            self._full_result = self._client._get_job_results(self.id)
+            self._full_result = self._client.get_job_results(self.id)
         return self._full_result
 
     @property
