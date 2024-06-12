@@ -90,7 +90,7 @@ class Batch(BaseModel):
     @property
     def ordered_jobs(self) -> List[Job]:
         if self._ordered_jobs is None:
-            raw_jobs = self._client._get_batch_jobs(batch_id=self.id)
+            raw_jobs = self._client.get_batch_jobs(batch_id=self.id)
             self._ordered_jobs = [
                 Job(**raw_job, _client=self._client) for raw_job in raw_jobs
             ]
