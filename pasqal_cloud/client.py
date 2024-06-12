@@ -217,7 +217,7 @@ class Client:
         )["data"]
         return response
 
-    def _get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
+    def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_all_pages(
             "GET",
             f"{self.endpoints.core}/api/v2/jobs",
@@ -230,7 +230,7 @@ class Client:
             # the same order as they do in the GET /batches/{id} response
         )
 
-    def _get_job_results(self, job_id: str) -> Optional[JobResult]:
+    def get_job_results(self, job_id: str) -> Optional[JobResult]:
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
