@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from sys import version_info
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import TypedDict
@@ -21,8 +21,20 @@ else:
     from typing_extensions import TypedDict
 
 
+class JobResult(TypedDict):
+    raw: List[str]
+    counter: Dict[str, Any]
+
+
+class PaginationType(TypedDict):
+    total: int
+    offset: int
+    end: int
+
+
 class JSendPayload(TypedDict):
     status: str
     code: int
     message: str
     data: Any
+    pagination: Optional[PaginationType]

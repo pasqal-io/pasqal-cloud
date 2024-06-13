@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from requests import HTTPError
+from requests import HTTPError, Request
 
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
@@ -13,6 +13,7 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 RESULT_LINK_ENDPOINT = "http://result-link/"
+JOB_RESULT_LINK_ENDPOINT = "http://jobs-result-link/"
 JSON_FILE = "_.{}.json"
 
 
@@ -42,6 +43,24 @@ def mock_core_response(request):
         return result
 
 
+def mock_s3_presigned_url_response(request: Request) -> Dict[str, Any]:
+    """
+    Mock the response of a presigned URL and return expected results
+
+    Args:
+        request (Request): The incoming HTTP request
+
+    Returns:
+        Dict[str, Any]: The parsed JSON content from the results file
+    """
+    resource_id = request.url.split("/")[-1]
+    results_path = os.path.join(
+        TEST_API_FIXTURES_PATH, "v1", f"jobs/{resource_id}/results_link/result.json"
+    )
+    with open(results_path) as json_file:
+        return json.load(json_file)
+
+
 def mock_result_link_response() -> Dict[str, str]:
     """This mocks the response from the s3 result link."""
     return {"some": "result"}
@@ -55,6 +74,8 @@ def mock_response(request, _) -> Dict[str, Any]:
     """
     if request.url.startswith(Endpoints.core):
         return mock_core_response(request)
+    if request.url.startswith(JOB_RESULT_LINK_ENDPOINT):
+        return mock_s3_presigned_url_response(request)
     if request.url.startswith(RESULT_LINK_ENDPOINT):
         return mock_result_link_response()
     return None

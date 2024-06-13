@@ -19,6 +19,7 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
+from requests import HTTPError
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -27,7 +28,7 @@ from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
-from pasqal_cloud.utils.jsend import JSendPayload
+from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -149,6 +150,58 @@ class Client:
             "HTTP Client has encountered an issue it is unable to recover from."
         )
 
+    def _request_all_pages(
+        self,
+        method: str,
+        url: str,
+        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Request all pages of a paginated endpoint and return a list of all items from
+        the requested pages
+
+        Args:
+            method: HTTP method
+            url: requested endpoint url
+            payload: query payload
+            params: query params
+
+        Returns:
+            A list of items from the requested pages.
+        """
+
+        if not params:
+            params = {}
+        first_page_response = self._request(
+            method=method, url=url, payload=payload, params=params
+        )
+        all_items: List[Dict] = first_page_response["data"]
+        pagination_data = first_page_response.get("pagination")
+
+        if not pagination_data:
+            return all_items
+
+        total_nb_items = pagination_data["total"]
+        end = pagination_data["end"]
+        while end < total_nb_items:
+            params["offset"] = end
+            response: JSendPayload = self._request(
+                method=method, url=url, payload=payload, params=params
+            )
+
+            all_items.extend(response["data"])
+            pagination_data = response.get("pagination")
+
+            # Added to make sure the type is correctly set for mypy
+            # Should not happen
+            if not pagination_data:
+                break
+
+            total_nb_items = pagination_data["total"]
+            end = pagination_data["end"]
+        return all_items
+
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._request(
@@ -160,9 +213,38 @@ class Client:
 
     def get_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/batches/{batch_id}"
+            "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
         )["data"]
         return response
+
+    def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
+        return self._request_all_pages(
+            "GET",
+            f"{self.endpoints.core}/api/v2/jobs",
+            params={
+                "batch_id": batch_id,
+                "order_by": "ordered_id",
+                "order_by_direction": "ASC",
+            },
+            # The order-by parameters are required to ensure that the jobs appear in
+            # the same order as they do in the GET /batches/{id} response
+        )
+
+    def get_job_results(self, job_id: str) -> Optional[JobResult]:
+        results_link = self._request(
+            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
+        )["data"]["results_link"]
+        if results_link:
+            try:
+                response = requests.get(results_link)
+                response.raise_for_status()
+                data = response.json()
+                return JobResult(
+                    raw=data.pop("raw", None), counter=data.pop("counter", None), **data
+                )
+            except HTTPError:
+                pass
+        return None
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
@@ -217,7 +299,7 @@ class Client:
 
     def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._request(
-            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}"
+            "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
         )["data"]
         return response
 

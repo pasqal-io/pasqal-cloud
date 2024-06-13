@@ -268,3 +268,134 @@ class TestSDKRetry:
         mock_request.register_uri("GET", "http://test-domain", json={}, status_code=200)
         self.sdk._client._request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 1
+
+
+class TestRequestAllPages:
+    @pytest.fixture(autouse=True)
+    @patch(
+        "pasqal_cloud.client.Auth0TokenProvider",
+        FakeAuth0AuthenticationSuccess,
+    )
+    def _init_sdk(self):
+        self.sdk = SDK(
+            username="me@test.com",
+            password="password",
+            project_id=str(uuid4()),
+        )
+
+    def test_pagination_request_success(self, mock_request: Generator[Any, Any, None]):
+        """
+        Test requests with pagination with multiple pages.
+        This test verifies that the pagination works correctly by simulating
+        multiple pages of data.
+        It checks that the correct number of requests is made and the
+        combined response contains all the expected items.
+        """
+
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs",
+            json={
+                "data": [{"id": 1}, {"id": 2}],
+                "pagination": {"total": 6, "start": 0, "end": 2},
+            },
+            status_code=200,
+        )
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs?offset=2",
+            json={
+                "data": [{"id": 3}, {"id": 4}],
+                "pagination": {"total": 6, "start": 2, "end": 4},
+            },
+            status_code=200,
+        )
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs?offset=4",
+            json={
+                "data": [{"id": 5}, {"id": 6}],
+                "pagination": {"total": 6, "start": 4, "end": 6},
+            },
+            status_code=200,
+        )
+
+        response = self.sdk._client._request_all_pages(
+            "GET", "http://core-test.com/jobs"
+        )
+        assert len(response) == 6
+        assert response == [{"id": number} for number in range(1, 7)]
+        assert len(mock_request.request_history) == 3
+
+    def test_pagination_request_changed_total_items_during_query_success(
+        self, mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test request with pagination where the total number of items
+        changes during the query.
+        This test verifies that the pagination can handle situations where
+        the total number of items changes between requests.
+        It ensures that the system gracefully handles such changes
+        without errors.
+        """
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs",
+            json={
+                "data": [{"id": 1}, {"id": 2}],
+                "pagination": {"total": 8, "start": 0, "end": 2},
+            },
+            status_code=200,
+        )
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs?offset=2",
+            json={
+                "data": [{"id": 3}, {"id": 4}],
+                "pagination": {"total": 6, "start": 2, "end": 4},
+            },
+            status_code=200,
+        )
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs?offset=4",
+            json={
+                "data": [{"id": 5}],
+                "pagination": {"total": 5, "start": 4, "end": 6},
+            },
+            status_code=200,
+        )
+
+        response = self.sdk._client._request_all_pages(
+            "GET", "http://core-test.com/jobs"
+        )
+        assert len(response) == 5
+        assert response == [{"id": number} for number in range(1, 6)]
+        assert len(mock_request.request_history) == 3
+
+    def test_request_pagination_without_pagination_success(
+        self, mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test request with pagination when there is only a single page of data.
+        This test verifies that the pagination request function can handle responses
+        without pagination metadata correctly, by returning the data without
+        making additional requests.
+        """
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com/jobs",
+            json={
+                "data": [{"id": 1}],
+            },
+            status_code=200,
+        )
+
+        response = self.sdk._client._request_all_pages(
+            "GET", "http://core-test.com/jobs"
+        )
+        assert len(response) == 1
+        assert response == [{"id": 1}]

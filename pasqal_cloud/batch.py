@@ -2,14 +2,7 @@ import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    field_validator,
-    model_validator,
-    PrivateAttr,
-    ValidationInfo,
-)
+from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr, ValidationInfo
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
@@ -69,7 +62,7 @@ class Batch(BaseModel):
     status: str
     _client: Client = PrivateAttr(default=None)
     sequence_builder: str
-    ordered_jobs: List[Job] = []
+    _ordered_jobs: Optional[List[Job]] = PrivateAttr(default=None)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
     webhook: Optional[str] = None
@@ -89,19 +82,23 @@ class Batch(BaseModel):
         """
         super().__init__(**data)
         self._client = data["_client"]
+        if data.get("jobs"):
+            self._ordered_jobs = [
+                Job(**raw_job, _client=self._client) for raw_job in data["jobs"]
+            ]
 
-    @model_validator(mode="before")
-    def _build_ordered_jobs(cls, data: Dict[str, Any]) -> Dict[str, Any]:
-        """This root validator will modify the 'jobs' attribute, which is a list
-        of jobs dictionaries ordered by creation time before instantiation.
-        It will duplicate the value of 'jobs' in a new attribute 'ordered_jobs'
-        to keep the jobs ordered by creation time.
-        """
-        jobs_received = data.get("jobs", [])
-        data["ordered_jobs"] = [
-            {**job, "_client": data["_client"]} for job in jobs_received
-        ]
-        return data
+    @property
+    def ordered_jobs(self) -> List[Job]:
+        if self._ordered_jobs is None:
+            raw_jobs = self._client.get_batch_jobs(batch_id=self.id)
+            self._ordered_jobs = [
+                Job(**raw_job, _client=self._client) for raw_job in raw_jobs
+            ]
+        return self._ordered_jobs
+
+    @ordered_jobs.setter
+    def ordered_jobs(self, value: Any) -> None:
+        self._ordered_jobs = value
 
     # Ticket (#704), to be removed or updated
     @property
@@ -228,5 +225,10 @@ class Batch(BaseModel):
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""
         updated_batch = Batch(**data, _client=self._client)
-        for field, value in updated_batch:
+        # Private fields are not exposed by the model_fields method, so we need to
+        # explicitly add _ordered_jobs to ensure it is copied from the updated_batch
+        # model.
+        batch_model_fields = [*list(updated_batch.model_fields), "_ordered_jobs"]
+        for field in batch_model_fields:
+            value = getattr(updated_batch, field)
             setattr(self, field, value)
