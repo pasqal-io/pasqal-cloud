@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.10.1] - 2024-06-14
+
+### Changed
+
+- Use v2 endpoints for batches and jobs
+- Jobs are now downloaded from s3 client-side.
+
 ## [0.10.0] - 2024-06-05
 
 ### Changed
