@@ -216,6 +216,12 @@ class Client:
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:
+        """
+        Download job result from S3.
+
+        This function request a presigned-url for a specific job_id from the core API.
+        Once the presigned-url is obtained, it downloads the result from S3.
+        """
         results_link = self._request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
