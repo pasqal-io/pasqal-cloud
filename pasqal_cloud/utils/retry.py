@@ -4,11 +4,11 @@ from typing import (
     Callable,
     Iterable,
     Optional,
-    ParamSpec,
     TypeVar,
 )
 
 from requests import HTTPError
+from typing_extensions import ParamSpec
 
 Param = ParamSpec("Param")
 RT = TypeVar("RT")  # return type
