@@ -226,6 +226,14 @@ class TestSDKRetry:
     def test_download_results_retry_on_exception(
         self, mock_request: Generator[Any, Any, None]
     ):
+        """
+        Test the retry logic for HTTP calls when an error status code is encountered.
+
+        This test verifies that when an HTTP request fails with an error status code,
+        the system retries the HTTP call 2 additional times, resulting in a total of
+        3 HTTP calls.
+        """
+
         mock_request.reset_mock()
         mock_request.register_uri(
             "GET", "http://result-link", status_code=500, text="fake-results"
