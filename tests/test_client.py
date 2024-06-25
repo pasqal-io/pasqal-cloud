@@ -256,7 +256,7 @@ class TestSDKRetry:
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=status_code)
         with contextlib.suppress(Exception):
-            self.sdk._client._request("GET", "http://test-domain")
+            self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 6
 
     def test_sdk_doesnt_retry_on_exceptions(
@@ -272,7 +272,7 @@ class TestSDKRetry:
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=400)
         with contextlib.suppress(Exception):
-            self.sdk._client._request("GET", "http://test-domain")
+            self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 1
 
     def test_sdk_200_avoids_all_exception_handling(
@@ -285,7 +285,7 @@ class TestSDKRetry:
         """
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", json={}, status_code=200)
-        self.sdk._client._request("GET", "http://test-domain")
+        self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 1
 
 

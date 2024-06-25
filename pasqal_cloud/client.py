@@ -105,7 +105,7 @@ class Client:
     @retry_http_error(
         max_retries=5, retry_status_code={408, 425, 429, 500, 502, 503, 504}
     )
-    def _request(
+    def _authenticated_request(
         self,
         method: str,
         url: str,
@@ -148,7 +148,7 @@ class Client:
 
         if not params:
             params = {}
-        first_page_response = self._request(
+        first_page_response = self._authenticated_request(
             method=method, url=url, payload=payload, params=params
         )
         all_items: List[Dict] = first_page_response["data"]
@@ -161,7 +161,7 @@ class Client:
         end = pagination_data["end"]
         while end < total_nb_items:
             params["offset"] = end
-            response: JSendPayload = self._request(
+            response: JSendPayload = self._authenticated_request(
                 method=method, url=url, payload=payload, params=params
             )
 
@@ -179,7 +179,7 @@ class Client:
 
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches",
             batch_data,
@@ -187,7 +187,7 @@ class Client:
         return response
 
     def get_batch(self, batch_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
         )["data"]
         return response
@@ -221,7 +221,7 @@ class Client:
         This function request a presigned-url for a specific job_id from the core API.
         Once the presigned-url is obtained, it downloads the result from S3.
         """
-        results_link = self._request(
+        results_link = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
         if results_link:
@@ -229,13 +229,13 @@ class Client:
         return None
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]
         return response
 
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
         )["data"]
         return response
@@ -264,7 +264,7 @@ class Client:
         if not isinstance(end_date, EmptyFilter):
             query_params["end_date"] = end_date.isoformat()
 
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "POST",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
             params=query_params,
@@ -274,26 +274,26 @@ class Client:
     def add_jobs(
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "POST", f"{self.endpoints.core}/api/v1/batches/{batch_id}/jobs", jobs_data
         )["data"]
         return response
 
     def get_job(self, job_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
         )["data"]
         return response
 
     def cancel_job(self, job_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
         )["data"]
         return response
 
     def send_workload(self, workload_data: Dict[str, Any]) -> Dict[str, Any]:
         workload_data.update({"project_id": self.project_id})
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "POST",
             f"{self.endpoints.core}/api/v1/workloads",
             workload_data,
@@ -301,19 +301,19 @@ class Client:
         return response
 
     def get_workload(self, workload_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/workloads/{workload_id}"
         )["data"]
         return response
 
     def cancel_workload(self, workload_id: str) -> Dict[str, Any]:
-        response: Dict[str, Any] = self._request(
+        response: Dict[str, Any] = self._authenticated_request(
             "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
         )["data"]
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
-        response: Dict[str, str] = self._request(
+        response: Dict[str, str] = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v1/devices/specs"
         )["data"]
         return response
