@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2024-07-05
+
+### Added
+
+- Added 'cancel_jobs' method, a feature to cancel a selected group of jobs based on 'CancelJobFilters'
+
 ## [0.11.0] - 2024-06-27
 
 ### Added
