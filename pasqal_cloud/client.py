@@ -18,7 +18,6 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 
 import requests
-from requests import HTTPError
 from requests.auth import AuthBase
 
 from pasqal_cloud.authentication import (
@@ -208,7 +207,7 @@ class Client:
 
     @retry_http_error(max_retries=2)
     def _download_results(self, results_link: str) -> JobResult:
-        response = requests.get(results_link)
+        response = requests.request("GET", results_link)
         response.raise_for_status()
         data = response.json()
         return JobResult(
@@ -226,10 +225,7 @@ class Client:
             "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
         )["data"]["results_link"]
         if results_link:
-            try:
-                return self._download_results(results_link)
-            except HTTPError:
-                pass
+            return self._download_results(results_link)
         return None
 
     def complete_batch(self, batch_id: str) -> Dict[str, Any]:
