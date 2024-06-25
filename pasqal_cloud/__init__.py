@@ -269,7 +269,7 @@ class SDK:
             )
 
         try:
-            new_batch_data = self._client._rebatch(
+            new_batch_data = self._client.rebatch(
                 batch_id=id,
                 filters=filters,
             )
