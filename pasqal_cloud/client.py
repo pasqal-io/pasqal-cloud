@@ -14,7 +14,7 @@
 from __future__ import annotations
 
 from getpass import getpass
-from typing import Any, Dict, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
 
 import requests

@@ -73,7 +73,7 @@ class TestJob:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/jobs/{job.id}"
+            f"/api/v2/jobs/{job.id}"
         )
 
     def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):
