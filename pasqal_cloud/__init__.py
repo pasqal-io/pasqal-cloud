@@ -254,9 +254,6 @@ class SDK:
             filters: filters to be applied to find the jobs that will be retried
 
         Returns:
-            Batch: the new re-created batch
-
-        Returns:
             An instance of a rescheduled Batch model. The fields
             can differ from the original batch as the record
             is recreated as to prevent modifying the original batch.
@@ -272,7 +269,7 @@ class SDK:
             )
 
         try:
-            new_batch_data = self._client._rebatch(
+            new_batch_data = self._client.rebatch(
                 batch_id=id,
                 filters=filters,
             )
@@ -338,7 +335,7 @@ class SDK:
             )
 
         try:
-            response = self._client._get_jobs(
+            response = self._client.get_jobs(
                 filters=filters, pagination_params=pagination_params
             )
             jobs = response["data"]
