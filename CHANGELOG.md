@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Introduced a new filtering system using Pydantic classes for more flexible and robust filtering options
+- Introduced a new filtering system using classes for more flexible and robust filtering options
 - Added 'get_jobs' method, a feature to retrieve a list of jobs based on 'JobFilters'
 
 ### Breaking change
