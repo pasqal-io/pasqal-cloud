@@ -274,6 +274,81 @@ class SDK:
         self.batches[batch.id] = batch
         return batch
 
+    def get_batches(
+        self,
+        filters: Optional[BatchFilters] = None,
+        pagination_params: Optional[PaginationParams] = None,
+    ) -> PaginatedResponse:
+        """
+        Retrieve a list of batches matching filters using a pagination system.
+
+        batches are sorted by their creation date in descending order.
+
+        If no 'pagination_params' are provided, the first 100 batches
+        matching the query will be returned by default.
+
+        Args:
+            filters: Filters to be applied to the batches.
+            pagination_params: Pagination to be applied to the query.
+
+        Examples:
+        >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR))
+        Returns the first 100 batches with an ERROR status.
+
+        >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
+                     pagination_params=PaginationParams(offset=100))
+        Returns batches 101-200 with an ERROR status.
+
+        >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
+                     pagination_params=PaginationParams(offset=200))
+        Returns batches 201-300 with an ERROR status.
+
+        Returns:
+            PaginatedResponse: A class instance with two fields:
+                - total: An integer representing the total number of batches
+                         matching the filters.
+                - results: A list of batches matching the filters and pagination
+                           parameters provided.
+
+        Raises:
+            BatchFetchingError: If fetching batches call failed.
+            ValueError: If `filters` is not an instance of JobFilters
+                    or if `pagination_params` is not an instance of PaginationParams.
+        """
+
+        if pagination_params is None:
+            pagination_params = PaginationParams()
+        elif not isinstance(pagination_params, PaginationParams):
+            raise ValueError(
+                f"Pagination parameters needs to be a PaginationParams instance, "
+                f"not a {type(pagination_params)}"
+            )
+
+        if filters is None:
+            filters = BatchFilters()
+        elif not isinstance(filters, BatchFilters):
+            raise ValueError(
+                f"Filters needs to be a JobFilters instance, not a {type(filters)}"
+            )
+
+        try:
+            response = self._client._get_batches(
+                filters=filters, pagination_params=pagination_params
+            )
+            batches = response["data"]
+            pagination_response = response.get("pagination")
+            # It should return a pagination all the time
+            total_nb_batches = (
+                pagination_response["total"] if pagination_response else 0
+            )
+        except HTTPError as e:
+            raise BatchFetchingError(e) from e
+        return PaginatedResponse(
+            total=total_nb_batches,
+            offset=pagination_params.offset,
+            results=[Job(**batch, _client=self._client) for batch in batches],
+        )
+
     def cancel_batch(self, id: str) -> Batch:
         """Cancel the given batch on the PCS
 

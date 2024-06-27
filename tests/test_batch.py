@@ -1,32 +1,41 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, Generator, Optional, Union
+from typing import Any, Dict, Generator, List, Optional, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
 import requests_mock
 
-from pasqal_cloud import Batch, Job, RebatchFilters, SDK
+from pasqal_cloud import (
+    Batch,
+    BatchFilters,
+    Job,
+    PaginatedResponse,
+    PaginationParams,
+    RebatchFilters,
+    SDK,
+)
 from pasqal_cloud.batch import Batch as BatchModel
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
     BatchCreationError,
+    BatchFetchingError,
     JobCreationError,
     JobRetryError,
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
-from pasqal_cloud.utils.constants import JobStatus
+from pasqal_cloud.utils.constants import BatchStatus
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
 
 
 class TestBatch:
-    @pytest.fixture()
+    @pytest.fixture
     def load_mock_batch_json_response(self) -> Dict[str, Any]:
         with open("tests/fixtures/api/v1/batches/_.POST.json") as f:
             return json.load(f)
@@ -463,9 +472,9 @@ class TestBatch:
             # End date
             RebatchFilters(end_date=datetime(2023, 1, 1)),
             # Single job status
-            RebatchFilters(status=JobStatus.DONE),
+            RebatchFilters(status=BatchStatus.DONE),
             # List of job statuses
-            RebatchFilters(status=[JobStatus.DONE, JobStatus.PENDING]),
+            RebatchFilters(status=[BatchStatus.DONE, BatchStatus.PENDING]),
             # Minimum runs
             RebatchFilters(min_runs=10),
             # Maximum runs
@@ -473,7 +482,7 @@ class TestBatch:
             # Combined
             RebatchFilters(
                 id=[UUID(int=0x1)],
-                status=[JobStatus.DONE, JobStatus.PENDING],
+                status=[BatchStatus.DONE, BatchStatus.PENDING],
                 min_runs=10,
                 max_runs=10,
                 start_date=datetime(2023, 1, 1),
@@ -676,3 +685,199 @@ class TestBatch:
             ValueError, match="Filters needs to be a RebatchFilters instance"
         ):
             _ = self.sdk.rebatch(id=UUID(int=0x1), filters={"min_runs": 10})
+
+    @pytest.mark.parametrize(
+        "filters",
+        [
+            # No filters provided
+            None,
+            # Empty object
+            BatchFilters(),
+            # Single UUID for id
+            BatchFilters(id=UUID(int=0x1)),
+            # List of UUIDs for id
+            BatchFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
+            # Single string UUID for id
+            BatchFilters(id=str(UUID(int=0x1))),
+            # List of string UUIDs for id
+            BatchFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Single UUID for project_id
+            BatchFilters(project_id=UUID(int=0x1)),
+            # List of UUIDs for project_id
+            BatchFilters(project_id=[UUID(int=0x1), UUID(int=0x2)]),
+            # Single string UUID for project_id
+            BatchFilters(project_id=str(UUID(int=0x1))),
+            # List of string UUIDs for project_id
+            BatchFilters(project_id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Single user_id as string
+            BatchFilters(user_id="1"),
+            # List of user_ids as strings
+            BatchFilters(user_id=["1", "2"]),
+            # Single UUID for batch_id
+            BatchFilters(batch_id=UUID(int=0x2)),
+            # List of UUIDs for batch_id
+            BatchFilters(batch_id=[UUID(int=0x1), UUID(int=0x2)]),
+            # Single string UUID for batch_id
+            BatchFilters(batch_id=str(UUID(int=0x1))),
+            # List of string UUIDs for batch_id
+            BatchFilters(batch_id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Single status
+            BatchFilters(status=BatchStatus.DONE),
+            # List of statuses
+            BatchFilters(status=[BatchStatus.DONE, BatchStatus.PENDING]),
+            # Minimum runs
+            BatchFilters(min_runs=10),
+            # Maximum runs
+            BatchFilters(max_runs=20),
+            # Complete flag
+            BatchFilters(complete=True),
+            # Start date
+            BatchFilters(start_date=datetime(2023, 1, 1)),
+            # End date
+            BatchFilters(end_date=datetime(2023, 1, 1)),
+            # Combined
+            BatchFilters(
+                id=[UUID(int=0x1), str(UUID(int=0x2))],
+                project_id=[UUID(int=0x1), UUID(int=0x2)],
+                user_id=["1", "2"],
+                batch_id=[UUID(int=0x1), UUID(int=0x2)],
+                status=BatchStatus.DONE,
+                min_runs=10,
+                max_runs=20,
+                complete=True,
+                start_date=datetime(2023, 1, 1),
+                end_date=datetime(2023, 1, 1),
+            ),
+        ],
+    )
+    def test_get_batches_with_filters_success(
+        self,
+        mock_request: Any,
+        filters: Union[BatchFilters, None],
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can get a list of jobs with specific filters.
+        The resulting request will retrieve the jobs that match the filters.
+        """
+        response = self.sdk.get_batches(filters=filters)
+        assert isinstance(response, PaginatedResponse)
+        assert isinstance(response.total, int)
+        assert isinstance(response.results, List)
+        for item in response.results:
+            assert isinstance(item, Job)
+        assert mock_request.last_request.method == "GET"
+        # Convert filters to the appropriate format for query parameters
+        query_params = build_query_params(
+            filters.model_dump(exclude_unset=True) if filters is not None else None,
+            PaginationParams().model_dump(),
+        )
+        # Check that the correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches{query_params}"
+        )
+
+    @pytest.mark.parametrize(
+        "pagination",
+        [
+            None,
+            PaginationParams(),
+            PaginationParams(limit=1),
+            PaginationParams(offset=50, limit=1),
+            PaginationParams(offset=100, limit=100),
+            PaginationParams(offset=1000, limit=100),
+        ],
+    )
+    def test_get_batches_with_pagination_success(
+        self, mock_request: Any, pagination: PaginationParams
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can get a list of jobs with pagination parameters.
+        The resulting request will retrieve the jobs that match
+        the pagination parameters.
+        """
+        response = self.sdk.get_batches(pagination_params=pagination)
+        assert isinstance(response, PaginatedResponse)
+        assert isinstance(response.total, int)
+        assert isinstance(response.results, List)
+        for item in response.results:
+            assert isinstance(item, Job)
+        assert mock_request.last_request.method == "GET"
+        # Convert filters to the appropriate format for query parameters
+        query_params = build_query_params(
+            pagination_params=(
+                pagination.model_dump()
+                if pagination
+                else PaginationParams().model_dump()
+            )
+        )
+        # Check that the correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches{query_params}"
+        )
+
+    def test_get_batches_sdk_error(
+        self, mock_request_exception: Generator[Any, Any, None]
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        if my request for getting jobs returns a status code different from 200,
+        I am faced with the JobFetchingError.
+        """
+        with pytest.raises(BatchFetchingError):
+            _ = self.sdk.get_batches()
+        assert mock_request_exception.last_request.method == "GET"
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches?offset=0&limit=100"
+        )
+
+    def test_get_batches_raises_value_error_on_invalid_filters(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a dictionary instead of BatchFilters, a ValueError should be raised.
+        """
+        with pytest.raises(
+            ValueError, match="Filters needs to be a BatchFilters instance"
+        ):
+            _ = self.sdk.get_batches(filters={"min_runs": 10})
+
+    def test_get_batches_raises_value_error_on_invalid_pagination_params(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a dictionary instead of PaginationParams, a ValueError should
+        be raised.
+        """
+        with pytest.raises(
+            ValueError,
+            match="Pagination parameters needs to be a PaginationParams instance",
+        ):
+            _ = self.sdk.get_batches(pagination_params={"offset": 100, "limit": 100})
+
+    def test_get_batches_raises_value_error_on_invalid_value_for_offset(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a 'from_index' inferior to 0, it raises a ValueError to the user.
+        """
+        with pytest.raises(
+            ValueError, match="Input should be greater than or equal to 0"
+        ):
+            _ = self.sdk.get_batches(pagination_params=PaginationParams(offset=-1))
+
+    @pytest.mark.parametrize(
+        "limit",
+        [-1, 0, 101],
+    )
+    def test_get_batches_raises_value_error_on_invalid_value_for_limit(
+        self, limit: int
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a 'limit' inferior to 1 or superior to 100,
+        it raises a ValueError to the user.
+        """
+        with pytest.raises(ValueError, match="limit"):
+            _ = self.sdk.get_batches(pagination_params=PaginationParams(limit=limit))

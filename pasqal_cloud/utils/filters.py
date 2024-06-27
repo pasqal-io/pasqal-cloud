@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer, field_validator
 
-from pasqal_cloud.utils.constants import JobStatus
+from pasqal_cloud.utils.constants import BatchStatus, JobStatus, QueuePriority
 
 
 class BaseJobFilters(BaseModel):
@@ -115,7 +115,75 @@ class CancelJobFilters(BaseJobFilters):
         return values
 
 
-class JobFilters(BaseJobFilters):
+class BatchFilters(BaseFilters):
+    """
+    Class to provide filters for querying batches.
+
+    Setting a value for any attribute of this class will add a filter to the query.
+
+    When using several filters at the same time, the API will return elements who pass
+    all filters at the same time:
+        - If the filter value is a single element, the API will return batches whose
+          attribute matches the provided value.
+        - If the filter value is a list, the API will return batches whose value for
+          this attribute is contained in that list.
+
+    Attributes:
+        id: Filter by job IDs.
+        project_id: Filter by project IDs.
+        user_id: Filter by user IDs.
+        batch_id: Filter by batch IDs.
+        device_type: Filter by device type.
+        status: Filter by job statuses.
+        min_runs: Minimum number of runs.
+        max_runs: Maximum number of runs.
+        complete: Filter by complete status
+        start_date: Retry batches created at or after this datetime.
+        end_date: Retry batches created at or before this datetime.
+        queue_priority: Filter by queue priority value.
+    """
+
+    id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
+    project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
+    user_id: Optional[Union[List[str], str]] = None
+    device_type: Optional[Union[List[str], str]] = None
+    batch_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
+    status: Optional[Union[List[BatchStatus], BatchStatus]] = None
+    complete: Optional[bool] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    queue_priority: Optional[QueuePriority] = None
+
+    @field_validator(
+        "id",
+        "project_id",
+        "user_id",
+        "device_type",
+        "batch_id",
+        "status",
+        mode="before",
+    )
+    @classmethod
+    def single_item_to_list_validator(cls, values: Dict[str, Any]) -> Any:
+        return cls.convert_to_list(values)
+
+    @field_validator("id", "project_id", "batch_id", mode="after")
+    @classmethod
+    def str_to_uuid_validator(cls, values: Dict[str, Any]) -> Dict[str, UUID]:
+        for item in values:
+            cls.convert_str_to_uuid(item)
+        return values
+
+    @field_serializer("status", check_fields=False)
+    def status_enum_to_string(self, batch_statuses: List[BatchStatus]) -> List[str]:
+        return [batch_status.value for batch_status in batch_statuses]
+
+    @field_serializer("queue_priority", check_fields=False)
+    def queue_priority_enum_to_string(self, queue_priority: QueuePriority):
+        return queue_priority.value
+
+
+class JobFilters(BaseFilters):
     """
     Class to provide filters for querying jobs.
 
