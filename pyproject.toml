@@ -31,7 +31,7 @@ select = [
     "PERF",
     "RUF",
 ]
-ignore = ["W191", "E111", "E114", "E117", "SIM115"]
+ignore = ["W191", "E111", "E114", "E117", "Q000", "Q001", "Q002", "Q003", "SIM115"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

@@ -19,7 +19,10 @@
       "variables": {
         "Omega_max": 14.4,
         "last_target": "q1",
-        "ts": [200, 500]
+        "ts": [
+          200,
+          500
+        ]
       }
     }
   ],
