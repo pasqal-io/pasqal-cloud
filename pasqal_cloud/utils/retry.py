@@ -1,11 +1,6 @@
 import functools
 import time
-from typing import (
-    Callable,
-    Iterable,
-    Optional,
-    TypeVar,
-)
+from typing import Callable, Iterable, Optional, TypeVar
 
 from requests import HTTPError
 from typing_extensions import ParamSpec
@@ -15,7 +10,9 @@ RT = TypeVar("RT")  # return type
 
 
 def retry_http_error(
-    max_retries: int = 5, retry_status_code: Optional[Iterable[int]] = None
+    max_retries: int = 5,
+    retry_status_code: Optional[Iterable[int]] = None,
+    retry_exceptions: Optional[tuple[type[Exception]]] = None,
 ) -> Callable[[Callable[..., RT]], Callable[..., RT]]:
     """
     Decorator to retry an HTTP call when an HTTPError is encountered.
@@ -24,6 +21,9 @@ def retry_http_error(
         max_retries: The maximum number of retry attempts
         retry_status_codes: Specific HTTP status codes to trigger a retry.
             - NB: If None, retries on all HTTP error status codes.
+        retry_exceptions:  List of specific Exception classes that trigger a retry.
+            - NB: If None, retries will only occur based on status codes, not
+            exceptions.
     """
 
     def decorator(func: Callable[..., RT]) -> Callable[..., RT]:
@@ -45,7 +45,14 @@ def retry_http_error(
                     delay = (1 * 2) ** iteration
                     time.sleep(delay)
                 except Exception as e:
-                    raise e
+                    if (
+                        not retry_exceptions
+                        or not isinstance(e, retry_exceptions)
+                        or iteration == max_retries
+                    ):
+                        raise e
+                    delay = (1 * 2) ** iteration
+                    time.sleep(delay)
                 else:
                     return response
 
