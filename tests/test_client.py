@@ -4,6 +4,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
+import requests
 from auth0.v3.exceptions import Auth0Error
 
 from pasqal_cloud import (
@@ -240,7 +241,30 @@ class TestSDKRetry:
         )
         with contextlib.suppress(Exception):
             self.sdk._client._download_results("http://result-link")
-        assert len(mock_request.request_history) == 3
+        assert len(mock_request.request_history) == 6
+
+    def test_download_results_retry_on_connection_error(
+        self, mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test the retry logic for HTTP calls when a network error is encountered.
+
+        This test verifies that when an HTTP request fails with
+        requests.connectionError, the system retries the HTTP call 2 additional times,
+        resulting in a total of 3 HTTP calls.
+        """
+
+        def raise_connection_error(*_):
+            raise requests.ConnectionError
+
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET", "http://result-link", body=raise_connection_error
+        )
+
+        with contextlib.suppress(requests.ConnectionError):
+            self.sdk._client._download_results("http://result-link")
+        assert len(mock_request.request_history) == 6
 
     @pytest.mark.parametrize("status_code", [408, 425, 429, 500, 502, 503, 504])
     def test_sdk_retry_on_exception(
