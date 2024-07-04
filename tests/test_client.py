@@ -241,7 +241,7 @@ class TestSDKRetry:
         )
         with contextlib.suppress(Exception):
             self.sdk._client._download_results("http://result-link")
-        assert len(mock_request.request_history) == 3
+        assert len(mock_request.request_history) == 6
 
     def test_download_results_retry_on_connection_error(
         self, mock_request: Generator[Any, Any, None]
@@ -264,7 +264,7 @@ class TestSDKRetry:
 
         with contextlib.suppress(requests.ConnectionError):
             self.sdk._client._download_results("http://result-link")
-        assert len(mock_request.request_history) == 3
+        assert len(mock_request.request_history) == 6
 
     @pytest.mark.parametrize("status_code", [408, 425, 429, 500, 502, 503, 504])
     def test_sdk_retry_on_exception(

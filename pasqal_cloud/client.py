@@ -206,7 +206,7 @@ class Client:
             # the same order as they do in the GET /batches/{id} response
         )
 
-    @retry_http_error(max_retries=2, retry_exceptions=(requests.ConnectionError,))
+    @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
         response = requests.request("GET", results_link)
         response.raise_for_status()
