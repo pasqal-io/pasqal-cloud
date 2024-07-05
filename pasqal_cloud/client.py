@@ -26,13 +26,13 @@ from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
-from pasqal_cloud.utils.jsend import JobResult, JSendPayload
-from pasqal_cloud.utils.models import (
+from pasqal_cloud.utils.filters import (
     CancelJobFilters,
     JobFilters,
     PaginationParams,
     RebatchFilters,
 )
+from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -268,6 +268,14 @@ class Client:
         )
         return response
 
+    def add_jobs(
+        self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
+    ) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "POST", f"{self.endpoints.core}/api/v1/batches/{batch_id}/jobs", jobs_data
+        )["data"]
+        return response
+
     def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
@@ -284,7 +292,7 @@ class Client:
         self, batch_id: Union[UUID, str], filters: CancelJobFilters
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "POST",
+            "PUT",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel/jobs",
             params=filters.model_dump(exclude_unset=True),
         )["data"]

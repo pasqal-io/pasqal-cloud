@@ -44,14 +44,13 @@ from pasqal_cloud.errors import (
 )
 from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
-from pasqal_cloud.utils.models import (
+from pasqal_cloud.utils.filters import (
     CancelJobFilters,
-    CancellationResponse,
     JobFilters,
-    PaginatedResponse,
     PaginationParams,
     RebatchFilters,
 )
+from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
 from pasqal_cloud.workload import Workload
 
 
@@ -441,7 +440,7 @@ class SDK:
         self,
         batch_id: Union[UUID, str],
         filters: Optional[CancelJobFilters] = None,
-    ) -> CancellationResponse:
+    ) -> JobCancellationResponse:
         """
         Cancel a group of jobs matching the filters in a selected batch.
 
@@ -450,7 +449,7 @@ class SDK:
             filters: filters to be applied to find the jobs that will be cancelled
 
         Returns:
-            CancellationResponse:
+            JobCancellationResponse:
             a class containing the jobs that have been cancelled and the id of the jobs
             that could not be cancelled with the reason explained
 
@@ -473,7 +472,7 @@ class SDK:
             )
         except HTTPError as e:
             raise JobCancellingError(e) from e
-        return CancellationResponse(
+        return JobCancellationResponse(
             jobs=[Job(**job, _client=self._client) for job in response["jobs"]],
             errors=response["errors"],
         )

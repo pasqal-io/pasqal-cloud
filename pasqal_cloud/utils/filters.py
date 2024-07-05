@@ -170,7 +170,7 @@ class JobFilters(BaseFilters):
         return [job_status.value for job_status in job_statuses]
 
 
-class PaginationParams(BaseFilters):
+class PaginationParams(BaseModel):
     """
     Class providing parameters for paginating query results.
 
@@ -182,34 +182,3 @@ class PaginationParams(BaseFilters):
 
     offset: int = Field(default=0, strict=True, ge=0)
     limit: int = Field(default=100, strict=True, gt=0, le=100)
-
-
-class PaginatedResponse(BaseModel):
-    """
-    Class representing a paginated response structure.
-
-    Attributes:
-        total: The total number of items matching the query.
-        offset: The starting point for the current set of paginated results.
-                It indicates the number of items skipped before the current set.
-        results: A list of items that match the query and pagination parameters
-                 provided.
-    """
-
-    total: int
-    offset: int
-    results: List[Any]
-
-
-class CancellationResponse(BaseModel):
-    """
-    Class representing a bulk cancellation response structure.
-
-    Attributes:
-        jobs: A list of jobs that were successfully cancelled.
-        errors: A dict of jobs id with the errors explaining why they could
-        not be cancelled.
-    """
-
-    jobs: list[Any]
-    errors: Dict[UUID, str]

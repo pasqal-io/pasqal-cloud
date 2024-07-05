@@ -7,7 +7,6 @@ import pytest
 
 from pasqal_cloud import (
     CancelJobFilters,
-    CancellationResponse,
     Job,
     JobCancellingError,
     JobFetchingError,
@@ -17,6 +16,7 @@ from pasqal_cloud import (
     SDK,
 )
 from pasqal_cloud.utils.constants import JobStatus
+from pasqal_cloud.utils.responses import JobCancellationResponse
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
 
@@ -395,7 +395,7 @@ class TestJob:
         the errors for those that could not be cancelled.
         """
         response = self.sdk.cancel_jobs(batch_id=UUID(int=0x1), filters=filters)
-        assert isinstance(response, CancellationResponse)
+        assert isinstance(response, JobCancellationResponse)
 
         for item in response.jobs:
             assert isinstance(item, Job)
@@ -406,7 +406,7 @@ class TestJob:
 
         assert isinstance(response.errors, Dict)
 
-        assert mock_request.last_request.method == "POST"
+        assert mock_request.last_request.method == "PUT"
 
         # Convert filters to the appropriate format for query parameters
         query_params = build_query_params(
