@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Introduced the 'cancel_jobs' method, a feature to cancel a list of jobs from a specific batch,
+- Introduced the 'cancel_jobs' method, a feature to cancel a group of jobs from a specific batch,
   based on 'CancelJobFilters'
 
 ## [0.11.0] - 2024-06-27
@@ -14,7 +14,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Introduced a new filtering system using classes for more flexible and robust filtering options
-- Added 'get_jobs' method, a feature to retrieve a list of jobs based on 'JobFilters'
+- Added 'get_jobs' method, a feature to retrieve a group of jobs based on 'JobFilters'
 
 ### Breaking change
 

@@ -248,7 +248,7 @@ class SDK:
         filters: Optional[RebatchFilters] = None,
     ) -> Batch:
         """
-        Retry a list of jobs matching filters in a new batch.
+        Retry a group of jobs matching filters in a new batch.
 
         Args:
             id: id of the batch to re-create
