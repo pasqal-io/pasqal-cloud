@@ -33,5 +33,5 @@ class JobCancellationResponse(BaseModel):
         not be cancelled.
     """
 
-    jobs: list[Job]
+    jobs: List[Job]
     errors: Dict[UUID, str]
