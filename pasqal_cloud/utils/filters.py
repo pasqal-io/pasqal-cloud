@@ -132,7 +132,6 @@ class BatchFilters(BaseFilters):
         id: Filter by job IDs.
         project_id: Filter by project IDs.
         user_id: Filter by user IDs.
-        batch_id: Filter by batch IDs.
         device_type: Filter by device type.
         status: Filter by job statuses.
         min_runs: Minimum number of runs.
@@ -147,11 +146,11 @@ class BatchFilters(BaseFilters):
     project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     user_id: Optional[Union[List[str], str]] = None
     device_type: Optional[Union[List[str], str]] = None
-    batch_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     status: Optional[Union[List[BatchStatus], BatchStatus]] = None
     complete: Optional[bool] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
+    # TODO Support for list
     queue_priority: Optional[QueuePriority] = None
 
     @field_validator(
@@ -159,7 +158,6 @@ class BatchFilters(BaseFilters):
         "project_id",
         "user_id",
         "device_type",
-        "batch_id",
         "status",
         mode="before",
     )
@@ -167,7 +165,7 @@ class BatchFilters(BaseFilters):
     def single_item_to_list_validator(cls, values: Dict[str, Any]) -> Any:
         return cls.convert_to_list(values)
 
-    @field_validator("id", "project_id", "batch_id", mode="after")
+    @field_validator("id", "project_id", mode="after")
     @classmethod
     def str_to_uuid_validator(cls, values: Dict[str, Any]) -> Dict[str, UUID]:
         for item in values:
@@ -179,7 +177,7 @@ class BatchFilters(BaseFilters):
         return [batch_status.value for batch_status in batch_statuses]
 
     @field_serializer("queue_priority", check_fields=False)
-    def queue_priority_enum_to_string(self, queue_priority: QueuePriority):
+    def queue_priority_enum_to_string(self, queue_priority: QueuePriority) -> str:
         return queue_priority.value
 
 

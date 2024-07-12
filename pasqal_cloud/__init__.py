@@ -328,7 +328,7 @@ class SDK:
             filters = BatchFilters()
         elif not isinstance(filters, BatchFilters):
             raise ValueError(
-                f"Filters needs to be a JobFilters instance, not a {type(filters)}"
+                f"Filters needs to be a BatchFilters instance, not a {type(filters)}"
             )
 
         try:
@@ -346,7 +346,7 @@ class SDK:
         return PaginatedResponse(
             total=total_nb_batches,
             offset=pagination_params.offset,
-            results=[Job(**batch, _client=self._client) for batch in batches],
+            results=[Batch(**batch, _client=self._client) for batch in batches],
         )
 
     def cancel_batch(self, id: str) -> Batch:

@@ -293,7 +293,7 @@ class Client:
     ) -> JSendPayload:
         filters_params = filters.model_dump(exclude_unset=True)
         filters_params.update(pagination_params.model_dump())
-        response: JSendPayload = self._request(
+        response: JSendPayload = self._authenticated_request(
             "GET",
             f"{self.endpoints.core}/api/v2/batches",
             params=filters_params,

@@ -28,7 +28,7 @@ from pasqal_cloud.errors import (
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
-from pasqal_cloud.utils.constants import BatchStatus
+from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
@@ -472,9 +472,9 @@ class TestBatch:
             # End date
             RebatchFilters(end_date=datetime(2023, 1, 1)),
             # Single job status
-            RebatchFilters(status=BatchStatus.DONE),
+            RebatchFilters(status=JobStatus.DONE),
             # List of job statuses
-            RebatchFilters(status=[BatchStatus.DONE, BatchStatus.PENDING]),
+            RebatchFilters(status=[JobStatus.DONE, JobStatus.PENDING]),
             # Minimum runs
             RebatchFilters(min_runs=10),
             # Maximum runs
@@ -482,9 +482,7 @@ class TestBatch:
             # Combined
             RebatchFilters(
                 id=[UUID(int=0x1)],
-                status=[BatchStatus.DONE, BatchStatus.PENDING],
-                min_runs=10,
-                max_runs=10,
+                status=[JobStatus.DONE, JobStatus.PENDING],
                 start_date=datetime(2023, 1, 1),
                 end_date=datetime(2023, 1, 1),
             ),
@@ -714,13 +712,7 @@ class TestBatch:
             # List of user_ids as strings
             BatchFilters(user_id=["1", "2"]),
             # Single UUID for batch_id
-            BatchFilters(batch_id=UUID(int=0x2)),
-            # List of UUIDs for batch_id
-            BatchFilters(batch_id=[UUID(int=0x1), UUID(int=0x2)]),
-            # Single string UUID for batch_id
-            BatchFilters(batch_id=str(UUID(int=0x1))),
-            # List of string UUIDs for batch_id
-            BatchFilters(batch_id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            BatchFilters(id=UUID(int=0x2)),
             # Single status
             BatchFilters(status=BatchStatus.DONE),
             # List of statuses
@@ -740,10 +732,7 @@ class TestBatch:
                 id=[UUID(int=0x1), str(UUID(int=0x2))],
                 project_id=[UUID(int=0x1), UUID(int=0x2)],
                 user_id=["1", "2"],
-                batch_id=[UUID(int=0x1), UUID(int=0x2)],
                 status=BatchStatus.DONE,
-                min_runs=10,
-                max_runs=20,
                 complete=True,
                 start_date=datetime(2023, 1, 1),
                 end_date=datetime(2023, 1, 1),
@@ -765,7 +754,7 @@ class TestBatch:
         assert isinstance(response.total, int)
         assert isinstance(response.results, List)
         for item in response.results:
-            assert isinstance(item, Job)
+            assert isinstance(item, Batch)
         assert mock_request.last_request.method == "GET"
         # Convert filters to the appropriate format for query parameters
         query_params = build_query_params(
@@ -803,7 +792,7 @@ class TestBatch:
         assert isinstance(response.total, int)
         assert isinstance(response.results, List)
         for item in response.results:
-            assert isinstance(item, Job)
+            assert isinstance(item, Batch)
         assert mock_request.last_request.method == "GET"
         # Convert filters to the appropriate format for query parameters
         query_params = build_query_params(
@@ -843,7 +832,7 @@ class TestBatch:
         with pytest.raises(
             ValueError, match="Filters needs to be a BatchFilters instance"
         ):
-            _ = self.sdk.get_batches(filters={"min_runs": 10})
+            _ = self.sdk.get_batches(filters={"complete": True})
 
     def test_get_batches_raises_value_error_on_invalid_pagination_params(self):
         """

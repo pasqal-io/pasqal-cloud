@@ -9,12 +9,20 @@ class Status(Enum):
     CANCELED = "CANCELED"
 
 
-class BatchStatus(Status):
-    pass
+class BatchStatus(Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    DONE = "DONE"
+    ERROR = "ERROR"
+    CANCELED = "CANCELED"
 
 
-class JobStatus(Status):
-    pass
+class JobStatus(Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    DONE = "DONE"
+    ERROR = "ERROR"
+    CANCELED = "CANCELED"
 
 
 class QueuePriority(Enum):
