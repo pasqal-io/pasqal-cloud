@@ -7,7 +7,17 @@ from pydantic import BaseModel, Field, field_serializer, field_validator
 from pasqal_cloud.utils.constants import JobStatus
 
 
-class BaseFilters(BaseModel):
+class BaseJobFilters(BaseModel):
+    """
+    Base class used by Job related filters for shared fields.
+    """
+
+    id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
+    min_runs: Optional[int] = None
+    max_runs: Optional[int] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+
     @staticmethod
     def convert_to_list(value: Any) -> Any:
         if not value:
@@ -30,7 +40,7 @@ class BaseFilters(BaseModel):
         return date.isoformat()
 
 
-class RebatchFilters(BaseFilters):
+class RebatchFilters(BaseJobFilters):
     """
     Class to provide filters for querying jobs to re-create.
 
@@ -52,12 +62,7 @@ class RebatchFilters(BaseFilters):
         end_date: Retry jobs created at or before this datetime.
     """
 
-    id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     status: Optional[Union[List[JobStatus], JobStatus]] = None
-    min_runs: Optional[int] = None
-    max_runs: Optional[int] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
 
     @field_validator("id", "status", mode="before")
     @classmethod
@@ -76,7 +81,7 @@ class RebatchFilters(BaseFilters):
         return [job_status.value for job_status in job_statuses]
 
 
-class CancelJobFilters(BaseFilters):
+class CancelJobFilters(BaseJobFilters):
     """
     Class to provide filters for cancelling a group of jobs.
 
@@ -97,12 +102,6 @@ class CancelJobFilters(BaseFilters):
         end_date: Retry jobs created at or before this datetime.
     """
 
-    id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
-    min_runs: Optional[int] = None
-    max_runs: Optional[int] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-
     @field_validator("id", mode="before")
     @classmethod
     def single_item_to_list_validator(cls, values: Dict[str, Any]) -> Any:
@@ -116,7 +115,7 @@ class CancelJobFilters(BaseFilters):
         return values
 
 
-class JobFilters(BaseFilters):
+class JobFilters(BaseJobFilters):
     """
     Class to provide filters for querying jobs.
 
@@ -142,16 +141,11 @@ class JobFilters(BaseFilters):
         end_date: Retry jobs created at or before this datetime.
     """
 
-    id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     user_id: Optional[Union[List[str], str]] = None
     batch_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
     status: Optional[Union[List[JobStatus], JobStatus]] = None
-    min_runs: Optional[int] = None
-    max_runs: Optional[int] = None
     errors: Optional[bool] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
 
     @field_validator("id", "project_id", "user_id", "batch_id", "status", mode="before")
     @classmethod

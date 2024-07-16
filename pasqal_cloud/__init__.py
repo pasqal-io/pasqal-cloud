@@ -324,7 +324,7 @@ class SDK:
             pagination_params = PaginationParams()
         elif not isinstance(pagination_params, PaginationParams):
             raise ValueError(
-                f"Pagination parameters needs to be a PaginationParams instance, "
+                "Pagination parameters needs to be a PaginationParams instance, "
                 f"not a {type(pagination_params)}"
             )
 
@@ -461,7 +461,7 @@ class SDK:
             filters = CancelJobFilters()
         elif not isinstance(filters, CancelJobFilters):
             raise ValueError(
-                f"Filters needs to be a CancelJobFilters instance, "
+                "Filters needs to be a CancelJobFilters instance, "
                 f"not a {type(filters)}"
             )
 
