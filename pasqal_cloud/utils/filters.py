@@ -150,14 +150,14 @@ class BatchFilters(BaseFilters):
     complete: Optional[bool] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    # TODO Support for list
-    queue_priority: Optional[QueuePriority] = None
+    queue_priority: Optional[Union[List[QueuePriority], QueuePriority]] = None
 
     @field_validator(
         "id",
         "project_id",
         "user_id",
         "device_type",
+        "queue_priority",
         "status",
         mode="before",
     )
@@ -177,8 +177,10 @@ class BatchFilters(BaseFilters):
         return [batch_status.value for batch_status in batch_statuses]
 
     @field_serializer("queue_priority", check_fields=False)
-    def queue_priority_enum_to_string(self, queue_priority: QueuePriority) -> str:
-        return queue_priority.value
+    def queue_priority_enum_to_string(
+        self, queue_priorities: List[QueuePriority]
+    ) -> List[str]:
+        return [queue_priority.value for queue_priority in queue_priorities]
 
 
 class JobFilters(BaseFilters):
