@@ -1,11 +1,12 @@
 from datetime import datetime
-from typing import Any, Generator, List, Union
+from typing import Any, Dict, Generator, List, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
 
 from pasqal_cloud import (
+    CancelJobFilters,
     Job,
     JobCancellingError,
     JobFetchingError,
@@ -15,6 +16,7 @@ from pasqal_cloud import (
     SDK,
 )
 from pasqal_cloud.utils.constants import JobStatus
+from pasqal_cloud.utils.responses import JobCancellationResponse
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
 
@@ -347,3 +349,83 @@ class TestJob:
         """
         with pytest.raises(ValueError, match="limit"):
             _ = self.sdk.get_jobs(pagination_params=PaginationParams(limit=limit))
+
+    @pytest.mark.parametrize(
+        "filters",
+        [
+            # No filters provided
+            None,
+            # Empty object
+            CancelJobFilters(),
+            # Single UUID for id
+            CancelJobFilters(id=UUID(int=0x1)),
+            # List of UUIDs for id
+            CancelJobFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
+            # Single string UUID for id
+            CancelJobFilters(id=str(UUID(int=0x1))),
+            # List of string UUIDs for id
+            CancelJobFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Minimum runs
+            CancelJobFilters(min_runs=10),
+            # Maximum runs
+            CancelJobFilters(max_runs=20),
+            # Start date
+            CancelJobFilters(start_date=datetime(2023, 1, 1)),
+            # End date
+            CancelJobFilters(end_date=datetime(2023, 1, 1)),
+            # Combined
+            CancelJobFilters(
+                id=[UUID(int=0x1), str(UUID(int=0x2))],
+                min_runs=10,
+                max_runs=20,
+                start_date=datetime(2023, 1, 1),
+                end_date=datetime(2023, 1, 1),
+            ),
+        ],
+    )
+    def test_cancel_jobs_success(
+        self,
+        mock_request: Any,
+        filters: Union[CancelJobFilters, None],
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can cancel of a group of jobs from a batch with specific filters.
+        The resulting request will retrieve the jobs that were cancelled and
+        the errors for those that could not be cancelled.
+        """
+        response = self.sdk.cancel_jobs(batch_id=UUID(int=0x1), filters=filters)
+        assert isinstance(response, JobCancellationResponse)
+
+        for item in response.jobs:
+            assert isinstance(item, Job)
+
+        for k, v in response.errors.items():
+            assert isinstance(k, UUID)
+            assert isinstance(v, str)
+
+        assert isinstance(response.errors, Dict)
+
+        assert mock_request.last_request.method == "PUT"
+
+        # Convert filters to the appropriate format for query parameters
+        query_params = build_query_params(
+            filters.model_dump(exclude_unset=True) if filters is not None else None,
+        )
+        # Check that the correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{UUID(int=0x1)}"
+            f"/cancel/jobs{query_params}"
+        )
+
+    def test_cancel_jobs_raises_value_error_on_invalid_filters(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a dictionary instead of CancelJobFilters, a ValueError should
+        be raised.
+        """
+        with pytest.raises(
+            ValueError, match="Filters needs to be a CancelJobFilters instance"
+        ):
+            _ = self.sdk.cancel_jobs(batch_id=UUID(int=0x1), filters={"min_runs": 10})

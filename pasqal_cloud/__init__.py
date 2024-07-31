@@ -45,12 +45,13 @@ from pasqal_cloud.errors import (
 )
 from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
-from pasqal_cloud.utils.models import (
+from pasqal_cloud.utils.filters import (
+    CancelJobFilters,
     JobFilters,
-    PaginatedResponse,
     PaginationParams,
     RebatchFilters,
 )
+from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
 from pasqal_cloud.workload import Workload
 
 
@@ -261,7 +262,7 @@ class SDK:
         filters: Optional[RebatchFilters] = None,
     ) -> Batch:
         """
-        Retry a list of jobs matching filters in a new batch.
+        Retry a group of jobs matching filters in a new batch.
 
         Args:
             id: id of the batch to re-create
@@ -337,7 +338,7 @@ class SDK:
             pagination_params = PaginationParams()
         elif not isinstance(pagination_params, PaginationParams):
             raise ValueError(
-                f"Pagination parameters needs to be a PaginationParams instance, "
+                "Pagination parameters needs to be a PaginationParams instance, "
                 f"not a {type(pagination_params)}"
             )
 
@@ -447,6 +448,47 @@ class SDK:
             raise JobCancellingError(e) from e
 
         return Job(**job_rsp, _client=self._client)
+
+    def cancel_jobs(
+        self,
+        batch_id: Union[UUID, str],
+        filters: Optional[CancelJobFilters] = None,
+    ) -> JobCancellationResponse:
+        """
+        Cancel a group of jobs matching the filters in a selected batch.
+
+        Args:
+            batch_id: id of the batch
+            filters: filters to be applied to find the jobs that will be cancelled
+
+        Returns:
+            JobCancellationResponse:
+            a class containing the jobs that have been cancelled and the id of the jobs
+            that could not be cancelled with the reason explained
+
+        Raises:
+            JobCancellingError which spawns from a HTTPError
+
+        """
+        if filters is None:
+            filters = CancelJobFilters()
+        elif not isinstance(filters, CancelJobFilters):
+            raise ValueError(
+                "Filters needs to be a CancelJobFilters instance, "
+                f"not a {type(filters)}"
+            )
+
+        try:
+            response = self._client.cancel_jobs(
+                batch_id=batch_id,
+                filters=filters,
+            )
+        except HTTPError as e:
+            raise JobCancellingError(e) from e
+        return JobCancellationResponse(
+            jobs=[Job(**job, _client=self._client) for job in response["jobs"]],
+            errors=response["errors"],
+        )
 
     def _get_workload(self, id: str) -> Dict[str, Any]:
         try:
