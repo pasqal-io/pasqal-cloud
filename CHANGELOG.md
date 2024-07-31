@@ -2,12 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.2] - 2024-07-31
+
+### Added
+
+- Introduced the 'cancel_jobs' method, a feature to cancel a group of jobs from a specific batch,
+  based on 'CancelJobFilters'
+
 ## [0.11.0] - 2024-06-27
 
 ### Added
 
 - Introduced a new filtering system using classes for more flexible and robust filtering options
-- Added 'get_jobs' method, a feature to retrieve a list of jobs based on 'JobFilters'
+- Added 'get_jobs' method, a feature to retrieve a group of jobs based on 'JobFilters'
 
 ### Breaking change
 
@@ -19,7 +26,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Use v2 endpoints for batches and jobs
-- Jobs are now downloaded from s3 client-side.
+- Jobs are now downloaded from s3 client-side
 
 ## [0.10.0] - 2024-06-05
 
