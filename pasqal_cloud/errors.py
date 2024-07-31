@@ -63,13 +63,13 @@ class BatchCancellingError(BatchException):
         super().__init__("Batch cancelling failed", e)
 
 
-class BatchSetCompleteError(BatchException):
+class BatchClosingError(BatchException):
     """
-    Exception class raised when setting batch to complete failed.
+    Exception class raised when closing batch failed.
     """
 
     def __init__(self, e: HTTPError) -> None:
-        super().__init__("Unable to set batch as complete.", e)
+        super().__init__("Unable to close batch.", e)
 
 
 class RebatchError(BatchException):
@@ -205,3 +205,13 @@ class DeviceSpecsFetchingError(DeviceSpecsException):
 
     def __init__(self, e: HTTPError) -> None:
         super().__init__("Device specs fetching failed", e)
+
+
+class OnlyCompleteOrOpenCanBeSet(BaseException):
+    """
+    Exception class raised when both complete and open
+    arguments are set on a batch.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("Only complete or open can be set when creating a batch.")

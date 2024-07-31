@@ -229,7 +229,7 @@ class Client:
             return self._download_results(results_link)
         return None
 
-    def complete_batch(self, batch_id: str) -> Dict[str, Any]:
+    def close_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
         )["data"]

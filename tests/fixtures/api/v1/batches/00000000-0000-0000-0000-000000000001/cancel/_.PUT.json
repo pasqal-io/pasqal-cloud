@@ -13,6 +13,7 @@
     "device_type": "EMU_FREE",
     "status": "CANCELED",
     "complete": true,
+    "open": false,
     "project_id": "00000000-0000-0000-0000-000000000001",
     "webhook": null,
     "user_id": "EQZj1ZQE",

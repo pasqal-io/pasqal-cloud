@@ -112,7 +112,7 @@ job1 = {"runs": 20, "variables": {"omega_max": 6}}
 job2 = {"runs": 50, "variables": {"omega_max": 10.5}}
 ```
 
-Batches can either be "open" or "closed" (also called "complete").
+Batches can either be "open" or "closed".
 Open batch may be used to schedule variational algorithm where the next job parameter are derived from the results of
 the previous jobs, without losing access to the QPU.
 
@@ -126,18 +126,18 @@ to the next statement.
 batch = sdk.create_batch(serialized_sequence, [job1, job2], wait=True)
 ```
 
-To create an open batch, set the `complete` argument to `False`, you can then add jobs to your batch.
-Don't forget to mark your batch as closed/complete when you are done adding new jobs to it.
+To create an open batch, set the `open` argument to `True`, you can then add jobs to your batch.
+Don't forget to mark your batch as closed when you are done adding new jobs to it.
 
 ```python
 # Create an open batch with 1 job
-batch = sdk.create_batch(serialized_sequence, [job1], complete=False)
+batch = sdk.create_batch(serialized_sequence, [job1], open=True)
 # Add some jobs to it and wait for the jobs to be terminated
 job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
 batch.add_jobs([job2, job3], wait=True)
-# When you have sent all the jobs to your batch, don't forget to mark it as complete
+# When you have sent all the jobs to your batch, don't forget to mark it as closed
 # Otherwise your batch will be timed out by the scheduler
-batch.declare_complete()
+batch.close()
 ```
 
 You can also choose to run your batch on an emulator using the optional argument `emulator`.
@@ -231,7 +231,7 @@ The batch must be open in order for this method to work.
 
 ```python
 
-batch = sdk.create_batch(..., complete=False)
+batch = sdk.create_batch(..., open=True)
 
 batch.retry(batch.ordered_jobs[0])
 
