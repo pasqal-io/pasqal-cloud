@@ -282,9 +282,21 @@ class TestBatch:
         )
 
     @pytest.mark.usefixtures("mock_request")
+    def test_batch_declare_complete(self, batch: Batch):
+        """
+        Test that calling declare_complete on the batch will
+        raise a deprecation warning.
+        """
+        with pytest.warns(DeprecationWarning):
+            batch.declare_complete(wait=False)
+        assert batch.complete
+        assert not batch.open
+
+    @pytest.mark.usefixtures("mock_request")
     def test_batch_close(self, batch: Batch):
         batch.close(wait=False)
         assert batch.complete
+        assert not batch.open
 
     def test_batch_close_failure(
         self, batch: Batch, mock_request_exception: Generator[Any, Any, None]

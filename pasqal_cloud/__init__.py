@@ -405,16 +405,26 @@ class SDK:
         Raises:
             JobCreationError, which spawns from a HTTPError.
         """
-
         try:
             resp = self._client.add_jobs(batch_id, jobs)
         except HTTPError as e:
             raise JobCreationError(e)
         return Batch(**resp, _client=self._client)
 
+    def complete_batch(self, batch_id: str) -> Batch:
+        """
+        Deprecated, use close_batch instead.
+        """
+        warn(
+            "This method is deprecated, use close_batch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.close_batch(batch_id)
+
     def close_batch(self, batch_id: str) -> Batch:
         """
-        Set a batch 'complete' field as True, indicating no more Jobs
+        Set a batch 'open' field as False, indicating no more Jobs
         can be submitted.
 
         Args:
@@ -424,7 +434,7 @@ class SDK:
                 An instance of a Batch model from the PCS database
 
         Raises:
-            BatchSetCompleteError which spawns from a HTTPError
+            BatchClosingError which spawns from a HTTPError
         """
         try:
             resp = self._client.close_batch(batch_id)

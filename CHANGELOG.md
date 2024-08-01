@@ -4,10 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [0.11.3] - 2024-07-31
 
-### Changed
+### Added
 
 - Introduced `open` argument in batch and batch creation arguments
+- Introduce `close_batch` and `close` methods (their logic is the same as `complete_batch` and `declare_complete`)
+
+### Changed
+
 - Marked `complete` argument as deprecated in batch creation
+- Marked `complete_batch` and `declare_complete` methods as deprecated.
 - Refactored tests.
 
 ## [0.11.2] - 2024-07-31

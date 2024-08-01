@@ -183,6 +183,17 @@ class Batch(BaseModel):
         except JobCreationError as e:
             raise JobRetryError from e
 
+    def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> None:
+        """
+        Deprecated, use close instead.
+        """
+        warn(
+            "This method is deprecated, use close instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.close(wait=wait, fetch_results=fetch_results)
+
     def close(self, wait: bool = False, fetch_results: bool = False) -> None:
         """Declare to PCS that the batch is closed and returns an updated
         batch instance.
