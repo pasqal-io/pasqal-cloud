@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.0] - 2024-08-28
+
+### Breaking change
+
+- 'project' field has completely replaced the deprecated field 'group'
+
 ## [0.11.4] - 2024-07-31
 
 ### Changed

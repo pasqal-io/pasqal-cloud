@@ -60,14 +60,13 @@ class SDK:
 
     def __init__(
         self,
+        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
-        project_id: Optional[str] = None,
-        group_id: Optional[str] = None,  # deprecated
     ):
         """
         This class provides helper methods to call the PASQAL Cloud endpoints.
@@ -85,23 +84,7 @@ class SDK:
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
-            group_id (deprecated): Use project_id instead.
         """
-
-        # Ticket (#622), to be removed,
-        # used to avoid a breaking change during the group to project renaming
-        if not project_id:
-            if not group_id:
-                raise TypeError(
-                    "Either a 'group_id' or 'project_id' has to be given as argument"
-                )
-            warn(
-                "The parameter 'group_id' is deprecated, from now on use"
-                " 'project_id' instead",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            project_id = group_id
 
         self._client = Client(
             project_id=project_id,
