@@ -14,6 +14,7 @@ from pasqal_cloud import (
     PASQAL_ENDPOINTS,
     SDK,
 )
+from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -442,3 +443,41 @@ class TestRequestAllPages:
         )
         assert len(response) == 1
         assert response == [{"id": 1}]
+
+class TestHeaders:
+    @pytest.fixture(autouse=True)
+    @patch(
+        "pasqal_cloud.client.Auth0TokenProvider",
+        FakeAuth0AuthenticationSuccess,
+    )
+    def _init_sdk(self):
+        self.sdk = SDK(
+            username="me@test.com",
+            password="password",
+            project_id=str(uuid4()),
+        )
+
+    def test_user_agent_in_request_headers(
+        self, mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test that the `_authenticated_request` method of
+        the client injects the user-agent header properly
+        in the headers.
+        """
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            "http://core-test.com",
+            status_code=200,
+            json={
+                "ok": True
+            }
+        )
+
+        _ = self.sdk._client._authenticated_request(
+            "GET", "http://core-test.com"
+        )
+        assert mock_request.last_request.headers["User-Agent"] == (
+            f"PasqalCloudSDK/{sdk_version}"
+        )

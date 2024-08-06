@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.11.3] - 2024-08-05
+
+### Added
+
+- Introduced the `User-Agent` header.
+
 ## [0.11.2] - 2024-07-31
 
 ### Added
@@ -33,7 +39,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 - Expose add_jobs and close_batch functions in the SDK interface
-- Refactor non-private methods that were prefixed with _
+- Refactor non-private methods that were prefixed with \_
 - Add test coverage for new functions
 - Drop priority from Batch attributes
 
@@ -84,8 +90,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added feature to create an "open" batch.
-    - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
-    - To add jobs to an open batch, use the `add_jobs` method.
+  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+  - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 

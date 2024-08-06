@@ -20,6 +20,7 @@ from uuid import UUID
 import requests
 from requests.auth import AuthBase
 
+from pasqal_cloud._version import __version__ as sdk_version 
 from pasqal_cloud.authentication import (
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
@@ -34,6 +35,7 @@ from pasqal_cloud.utils.filters import (
 )
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
+
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -69,6 +71,7 @@ class Client:
 
         self.authenticator = HTTPBearerAuthenticator(token_provider)
         self.project_id = project_id
+        self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
     @staticmethod
     def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
@@ -123,7 +126,10 @@ class Client:
             url,
             json=payload,
             timeout=TIMEOUT,
-            headers={"content-type": "application/json"},
+            headers={
+                "content-type": "application/json", 
+                "User-Agent": self.user_agent,
+            },
             auth=self.authenticator,
             params=params,
         )
