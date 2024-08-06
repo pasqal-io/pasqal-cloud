@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### Breaking change
 
 - 'project' field has completely replaced the deprecated field 'group'
+- 'from pasqal_cloud' import has completely replaced the deprecated import 'from sdk'
 
 ## [0.11.4] - 2024-07-31
 
