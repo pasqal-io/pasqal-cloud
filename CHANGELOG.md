@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.11.3] - 2024-07-31
+## [0.11.4] - 2024-07-31
 
 ### Changed
 
@@ -12,6 +12,12 @@ Batch that do not accept new jobs are now called "closed" instead of "complete".
 - Close an open batch using the `close_batch` method of the SDK or `close` method of the `Batch` class. They are functionally equivalent to the now deprecated `complete_batch` and `declare_complete` functions.
 - Batch dataclass parameter `complete` has been replaced by `open`.
 - Using the deprecated method and arguments will now raise a warning .
+
+## [0.11.3] - 2024-08-05
+
+### Added
+
+- Introduced the `User-Agent` header.
 
 ## [0.11.2] - 2024-07-31
 
