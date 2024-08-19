@@ -4,16 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [0.11.3] - 2024-07-31
 
-### Added
-
-- Introduced `open` argument in batch and batch creation arguments
-- Introduce `close_batch` and `close` methods (their logic is the same as `complete_batch` and `declare_complete`)
-
 ### Changed
 
-- Marked `complete` argument as deprecated in batch creation
-- Marked `complete_batch` and `declare_complete` methods as deprecated.
-- Refactored tests.
+Batch that do not accept new jobs are now called "closed" instead of "complete". As a result:
+
+- You should create an "open" batch using the "open" argument of the `create_batch` method instead of the `complete` argument
+- Close an open batch using the `close_batch` method of the SDK or `close` method of the `Batch` class. They are functionally equivalent to the now deprecated `complete_batch` and `declare_complete` functions.
+- Batch dataclass parameter `complete` has been replaced by `open`.
+- Using the deprecated method and arguments will now raise a warning .
 
 ## [0.11.2] - 2024-07-31
 
