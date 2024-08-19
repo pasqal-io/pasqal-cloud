@@ -29,7 +29,7 @@ class Batch(BaseModel):
 
     Attributes:
         - open: Whether the batch accepts more jobs or not.
-        - complete: Opposite of open.
+        - complete: Opposite of open, deprecated.
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
@@ -143,7 +143,7 @@ class Batch(BaseModel):
     ) -> None:
         """Add some jobs to batch for execution on PCS and returns the updated batch.
 
-        The batch should not be `closed` otherwise the API will return an error.
+        The batch must be `open` otherwise the API will return an error.
         The new jobs are appended to the `ordered_jobs` list attribute.
 
         Args:

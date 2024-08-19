@@ -139,9 +139,10 @@ class SDK:
 
         Args:
             serialized_sequence: Serialized pulser sequence.
+            complete: Opposite of open, deprecated.
             jobs: List of jobs to be added to the batch at creation.
-            open: False (default), if all jobs are sent at creation.
-              If set to False, jobs can be added using the `Batch.add_jobs` method.
+            open: If all jobs are sent at creation.
+              If set to True, jobs can be added using the `Batch.add_jobs` method.
               Once all the jobs are sent, use the `Batch.close` method.
               Otherwise, the batch will be timed out if all jobs have already
               been terminated and no new jobs are sent.

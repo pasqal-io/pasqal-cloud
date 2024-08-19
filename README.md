@@ -113,6 +113,7 @@ job2 = {"runs": 50, "variables": {"omega_max": 10.5}}
 ```
 
 Batches can either be "open" or "closed".
+An "open" batch will accept new jobs after its creation, unlike a "closed" batch.
 Open batch may be used to schedule variational algorithm where the next job parameter are derived from the results of
 the previous jobs, without losing access to the QPU.
 
