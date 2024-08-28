@@ -444,6 +444,7 @@ class TestRequestAllPages:
         assert len(response) == 1
         assert response == [{"id": 1}]
 
+
 class TestHeaders:
     @pytest.fixture(autouse=True)
     @patch(
@@ -467,17 +468,10 @@ class TestHeaders:
         """
         mock_request.reset_mock()
         mock_request.register_uri(
-            "GET",
-            "http://core-test.com",
-            status_code=200,
-            json={
-                "ok": True
-            }
+            "GET", "http://core-test.com", status_code=200, json={"ok": True}
         )
 
-        _ = self.sdk._client._authenticated_request(
-            "GET", "http://core-test.com"
-        )
+        _ = self.sdk._client._authenticated_request("GET", "http://core-test.com")
         assert mock_request.last_request.headers["User-Agent"] == (
             f"PasqalCloudSDK/{sdk_version}"
         )
