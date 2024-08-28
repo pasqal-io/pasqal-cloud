@@ -10,8 +10,8 @@ from pasqal_cloud.device import EmulatorType
 from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.errors import (
     BatchCancellingError,
+    BatchClosingError,
     BatchFetchingError,
-    BatchSetCompleteError,
     JobCreationError,
     JobRetryError,
 )
@@ -28,7 +28,8 @@ class Batch(BaseModel):
     device until all its jobs are done and declared complete.
 
     Attributes:
-        - complete: Whether the batch has been declared as complete.
+        - open: Whether the batch accepts more jobs or not.
+        - complete: Opposite of open, deprecated.
         - created_at: Timestamp of the creation of the batch.
         - updated_at: Timestamp of the last update of the batch.
         - device_type: Type of device to run the batch on.
@@ -52,6 +53,7 @@ class Batch(BaseModel):
         - group_id (deprecated): Use project_id instead.
     """
 
+    open: bool
     complete: bool
     created_at: str
     updated_at: str
@@ -141,7 +143,7 @@ class Batch(BaseModel):
     ) -> None:
         """Add some jobs to batch for execution on PCS and returns the updated batch.
 
-        The batch should not be `complete` otherwise the API will return an error.
+        The batch must be `open` otherwise the API will return an error.
         The new jobs are appended to the `ordered_jobs` list attribute.
 
         Args:
@@ -165,7 +167,7 @@ class Batch(BaseModel):
     def retry(self, job: Job, wait: bool = False) -> None:
         """
         Retry a job in the same batch.
-        The batch should not be 'complete'.
+        The batch should not be 'closed'.
         The new job is appended to the `ordered_jobs` list attribute.
 
         Args:
@@ -182,7 +184,18 @@ class Batch(BaseModel):
             raise JobRetryError from e
 
     def declare_complete(self, wait: bool = False, fetch_results: bool = False) -> None:
-        """Declare to PCS that the batch is complete and returns an updated
+        """
+        Deprecated, use close instead.
+        """
+        warn(
+            "This method is deprecated, use close instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.close(wait=wait, fetch_results=fetch_results)
+
+    def close(self, wait: bool = False, fetch_results: bool = False) -> None:
+        """Declare to PCS that the batch is closed and returns an updated
         batch instance.
 
         Args:
@@ -190,14 +203,14 @@ class Batch(BaseModel):
             fetch_results (deprecated): Whether to wait for the batch \
                 to be done and fetch results.
 
-        A batch that is complete awaits no extra jobs. All jobs previously added
+        A batch that is closed awaits no extra jobs. All jobs previously added
         will be executed before the batch is terminated. When all its jobs are done,
-        the complete batch is unassigned to its running device.
+        the closed batch is unassigned to its running device.
         """
         try:
-            batch_rsp = self._client.complete_batch(self.id)
+            batch_rsp = self._client.close_batch(self.id)
         except HTTPError as e:
-            raise BatchSetCompleteError(e) from e
+            raise BatchClosingError(e) from e
         self._update_from_api_response(batch_rsp)
         if wait or fetch_results:
             while any(

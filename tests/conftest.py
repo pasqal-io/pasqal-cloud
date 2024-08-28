@@ -169,6 +169,7 @@ def workload(pasqal_client_mock):
 def batch_data_fixture() -> Dict[str, Any]:
     return {
         "complete": False,
+        "open": True,
         "created_at": "2022-12-31T23:59:59.999Z",
         "updated_at": "2023-01-01T00:00:00.000Z",
         "device_type": "qpu",

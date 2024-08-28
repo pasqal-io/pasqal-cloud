@@ -30,13 +30,14 @@ from pasqal_cloud.endpoints import (
 )
 from pasqal_cloud.errors import (
     BatchCancellingError,
+    BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
-    BatchSetCompleteError,
     DeviceSpecsFetchingError,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
+    OnlyCompleteOrOpenCanBeSet,
     RebatchError,
     WorkloadCancellingError,
     WorkloadCreationError,
@@ -127,7 +128,8 @@ class SDK:
         self,
         serialized_sequence: str,
         jobs: List[CreateJob],
-        complete: bool = True,
+        complete: Optional[bool] = None,
+        open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
@@ -137,10 +139,11 @@ class SDK:
 
         Args:
             serialized_sequence: Serialized pulser sequence.
+            complete: Opposite of open, deprecated.
             jobs: List of jobs to be added to the batch at creation.
-            complete: True (default), if all jobs are sent at creation.
-              If set to False, jobs can be added using the `Batch.add_jobs` method.
-              Once all the jobs are sent, use the `Batch.declare_complete` method.
+            open: If all jobs are sent at creation.
+              If set to True, jobs can be added using the `Batch.add_jobs` method.
+              Once all the jobs are sent, use the `Batch.close` method.
               Otherwise, the batch will be timed out if all jobs have already
               been terminated and no new jobs are sent.
             emulator: The type of emulator to use,
@@ -161,6 +164,18 @@ class SDK:
             BatchCreationError: If batch creation failed
             BatchFetchingError: If batch fetching failed
         """
+        if complete is not None and open is not None:
+            raise OnlyCompleteOrOpenCanBeSet
+        if complete is not None:
+            warn(
+                "Argument `complete` is deprecated and will be removed in a"
+                " future version. Please use argument `open` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            open = not complete
+        elif complete is None and open is None:
+            open = False
         if fetch_results:
             warn(
                 "Argument `fetch_results` is deprecated and will be removed in a"
@@ -174,7 +189,7 @@ class SDK:
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
             "jobs": jobs,
-            "complete": complete,
+            "open": open,
         }
 
         # the emulator field is only added in the case
@@ -390,18 +405,27 @@ class SDK:
 
         Raises:
             JobCreationError, which spawns from a HTTPError.
-            BatchAlreadyCompleteError.
         """
-
         try:
             resp = self._client.add_jobs(batch_id, jobs)
         except HTTPError as e:
             raise JobCreationError(e)
         return Batch(**resp, _client=self._client)
 
+    def complete_batch(self, batch_id: str) -> Batch:
+        """
+        Deprecated, use close_batch instead.
+        """
+        warn(
+            "This method is deprecated, use close_batch instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.close_batch(batch_id)
+
     def close_batch(self, batch_id: str) -> Batch:
         """
-        Set a batch 'complete' field as True, indicating no more Jobs
+        Set a batch 'open' field as False, indicating no more Jobs
         can be submitted.
 
         Args:
@@ -411,12 +435,12 @@ class SDK:
                 An instance of a Batch model from the PCS database
 
         Raises:
-            BatchSetCompleteError which spawns from a HTTPError
+            BatchClosingError which spawns from a HTTPError
         """
         try:
-            resp = self._client.complete_batch(batch_id)
+            resp = self._client.close_batch(batch_id)
         except HTTPError as e:
-            raise BatchSetCompleteError(e)
+            raise BatchClosingError(e)
 
         return Batch(**resp, _client=self._client)
 

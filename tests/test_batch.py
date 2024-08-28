@@ -11,10 +11,11 @@ from pasqal_cloud.batch import Batch as BatchModel
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
 from pasqal_cloud.errors import (
     BatchCancellingError,
+    BatchClosingError,
     BatchCreationError,
-    BatchSetCompleteError,
     JobCreationError,
     JobRetryError,
+    OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
 from pasqal_cloud.utils.constants import JobStatus
@@ -83,9 +84,46 @@ class TestBatch:
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
+        assert not batch.open
         assert batch.complete
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
+
+    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    def test_create_batch_with_complete_raises_warning(
+        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test that using complete at batch definition is still accepted but will
+        trigger a depreceation warning.
+        """
+        with pytest.warns(DeprecationWarning):
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                emulator=emulator,
+                complete=True,
+            )
+        assert batch.id == self.batch_id
+        assert batch.sequence_builder == self.pulser_sequence
+        assert not batch.open
+
+    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    def test_create_batch_open_and_complete_raises_error(
+        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
+    ):
+        """
+        Test that setting both complete and open values will result in the proper
+        error being raised.
+        """
+        with pytest.raises(OnlyCompleteOrOpenCanBeSet):
+            _ = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                emulator=emulator,
+                complete=True,
+                open=True,
+            )
 
     def test_batch_create_exception(
         self, mock_request_exception: Generator[Any, Any, None]
@@ -123,6 +161,7 @@ class TestBatch:
             batch.id == "00000000-0000-0000-0000-000000000001"
         )  # the batch_id used in the mock data
         assert batch.sequence_builder == self.pulser_sequence
+        assert not batch.open
         assert batch.complete
         assert batch.ordered_jobs
         assert batch.ordered_jobs[0].id == self.job_id
@@ -244,24 +283,37 @@ class TestBatch:
 
     @pytest.mark.usefixtures("mock_request")
     def test_batch_declare_complete(self, batch: Batch):
-        batch.declare_complete(wait=False)
+        """
+        Test that calling declare_complete on the batch will
+        raise a deprecation warning.
+        """
+        with pytest.warns(DeprecationWarning):
+            batch.declare_complete(wait=False)
         assert batch.complete
+        assert not batch.open
 
-    def test_batch_declare_complete_failure(
+    @pytest.mark.usefixtures("mock_request")
+    def test_batch_close(self, batch: Batch):
+        batch.close(wait=False)
+        assert batch.complete
+        assert not batch.open
+
+    def test_batch_close_failure(
         self, batch: Batch, mock_request_exception: Generator[Any, Any, None]
     ):
-        with pytest.raises(BatchSetCompleteError):
-            _ = batch.declare_complete(wait=False)
+        with pytest.raises(BatchClosingError):
+            _ = batch.close(wait=False)
 
         assert batch.status == "PENDING"
         mock_request_exception.stop()
 
-    def test_batch_declare_complete_and_wait_for_results(
+    def test_batch_close_and_wait_for_results(
         self, batch: Batch, mock_request: Generator[Any, Any, None]
     ):
         """TODO"""
-        batch.declare_complete(wait=True)
+        batch.close(wait=True)
         assert batch.complete
+        assert not batch.open
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.url
@@ -541,6 +593,7 @@ class TestBatch:
         def inline_mock_batch_response(request, _):
             resp = mock_core_response(request)
             resp["data"]["complete"] = False
+            resp["data"]["open"] = True
             resp["data"]["id"] = self.batch_id
             return resp
 
@@ -570,10 +623,10 @@ class TestBatch:
         Assert than we calling add_jobs that the correct
         HTTP request method and URL are used.
 
-        We also confirm that when a batch is marked as complete
+        We also confirm that when a batch is marked as closed
         we raise the correct exception. The value
         load_mock_batch_json_response provides a prefabricated data structure
-        with a `complete: true` value set.
+        with a `open: false` value set.
         """
         mock_request_exception.register_uri(
             "POST",
@@ -590,12 +643,12 @@ class TestBatch:
             f"/api/v1/batches/{self.batch_id}/jobs"
         )
 
-    def test_close_batch_raises_batch_set_complete_error(self):
+    def test_close_batch_raises_batch_close_error(self):
         """
         Assert that when calling close_batch, we're capable of
-        encapsulating the HTTPError as a BatchSetCompleteError instead.
+        encapsulating the HTTPError as a BatchClosingError instead.
         """
-        with pytest.raises(BatchSetCompleteError):
+        with pytest.raises(BatchClosingError):
             _ = self.sdk.close_batch(self.batch_id)
 
     def test_rebatch_raises_value_error_on_invalid_filters(self):

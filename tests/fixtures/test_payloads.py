@@ -6,6 +6,7 @@ def successful_batch_payload_response() -> Dict[str, Any]:
         "code": 200,
         "data": {
             "complete": True,
+            "open": False,
             "created_at": "2021-11-10T15:24:38.155824",
             "device_type": "MOCK_DEVICE",
             "project_id": "00000000-0000-0000-0000-000000000001",
