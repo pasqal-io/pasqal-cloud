@@ -95,7 +95,7 @@ class TestBatch:
     ):
         """
         Test that using complete at batch definition is still accepted but will
-        trigger a depreceation warning.
+        trigger a deprecation warning.
         """
         with pytest.warns(DeprecationWarning):
             batch = self.sdk.create_batch(
@@ -107,11 +107,10 @@ class TestBatch:
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
+        assert mock_request.last_request.method == "POST"
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
-    def test_create_batch_open_and_complete_raises_error(
-        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
-    ):
+    def test_create_batch_open_and_complete_raises_error(self, emulator: Optional[str]):
         """
         Test that setting both complete and open values will result in the proper
         error being raised.

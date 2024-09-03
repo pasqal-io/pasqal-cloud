@@ -2,14 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.11.4] - 2024-07-31
+## [0.12.0] - 2024-09-03
+
+### Breaking change
+
+- 'from pasqal_cloud' import has completely replaced the deprecated import 'from sdk'
+- 'group' field is now removed, use 'project' field instead
+
+## [0.11.4] - 2024-08-28
 
 ### Changed
 
 Batch that do not accept new jobs are now called "closed" instead of "complete". As a result:
 
-- You should create an "open" batch using the "open" argument of the `create_batch` method instead of the `complete` argument.
-- Close an open batch using the `close_batch` method of the SDK or `close` method of the `Batch` class. They are functionally equivalent to the now deprecated `complete_batch` and `declare_complete` functions.
+- You should create an "open" batch using the "open" argument of the `create_batch` method instead of the `complete`
+  argument.
+- Close an open batch using the `close_batch` method of the SDK or `close` method of the `Batch` class. They are
+  functionally equivalent to the now deprecated `complete_batch` and `declare_complete` functions.
 - Batch dataclass parameter `complete` has been replaced by `open`.
 - Using the deprecated method and arguments will now raise a warning .
 
@@ -101,8 +110,8 @@ Batch that do not accept new jobs are now called "closed" instead of "complete".
 ### Added
 
 - Added feature to create an "open" batch.
-  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
-  - To add jobs to an open batch, use the `add_jobs` method.
+    - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+    - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 

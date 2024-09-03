@@ -50,7 +50,6 @@ class Batch(BaseModel):
         - jobs_count: Number of jobs added to the batch.
         - jobs_count_per_status: Number of jobs per status.
         - configuration: Further configuration for certain emulators.
-        - group_id (deprecated): Use project_id instead.
     """
 
     open: bool

@@ -30,7 +30,6 @@ class Job(BaseModel):
         - result: Bitstring counter result. Should be equal to `full_results["counter"]`
         - variables: Dictionary of variables of the job.
             None if the associated batch is non-parametrized.
-        - group_id (deprecated): Use project_id instead.
     """
 
     runs: int
@@ -46,8 +45,6 @@ class Job(BaseModel):
     end_timestamp: Optional[str] = None
     _full_result: Optional[JobResult] = PrivateAttr(default=None)
     variables: Optional[Dict[str, Any]] = None
-    # Ticket (#622)
-    group_id: Optional[str] = None
     parent_id: Optional[str] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
