@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.2] - 2024-09-04
+
+### Changed
+
+- The following methods now use the V2 that do not return the results any more:
+    - Cancel a batch
+    - Cancel a job
+    - Cancel a group of jobs
+    - Add jobs to a batch
+    - Close a batch
+    - 
 ## [0.12.1] - 2024-09-11
 
 - Introduce EMU_FRESNEL device type
@@ -11,20 +22,20 @@ All notable changes to this project will be documented in this file.
 ### Breaking change
 
 - 'from pasqal_cloud' import has completely replaced the deprecated import 'from sdk'
-- 'group' field is now removed, use 'project' field instead
+- 'group_id' field is now removed, use 'project_id' field instead
 
 ## [0.11.4] - 2024-08-28
 
 ### Changed
 
-Batch that do not accept new jobs are now called "closed" instead of "complete". As a result:
+A Batch that does not accept new jobs is now called "closed" instead of "complete". As a result:
 
 - You should create an "open" batch using the "open" argument of the `create_batch` method instead of the `complete`
   argument.
 - Close an open batch using the `close_batch` method of the SDK or `close` method of the `Batch` class. They are
   functionally equivalent to the now deprecated `complete_batch` and `declare_complete` functions.
 - Batch dataclass parameter `complete` has been replaced by `open`.
-- Using the deprecated method and arguments will now raise a warning .
+- Using the deprecated method and arguments will now raise a warning.
 
 ## [0.11.3] - 2024-08-05
 

@@ -1,0 +1,54 @@
+{
+  "code": 200,
+  "data": {
+    "complete": true,
+    "open": false,
+    "created_at": "2021-11-10T15:24:38.155824",
+    "device_type": "MOCK_DEVICE",
+    "project_id": "00000000-0000-0000-0000-000000000001",
+    "id": "00000000-0000-0000-0000-000000000002",
+    "priority": 10,
+    "sequence_builder": "pulser_test_sequence",
+    "status": "PENDING",
+    "updated_at": "2021-11-10T15:27:44.110274",
+    "user_id": "EQZj1ZQE",
+    "webhook": "10.0.1.5",
+    "configuration": { "dt": 10.0, "precision": "normal" },
+    "start_datetime": "2023-03-23T10:42:27.611384+00:00",
+    "end_datetime": "2023-03-23T10:42:27.611384+00:00",
+    "jobs": [
+      {
+        "batch_id": "00000000-0000-0000-0000-000000000002",
+        "id": "00000000-0000-0000-0000-000000022010",
+        "project_id": "00000000-0000-0000-0000-000000022111",
+        "runs": 50,
+        "status": "PENDING",
+        "created_at": "2021-11-10T15:27:06.698066",
+        "errors": [],
+        "updated_at": "2021-11-10T15:27:06.698066",
+        "variables": {
+          "Omega_max": 14.4,
+          "last_target": "q1",
+          "ts": [200, 500]
+        }
+      },
+      {
+        "batch_id": "00000000-0000-0000-0000-000000000002",
+        "id": "00000000-0000-0000-0000-000000022011",
+        "project_id": "00000000-0000-0000-0000-000000022111",
+        "runs": 50,
+        "status": "PENDING",
+        "created_at": "2021-11-10T15:27:06.698066",
+        "errors": [],
+        "updated_at": "2021-11-10T15:27:06.698066",
+        "variables": {
+          "Omega_max": 14.4,
+          "last_target": "q1",
+          "ts": [200, 500]
+        }
+      }
+    ]
+  },
+  "message": "OK.",
+  "status": "success"
+}

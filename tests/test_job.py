@@ -88,7 +88,7 @@ class TestJob:
         assert mock_request.last_request.method == "PUT"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_cancel_job_self_error(
@@ -105,7 +105,7 @@ class TestJob:
         assert mock_request_exception.last_request.method == "PUT"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_cancel_job_sdk(self, mock_request: Generator[Any, Any, None]):
@@ -120,7 +120,7 @@ class TestJob:
         assert mock_request.last_request.method == "PUT"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_cancel_job_sdk_error(
@@ -135,7 +135,7 @@ class TestJob:
         assert mock_request_exception.last_request.method == "PUT"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_job_instantiation_with_extra_field(self, job):
@@ -415,7 +415,7 @@ class TestJob:
         # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{UUID(int=0x1)}"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{UUID(int=0x1)}"
             f"/cancel/jobs{query_params}"
         )
 

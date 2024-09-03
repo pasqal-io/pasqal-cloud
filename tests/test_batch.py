@@ -215,7 +215,7 @@ class TestBatch:
         assert mock_request_exception.last_request.method == "POST"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{batch.id}/jobs"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{batch.id}/jobs"
         )
 
     def test_batch_add_jobs_and_wait_for_results(
@@ -330,7 +330,7 @@ class TestBatch:
         assert mock_request.last_request.method == "PUT"
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/cancel"
+            f"/api/v2/batches/{self.batch_id}/cancel"
         )
 
     def test_cancel_batch_self_error(self, mock_request_exception, batch):
@@ -341,7 +341,7 @@ class TestBatch:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/cancel"
+            f"/api/v2/batches/{self.batch_id}/cancel"
         )
 
     def test_cancel_batch_sdk(self, mock_request):
@@ -351,7 +351,7 @@ class TestBatch:
         assert mock_request.last_request.method == "PUT"
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/cancel"
+            f"/api/v2/batches/{self.batch_id}/cancel"
         )
 
     def test_cancel_batch_sdk_error(
@@ -371,7 +371,7 @@ class TestBatch:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/cancel"
+            f"/api/v2/batches/{self.batch_id}/cancel"
         )
 
     @pytest.mark.parametrize(
@@ -547,7 +547,7 @@ class TestBatch:
         assert mock_request.last_request.method == "POST"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/"
             + f"{self.batch_id}/jobs"
         )
 
@@ -571,7 +571,7 @@ class TestBatch:
         assert mock_request_exception.last_request.method == "POST"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/"
             + f"{self.batch_id}/jobs"
         )
 
@@ -610,7 +610,7 @@ class TestBatch:
 
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/jobs"
+            f"/api/v2/batches/{self.batch_id}/jobs"
         )
         assert isinstance(b, Batch)
 
@@ -640,7 +640,7 @@ class TestBatch:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
-            f"/api/v1/batches/{self.batch_id}/jobs"
+            f"/api/v2/batches/{self.batch_id}/jobs"
         )
 
     def test_close_batch_raises_batch_close_error(self):
