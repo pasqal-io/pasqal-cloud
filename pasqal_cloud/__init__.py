@@ -60,13 +60,13 @@ class SDK:
 
     def __init__(
         self,
-        project_id: str,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
+        project_id: Optional[str] = None,
     ):
         """
         This class provides helper methods to call the PASQAL Cloud endpoints.
@@ -85,6 +85,9 @@ class SDK:
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
         """
+
+        if not project_id:
+            raise ValueError("You need to provide a project_id")
 
         self._client = Client(
             project_id=project_id,

@@ -105,6 +105,16 @@ class TestAuthFailure(TestSDKCommonAttributes):
 
 
 class TestAuthInvalidClient(TestSDKCommonAttributes):
+    def test_module_no_project_id(self):
+        with pytest.raises(
+            ValueError,
+            match="You need to provide a project_id",
+        ):
+            SDK(
+                username=self.username,
+                password=self.password,
+            )
+
     def test_module_no_user_with_password(self):
         with pytest.raises(
             ValueError,
