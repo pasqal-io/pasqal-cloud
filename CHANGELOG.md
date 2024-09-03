@@ -2,13 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.0] - 2024-08-29
+## [0.12.0] - 2024-09-03
 
 ### Breaking change
 
 - 'from pasqal_cloud' import has completely replaced the deprecated import 'from sdk'
-- 'project' field has completely replaced the deprecated field 'group'
-- Now you need to declare the 'project_id' as the first argument when instantiating an SDK class
+- 'group' field is now removed, use 'project' field instead
 
 ## [0.11.4] - 2024-08-28
 
