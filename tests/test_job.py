@@ -406,7 +406,7 @@ class TestJob:
 
         assert isinstance(response.errors, Dict)
 
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
 
         # Convert filters to the appropriate format for query parameters
         query_params = build_query_params(

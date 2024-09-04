@@ -297,7 +297,7 @@ class Client:
         self, batch_id: Union[UUID, str], filters: CancelJobFilters
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT",
+            "PATCH",
             f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel/jobs",
             params=filters.model_dump(exclude_unset=True),
         )["data"]
