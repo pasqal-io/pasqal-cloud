@@ -327,7 +327,7 @@ class TestBatch:
     def test_cancel_batch_self(self, mock_request, batch):
         batch.cancel()
         assert batch.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v2/batches/{self.batch_id}/cancel"
@@ -337,7 +337,7 @@ class TestBatch:
         with pytest.raises(BatchCancellingError):
             batch.cancel()
         assert batch.status == "PENDING"
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"
@@ -348,7 +348,7 @@ class TestBatch:
         client_rsp = self.sdk.cancel_batch(self.batch_id)
         assert type(client_rsp) == Batch
         assert client_rsp.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url == f"{self.sdk._client.endpoints.core}"
             f"/api/v2/batches/{self.batch_id}/cancel"
@@ -367,7 +367,7 @@ class TestBatch:
         with pytest.raises(BatchCancellingError):
             _ = self.sdk.cancel_batch(self.batch_id)
 
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}"

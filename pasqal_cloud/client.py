@@ -247,7 +247,7 @@ class Client:
 
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
+            "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
         )["data"]
         return response
 
