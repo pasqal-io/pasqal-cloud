@@ -85,7 +85,7 @@ class TestJob:
         """
         job.cancel()
         assert job.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
@@ -102,7 +102,7 @@ class TestJob:
         with pytest.raises(JobCancellingError):
             job.cancel()
         assert job.status == "PENDING"
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
@@ -117,7 +117,7 @@ class TestJob:
         client_rsp = self.sdk.cancel_job(self.job_id)
         assert type(client_rsp) == Job
         assert client_rsp.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
@@ -132,7 +132,7 @@ class TestJob:
         """
         with pytest.raises(JobCancellingError):
             _ = self.sdk.cancel_job(self.job_id)
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
