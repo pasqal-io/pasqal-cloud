@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- The following methods now use the V2 that do not return the results any more:
+- Better performances for the following methods:
     - Cancel a batch
     - Cancel a job
     - Cancel a group of jobs
