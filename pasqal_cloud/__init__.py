@@ -47,6 +47,7 @@ from pasqal_cloud.errors import (
 from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
 from pasqal_cloud.utils.filters import (
+    BatchFilters,
     CancelJobFilters,
     JobFilters,
     PaginationParams,
@@ -282,7 +283,7 @@ class SDK:
         """
         Retrieve a list of batches matching filters using a pagination system.
 
-        batches are sorted by their creation date in descending order.
+        Batches are sorted by their creation date in descending order.
 
         If no 'pagination_params' are provided, the first 100 batches
         matching the query will be returned by default.
@@ -295,11 +296,11 @@ class SDK:
         >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR))
         Returns the first 100 batches with an ERROR status.
 
-        >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
+        >>> Get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
                      pagination_params=PaginationParams(offset=100))
         Returns batches 101-200 with an ERROR status.
 
-        >>> get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
+        >>> Get_batches(filters=BatchFilters(status=BatchStatus.ERROR),
                      pagination_params=PaginationParams(offset=200))
         Returns batches 201-300 with an ERROR status.
 
@@ -312,14 +313,14 @@ class SDK:
 
         Raises:
             BatchFetchingError: If fetching batches call failed.
-            ValueError: If `filters` is not an instance of JobFilters
-                    or if `pagination_params` is not an instance of PaginationParams.
+            TypeError: If `filters` is not an instance of BatchFilters,
+                or if `pagination_params` is not an instance of PaginationParams.
         """
 
         if pagination_params is None:
             pagination_params = PaginationParams()
         elif not isinstance(pagination_params, PaginationParams):
-            raise ValueError(
+            raise TypeError(
                 f"Pagination parameters needs to be a PaginationParams instance, "
                 f"not a {type(pagination_params)}"
             )
@@ -327,12 +328,12 @@ class SDK:
         if filters is None:
             filters = BatchFilters()
         elif not isinstance(filters, BatchFilters):
-            raise ValueError(
+            raise TypeError(
                 f"Filters needs to be a BatchFilters instance, not a {type(filters)}"
             )
 
         try:
-            response = self._client._get_batches(
+            response = self._client.get_batches(
                 filters=filters, pagination_params=pagination_params
             )
             batches = response["data"]
@@ -384,7 +385,7 @@ class SDK:
         if filters is None:
             filters = RebatchFilters()
         elif not isinstance(filters, RebatchFilters):
-            raise ValueError(
+            raise TypeError(
                 f"Filters needs to be a RebatchFilters instance, not a {type(filters)}"
             )
 
@@ -435,14 +436,14 @@ class SDK:
 
         Raises:
             JobFetchingError: If fetching jobs call failed.
-            ValueError: If `filters` is not an instance of JobFilters
+            TypeError: If `filters` is not an instance of JobFilters
                     or if `pagination_params` is not an instance of PaginationParams.
         """
 
         if pagination_params is None:
             pagination_params = PaginationParams()
         elif not isinstance(pagination_params, PaginationParams):
-            raise ValueError(
+            raise TypeError(
                 "Pagination parameters needs to be a PaginationParams instance, "
                 f"not a {type(pagination_params)}"
             )
@@ -450,7 +451,7 @@ class SDK:
         if filters is None:
             filters = JobFilters()
         elif not isinstance(filters, JobFilters):
-            raise ValueError(
+            raise TypeError(
                 f"Filters needs to be a JobFilters instance, not a {type(filters)}"
             )
 
@@ -588,7 +589,7 @@ class SDK:
         if filters is None:
             filters = CancelJobFilters()
         elif not isinstance(filters, CancelJobFilters):
-            raise ValueError(
+            raise TypeError(
                 "Filters needs to be a CancelJobFilters instance, "
                 f"not a {type(filters)}"
             )

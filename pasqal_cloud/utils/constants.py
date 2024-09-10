@@ -1,14 +1,6 @@
 from enum import Enum
 
 
-class Status(Enum):
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    DONE = "DONE"
-    ERROR = "ERROR"
-    CANCELED = "CANCELED"
-
-
 class BatchStatus(Enum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"

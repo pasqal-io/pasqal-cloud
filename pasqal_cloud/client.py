@@ -288,7 +288,7 @@ class Client:
         )
         return response
 
-    def _get_batches(
+    def get_batches(
         self, filters: BatchFilters, pagination_params: PaginationParams
     ) -> JSendPayload:
         filters_params = filters.model_dump(exclude_unset=True)

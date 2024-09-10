@@ -312,7 +312,7 @@ class TestJob:
         if I pass a dictionary instead of JobFilters, a ValueError should be raised.
         """
         with pytest.raises(
-            ValueError, match="Filters needs to be a JobFilters instance"
+            TypeError, match="Filters needs to be a JobFilters instance"
         ):
             _ = self.sdk.get_jobs(filters={"min_runs": 10})
 
@@ -323,7 +323,7 @@ class TestJob:
         be raised.
         """
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Pagination parameters needs to be a PaginationParams instance",
         ):
             _ = self.sdk.get_jobs(pagination_params={"offset": 100, "limit": 100})
@@ -427,6 +427,6 @@ class TestJob:
         be raised.
         """
         with pytest.raises(
-            ValueError, match="Filters needs to be a CancelJobFilters instance"
+            TypeError, match="Filters needs to be a CancelJobFilters instance"
         ):
             _ = self.sdk.cancel_jobs(batch_id=UUID(int=0x1), filters={"min_runs": 10})

@@ -9,7 +9,6 @@ import requests_mock
 
 from pasqal_cloud import (
     Batch,
-    BatchFilters,
     Job,
     PaginatedResponse,
     PaginationParams,
@@ -29,6 +28,7 @@ from pasqal_cloud.errors import (
     RebatchError,
 )
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
+from pasqal_cloud.utils.filters import BatchFilters
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
@@ -680,7 +680,7 @@ class TestBatch:
         if I pass a dictionary instead of RebatchFilters, a ValueError should be raised.
         """
         with pytest.raises(
-            ValueError, match="Filters needs to be a RebatchFilters instance"
+            TypeError, match="Filters needs to be a RebatchFilters instance"
         ):
             _ = self.sdk.rebatch(id=UUID(int=0x1), filters={"min_runs": 10})
 
@@ -717,12 +717,8 @@ class TestBatch:
             BatchFilters(status=BatchStatus.DONE),
             # List of statuses
             BatchFilters(status=[BatchStatus.DONE, BatchStatus.PENDING]),
-            # Minimum runs
-            BatchFilters(min_runs=10),
-            # Maximum runs
-            BatchFilters(max_runs=20),
-            # Complete flag
-            BatchFilters(complete=True),
+            # Open flag
+            BatchFilters(open=False),
             # Start date
             BatchFilters(start_date=datetime(2023, 1, 1)),
             # End date
@@ -733,7 +729,7 @@ class TestBatch:
                 project_id=[UUID(int=0x1), UUID(int=0x2)],
                 user_id=["1", "2"],
                 status=BatchStatus.DONE,
-                complete=True,
+                open=False,
                 start_date=datetime(2023, 1, 1),
                 end_date=datetime(2023, 1, 1),
             ),
@@ -830,9 +826,9 @@ class TestBatch:
         if I pass a dictionary instead of BatchFilters, a ValueError should be raised.
         """
         with pytest.raises(
-            ValueError, match="Filters needs to be a BatchFilters instance"
+            TypeError, match="Filters needs to be a BatchFilters instance"
         ):
-            _ = self.sdk.get_batches(filters={"complete": True})
+            _ = self.sdk.get_batches(filters={"open": True})
 
     def test_get_batches_raises_value_error_on_invalid_pagination_params(self):
         """
@@ -841,7 +837,7 @@ class TestBatch:
         be raised.
         """
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Pagination parameters needs to be a PaginationParams instance",
         ):
             _ = self.sdk.get_batches(pagination_params={"offset": 100, "limit": 100})
