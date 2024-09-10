@@ -5,6 +5,7 @@ from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests_mock
 
 from pasqal_cloud import Batch, Job, RebatchFilters, SDK
 from pasqal_cloud.batch import Batch as BatchModel
@@ -71,7 +72,7 @@ class TestBatch:
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
     def test_create_batch(
-        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
+        self, emulator: Optional[str], mock_request: requests_mock.mocker.Mocker
     ):
         """
         When successfully creating a batch, we should be able to assert
@@ -91,7 +92,7 @@ class TestBatch:
 
     @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
     def test_create_batch_with_complete_raises_warning(
-        self, emulator: Optional[str], mock_request: Generator[Any, Any, None]
+        self, emulator: Optional[str], mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test that using complete at batch definition is still accepted but will
@@ -125,7 +126,7 @@ class TestBatch:
             )
 
     def test_batch_create_exception(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         Assert the correct exception is raised when failing to create a batch
@@ -148,7 +149,7 @@ class TestBatch:
     )
     @pytest.mark.parametrize(("wait", "fetch_results"), [(True, False), (False, True)])
     def test_create_batch_and_wait(
-        self, mock_request: Generator[Any, Any, None], wait: bool, fetch_results: bool
+        self, mock_request: requests_mock.mocker.Mocker, wait: bool, fetch_results: bool
     ):
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
@@ -187,7 +188,7 @@ class TestBatch:
         batch_requested = self.sdk.get_batch(batch.id)
         assert isinstance(batch_requested, BatchModel)
 
-    def test_batch_add_jobs(self, mock_request: Generator[Any, Any, None]):
+    def test_batch_add_jobs(self, mock_request: requests_mock.mocker.Mocker):
         """
         Test that after successfully creating, and adding jobs, the total number of jobs
         associated with a batch is correct, and the batch id is in the URL that was most
@@ -201,7 +202,7 @@ class TestBatch:
         assert len(batch.ordered_jobs) == 2
 
     def test_batch_add_jobs_failure(
-        self, batch, mock_request_exception: Generator[Any, Any, None]
+        self, batch, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         When trying to add jobs to a batch, we test that we catch
@@ -221,7 +222,7 @@ class TestBatch:
     def test_batch_add_jobs_and_wait_for_results(
         self,
         batch: Batch,
-        mock_request: Generator[Any, Any, None],
+        mock_request: requests_mock.mocker.Mocker,
         load_mock_batch_json_response: Dict[str, Any],
     ):
         mock_request.reset_mock()
@@ -298,7 +299,7 @@ class TestBatch:
         assert not batch.open
 
     def test_batch_close_failure(
-        self, batch: Batch, mock_request_exception: Generator[Any, Any, None]
+        self, batch: Batch, mock_request_exception: requests_mock.mocker.Mocker
     ):
         with pytest.raises(BatchClosingError):
             _ = batch.close(wait=False)
@@ -307,7 +308,7 @@ class TestBatch:
         mock_request_exception.stop()
 
     def test_batch_close_and_wait_for_results(
-        self, batch: Batch, mock_request: Generator[Any, Any, None]
+        self, batch: Batch, mock_request: requests_mock.mocker.Mocker
     ):
         """TODO"""
         batch.close(wait=True)
@@ -355,7 +356,7 @@ class TestBatch:
         )
 
     def test_cancel_batch_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         Assert that a BatchCancellingError is raised appropriately for
@@ -482,7 +483,7 @@ class TestBatch:
     )
     def test_rebatch_success(
         self,
-        mock_request: Generator[Any, Any, None],
+        mock_request: requests_mock.mocker.Mocker,
         filters: Union[RebatchFilters, None],
     ):
         """
@@ -508,7 +509,9 @@ class TestBatch:
         assert batch.parent_id == self.batch_id
         assert batch.ordered_jobs[0].parent_id
 
-    def test_rebatch_sdk_error(self, mock_request_exception: Generator[Any, Any, None]):
+    def test_rebatch_sdk_error(
+        self, mock_request_exception: requests_mock.mocker.Mocker
+    ):
         """
         As a user using the SDK with proper credentials,
         if my request for rebatching returns a status code
@@ -526,7 +529,7 @@ class TestBatch:
 
     def test_retry(
         self,
-        mock_request: Generator[Any, Any, None],
+        mock_request: requests_mock.mocker.Mocker,
     ):
         """
         As a user using the SDK with proper credentials,
@@ -555,7 +558,7 @@ class TestBatch:
         self,
         batch: Batch,
         job: Job,
-        mock_request_exception: Generator[Any, Any, None],
+        mock_request_exception: requests_mock.mocker.Mocker,
     ):
         """
         As a user using the SDK with proper credentials,
@@ -577,7 +580,7 @@ class TestBatch:
 
     def test_add_jobs_calls_the_correct_features(
         self,
-        mock_request: Generator[Any, Any, None],
+        mock_request: requests_mock.mocker.Mocker,
     ):
         """
         Assert than we calling add_jobs that the correct
@@ -616,7 +619,7 @@ class TestBatch:
 
     def test_add_jobs_call_raises_job_creation_error(
         self,
-        mock_request_exception: Generator[Any, Any, None],
+        mock_request_exception: requests_mock.mocker.Mocker,
         load_mock_batch_json_response: Generator[Any, Any, None],
     ):
         """
@@ -644,9 +647,7 @@ class TestBatch:
         )
 
     def test_close_batch_raises_batch_close_error(
-        self,
-        mock_request_exception: Generator[Any, Any, None],
-        load_mock_batch_json_response: Generator[Any, Any, None],
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         Assert that when calling close_batch, we're capable of
@@ -655,7 +656,7 @@ class TestBatch:
         mock_request_exception.register_uri(
             "PATCH",
             f"/core-fast/api/v2/batches/{self.batch_id}/complete",
-            json=load_mock_batch_json_response,
+            status_code=500,
         )
         with pytest.raises(BatchClosingError):
             _ = self.sdk.close_batch(self.batch_id)
@@ -674,4 +675,4 @@ class TestBatch:
         with pytest.raises(
             ValueError, match="Filters needs to be a RebatchFilters instance"
         ):
-            _ = self.sdk.rebatch(UUID(int=0x1), {"min_runs": 10})
+            _ = self.sdk.rebatch(id=UUID(int=0x1), filters={"min_runs": 10})

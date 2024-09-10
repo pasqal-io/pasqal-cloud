@@ -1,10 +1,10 @@
 import contextlib
-from typing import Any, Generator
 from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
 import requests
+import requests_mock
 from auth0.v3.exceptions import Auth0Error
 
 from pasqal_cloud import (
@@ -236,7 +236,7 @@ class TestSDKRetry:
             yield
 
     def test_download_results_retry_on_exception(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test the retry logic for HTTP calls when an error status code is encountered.
@@ -255,7 +255,7 @@ class TestSDKRetry:
         assert len(mock_request.request_history) == 6
 
     def test_download_results_retry_on_connection_error(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test the retry logic for HTTP calls when a network error is encountered.
@@ -279,7 +279,7 @@ class TestSDKRetry:
 
     @pytest.mark.parametrize("status_code", [408, 425, 429, 500, 502, 503, 504])
     def test_sdk_retry_on_exception(
-        self, mock_request: Generator[Any, Any, None], status_code: int
+        self, mock_request: requests_mock.mocker.Mocker, status_code: int
     ):
         """
         If a HTTP status code matches any of the codes passed as parameters,
@@ -295,7 +295,7 @@ class TestSDKRetry:
         assert len(mock_request.request_history) == 6
 
     def test_sdk_doesnt_retry_on_exceptions(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         If the HTTP status code is not one we consider valid for retires, we should not
@@ -311,7 +311,7 @@ class TestSDKRetry:
         assert len(mock_request.request_history) == 1
 
     def test_sdk_200_avoids_all_exception_handling(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         We have no need to retry requests on a successful HTTP request, so
@@ -337,7 +337,9 @@ class TestRequestAllPages:
             project_id=str(uuid4()),
         )
 
-    def test_pagination_request_success(self, mock_request: Generator[Any, Any, None]):
+    def test_pagination_request_success(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
         """
         Test requests with pagination with multiple pages.
         This test verifies that the pagination works correctly by simulating
@@ -383,7 +385,7 @@ class TestRequestAllPages:
         assert len(mock_request.request_history) == 3
 
     def test_pagination_request_changed_total_items_during_query_success(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test request with pagination where the total number of items
@@ -430,7 +432,7 @@ class TestRequestAllPages:
         assert len(mock_request.request_history) == 3
 
     def test_request_pagination_without_pagination_success(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test request with pagination when there is only a single page of data.
@@ -469,7 +471,7 @@ class TestHeaders:
         )
 
     def test_user_agent_in_request_headers(
-        self, mock_request: Generator[Any, Any, None]
+        self, mock_request: requests_mock.mocker.Mocker
     ):
         """
         Test that the `_authenticated_request` method of

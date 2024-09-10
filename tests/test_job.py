@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, Generator, List, Union
+from typing import Any, Dict, List, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests_mock
 
 from pasqal_cloud import (
     CancelJobFilters,
@@ -62,7 +63,7 @@ class TestJob:
         assert job_requested.id == job.id
 
     def test_get_job_error(
-        self, job, mock_request_exception: Generator[Any, Any, None]
+        self, job, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         When attempting to execute get_job, we receive an exception
@@ -78,7 +79,7 @@ class TestJob:
             f"/api/v2/jobs/{job.id}"
         )
 
-    def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):
+    def test_cancel_job_self(self, mock_request: requests_mock.mocker.Mocker, job: Job):
         """
         After cancelling a job, we can assert that the status is CANCELED as expected
         and that the correct methods and URLS were used.
@@ -92,7 +93,7 @@ class TestJob:
         )
 
     def test_cancel_job_self_error(
-        self, mock_request_exception: Generator[Any, Any, None], job: Job
+        self, mock_request_exception: requests_mock.mocker.Mocker, job: Job
     ):
         """
         When trying to cancel a job, we assert that an exception is raised
@@ -108,7 +109,7 @@ class TestJob:
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_sdk(self, mock_request: Generator[Any, Any, None]):
+    def test_cancel_job_sdk(self, mock_request: requests_mock.mocker.Mocker):
         """
         After successfully executing the .cancel_job method,
         we further validate the response object is as anticipated,
@@ -124,7 +125,7 @@ class TestJob:
         )
 
     def test_cancel_job_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         When trying to cancel a job, we assert that an exception is raised
@@ -290,7 +291,7 @@ class TestJob:
         )
 
     def test_get_jobs_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         As a user using the SDK with proper credentials,
