@@ -643,13 +643,28 @@ class TestBatch:
             f"/api/v2/batches/{self.batch_id}/jobs"
         )
 
-    def test_close_batch_raises_batch_close_error(self):
+    def test_close_batch_raises_batch_close_error(
+        self,
+        mock_request_exception: Generator[Any, Any, None],
+        load_mock_batch_json_response: Generator[Any, Any, None],
+    ):
         """
         Assert that when calling close_batch, we're capable of
         encapsulating the HTTPError as a BatchClosingError instead.
         """
+        mock_request_exception.register_uri(
+            "PATCH",
+            f"/core-fast/api/v2/batches/{self.batch_id}/complete",
+            json=load_mock_batch_json_response,
+        )
         with pytest.raises(BatchClosingError):
             _ = self.sdk.close_batch(self.batch_id)
+
+        assert (
+            mock_request_exception.last_request.url
+            == f"{self.sdk._client.endpoints.core}"
+            f"/api/v2/batches/{self.batch_id}/complete"
+        )
 
     def test_rebatch_raises_value_error_on_invalid_filters(self):
         """
