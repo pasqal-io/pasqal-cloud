@@ -9,7 +9,7 @@ from pasqal_cloud.utils.constants import BatchStatus, JobStatus, QueuePriority
 
 class BaseFilters(BaseModel):
     """
-    Base class used by Job related filters for shared fields.
+    Base class used by filters for shared fields.
     """
 
     id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
@@ -190,7 +190,7 @@ class BatchFilters(BaseFilters):
         user_id: Filter by user IDs.
         device_type: Filter by device type.
         status: Filter by job statuses.
-        open: Filter by if a batch is open or not.
+        open: If the batch accepts more jobs or not.
         start_date: Retry batches created at or after this datetime.
         end_date: Retry batches created at or before this datetime.
         queue_priority: Filter by queue priority value.
