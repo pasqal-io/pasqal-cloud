@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, Generator, List, Union
+from typing import Any, Dict, List, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests_mock
 
 from pasqal_cloud import (
     CancelJobFilters,
@@ -62,7 +63,7 @@ class TestJob:
         assert job_requested.id == job.id
 
     def test_get_job_error(
-        self, job, mock_request_exception: Generator[Any, Any, None]
+        self, job, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         When attempting to execute get_job, we receive an exception
@@ -78,21 +79,21 @@ class TestJob:
             f"/api/v2/jobs/{job.id}"
         )
 
-    def test_cancel_job_self(self, mock_request: Generator[Any, Any, None], job: Job):
+    def test_cancel_job_self(self, mock_request: requests_mock.mocker.Mocker, job: Job):
         """
         After cancelling a job, we can assert that the status is CANCELED as expected
         and that the correct methods and URLS were used.
         """
         job.cancel()
         assert job.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_cancel_job_self_error(
-        self, mock_request_exception: Generator[Any, Any, None], job: Job
+        self, mock_request_exception: requests_mock.mocker.Mocker, job: Job
     ):
         """
         When trying to cancel a job, we assert that an exception is raised
@@ -102,13 +103,13 @@ class TestJob:
         with pytest.raises(JobCancellingError):
             job.cancel()
         assert job.status == "PENDING"
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
-    def test_cancel_job_sdk(self, mock_request: Generator[Any, Any, None]):
+    def test_cancel_job_sdk(self, mock_request: requests_mock.mocker.Mocker):
         """
         After successfully executing the .cancel_job method,
         we further validate the response object is as anticipated,
@@ -117,14 +118,14 @@ class TestJob:
         client_rsp = self.sdk.cancel_job(self.job_id)
         assert type(client_rsp) == Job
         assert client_rsp.status == "CANCELED"
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_cancel_job_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         When trying to cancel a job, we assert that an exception is raised
@@ -132,10 +133,10 @@ class TestJob:
         """
         with pytest.raises(JobCancellingError):
             _ = self.sdk.cancel_job(self.job_id)
-        assert mock_request_exception.last_request.method == "PUT"
+        assert mock_request_exception.last_request.method == "PATCH"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/cancel"
+            == f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}/cancel"
         )
 
     def test_job_instantiation_with_extra_field(self, job):
@@ -290,7 +291,7 @@ class TestJob:
         )
 
     def test_get_jobs_sdk_error(
-        self, mock_request_exception: Generator[Any, Any, None]
+        self, mock_request_exception: requests_mock.mocker.Mocker
     ):
         """
         As a user using the SDK with proper credentials,
@@ -406,7 +407,7 @@ class TestJob:
 
         assert isinstance(response.errors, Dict)
 
-        assert mock_request.last_request.method == "PUT"
+        assert mock_request.last_request.method == "PATCH"
 
         # Convert filters to the appropriate format for query parameters
         query_params = build_query_params(
@@ -415,7 +416,7 @@ class TestJob:
         # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches/{UUID(int=0x1)}"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{UUID(int=0x1)}"
             f"/cancel/jobs{query_params}"
         )
 

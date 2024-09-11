@@ -1,0 +1,59 @@
+{
+  "status": "success",
+  "message": "OK.",
+  "code": "200",
+  "data": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "created_at": "2023-03-23T10:41:36.635820+00:00",
+    "updated_at": "2023-03-23T10:42:27.610076+00:00",
+    "start_datetime": null,
+    "end_datetime": "2023-03-23T10:42:27.611384+00:00",
+    "priority": 20,
+    "sequence_builder": "{\"_build\": true, \"__module__\": \"pulser.sequence.sequence\", \"__name__\": \"Sequence\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.register.register\", \"__name__\": \"Register\", \"__args__\": [{\"q0\": [-10.0, 0.0], \"q1\": [-5.0, -8.660254], \"q2\": [-5.0, 8.660254], \"q3\": [5.0, -8.660254], \"q4\": [5.0, 8.660254], \"q5\": [10.0, 0.0]}], \"__kwargs__\": {\"layout\": {\"_build\": true, \"__module__\": \"pulser.register.register_layout\", \"__name__\": \"RegisterLayout\", \"__args__\": [{\"_build\": true, \"__module__\": \"numpy\", \"__name__\": \"array\", \"__args__\": [[[0.0, 0.0], [2.5, 4.330127018922194], [2.5, -4.330127018922194], [-5.0, 0.0], [-5.0, 8.660254037844387], [5.0, 8.660254037844387], [7.5, 4.330127018922194], [10.0, 0.0], [7.5, -4.330127018922194], [5.0, -8.660254037844387], [-5.0, -8.660254037844387], [-10.0, 0.0], [-12.5, 4.330127018922194], [-10.0, 8.660254037844387], [10.0, 8.660254037844387], [15.0, 0.0], [-2.5, -12.99038105676658], [-7.5, -12.99038105676658], [-10.0, -8.660254037844387], [-10.0, 17.320508075688775], [5.0, 17.320508075688775], [10.0, 17.320508075688775], [12.5, 12.99038105676658], [17.5, 4.330127018922192], [20.0, 0.0], [12.5, -12.99038105676658], [-15.0, -8.660254037844387], [-20.0, 0.0], [-22.5, 4.330127018922194], [-12.5, 21.650635094610966], [17.5, 12.990381056766578], [25.0, 0.0], [12.5, -21.650635094610966], [-2.5, -21.650635094610966], [-12.5, -21.650635094610966], [-20.0, -8.660254037844384], [-22.5, 12.99038105676658], [5.0, 25.98076211353316], [17.5, 21.65063509461097], [20.0, 17.320508075688775], [22.5, 12.99038105676658], [25.0, 8.660254037844389], [27.5, 4.330127018922196], [25.0, -8.660254037844387], [-22.5, -12.99038105676658], [-30.0, 0.0], [-32.5, 4.330127018922194], [2.5, 30.310889132455355], [17.5, 30.310889132455355], [20.0, 25.98076211353316], [22.5, 21.650635094610966], [30.0, -8.660254037844387], [22.5, -21.650635094610966], [17.5, -30.310889132455355], [-2.5, -30.310889132455355], [-17.5, -30.310889132455355], [-22.5, -21.650635094610966], [-32.5, -4.330127018922192], [-37.5, 4.330127018922194], [-27.5, 21.650635094610966], [22.5, 30.310889132455355], [30.0, 17.320508075688775], [32.5, 12.99038105676658], [37.5, -4.330127018922194], [5.0, -34.64101615137755], [-22.5, -30.310889132455355], [-25.0, -25.98076211353316], [-32.5, -12.99038105676658]]], \"__kwargs__\": {}}], \"__kwargs__\": {}}, \"trap_ids\": [20, 24, 26, 35, 36, 41]}}, {\"_build\": false, \"__module__\": \"pulser.devices\", \"__name__\": \"IroiseMVP\"}], \"__kwargs__\": {}, \"__version__\": \"0.5.1\", \"calls\": [[\"declare_channel\", [\"ch_global\", \"rydberg_global\"], {\"initial_target\": null}], [\"add\", [{\"_build\": true, \"__module__\": \"pulser.pulse\", \"__name__\": \"Pulse\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [124, 12.566370614359172], \"__kwargs__\": {}}, {\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [124, 25.132741228718345], \"__kwargs__\": {}}, 0.0], \"__kwargs__\": {\"post_phase_shift\": 0.0}}, \"ch_global\"], {}], [\"add\", [{\"_build\": true, \"__module__\": \"pulser.pulse\", \"__name__\": \"Pulse\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [400, 0.0], \"__kwargs__\": {}}, {\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [400, -25.132741228718345], \"__kwargs__\": {}}, 0.0], \"__kwargs__\": {\"post_phase_shift\": 0.0}}, \"ch_global\"], {}], [\"add\", [{\"_build\": true, \"__module__\": \"pulser.pulse\", \"__name__\": \"Pulse\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [100, 12.566370614359172], \"__kwargs__\": {}}, {\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [100, 25.132741228718345], \"__kwargs__\": {}}, 0.0], \"__kwargs__\": {\"post_phase_shift\": 0.0}}, \"ch_global\"], {}], [\"add\", [{\"_build\": true, \"__module__\": \"pulser.pulse\", \"__name__\": \"Pulse\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [400, 0.0], \"__kwargs__\": {}}, {\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [400, -25.132741228718345], \"__kwargs__\": {}}, 0.0], \"__kwargs__\": {\"post_phase_shift\": 0.0}}, \"ch_global\"], {}], [\"add\", [{\"_build\": true, \"__module__\": \"pulser.pulse\", \"__name__\": \"Pulse\", \"__args__\": [{\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [100, 12.566370614359172], \"__kwargs__\": {}}, {\"_build\": true, \"__module__\": \"pulser.waveforms\", \"__name__\": \"ConstantWaveform\", \"__args__\": [100, 25.132741228718345], \"__kwargs__\": {}}, 0.0], \"__kwargs__\": {\"post_phase_shift\": 0.0}}, \"ch_global\"], {}], [\"measure\", [], {}]], \"vars\": {}, \"to_build_calls\": []}",
+    "device_type": "EMU_FREE",
+    "status": "CANCELED",
+    "complete": true,
+    "open": false,
+    "project_id": "00000000-0000-0000-0000-000000000001",
+    "webhook": null,
+    "user_id": "EQZj1ZQE",
+    "configuration": null,
+    "device_status": null,
+    "jobs_count": 2,
+    "jobs_count_per_status": {
+      "PENDING": 0,
+      "RUNNING": 0,
+      "DONE": 0,
+      "ERROR": 0,
+      "CANCELED": 2
+    },
+    "jobs": [
+      {
+        "id": "30c58103-8a6d-4e15-bc40-23285e73bf2b",
+        "created_at": "2023-03-23T10:41:36.635820+00:00",
+        "updated_at": "2023-03-23T10:42:27.610076+00:00",
+        "start_timestamp": null,
+        "end_timestamp": "2023-03-23T10:42:27.611419+00:00",
+        "runs": 200,
+        "status": "CANCELED",
+        "errors": null,
+        "variables": {},
+        "batch_id": "5af686ee-d7dc-459e-a73e-12279ae04b91",
+        "project_id": "00000000-0000-0000-0000-000000000007"
+      },
+      {
+        "id": "ed9ae427-a480-4bf6-9bd9-0ac82d0a1d50",
+        "created_at": "2023-03-23T10:41:36.635820+00:00",
+        "updated_at": "2023-03-23T10:42:27.610076+00:00",
+        "start_timestamp": null,
+        "end_timestamp": "2023-03-23T10:42:27.611425+00:00",
+        "runs": 100,
+        "status": "CANCELED",
+        "errors": null,
+        "variables": {},
+        "batch_id": "5af686ee-d7dc-459e-a73e-12279ae04b91",
+        "project_id": "00000000-0000-0000-0000-000000000007"
+      }
+    ]
+  }
+}

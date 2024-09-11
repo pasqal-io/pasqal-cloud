@@ -241,13 +241,13 @@ class Client:
 
     def close_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/complete"
+            "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/complete"
         )["data"]
         return response
 
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT", f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel"
+            "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
         )["data"]
         return response
 
@@ -277,7 +277,7 @@ class Client:
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "POST", f"{self.endpoints.core}/api/v1/batches/{batch_id}/jobs", jobs_data
+            "POST", f"{self.endpoints.core}/api/v2/batches/{batch_id}/jobs", jobs_data
         )["data"]
         return response
 
@@ -289,7 +289,7 @@ class Client:
 
     def cancel_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT", f"{self.endpoints.core}/api/v1/jobs/{job_id}/cancel"
+            "PATCH", f"{self.endpoints.core}/api/v2/jobs/{job_id}/cancel"
         )["data"]
         return response
 
@@ -297,8 +297,8 @@ class Client:
         self, batch_id: Union[UUID, str], filters: CancelJobFilters
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT",
-            f"{self.endpoints.core}/api/v1/batches/{batch_id}/cancel/jobs",
+            "PATCH",
+            f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel/jobs",
             params=filters.model_dump(exclude_unset=True),
         )["data"]
         return response
