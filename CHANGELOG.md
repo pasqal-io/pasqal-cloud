@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.2] - 2024-09-04
+## [0.12.2] - 2024-09-11
 
 ### Changed
 
@@ -12,8 +12,10 @@ All notable changes to this project will be documented in this file.
     - Cancel a group of jobs
     - Add jobs to a batch
     - Close a batch
-    - 
+
 ## [0.12.1] - 2024-09-11
+
+### Added
 
 - Introduce EMU_FRESNEL device type
 
