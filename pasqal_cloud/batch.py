@@ -7,7 +7,11 @@ from requests import HTTPError
 
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import EmulatorType
-from pasqal_cloud.device.configuration import BaseConfig, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.device.configuration import (
+    BaseConfig,
+    EmuFreeConfig,
+    EmuTNConfig,
+)
 from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
@@ -133,6 +137,8 @@ class Batch(BaseModel):
             conf_class = EmuTNConfig
         elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
+        elif info.data["device_type"] == EmulatorType.EMU_FRESNEL.value:
+            return None
         return conf_class.from_dict(configuration)
 
     def add_jobs(

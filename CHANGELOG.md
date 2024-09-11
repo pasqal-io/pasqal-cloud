@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.1] - 2024-09-11
+
+- Introduce EMU_FRESNEL device type
+
 ## [0.12.0] - 2024-09-03
 
 ### Breaking change

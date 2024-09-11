@@ -384,6 +384,7 @@ class TestBatch:
                 EmuFreeConfig(),
                 EmuFreeConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
+            (EmulatorType.EMU_FRESNEL, None, None),
             (
                 "SomethingElse",
                 BaseConfig(),
