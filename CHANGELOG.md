@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- Better performances for the following methods:
+- Now these methods are using V2 endpoints:
     - Cancel a batch
     - Cancel a job
     - Cancel a group of jobs
