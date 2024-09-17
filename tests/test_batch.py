@@ -760,7 +760,7 @@ class TestBatch:
         # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v2/batches{query_params}"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches{query_params}"
         )
 
     @pytest.mark.parametrize(
@@ -801,7 +801,7 @@ class TestBatch:
         # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v2/batches{query_params}"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches{query_params}"
         )
 
     def test_get_batches_sdk_error(
@@ -817,7 +817,7 @@ class TestBatch:
         assert mock_request_exception.last_request.method == "GET"
         assert (
             mock_request_exception.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v2/batches?offset=0&limit=100"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches?offset=0&limit=100"
         )
 
     def test_get_batches_raises_value_error_on_invalid_filters(self):

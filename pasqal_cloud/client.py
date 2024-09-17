@@ -295,7 +295,7 @@ class Client:
         filters_params.update(pagination_params.model_dump())
         response: JSendPayload = self._authenticated_request(
             "GET",
-            f"{self.endpoints.core}/api/v2/batches",
+            f"{self.endpoints.core}/api/v1/batches",
             params=filters_params,
         )
         return response
