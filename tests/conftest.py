@@ -17,7 +17,7 @@ JOB_RESULT_LINK_ENDPOINT = "http://jobs-result-link/"
 JSON_FILE = "_.{}.json"
 
 
-@pytest.fixture()
+@pytest.fixture
 def result_link_endpoint() -> str:
     return RESULT_LINK_ENDPOINT
 
@@ -124,21 +124,21 @@ def batch_creation_error_data() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_request(request_mock) -> Generator[Any, Any, None]:
     request_mock.start()
     yield request_mock
     request_mock.stop()
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
     request_mock_exception.start()
     yield request_mock_exception
     request_mock_exception.stop()
 
 
-@pytest.fixture()
+@pytest.fixture
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
     return Client(
@@ -148,7 +148,7 @@ def pasqal_client_mock():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def workload(pasqal_client_mock):
     workload_data = {
         "id": "00000000-0000-0000-0000-000000000001",
@@ -165,7 +165,7 @@ def workload(pasqal_client_mock):
     return Workload(**workload_data)
 
 
-@pytest.fixture()
+@pytest.fixture
 def batch_data_fixture() -> Dict[str, Any]:
     return {
         "complete": False,
@@ -185,12 +185,12 @@ def batch_data_fixture() -> Dict[str, Any]:
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def batch(batch_data_fixture: Dict[str, Any], pasqal_client_mock) -> Batch:
     return Batch(**batch_data_fixture, _client=pasqal_client_mock)
 
 
-@pytest.fixture()
+@pytest.fixture
 def job(pasqal_client_mock):
     job_data = {
         "runs": 50,

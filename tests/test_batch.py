@@ -356,7 +356,7 @@ class TestBatch:
 
     def test_cancel_batch_sdk(self, mock_request):
         client_rsp = self.sdk.cancel_batch(self.batch_id)
-        assert type(client_rsp) == Batch
+        assert isinstance(client_rsp, Batch)
         assert client_rsp.status == "CANCELED"
         assert mock_request.last_request.method == "PATCH"
         assert (

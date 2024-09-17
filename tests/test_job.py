@@ -116,7 +116,7 @@ class TestJob:
         while confirming the expected HTTP methods and URLs are used.
         """
         client_rsp = self.sdk.cancel_job(self.job_id)
-        assert type(client_rsp) == Job
+        assert isinstance(client_rsp, Job)
         assert client_rsp.status == "CANCELED"
         assert mock_request.last_request.method == "PATCH"
         assert (
