@@ -7,13 +7,7 @@ import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
 
-from pasqal_cloud import (
-    AUTH0_CONFIG,
-    Auth0Conf,
-    Endpoints,
-    PASQAL_ENDPOINTS,
-    SDK,
-)
+from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
@@ -106,12 +100,11 @@ class TestAuthFailure(TestSDKCommonAttributes):
 
 class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_project_id(self):
-        sdk = SDK(username=self.username, password=self.password)
         with pytest.raises(
             ValueError,
             match="You need to provide a project_id",
         ):
-            sdk.get_batch(id="fake-id")
+            SDK(username=self.username, password=self.password)
 
     def test_module_no_user_with_password(self):
         sdk = SDK(
