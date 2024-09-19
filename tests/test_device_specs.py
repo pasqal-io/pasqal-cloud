@@ -4,6 +4,7 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
+import requests_mock
 
 from pasqal_cloud import SDK
 from pasqal_cloud.errors import DeviceSpecsFetchingError
@@ -43,4 +44,30 @@ class TestDeviceSpecs:
         assert (
             mock_request_exception.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v1/devices/specs"
+        )
+
+    def test_get_public_device_specs_success(self, mock_request: requests_mock.Mocker):
+        """
+        Test that the SDK client can be initiated without specifying credentials.
+        Verify that executing `get_device_specs_dict` with an unauthenticated SDK client
+        will request the public endpoint, while an authenticated user will request the
+        private endpoint.
+        """
+
+        sdk_without_auth = SDK()
+        public_device_specs_dict = sdk_without_auth.get_device_specs_dict()
+
+        assert (
+            mock_request.last_request.url
+            == f"{sdk_without_auth._client.endpoints.core}/api/v1/public/devices-specs"
+        )
+
+        internal_device_specs_dict = self.sdk.get_device_specs_dict()
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/devices/specs"
+        )
+
+        assert (
+            public_device_specs_dict["FRESNEL"] != internal_device_specs_dict["FRESNEL"]
         )

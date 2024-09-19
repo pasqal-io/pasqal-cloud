@@ -85,10 +85,6 @@ class SDK:
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
         """
-
-        if not project_id:
-            raise ValueError("You need to provide a project_id")
-
         self._client = Client(
             project_id=project_id,
             username=username,
