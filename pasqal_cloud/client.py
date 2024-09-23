@@ -44,6 +44,8 @@ class EmptyFilter:
 
 
 class Client:
+    authenticator: AuthBase
+
     def __init__(
         self,
         project_id: str | None = None,
@@ -58,31 +60,25 @@ class Client:
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
         if token_provider is not None:
-            self.project_id
             self._check_token_provider(token_provider)
 
         if username:
-            self.project_id
             auth0 = self._make_auth0(auth0)
             token_provider = self._credential_login(username, password, auth0)
 
-        self._authenticator = None
+        self.authenticator = None
         if token_provider:
-            self._authenticator = HTTPBearerAuthenticator(token_provider)
+            self.authenticator = HTTPBearerAuthenticator(token_provider)
 
     @property
     def project_id(self) -> str:
         if not self._project_id:
-            raise ValueError("You need to provide a project_id")
+            raise ValueError("You need to set a project_id.")
         return self._project_id
 
-    @property
-    def authenticator(self) -> AuthBase:
-        if self._authenticator is None:
-            raise ValueError(
-                "At least a username or TokenProvider object should be provided."
-            )
-        return self._authenticator
+    @project_id.setter
+    def project_id(self, project_id: str):
+        self._project_id = project_id
 
     @staticmethod
     def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
@@ -132,6 +128,12 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
+        if self.authenticator is None:
+            raise ValueError(
+                "Authentication required. Please provide your credentials when"
+                " initiating the client."
+            )
+
         resp = requests.request(
             method,
             url,
@@ -337,7 +339,7 @@ class Client:
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
-        if self._authenticator is not None:
+        if self.authenticator is not None:
             response: Dict[str, str] = self._authenticated_request(
                 "GET", f"{self.endpoints.core}/api/v1/devices/specs"
             )["data"]
