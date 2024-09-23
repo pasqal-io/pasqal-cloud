@@ -59,7 +59,7 @@ class TestDeviceSpecs:
 
         assert (
             mock_request.last_request.url
-            == f"{sdk_without_auth._client.endpoints.core}/api/v1/public/devices-specs"
+            == f"{sdk_without_auth._client.endpoints.core}/api/v1/devices/public-specs"
         )
 
         internal_device_specs_dict = self.sdk.get_device_specs_dict()

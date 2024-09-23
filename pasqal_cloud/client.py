@@ -346,7 +346,7 @@ class Client:
 
     def get_public_device_specs(self) -> Dict[str, str]:
         response = requests.request(
-            "GET", f"{self.endpoints.core}/api/v1/public/devices-specs"
+            "GET", f"{self.endpoints.core}/api/v1/devices/public-specs"
         )
         response.raise_for_status()
         devices = response.json()["data"]
