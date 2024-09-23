@@ -44,7 +44,7 @@ class EmptyFilter:
 
 
 class Client:
-    authenticator: AuthBase
+    authenticator: AuthBase | None
 
     def __init__(
         self,
@@ -77,7 +77,7 @@ class Client:
         return self._project_id
 
     @project_id.setter
-    def project_id(self, project_id: str):
+    def project_id(self, project_id: str) -> None:
         self._project_id = project_id
 
     @staticmethod
