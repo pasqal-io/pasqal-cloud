@@ -2,6 +2,25 @@
 
 SDK to be used to access Pasqal Cloud Services.
 
+## Version Support & Deprecation Timeline
+
+| Version | Release Date | End of Support | Notes                                       |
+| ------- | ------------ | -------------- | ------------------------------------------- |
+| 0.1.9   | Nov 2022     | Nov 2023       | [Changelog](CHANGELOG.md#016---2022-11-02)  |
+| 0.2.0   | Apr 2023     | Apr 2024       | [Changelog](CHANGELOG.md#020---2023-04-06)  |
+| 0.3.0   | Jun 2023     | Jun 2024       | [Changelog](CHANGELOG.md#030---2023-06-20)  |
+| 0.4.0   | Oct 2023     | Oct 2024       | [Changelog](CHANGELOG.md#040---2023-10-02)  |
+| 0.5.0   | Feb 2024     | Feb 2025       | [Changelog](CHANGELOG.md#050---2024-02-05)  |
+| 0.6.0   | Feb 2024     | Feb 2025       | [Changelog](CHANGELOG.md#060---2024-02-26)  |
+| 0.7.0   | Mar 2024     | Mar 2025       | [Changelog](CHANGELOG.md#070---2024-03-05)  |
+| 0.8.0   | Apr 2024     | Apr 2025       | [Changelog](CHANGELOG.md#080---2024-04-15)  |
+| 0.9.0   | May 2024     | May 2025       | [Changelog](CHANGELOG.md#090---2024-05-15)  |
+| 0.10.0  | Jun 2024     | Jun 2025       | [Changelog](CHANGELOG.md#0100---2024-06-05) |
+| 0.11.0  | Jun 2024     | Jun 2025       | [Changelog](CHANGELOG.md#0110---2024-06-27) |
+| 0.12.0  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0120---2024-09-03) |
+| 0.12.1  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0121---2024-09-11) |
+| 0.12.2  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0122---2024-09-11) |
+
 ## Installation
 
 To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.8.0 or higher installed, then
