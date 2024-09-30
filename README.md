@@ -20,6 +20,7 @@ SDK to be used to access Pasqal Cloud Services.
 | 0.12.0  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0120---2024-09-03) |
 | 0.12.1  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0121---2024-09-11) |
 | 0.12.2  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0122---2024-09-11) |
+| 0.12.3  | Sep 2024     | Sep 2025       | [Changelog](CHANGELOG.md#0123---2024-09-30) |
 
 ## Installation
 

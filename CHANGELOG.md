@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.3] - 2024-09-30
+
+### Added
+
+- Added deprecation timeline to Readme
+
 ## [0.12.2] - 2024-09-11
 
 ### Changed
