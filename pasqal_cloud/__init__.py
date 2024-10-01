@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import time
+from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
-from warnings import warn
+from warnings import simplefilter, warn
 
 from requests.exceptions import HTTPError
 
@@ -54,6 +55,38 @@ from pasqal_cloud.utils.filters import (
 from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
 from pasqal_cloud.workload import Workload
 
+from ._version import __version__, deprecation_date
+
+DEPRECATION_WARNING_PERIOD = timedelta(days=30)
+
+# Ensure DeprecationWarnings are not filtered out at runtime
+simplefilter("always", DeprecationWarning)
+
+
+def _check_sdk_version():
+    # Compare current date to deprecation date to check whether
+    # current version has fallen out of maintenance window.
+    current_date = datetime.now()
+    deprecation_datetime = datetime.strptime(deprecation_date, "%Y-%m-%d")
+    warning_start = deprecation_datetime - DEPRECATION_WARNING_PERIOD
+
+    upgrade_instruction = (
+        "Please upgrade to the latest version using the following command:\n"
+        "`pip install --upgrade pasqal-cloud`"
+    )
+
+    if current_date >= warning_start and current_date < deprecation_datetime:
+        warn(
+            f"SDK version {__version__} will be deprecated on {deprecation_datetime}. "
+            + upgrade_instruction,
+            DeprecationWarning,
+        )
+    elif current_date >= deprecation_datetime:
+        warn(
+            f"SDK version {__version__} is no longer supported. " + upgrade_instruction,
+            DeprecationWarning,
+        )
+
 
 class SDK:
     _client: Client
@@ -85,6 +118,7 @@ class SDK:
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
         """
+        _check_sdk_version()
 
         if not project_id:
             raise ValueError("You need to provide a project_id")
