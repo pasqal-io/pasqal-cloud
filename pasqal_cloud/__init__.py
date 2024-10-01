@@ -63,7 +63,7 @@ DEPRECATION_WARNING_PERIOD = timedelta(days=30)
 simplefilter("always", DeprecationWarning)
 
 
-def _check_sdk_version():
+def _check_sdk_version() -> None:
     # Compare current date to deprecation date to check whether
     # current version has fallen out of maintenance window.
     current_date = datetime.now()
