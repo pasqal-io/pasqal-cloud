@@ -1,0 +1,12 @@
+{
+  "code": 200,
+  "data":
+  [
+    {
+      "device_type": "FRESNEL",
+      "specs": "{\"version\":\"1\",\"channels\":[],\"name\":\"device\"}"
+    }
+  ],
+  "message": "OK.",
+  "status": "success"
+}
