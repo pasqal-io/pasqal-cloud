@@ -131,7 +131,7 @@ class Client:
         if self.authenticator is None:
             raise ValueError(
                 "Authentication required. Please provide your credentials when"
-                " initiating the client."
+                " initializing the client."
             )
 
         resp = requests.request(

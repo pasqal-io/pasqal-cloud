@@ -117,7 +117,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         with pytest.raises(
             ValueError,
             match="Authentication required. Please provide your credentials when "
-            "initiating the client.",
+            "initializing the client.",
         ):
             sdk.get_batch("fake-id")
 
@@ -162,7 +162,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         with pytest.raises(
             ValueError,
             match="Authentication required. Please provide your credentials when "
-            "initiating the client.",
+            "initializing the client.",
         ):
             sdk.get_batch("fake-id")
 
