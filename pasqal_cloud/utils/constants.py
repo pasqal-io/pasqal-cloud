@@ -7,6 +7,7 @@ class BatchStatus(Enum):
     DONE = "DONE"
     ERROR = "ERROR"
     CANCELED = "CANCELED"
+    TIMED_OUT = "TIMED_OUT"
 
 
 class JobStatus(Enum):

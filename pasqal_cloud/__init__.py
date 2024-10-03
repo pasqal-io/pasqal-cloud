@@ -305,11 +305,8 @@ class SDK:
         Returns batches 201-300 with an ERROR status.
 
         Returns:
-            PaginatedResponse: A class instance with two fields:
-                - total: An integer representing the total number of batches
-                         matching the filters.
-                - results: A list of batches matching the filters and pagination
-                           parameters provided.
+            PaginatedResponse: Includes the results of the API and some
+                pagination information.
 
         Raises:
             BatchFetchingError: If fetching batches call failed.
@@ -428,11 +425,8 @@ class SDK:
         Returns jobs 201-300 with an ERROR status.
 
         Returns:
-            PaginatedResponse: A class instance with two fields:
-                - total: An integer representing the total number of jobs
-                         matching the filters.
-                - results: A list of jobs matching the filters and pagination
-                           parameters provided.
+            PaginatedResponse: Includes the results of the API and some
+                pagination information.
 
         Raises:
             JobFetchingError: If fetching jobs call failed.

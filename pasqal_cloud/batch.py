@@ -66,7 +66,6 @@ class Batch(BaseModel):
     user_id: str
     status: str
     _client: Client = PrivateAttr(default=None)
-    sequence_builder: str
     _ordered_jobs: Optional[List[Job]] = PrivateAttr(default=None)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}
@@ -91,6 +90,17 @@ class Batch(BaseModel):
             self._ordered_jobs = [
                 Job(**raw_job, _client=self._client) for raw_job in data["jobs"]
             ]
+
+    @property
+    def sequence_builder(self) -> Optional[str]:
+        if self._sequence_builder is None:
+            batch_response = self._client.get_batch(self.id)
+            self.sequence_builder = batch_response["sequence_builder"]
+        return self._sequence_builder
+
+    @sequence_builder.setter
+    def sequence_builder(self, value):
+        self._sequence_builder = value
 
     @property
     def ordered_jobs(self) -> List[Job]:
