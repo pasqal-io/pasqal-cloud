@@ -22,7 +22,7 @@ jobs:
           version=${{ env.VERSION }}
           # Extract notes from changelog
           notes=$(awk -v ver="$version" '
-              BEGIN { found_version=0; output_started=0; }
+              BEGIN { found_version=0; leading_blank=1; }
               /## \[/ { if (found_version) { exit } }
               /## \['"$version"'\]/ {
                   found_version=1;
@@ -32,18 +32,15 @@ jobs:
                   # Remove the _released line
                   if ($0 ~ /^_released/) { next }
 
-                  # Remove leading ### and any additional whitespace
-                  gsub(/^### +/, "", $0);
+                  # Remove leading ### or ## or # and any additional whitespace
+                  gsub(/^#+ +/, "", $0);
 
-                  # Print lines, ensuring the first one does not have leading newlines
+                  # Check if the line is blank
                   if ($0 != "") {
-                      if (output_started) {
-                          print $0;  # Print subsequent lines normally
-                      } else {
-                          print $0;  # Print the first non-empty line
-                          output_started=1;  # Set the flag after printing the first line
-                          print "";  # Print a blank line after the first output
-                      }
+                      print $0;  # Print the current line
+                      leading_blank=0;  # Reset leading blank flag
+                  } else if (!leading_blank) {
+                      print "";  # Print a blank line for subsequent empty lines
                   }
               }
           ' CHANGELOG.md)
