@@ -53,7 +53,7 @@ jobs:
       - name: Extract version from _version.py
         id: get_version
         run: |
-          version=$(python -c "exec(open('_version.py').read()); print(__version__)")
+          version=$(python -c "exec(open('pasqal_cloud/_version.py').read()); print(__version__)")
           echo "VERSION=$version" >> $GITHUB_ENV
 
       - name: Get release notes from CHANGELOG.md
