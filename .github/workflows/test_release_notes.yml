@@ -19,6 +19,7 @@ jobs:
           version=${{ env.VERSION }}
           # Adjusted awk to extract notes with custom section headings and emoji
           notes=$(awk "/## \[$version\]/, /^## \[.*\]/ {if (/^## \[.*\]/) exit; print}" CHANGELOG.md)
+          echo "Extracted notes: $notes"
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$notes" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
