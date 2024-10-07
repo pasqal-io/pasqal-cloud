@@ -1,5 +1,5 @@
 name: Test release notes to delete before merge
-on: pull_request
+on: push
 
 jobs:
   display-github-release-notes:
