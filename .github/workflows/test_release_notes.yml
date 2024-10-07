@@ -22,10 +22,30 @@ jobs:
           version=${{ env.VERSION }}
           # Extract notes from changelog
           notes=$(awk -v ver="$version" '
-              BEGIN { found_version=0; }
+              BEGIN { found_version=0; output_started=0; }
               /## \[/ { if (found_version) { exit } }
-              /## \['"$version"'\]/ { found_version=1; next }
-              found_version { print }
+              /## \['"$version"'\]/ {
+                  found_version=1;
+                  next
+              }
+              found_version {
+                  # Remove the _released line
+                  if ($0 ~ /^_released/) { next }
+
+                  # Remove leading ### and any additional whitespace
+                  gsub(/^### +/, "", $0);
+
+                  # Print lines, ensuring the first one does not have leading newlines
+                  if ($0 != "") {
+                      if (output_started) {
+                          print $0;  # Print subsequent lines normally
+                      } else {
+                          print $0;  # Print the first non-empty line
+                          output_started=1;  # Set the flag after printing the first line
+                          print "";  # Print a blank line after the first output
+                      }
+                  }
+              }
           ' CHANGELOG.md)
           echo "Extracted notes: $notes"
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
