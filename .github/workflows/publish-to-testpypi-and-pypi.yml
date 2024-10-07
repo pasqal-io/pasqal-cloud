@@ -59,8 +59,13 @@ jobs:
       - name: Get release notes from CHANGELOG.md
         run: |
           version=${{ env.VERSION }}
-          # Adjusted awk to extract notes with custom section headings and emoji
-          notes=$(awk "/## \[$version\]/, /^## \[.*\]/ {if (/^## \[.*\]/) exit; print}" CHANGELOG.md)
+          # Extract notes from changelog
+          notes=$(awk -v ver="$version" '
+              BEGIN { found_version=0; }
+              /## \[/ { if (found_version) { exit } }
+              /## \['"$version"'\]/ { found_version=1; next }
+              found_version { print }
+          ' CHANGELOG.md)
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$notes" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV

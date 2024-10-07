@@ -20,7 +20,7 @@ jobs:
       - name: Get release notes from CHANGELOG.md
         run: |
           version=${{ env.VERSION }}
-          # Adjusted awk to extract notes with custom section headings and emoji
+          # Extract notes from changelog
           notes=$(awk -v ver="$version" '
               BEGIN { found_version=0; }
               /## \[/ { if (found_version) { exit } }
