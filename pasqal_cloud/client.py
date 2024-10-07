@@ -44,33 +44,41 @@ class EmptyFilter:
 
 
 class Client:
-    authenticator: AuthBase
+    authenticator: AuthBase | None
 
     def __init__(
         self,
-        project_id: str,
+        project_id: str | None = None,
         username: Optional[str] = None,
         password: Optional[str] = None,
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
     ):
-        if not username and not token_provider:
-            raise ValueError(
-                "At least a username or TokenProvider object should be provided."
-            )
+        self.endpoints = self._make_endpoints(endpoints)
+        self._project_id = project_id
+        self.user_agent = f"PasqalCloudSDK/{sdk_version}"
+
         if token_provider is not None:
             self._check_token_provider(token_provider)
-
-        self.endpoints = self._make_endpoints(endpoints)
 
         if username:
             auth0 = self._make_auth0(auth0)
             token_provider = self._credential_login(username, password, auth0)
 
-        self.authenticator = HTTPBearerAuthenticator(token_provider)
-        self.project_id = project_id
-        self.user_agent = f"PasqalCloudSDK/{sdk_version}"
+        self.authenticator = None
+        if token_provider:
+            self.authenticator = HTTPBearerAuthenticator(token_provider)
+
+    @property
+    def project_id(self) -> str:
+        if not self._project_id:
+            raise ValueError("You need to set a project_id.")
+        return self._project_id
+
+    @project_id.setter
+    def project_id(self, project_id: str) -> None:
+        self._project_id = project_id
 
     @staticmethod
     def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
@@ -120,6 +128,12 @@ class Client:
         payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
+        if self.authenticator is None:
+            raise ValueError(
+                "Authentication required. Please provide your credentials when"
+                " initializing the client."
+            )
+
         resp = requests.request(
             method,
             url,
@@ -325,7 +339,17 @@ class Client:
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
-        response: Dict[str, str] = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v1/devices/specs"
-        )["data"]
-        return response
+        if self.authenticator is not None:
+            response: Dict[str, str] = self._authenticated_request(
+                "GET", f"{self.endpoints.core}/api/v1/devices/specs"
+            )["data"]
+            return response
+        return self.get_public_device_specs()
+
+    def get_public_device_specs(self) -> Dict[str, str]:
+        response = requests.request(
+            "GET", f"{self.endpoints.core}/api/v1/devices/public-specs"
+        )
+        response.raise_for_status()
+        devices = response.json()["data"]
+        return {device["device_type"]: device["specs"] for device in devices}
