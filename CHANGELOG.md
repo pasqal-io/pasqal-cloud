@@ -2,11 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.12.3] - 2024-10-01
+## [0.12.4] - 2024-10-07
 
 ### Added
 
 - Deprecation warnings on init of SDK
+
+## [0.12.3] - 2024-10-02
+
+### ✨ Added
+
+- Allow unauthenticated users to access public device specifications
 
 ## [0.12.2] - 2024-09-11
 

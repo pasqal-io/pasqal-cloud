@@ -7,13 +7,7 @@ import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
 
-from pasqal_cloud import (
-    AUTH0_CONFIG,
-    Auth0Conf,
-    Endpoints,
-    PASQAL_ENDPOINTS,
-    SDK,
-)
+from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from tests.test_doubles.authentication import (
@@ -83,6 +77,14 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             auth0=new_auth0,
         )
 
+    def test_module_no_project_id(self):
+        sdk = SDK(username=self.username, password=self.password)
+        with pytest.raises(
+            ValueError,
+            match="You need to set a project_id",
+        ):
+            sdk.create_batch("", [])
+
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthFailure(TestSDKCommonAttributes):
@@ -104,27 +106,20 @@ class TestAuthFailure(TestSDKCommonAttributes):
             )
 
 
+@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthInvalidClient(TestSDKCommonAttributes):
-    def test_module_no_project_id(self):
-        with pytest.raises(
-            ValueError,
-            match="You need to provide a project_id",
-        ):
-            SDK(
-                username=self.username,
-                password=self.password,
-            )
-
     def test_module_no_user_with_password(self):
+        sdk = SDK(
+            project_id=self.project_id,
+            username=self.no_username,
+            password=self.password,
+        )
         with pytest.raises(
             ValueError,
-            match="At least a username or TokenProvider object should be provided",
+            match="Authentication required. Please provide your credentials when "
+            "initializing the client.",
         ):
-            SDK(
-                project_id=self.project_id,
-                username=self.no_username,
-                password=self.password,
-            )
+            sdk.get_batch("fake-id")
 
     @patch("pasqal_cloud.client.getpass")
     def test_module_no_password(self, getpass):
@@ -163,11 +158,13 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             )
 
     def test_authentication_no_credentials_provided(self):
+        sdk = SDK(project_id=self.project_id)
         with pytest.raises(
             ValueError,
-            match="At least a username or TokenProvider object should be provided",
+            match="Authentication required. Please provide your credentials when "
+            "initializing the client.",
         ):
-            SDK(project_id=self.project_id)
+            sdk.get_batch("fake-id")
 
     @pytest.mark.filterwarnings(
         "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"

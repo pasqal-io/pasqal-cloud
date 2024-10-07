@@ -13,5 +13,5 @@
 # limitations under the License.
 
 
-__version__ = "0.12.3"
-deprecation_date = "2025-10-01"
+__version__ = "0.12.4"
+deprecation_date = "2025-10-07"

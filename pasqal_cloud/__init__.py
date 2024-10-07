@@ -108,6 +108,16 @@ class SDK:
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
 
+
+        The SDK can be initialized with several authentication options:
+            - Option 1: No arguments -> Allows unauthenticated access to public
+                features.
+            - Option 2: `username` and `password` -> Authenticated access using a
+                username and password.
+            - Option 3: `username` only -> Prompts for password during initialization.
+            - Option 4 (for developers): Provide a custom `token_provider` for
+                token-based authentication.
+
         Args:
             username: Email of the user to login as.
             password: Password of the user to login as.
@@ -119,9 +129,6 @@ class SDK:
             project_id: ID of the owner project of the batch.
         """
         _check_sdk_version()
-
-        if not project_id:
-            raise ValueError("You need to provide a project_id")
 
         self._client = Client(
             project_id=project_id,
