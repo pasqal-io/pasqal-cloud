@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 from warnings import simplefilter, warn
@@ -66,8 +66,10 @@ simplefilter("always", DeprecationWarning)
 def _check_sdk_version() -> None:
     # Compare current date to deprecation date to check whether
     # current version has fallen out of maintenance window.
-    current_date = datetime.now()
-    deprecation_datetime = datetime.strptime(deprecation_date, "%Y-%m-%d")
+    current_date = datetime.now(tz=timezone.utc)
+    deprecation_datetime = datetime.strptime(deprecation_date, "%Y-%m-%d").replace(
+        tzinfo=timezone.utc
+    )
     warning_start = deprecation_datetime - DEPRECATION_WARNING_PERIOD
 
     upgrade_instruction = (
