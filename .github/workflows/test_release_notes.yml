@@ -21,13 +21,13 @@ jobs:
         run: |
           version=${{ env.VERSION }}
           # Adjusted awk to extract notes with custom section headings and emoji
-          notes=$(awk "/## \[$version\]/,/^## \[/ {if (/^## \[/) exit; if (NF) print}" CHANGELOG.md)
-          notes=$(awk "/## \[$version\]/,/^## \[/ {if (/^## \[/) exit; print}" CHANGELOG.md)
-          if [ -z "$notes" ]; then
-            echo "No notes extracted. Check the version format in CHANGELOG.md."
-          else
-            echo "Extracted notes: $notes"
-          fi
+          notes=$(awk -v ver="$version" '
+              BEGIN { found_version=0; }
+              /## \[/ { if (found_version) { exit } }
+              /## \['"$version"'\]/ { found_version=1; next }
+              found_version { print }
+          ' CHANGELOG.md)
+          echo "Extracted notes: $notes"
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$notes" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
