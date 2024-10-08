@@ -99,7 +99,7 @@ class Batch(BaseModel):
         return self._sequence_builder
 
     @sequence_builder.setter
-    def sequence_builder(self, value):
+    def sequence_builder(self, value: Any) -> None:
         self._sequence_builder = value
 
     @property
