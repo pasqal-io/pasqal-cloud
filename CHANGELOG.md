@@ -3,10 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.12.3]
-_released `2024-10-02`_
+
+_released `2024-10-02`
 
 ### ✨ Added
-  - Allow unauthenticated users to access public device specifications
+
+- Allow unauthenticated users to access public device specifications
 
 ## [0.12.2] - 2024-09-11
 
