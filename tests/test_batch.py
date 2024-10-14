@@ -28,7 +28,7 @@ from pasqal_cloud.errors import (
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
-from pasqal_cloud.utils.constants import BatchStatus, JobStatus
+from pasqal_cloud.utils.constants import BatchStatus, JobStatus, QueuePriority
 from pasqal_cloud.utils.filters import BatchFilters
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -883,6 +883,16 @@ class TestBatch:
             BatchFilters(id=str(UUID(int=0x1))),
             # List of string UUIDs for id
             BatchFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Queue priority
+            BatchFilters(queue_priority=QueuePriority.MEDIUM),
+            # List of queue priorities
+            BatchFilters(queue_priority=[QueuePriority.MEDIUM, QueuePriority.LOW]),
+            # Open
+            BatchFilters(open=True),
+            # Device type
+            BatchFilters(device_type="EMU_TN"),
+            # Device types
+            BatchFilters(device_type=["EMU_TN", "FRESNEL"]),
             # Start date
             BatchFilters(start_date=datetime(2023, 1, 1)),
             # End date
