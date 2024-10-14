@@ -7,7 +7,6 @@ import pytest
 import requests_mock
 
 from pasqal_cloud import (
-    CancelJobFilters,
     Job,
     JobCancellingError,
     JobFetchingError,
@@ -357,25 +356,27 @@ class TestJob:
             # No filters provided
             None,
             # Empty object
-            CancelJobFilters(),
+            JobFilters(),
             # Single UUID for id
-            CancelJobFilters(id=UUID(int=0x1)),
+            JobFilters(id=UUID(int=0x1)),
             # List of UUIDs for id
-            CancelJobFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
+            JobFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
             # Single string UUID for id
-            CancelJobFilters(id=str(UUID(int=0x1))),
+            JobFilters(id=str(UUID(int=0x1))),
             # List of string UUIDs for id
-            CancelJobFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            JobFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Status
+            JobFilters(status=JobStatus.PENDING),
             # Minimum runs
-            CancelJobFilters(min_runs=10),
+            JobFilters(min_runs=10),
             # Maximum runs
-            CancelJobFilters(max_runs=20),
+            JobFilters(max_runs=20),
             # Start date
-            CancelJobFilters(start_date=datetime(2023, 1, 1)),
+            JobFilters(start_date=datetime(2023, 1, 1)),
             # End date
-            CancelJobFilters(end_date=datetime(2023, 1, 1)),
+            JobFilters(end_date=datetime(2023, 1, 1)),
             # Combined
-            CancelJobFilters(
+            JobFilters(
                 id=[UUID(int=0x1), str(UUID(int=0x2))],
                 min_runs=10,
                 max_runs=20,
@@ -387,7 +388,7 @@ class TestJob:
     def test_cancel_jobs_success(
         self,
         mock_request: Any,
-        filters: Union[CancelJobFilters, None],
+        filters: Union[JobFilters, None],
     ):
         """
         As a user using the SDK with proper credentials,
