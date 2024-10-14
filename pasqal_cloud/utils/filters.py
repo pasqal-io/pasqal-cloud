@@ -185,11 +185,11 @@ class BatchFilters(BaseFilters):
           this attribute is contained in that list.
 
     Attributes:
-        id: Filter by job IDs.
+        id: Filter by batch IDs.
         project_id: Filter by project IDs.
         user_id: Filter by user IDs.
         device_type: Filter by device type.
-        status: Filter by job statuses.
+        status: Filter by batch statuses.
         open: If the batch accepts more jobs or not.
         start_date: Retry batches created at or after this datetime.
         end_date: Retry batches created at or before this datetime.
