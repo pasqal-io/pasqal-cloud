@@ -29,6 +29,7 @@ from pasqal_cloud.authentication import (
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.filters import (
     BatchFilters,
+    CancelBatchFilters,
     CancelJobFilters,
     JobFilters,
     PaginationParams,
@@ -263,6 +264,14 @@ class Client:
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
+        )["data"]
+        return response
+
+    def cancel_batches(self, filters: CancelBatchFilters) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "PATCH",
+            f"{self.endpoints.core}/api/v1/batches",
+            params=filters.model_dump(exclude_unset=True),
         )["data"]
         return response
 

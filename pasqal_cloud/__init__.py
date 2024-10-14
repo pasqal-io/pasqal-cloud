@@ -48,12 +48,17 @@ from pasqal_cloud.job import CreateJob, Job
 from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
 from pasqal_cloud.utils.filters import (
     BatchFilters,
+    CancelBatchFilters,
     CancelJobFilters,
     JobFilters,
     PaginationParams,
     RebatchFilters,
 )
-from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
+from pasqal_cloud.utils.responses import (
+    BatchCancellationResponse,
+    JobCancellationResponse,
+    PaginatedResponse,
+)
 from pasqal_cloud.workload import Workload
 
 from ._version import __version__, deprecation_date
@@ -358,6 +363,46 @@ class SDK:
         except HTTPError as e:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
+
+    def cancel_batches(
+        self,
+        filters: Optional[CancelBatchFilters] = None,
+    ) -> BatchCancellationResponse:
+        """
+        Cancel a group of batches matching the filters.
+
+        Args:
+            filters: filters to be applied to find the batches that will be cancelled
+
+        Returns:
+            BatchCancellationResponse:
+            a class containing the batches that have been cancelled and the id of
+            the batches that could not be cancelled with the reason explained
+
+        Raises:
+            BatchCancellingError which spawns from a HTTPError
+
+        """
+        if filters is None:
+            filters = CancelBatchFilters()
+        elif not isinstance(filters, CancelBatchFilters):
+            raise TypeError(
+                "Filters needs to be a CancelBatchFilters instance, "
+                f"not a {type(filters)}"
+            )
+
+        try:
+            response = self._client.cancel_batches(
+                filters=filters,
+            )
+        except HTTPError as e:
+            raise BatchCancellingError(e) from e
+        return BatchCancellationResponse(
+            batches=[
+                Batch(**batch, _client=self._client) for batch in response["batches"]
+            ],
+            errors=response["errors"],
+        )
 
     def rebatch(
         self,

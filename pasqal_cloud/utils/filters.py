@@ -238,6 +238,73 @@ class BatchFilters(BaseFilters):
         return [queue_priority.value for queue_priority in queue_priorities]
 
 
+class CancelBatchFilters(BatchFilters):
+    """
+    Class to provide filters for querying batches.
+
+    Setting a value for any attribute of this class will add a filter to the query.
+
+    When using several filters at the same time, the API will return elements who pass
+    all filters at the same time:
+        - If the filter value is a single element, the API will return batches whose
+          attribute matches the provided value.
+        - If the filter value is a list, the API will return batches whose value for
+          this attribute is contained in that list.
+
+    Attributes:
+        id: Filter by job IDs.
+        project_id: Filter by project IDs.
+        user_id: Filter by user IDs.
+        device_type: Filter by device type.
+        status: Filter by job statuses.
+        open: If the batch accepts more jobs or not.
+        start_date: Retry batches created at or after this datetime.
+        end_date: Retry batches created at or before this datetime.
+        queue_priority: Filter by queue priority value.
+    """
+
+    project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
+    user_id: Optional[Union[List[str], str]] = None
+    device_type: Optional[Union[List[str], str]] = None
+    status: Optional[Union[List[BatchStatus], BatchStatus]] = None
+    open: Optional[bool] = None
+    queue_priority: Optional[Union[List[QueuePriority], QueuePriority]] = None
+
+    @field_validator(
+        "id",
+        "project_id",
+        "user_id",
+        "device_type",
+        "status",
+        "queue_priority",
+        mode="before",
+    )
+    @classmethod
+    def single_item_to_list_validator(cls, values: Dict[str, Any]) -> Any:
+        return cls.convert_to_list(values)
+
+    @field_validator(
+        "id",
+        "project_id",
+        mode="after",
+    )
+    @classmethod
+    def str_to_uuid_validator(cls, values: Dict[str, Any]) -> Dict[str, UUID]:
+        for item in values:
+            cls.convert_str_to_uuid(item)
+        return values
+
+    @field_serializer("status", check_fields=False)
+    def status_enum_to_string(self, batch_statuses: List[BatchStatus]) -> List[str]:
+        return [batch_status.value for batch_status in batch_statuses]
+
+    @field_serializer("queue_priority", check_fields=False)
+    def queue_priority_enum_to_string(
+        self, queue_priorities: List[QueuePriority]
+    ) -> List[str]:
+        return [queue_priority.value for queue_priority in queue_priorities]
+
+
 class PaginationParams(BaseModel):
     """
     Class providing parameters for paginating query results.
