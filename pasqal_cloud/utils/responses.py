@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from pasqal_cloud import Batch
+from pasqal_cloud.batch import Batch
 from pasqal_cloud.job import Job
 
 
