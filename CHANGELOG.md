@@ -2,32 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.13.0]
+## To be released
 
-_released `2024-10-03`_
-
-### Added
+### To be added
 
 - Added 'get_batches' method, a feature to retrieve a group of batches based on 'BatchFilters'
 
-### Changed
+### To be changed
 
 - Now passing the wrong type for Filtering Jobs or Batches will raise a TypeError instead of a ValueError
 
-## [0.12.4]
+## [0.12.4] - 2024-10-09
 
-_released `2024-10-09`_
-
-### ✨ Added
+### Added
 
 - Deprecation warnings on init of SDK, now each version of pasqal-cloud is supported for 1 year after release.
   If your version is not supported anymore you will get a deprecation warning each time you use the SDK.
 
-## [0.12.3]
+## [0.12.3] - 2024-10-02
 
-_released `2024-10-02`_
-
-### ✨ Added
+### Added
 
 - Allow unauthenticated users to access public device specifications
 
@@ -36,11 +30,11 @@ _released `2024-10-02`_
 ### Changed
 
 - Now these methods are using V2 endpoints:
-  - Cancel a batch
-  - Cancel a job
-  - Cancel a group of jobs
-  - Add jobs to a batch
-  - Close a batch
+    - Cancel a batch
+    - Cancel a job
+    - Cancel a group of jobs
+    - Add jobs to a batch
+    - Close a batch
 
 ## [0.12.1] - 2024-09-11
 
@@ -156,8 +150,8 @@ A Batch that does not accept new jobs is now called "closed" instead of "complet
 ### Added
 
 - Added feature to create an "open" batch.
-  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
-  - To add jobs to an open batch, use the `add_jobs` method.
+    - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+    - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 
