@@ -9,6 +9,11 @@ _release `2024-11-12`_
 ### ✨ Added
 
 - Added 'get_batches' method, a feature to retrieve a group of batches based on 'BatchFilters'
+- Added 'cancel_batches' method, allowing to cancel a group of batches based on 'BatchFilters'
+
+### Incoming breaking change
+
+- 'cancel_jobs' method now needs a 'JobFilters' filter, 'CancelJobFilters' does not exist any more
 
 ### Changed
 
