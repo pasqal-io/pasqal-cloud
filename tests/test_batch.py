@@ -29,7 +29,7 @@ from pasqal_cloud.errors import (
     RebatchError,
 )
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
-from pasqal_cloud.utils.filters import BatchFilters, CancelBatchFilters
+from pasqal_cloud.utils.filters import BatchFilters
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
@@ -874,21 +874,21 @@ class TestBatch:
             # No filters provided
             None,
             # Empty object
-            CancelBatchFilters(),
+            BatchFilters(),
             # Single UUID for id
-            CancelBatchFilters(id=UUID(int=0x1)),
+            BatchFilters(id=UUID(int=0x1)),
             # List of UUIDs for id
-            CancelBatchFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
+            BatchFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
             # Single string UUID for id
-            CancelBatchFilters(id=str(UUID(int=0x1))),
+            BatchFilters(id=str(UUID(int=0x1))),
             # List of string UUIDs for id
-            CancelBatchFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            BatchFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
             # Start date
-            CancelBatchFilters(start_date=datetime(2023, 1, 1)),
+            BatchFilters(start_date=datetime(2023, 1, 1)),
             # End date
-            CancelBatchFilters(end_date=datetime(2023, 1, 1)),
+            BatchFilters(end_date=datetime(2023, 1, 1)),
             # Combined
-            CancelBatchFilters(
+            BatchFilters(
                 id=[UUID(int=0x1), str(UUID(int=0x2))],
                 start_date=datetime(2023, 1, 1),
                 end_date=datetime(2023, 1, 1),
@@ -898,7 +898,7 @@ class TestBatch:
     def test_cancel_batches_success(
         self,
         mock_request: Any,
-        filters: Union[CancelBatchFilters, None],
+        filters: Union[BatchFilters, None],
     ):
         """
         As a user using the SDK with proper credentials,
