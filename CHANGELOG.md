@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 ### To be added
 
 - Added 'get_batches' method, a feature to retrieve a group of batches based on 'BatchFilters'
+- Added 'cancel_batches' method, allowing to cancel a group of batches based on 'BatchFilters'
+
+### Incoming breaking change
+
+- 'cancel_jobs' method now needs a 'JobFilters' filter, 'CancelJobFilters' does not exist any more
 
 ### To be changed
 

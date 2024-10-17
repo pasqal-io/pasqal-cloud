@@ -9,6 +9,7 @@ import requests_mock
 
 from pasqal_cloud import (
     Batch,
+    BatchCancellationResponse,
     Job,
     PaginatedResponse,
     PaginationParams,
@@ -27,7 +28,7 @@ from pasqal_cloud.errors import (
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
-from pasqal_cloud.utils.constants import BatchStatus, JobStatus
+from pasqal_cloud.utils.constants import BatchStatus, JobStatus, QueuePriority
 from pasqal_cloud.utils.filters import BatchFilters
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -866,3 +867,86 @@ class TestBatch:
         """
         with pytest.raises(ValueError, match="limit"):
             _ = self.sdk.get_batches(pagination_params=PaginationParams(limit=limit))
+
+    @pytest.mark.parametrize(
+        "filters",
+        [
+            # No filters provided
+            None,
+            # Empty object
+            BatchFilters(),
+            # Single UUID for id
+            BatchFilters(id=UUID(int=0x1)),
+            # List of UUIDs for id
+            BatchFilters(id=[UUID(int=0x1), UUID(int=0x2)]),
+            # Single string UUID for id
+            BatchFilters(id=str(UUID(int=0x1))),
+            # List of string UUIDs for id
+            BatchFilters(id=[str(UUID(int=0x1)), str(UUID(int=0x2))]),
+            # Queue priority
+            BatchFilters(queue_priority=QueuePriority.MEDIUM),
+            # List of queue priorities
+            BatchFilters(queue_priority=[QueuePriority.MEDIUM, QueuePriority.LOW]),
+            # Open
+            BatchFilters(open=True),
+            # Device type
+            BatchFilters(device_type="EMU_TN"),
+            # Device types
+            BatchFilters(device_type=["EMU_TN", "FRESNEL"]),
+            # Start date
+            BatchFilters(start_date=datetime(2023, 1, 1)),
+            # End date
+            BatchFilters(end_date=datetime(2023, 1, 1)),
+            # Combined
+            BatchFilters(
+                id=[UUID(int=0x1), str(UUID(int=0x2))],
+                start_date=datetime(2023, 1, 1),
+                end_date=datetime(2023, 1, 1),
+            ),
+        ],
+    )
+    def test_cancel_batches_success(
+        self,
+        mock_request: Any,
+        filters: Union[BatchFilters, None],
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can cancel of a group of batches from a batch with specific filters.
+        The resulting request will retrieve the batches that were cancelled and
+        the errors for those that could not be cancelled.
+        """
+        response = self.sdk.cancel_batches(filters=filters)
+        assert isinstance(response, BatchCancellationResponse)
+
+        for item in response.batches:
+            assert isinstance(item, Batch)
+
+        for k, v in response.errors.items():
+            assert isinstance(k, UUID)
+            assert isinstance(v, str)
+
+        assert isinstance(response.errors, Dict)
+
+        assert mock_request.last_request.method == "PATCH"
+
+        # Convert filters to the appropriate format for query parameters
+        query_params = build_query_params(
+            filters.model_dump(exclude_unset=True) if filters is not None else None,
+        )
+        # Check that the correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/cancel{query_params}"
+        )
+
+    def test_cancel_batches_raises_value_error_on_invalid_filters(self):
+        """
+        As a user using the SDK with proper credentials,
+        if I pass a dictionary instead of CancelBatchFilters, a ValueError should
+        be raised.
+        """
+        with pytest.raises(
+            TypeError, match="Filters needs to be a CancelBatchFilters instance"
+        ):
+            _ = self.sdk.cancel_batches(filters={"status": BatchStatus.PENDING})
