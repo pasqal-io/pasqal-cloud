@@ -937,7 +937,7 @@ class TestBatch:
         # Check that the correct url was requested with query params
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v1/batches{query_params}"
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/cancel{query_params}"
         )
 
     def test_cancel_batches_raises_value_error_on_invalid_filters(self):
