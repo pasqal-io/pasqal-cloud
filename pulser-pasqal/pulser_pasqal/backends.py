@@ -85,7 +85,7 @@ class PasqalEmulator(RemoteBackend):
                 "All elements of 'job_params' must specify 'runs'" + suffix
             )
 
-        return super().run(job_params, wait)
+        return super().run(job_params, wait)  # type: ignore[return-value]
 
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""

@@ -235,6 +235,7 @@ class PasqalCloud(RemoteConnection):
         get_batch_fn = backoff_decorator(self._sdk_connection.get_batch)
         batch = get_batch_fn(id=batch_id)
 
+        assert batch.sequence_builder is not None
         seq_builder = Sequence.from_abstract_repr(batch.sequence_builder)
         reg = seq_builder.get_register(include_mappable=True)
         all_qubit_ids = reg.qubit_ids
