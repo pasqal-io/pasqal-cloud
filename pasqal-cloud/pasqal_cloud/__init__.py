@@ -22,12 +22,15 @@ from requests.exceptions import HTTPError
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import BaseConfig, EmulatorType
+from pasqal_cloud.device import BaseConfig as BaseConfig
+from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
-    Endpoints,
     PASQAL_ENDPOINTS,  # noqa: F401
+)
+from pasqal_cloud.endpoints import (
+    Endpoints as Endpoints,
 )
 from pasqal_cloud.errors import (
     BatchCancellingError,
