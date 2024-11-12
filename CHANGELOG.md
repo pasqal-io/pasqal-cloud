@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.5]
+
+_release `2024-11-12`_
+
+### ✨ Added
+
+- Added 'get_batches' method, a feature to retrieve a group of batches based on 'BatchFilters'
+
+### Changed
+
+- Now passing the wrong type for Filtering Jobs or Batches will raise a TypeError instead of a ValueError
+
 ## [0.12.4]
 
 _released `2024-10-09`_
