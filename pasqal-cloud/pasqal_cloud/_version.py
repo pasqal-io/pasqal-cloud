@@ -11,7 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import datetime, timedelta
+from pathlib import PurePath
 
+version_file_path = PurePath(__file__).parent.parent.parent / "VERSION.txt"
 
-__version__ = "0.12.4"
-deprecation_date = "2025-10-09"
+with open(version_file_path, "r", encoding="utf-8") as f:
+    __version__ = f.read().strip()
+
+# For development, deprecation date is always 365 days away
+deprecation_date = (datetime.today() + timedelta(days=365)).strftime("%Y-%m-%d")
