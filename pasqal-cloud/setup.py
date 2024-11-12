@@ -11,19 +11,47 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
+from datetime import datetime, timedelta
+from pathlib import Path
 
 from setuptools import find_packages, setup
 
-__version__ = ""
-exec(open("pasqal_cloud/_version.py").read())
+distribution_name = "pasqal-cloud"  # The name on PyPI
+package_name = "pasqal_cloud"  # The main module name
+description = "Software development kit for Pasqal cloud platform."
+# Set deprecation date for 365 days later
+deprecation_date = (datetime.today() + timedelta(days=365)).strftime("%Y-%m-%d")
+current_directory = Path(__file__).parent
+
+# Reads the version from the VERSION.txt file
+with open(current_directory.parent / "VERSION.txt", "r", encoding="utf-8") as f:
+    __version__ = f.read().strip()
+
+# Changes to the directory where setup.py is
+os.chdir(current_directory)
+
+# Stashes the source code for the local version file
+local_version_fpath = Path(package_name) / "_version.py"
+with open(local_version_fpath, "r", encoding="utf-8") as f:
+    stashed_version_source = f.read()
+
+# Overwrites the _version.py for the source distribution (reverted at the end)
+with open(local_version_fpath, "w", encoding="utf-8") as f:
+    f.writelines(
+        [
+            f"__version__ = '{__version__}'\n",
+            f"deprecation_date = '{deprecation_date}'\n",
+        ]
+    )
 
 setup(
-    name="pasqal-cloud",
+    name=distribution_name,
     version=__version__,
-    description="Software development kit for Pasqal cloud platform.",
     packages=find_packages(),
-    package_data={"pasqal_cloud": ["py.typed"]},
+    package_data={package_name: ["py.typed"]},
     include_package_data=True,
+    description=description,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
@@ -58,3 +86,7 @@ setup(
         },
     },
 )
+
+# Restores the original source code of _version.py
+with open(local_version_fpath, "w", encoding="utf-8") as f:
+    f.write(stashed_version_source)

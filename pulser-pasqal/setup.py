@@ -22,14 +22,11 @@ description = "A Pulser extension to execute pulse-level sequences on Pasqal bac
 current_directory = Path(__file__).parent
 
 # Reads the version from the VERSION.txt file
-with open(current_directory / "VERSION.txt", "r", encoding="utf-8") as f:
+with open(current_directory.parent / "VERSION.txt", "r", encoding="utf-8") as f:
     __version__ = f.read().strip()
 
 # Changes to the directory where setup.py is
 os.chdir(current_directory)
-
-with open("requirements.txt", encoding="utf-8") as f:
-    requirements = f.read().splitlines()
 
 # Stashes the source code for the local version file
 local_version_fpath = Path(package_name) / "_version.py"
@@ -43,7 +40,6 @@ with open(local_version_fpath, "w", encoding="utf-8") as f:
 setup(
     name=distribution_name,
     version=__version__,
-    install_requires=requirements,
     packages=find_packages(),
     package_data={package_name: ["py.typed"]},
     include_package_data=True,
@@ -51,14 +47,20 @@ setup(
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="Pulser Development Team",
+    maintainer="Pasqal Cloud Services",
+    maintainer_email="pcs@pasqal.io",
     python_requires=">=3.8",
     license="Apache 2.0",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
     ],
-    url="https://github.com/pasqal-io/Pulser",
-    zip_safe=False,
+    url="https://github.com/pasqal-io/pasqal-cloud",
+    install_requires=[
+        f"pasqal-cloud == {__version__}",
+        "pulser-core >= 0.20",
+        "backoff ~= 2.2",
+    ],
 )
 
 # Restores the original source code of _version.py
