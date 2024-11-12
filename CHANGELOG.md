@@ -18,7 +18,7 @@ _release `2024-11-12`_
 
 _released `2024-10-09`_
 
-### ✨ Added
+### Added
 
 - Deprecation warnings on init of SDK, now each version of pasqal-cloud is supported for 1 year after release.
   If your version is not supported anymore you will get a deprecation warning each time you use the SDK.
@@ -27,7 +27,7 @@ _released `2024-10-09`_
 
 _released `2024-10-02`_
 
-### ✨ Added
+### Added
 
 - Allow unauthenticated users to access public device specifications
 

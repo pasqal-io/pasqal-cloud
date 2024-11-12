@@ -28,6 +28,7 @@ from pasqal_cloud.authentication import (
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.filters import (
+    BatchFilters,
     CancelJobFilters,
     JobFilters,
     PaginationParams,
@@ -283,6 +284,18 @@ class Client:
         response: JSendPayload = self._authenticated_request(
             "GET",
             f"{self.endpoints.core}/api/v2/jobs",
+            params=filters_params,
+        )
+        return response
+
+    def get_batches(
+        self, filters: BatchFilters, pagination_params: PaginationParams
+    ) -> JSendPayload:
+        filters_params = filters.model_dump(exclude_unset=True)
+        filters_params.update(pagination_params.model_dump())
+        response: JSendPayload = self._authenticated_request(
+            "GET",
+            f"{self.endpoints.core}/api/v1/batches",
             params=filters_params,
         )
         return response

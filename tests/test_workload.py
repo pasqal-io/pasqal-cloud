@@ -18,11 +18,11 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
 class TestWorkload:
-    @pytest.fixture()
+    @pytest.fixture
     def workload_with_link_id(self) -> str:
         return str(UUID(int=0x2))
 
-    @pytest.fixture()
+    @pytest.fixture
     def workload_with_invalid_link_id(self) -> str:
         return str(UUID(int=0x3))
 
@@ -167,7 +167,7 @@ class TestWorkload:
 
     def test_cancel_workload_sdk(self, mock_request: requests_mock.mocker.Mocker):
         client_rsp = self.sdk.cancel_workload(self.workload_id)
-        assert type(client_rsp) == Workload
+        assert isinstance(client_rsp, Workload)
         assert client_rsp.status == "CANCELED"
         assert mock_request.last_request.method == "PUT"
         assert (
