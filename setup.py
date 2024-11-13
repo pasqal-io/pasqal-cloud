@@ -43,7 +43,7 @@ setup(
     ],
     extras_require={
         "dev": {
-            "ruff==0.4.7",
+            "ruff==0.6.9",
             "mypy==1.10.0",
             "pytest==8.1.1",
             "pytest-cov==5.0.0",

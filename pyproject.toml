@@ -46,6 +46,10 @@ order-by-type = false
 
 known-third-party = []
 
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
