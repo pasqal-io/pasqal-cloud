@@ -362,15 +362,12 @@ class SDK:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
 
-    def cancel_batches(
-        self,
-        filters: Optional[BatchFilters] = None,
-    ) -> BatchCancellationResponse:
+    def cancel_batches(self, batch_ids: List[str]) -> BatchCancellationResponse:
         """
         Cancel a group of batches matching the filters.
 
         Args:
-            filters: filters to be applied to find the batches that will be cancelled
+            batch_ids: batch ids to cancel.
 
         Returns:
             BatchCancellationResponse:
@@ -381,17 +378,10 @@ class SDK:
             BatchCancellingError which spawns from a HTTPError
 
         """
-        if filters is None:
-            filters = BatchFilters()
-        elif not isinstance(filters, BatchFilters):
-            raise TypeError(
-                "Filters needs to be a CancelBatchFilters instance, "
-                f"not a {type(filters)}"
-            )
 
         try:
             response = self._client.cancel_batches(
-                filters=filters,
+                batch_ids=batch_ids,
             )
         except HTTPError as e:
             raise BatchCancellingError(e) from e
