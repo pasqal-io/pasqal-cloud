@@ -202,7 +202,7 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
 
 # Get two batches using two ids
-sdk.get_batches(filters=BatchFilters(id=["job_id_1", "job_id_2"]))
+sdk.get_batches(filters=BatchFilters(id=["batch_id_1", "batch_id_2"]))
 
 # Get the first 100 batches with HIGH priority from a specific project
 sdk.get_batches(filters=BatchFilters(queue_priority=QueuePriority.HIGH))
@@ -315,7 +315,7 @@ sdk.cancel_batches(batch_ids=[...])
 
 ### Cancel a list of jobs
 
-It is possible to cancel a selection of jobs with the `cancel_jobs` method, using the JobFilters class.
+It is possible to cancel a selection of jobs with the `cancel_jobs` method, using the CancelJobFilters class.
 
 Here are few examples of how to use it:
 
@@ -326,7 +326,7 @@ from pasqal_cloud import CancelJobFilters
 # Cancel two specific jobs
 sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(id=["job_id_1", "job_id_2"]))
 
-# Cancel jobs created in a given period from a specific batch
+# Cancel jobs created in a given period of time
 sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(start_date=datetime(...), end_date=datetime(...)))
 ```
 

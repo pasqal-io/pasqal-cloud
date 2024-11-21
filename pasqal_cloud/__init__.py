@@ -369,7 +369,7 @@ class SDK:
 
     def cancel_batches(self, batch_ids: List[str]) -> BatchCancellationResponse:
         """
-        Cancel a group of batches matching the filters.
+        Cancel a group of batches by their ids.
 
         Args:
             batch_ids: batch ids to cancel.
