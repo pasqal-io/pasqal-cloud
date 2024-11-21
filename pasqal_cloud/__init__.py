@@ -45,7 +45,11 @@ from pasqal_cloud.errors import (
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
-from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
+from pasqal_cloud.utils.constants import (  # noqa: F401
+    BatchStatus,
+    JobStatus,
+    QueuePriority,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     JobFilters,

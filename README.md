@@ -5,7 +5,7 @@ SDK to be used to access Pasqal Cloud Services.
 ## Version Support & Deprecation Timeline
 
 | Version | Release Date | End of Support |
-| ------- | ------------ | -------------- |
+|---------|--------------|----------------|
 | 0.5.0   | 2024-02-05   | 2025-02-05     |
 | 0.6.0   | 2024-02-26   | 2025-02-26     |
 | 0.7.0   | 2024-03-05   | 2025-03-05     |
@@ -177,6 +177,51 @@ for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
 ```
 
+### Get a list of batches
+
+It is possible to get all batches or a selection of batches with the `get_batches` method.
+This method uses a pagination system that you have to handle.
+By default, a page returns 100 batches, but it can be changed.
+
+Here are few examples of how to use it:
+
+```python
+from datetime import datetime
+from pasqal_cloud import BatchFilters, BatchStatus, PaginationParams, QueuePriority, EmulatorType
+
+# Get the first 100 batches, no filters applied
+sdk.get_batches()
+
+# Get the first 40 batches, no filters applied
+sdk.get_batches(pagination_params=PaginationParams(limit=40))
+
+# Get the first 100 batches from a given device
+sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
+
+# Get the first 100 batches in DONE from a specific project
+sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
+
+# Get two batches using two ids
+sdk.get_batches(filters=BatchFilters(id=["job_id_1", "job_id_2"]))
+
+# Get the first 100 batches with HIGH priority from a specific project
+sdk.get_batches(filters=BatchFilters(queue_priority=QueuePriority.HIGH))
+
+# Get the first 20 DONE batches created in a given period from a specific list of users
+sdk.get_batches(limit=20,
+                filters=BatchFilters(status=BatchStatus.DONE, start_date=datetime(...), end_date=datetime(...),
+                                     user_id=["user_id_1", "user_id_2"]))
+
+# Get the total number of batches matching the filters
+sdk.get_batches(pagination_params=PaginationParams(offset=0)).total
+
+# Get the first 300 batches, no filters applied
+batches = []
+batches.extend(sdk.get_batches(pagination_params=PaginationParams(offset=0)).results)
+batches.extend(sdk.get_batches(pagination_params=PaginationParams(offset=100)).results)
+batches.extend(sdk.get_batches(pagination_params=PaginationParams(offset=200)).results)
+```
+
 ### Get a list of jobs
 
 It is possible to get all jobs or a selection of jobs with the `get_jobs` method.
@@ -186,6 +231,7 @@ By default, a page returns 100 jobs, but it can be changed.
 Here are few examples of how to use it:
 
 ```python
+from datetime import datetime
 from pasqal_cloud import JobFilters, JobStatus, PaginationParams
 
 # Get the first 100 jobs, no filters applied
@@ -224,8 +270,8 @@ jobs.extend(sdk.get_jobs(pagination_params=PaginationParams(offset=200)).results
 It is possible to retry a selection of jobs from a CLOSED batch with the `rebatch` method.
 
 ```python
-from pasqal_cloud import RebatchFilters
-from pasqal_cloud import JobStatus
+from datetime import datetime
+from pasqal_cloud import RebatchFilters, JobStatus
 
 # Retry all jobs from a given batch
 sdk.rebatch(batch_id)
@@ -256,6 +302,38 @@ batch.retry(batch.ordered_jobs[0])
 
 # Like for adding a job you can choose to wait for results.
 batch.retry(batch.ordered_jobs[0], wait=True)
+```
+
+### Cancel a list of batches
+
+It is possible to cancel a list of batches with the `cancel_batches` method by
+providing a list of batch ids.
+
+```python
+sdk.cancel_batches(batch_ids=[...])
+```
+
+### Cancel a list of jobs
+
+It is possible to cancel a selection of jobs with the `cancel_jobs` method, using the JobFilters class.
+
+Here are few examples of how to use it:
+
+```python
+from datetime import datetime
+from pasqal_cloud import JobFilters
+
+# Cancel all jobs from a given batch
+sdk.cancel_jobs(filters=JobFilters(batch_id="batch_id"))
+
+# Cancel all the jobs created by user 55 in the given project
+sdk.cancel_jobs(filters=JobFilters(user_id="55", project_id="project_id"))
+
+# Cancel two specific jobs
+sdk.cancel_jobs(filters=JobFilters(id=["job_id_1", "job_id_2"]))
+
+# Cancel jobs created in a given period from a specific batch
+sdk.cancel_jobs(filters=JobFilters(start_date=datetime(...), end_date=datetime(...), batch_id="batch_id"))
 ```
 
 ### Create a workload
