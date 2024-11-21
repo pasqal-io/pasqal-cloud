@@ -6,10 +6,6 @@ All notable changes to this project will be documented in this file.
 
 - Added 'cancel_batches' method, allowing to cancel a group of batches based on a list of batch ids
 
-### Incoming breaking change
-
-- 'cancel_jobs' method now needs a 'JobFilters' filter, 'CancelJobFilters' does not exist any more
-
 ## [0.12.5]
 
 _release `2024-11-12`_

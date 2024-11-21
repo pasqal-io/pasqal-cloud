@@ -29,6 +29,7 @@ from pasqal_cloud.authentication import (
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 from pasqal_cloud.utils.filters import (
     BatchFilters,
+    CancelJobFilters,
     JobFilters,
     PaginationParams,
     RebatchFilters,
@@ -328,7 +329,7 @@ class Client:
         return response
 
     def cancel_jobs(
-        self, batch_id: Union[UUID, str], filters: JobFilters
+        self, batch_id: Union[UUID, str], filters: CancelJobFilters
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",

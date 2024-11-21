@@ -52,6 +52,7 @@ from pasqal_cloud.utils.constants import (  # noqa: F401
 )
 from pasqal_cloud.utils.filters import (
     BatchFilters,
+    CancelJobFilters,
     JobFilters,
     PaginationParams,
     RebatchFilters,
@@ -599,7 +600,7 @@ class SDK:
     def cancel_jobs(
         self,
         batch_id: Union[UUID, str],
-        filters: Optional[JobFilters] = None,
+        filters: Optional[CancelJobFilters] = None,
     ) -> JobCancellationResponse:
         """
         Cancel a group of jobs matching the filters in a selected batch.
@@ -618,8 +619,8 @@ class SDK:
 
         """
         if filters is None:
-            filters = JobFilters()
-        elif not isinstance(filters, JobFilters):
+            filters = CancelJobFilters()
+        elif not isinstance(filters, CancelJobFilters):
             raise TypeError(
                 "Filters needs to be a CancelJobFilters instance, "
                 f"not a {type(filters)}"

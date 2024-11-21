@@ -321,19 +321,13 @@ Here are few examples of how to use it:
 
 ```python
 from datetime import datetime
-from pasqal_cloud import JobFilters
-
-# Cancel all jobs from a given batch
-sdk.cancel_jobs(filters=JobFilters(batch_id="batch_id"))
-
-# Cancel all the jobs created by user 55 in the given project
-sdk.cancel_jobs(filters=JobFilters(user_id="55", project_id="project_id"))
+from pasqal_cloud import CancelJobFilters
 
 # Cancel two specific jobs
-sdk.cancel_jobs(filters=JobFilters(id=["job_id_1", "job_id_2"]))
+sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(id=["job_id_1", "job_id_2"]))
 
 # Cancel jobs created in a given period from a specific batch
-sdk.cancel_jobs(filters=JobFilters(start_date=datetime(...), end_date=datetime(...), batch_id="batch_id"))
+sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(start_date=datetime(...), end_date=datetime(...)))
 ```
 
 ### Create a workload
