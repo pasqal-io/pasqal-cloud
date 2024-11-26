@@ -42,7 +42,7 @@ class Workload(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client = PrivateAttr(default=None)
+    _client: Client = PrivateAttr(default=None)  # type: ignore[assignment]
     backend: str
     workload_type: str
     config: Dict[str, Any]
