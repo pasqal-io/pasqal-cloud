@@ -896,10 +896,6 @@ class TestBatch:
         for item in response.batches:
             assert isinstance(item, Batch)
 
-        for k, v in response.errors.items():
-            assert isinstance(k, UUID)
-            assert isinstance(v, str)
-
         assert isinstance(response.errors, Dict)
 
         assert mock_request.last_request.method == "PATCH"

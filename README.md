@@ -180,8 +180,8 @@ for job in batch.ordered_jobs:
 ### Get a list of batches
 
 It is possible to get all batches or a selection of batches with the `get_batches` method.
-This method uses a pagination system that you have to handle.
-By default, a page returns 100 batches, but it can be changed.
+The method returns by default a page of the 100 most recent batches but can be
+configured using the `pagination_params` argument.
 
 Here are few examples of how to use it:
 
@@ -225,8 +225,8 @@ batches.extend(sdk.get_batches(pagination_params=PaginationParams(offset=200)).r
 ### Get a list of jobs
 
 It is possible to get all jobs or a selection of jobs with the `get_jobs` method.
-This method uses a pagination system that you have to handle.
-By default, a page returns 100 jobs, but it can be changed.
+The method returns by default a page of the 100 most recent jobs but can be
+configured using the `pagination_params` argument.
 
 Here are few examples of how to use it:
 
