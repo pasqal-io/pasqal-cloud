@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from pasqal_cloud.batch import Batch
 from pasqal_cloud.job import Job
 
 
@@ -34,4 +35,18 @@ class JobCancellationResponse(BaseModel):
     """
 
     jobs: List[Job]
+    errors: Dict[UUID, str]
+
+
+class BatchCancellationResponse(BaseModel):
+    """
+    Class representing a bulk batch cancellation response structure.
+
+    Attributes:
+        batches: A list of batches that were successfully cancelled.
+        errors: A dict of batches id with the errors explaining why they could
+        not be cancelled.
+    """
+
+    batches: List[Batch]
     errors: Dict[UUID, str]

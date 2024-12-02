@@ -9,6 +9,7 @@ import requests_mock
 
 from pasqal_cloud import (
     Batch,
+    BatchCancellationResponse,
     Job,
     PaginatedResponse,
     PaginationParams,
@@ -866,3 +867,43 @@ class TestBatch:
         """
         with pytest.raises(ValueError, match="limit"):
             _ = self.sdk.get_batches(pagination_params=PaginationParams(limit=limit))
+
+    @pytest.mark.parametrize(
+        "batch_ids",
+        [
+            # No batch id provided
+            [],
+            # Single string UUID for id
+            [str(UUID(int=0x1))],
+            # List of string UUIDs for id
+            [str(UUID(int=0x1)), str(UUID(int=0x2))],
+        ],
+    )
+    def test_cancel_batches_success(
+        self,
+        mock_request: Any,
+        batch_ids: Any,
+    ):
+        """
+        As a user using the SDK with proper credentials,
+        I can cancel of a group of batches from a batch with specific batch ids.
+        The resulting request will retrieve the batches that were cancelled and
+        the errors for those that could not be cancelled.
+        """
+        response = self.sdk.cancel_batches(batch_ids=batch_ids)
+        assert isinstance(response, BatchCancellationResponse)
+
+        for item in response.batches:
+            assert isinstance(item, Batch)
+
+        assert isinstance(response.errors, Dict)
+
+        assert mock_request.last_request.method == "PATCH"
+
+        # Check that the correct url was requested with query params
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches/cancel"
+        )
+
+        assert mock_request.last_request.json() == {"batch_ids": batch_ids}
