@@ -65,8 +65,8 @@ class RebatchFilters(BaseJobFilters):
         status: Filter by job statuses,
         min_runs: Minimum number of runs.
         max_runs: Maximum number of runs.
-        start_date: Retry jobs created at or after this datetime.
-        end_date: Retry jobs created at or before this datetime.
+        start_date: Jobs created at or after this datetime.
+        end_date: Jobs created at or before this datetime.
     """
 
     status: Optional[Union[List[JobStatus], JobStatus]] = None
@@ -105,8 +105,8 @@ class CancelJobFilters(BaseJobFilters):
         id: Filter by job IDs
         min_runs: Minimum number of runs.
         max_runs: Maximum number of runs.
-        start_date: Retry jobs created at or after this datetime.
-        end_date: Retry jobs created at or before this datetime.
+        start_date: Jobs created at or after this datetime.
+        end_date: Jobs created at or before this datetime.
     """
 
     @field_validator("id", mode="before")
@@ -144,8 +144,8 @@ class JobFilters(BaseJobFilters):
         min_runs: Minimum number of runs.
         max_runs: Maximum number of runs.
         errors: Filter by presence of errors.
-        start_date: Retry jobs created at or after this datetime.
-        end_date: Retry jobs created at or before this datetime.
+        start_date: Jobs created at or after this datetime.
+        end_date: Jobs created at or before this datetime.
     """
 
     project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
@@ -191,8 +191,8 @@ class BatchFilters(BaseFilters):
         device_type: Filter by device type.
         status: Filter by batch statuses.
         open: If the batch accepts more jobs or not.
-        start_date: Retry batches created at or after this datetime.
-        end_date: Retry batches created at or before this datetime.
+        start_date: Batches created at or after this datetime.
+        end_date: Batches created at or before this datetime.
         queue_priority: Filter by queue priority value.
     """
 
