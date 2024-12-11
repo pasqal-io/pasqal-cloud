@@ -5,7 +5,7 @@ SDK to be used to access Pasqal Cloud Services.
 ## Version Support & Deprecation Timeline
 
 | Version | Release Date | End of Support |
-|---------|--------------|----------------|
+| ------- | ------------ | -------------- |
 | 0.5.0   | 2024-02-05   | 2025-02-05     |
 | 0.6.0   | 2024-02-26   | 2025-02-26     |
 | 0.7.0   | 2024-03-05   | 2025-03-05     |
@@ -19,6 +19,7 @@ SDK to be used to access Pasqal Cloud Services.
 | 0.12.3  | 2024-10-02   | 2025-10-02     |
 | 0.12.4  | 2024-10-09   | 2025-10-09     |
 | 0.12.5  | 2024-11-12   | 2025-11-12     |
+| 0.12.6  | 2024-12-11   | 2025-12-11     |
 
 ## Installation
 
