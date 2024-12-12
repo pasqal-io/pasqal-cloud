@@ -1,9 +1,6 @@
 name: Publish pasqal-cloud 📦 to PyPI and TestPyPI
 
-on:
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   build-n-publish:
@@ -32,16 +29,16 @@ jobs:
           --wheel
           --outdir dist/
 
-      - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PASQAL_CLOUD_TEST_PYPI_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+      # - name: Publish distribution 📦 to Test PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PASQAL_CLOUD_TEST_PYPI_TOKEN }}
+      #     repository_url: https://test.pypi.org/legacy/
 
-      - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PASQAL_CLOUD_PYPI_TOKEN }}
+      # - name: Publish distribution 📦 to PyPI
+      #   uses: pypa/gh-action-pypi-publish@release/v1
+      #   with:
+      #     password: ${{ secrets.PASQAL_CLOUD_PYPI_TOKEN }}
 
   create-github-release:
     name: Create GitHub Release
@@ -90,13 +87,13 @@ jobs:
       - name: Display release notes
         run: echo "${{ env.RELEASE_NOTES }}"
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
-          body: ${{ env.RELEASE_NOTES }}
-          draft: false
-          prerelease: false
+      # - name: Create GitHub Release
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ env.VERSION }}
+      #     release_name: ${{ env.VERSION }}
+      #     body: ${{ env.RELEASE_NOTES }}
+      #     draft: false
+      #     prerelease: false
