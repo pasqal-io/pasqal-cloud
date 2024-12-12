@@ -14,4 +14,4 @@
 
 
 __version__ = "0.12.6"
-deprecation_date = "2025-12-11"
+deprecation_date = "2025-12-12"

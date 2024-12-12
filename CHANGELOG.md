@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.12.6]
 
-_released `2024-12-11`_
+_released `2024-12-12`_
 
 ### ✨ Added
 
