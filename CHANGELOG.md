@@ -2,9 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.6]
+
+_released `2024-12-12`_
+
+### ✨ Added
+
+- Added 'cancel_batches' method, allowing to cancel a group of batches based on a list of batch ids
+
 ## [0.12.5]
 
-_release `2024-11-12`_
+_released `2024-11-12`_
 
 ### ✨ Added
 

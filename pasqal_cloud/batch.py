@@ -65,7 +65,7 @@ class Batch(BaseModel):
     id: str
     user_id: str
     status: str
-    _client: Client = PrivateAttr(default=None)
+    _client: Client = PrivateAttr()
     _ordered_jobs: Optional[List[Job]] = PrivateAttr(default=None)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}

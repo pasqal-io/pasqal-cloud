@@ -266,6 +266,14 @@ class Client:
         )["data"]
         return response
 
+    def cancel_batches(self, batch_ids: List[str]) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "PATCH",
+            f"{self.endpoints.core}/api/v1/batches/cancel",
+            payload={"batch_ids": batch_ids},
+        )["data"]
+        return response
+
     def rebatch(
         self, batch_id: Union[UUID, str], filters: RebatchFilters
     ) -> Dict[str, Any]:

@@ -37,7 +37,7 @@ class Job(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client = PrivateAttr(default=None)
+    _client: Client = PrivateAttr()
     created_at: str
     updated_at: str
     errors: Optional[List[str]] = None

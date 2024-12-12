@@ -45,7 +45,11 @@ from pasqal_cloud.errors import (
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
-from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
+from pasqal_cloud.utils.constants import (  # noqa: F401
+    BatchStatus,
+    JobStatus,
+    QueuePriority,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -53,7 +57,11 @@ from pasqal_cloud.utils.filters import (
     PaginationParams,
     RebatchFilters,
 )
-from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
+from pasqal_cloud.utils.responses import (
+    BatchCancellationResponse,
+    JobCancellationResponse,
+    PaginatedResponse,
+)
 from pasqal_cloud.workload import Workload
 
 from ._version import __version__, deprecation_date
@@ -358,6 +366,36 @@ class SDK:
         except HTTPError as e:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
+
+    def cancel_batches(self, batch_ids: List[str]) -> BatchCancellationResponse:
+        """
+        Cancel a group of batches by their ids.
+
+        Args:
+            batch_ids: batch ids to cancel.
+
+        Returns:
+            BatchCancellationResponse:
+            a class containing the batches that have been cancelled and the id of
+            the batches that could not be cancelled with the reason explained
+
+        Raises:
+            BatchCancellingError which spawns from a HTTPError
+
+        """
+
+        try:
+            response = self._client.cancel_batches(
+                batch_ids=batch_ids,
+            )
+        except HTTPError as e:
+            raise BatchCancellingError(e) from e
+        return BatchCancellationResponse(
+            batches=[
+                Batch(**batch, _client=self._client) for batch in response["batches"]
+            ],
+            errors=response["errors"],
+        )
 
     def rebatch(
         self,
