@@ -2,13 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-### Incoming feature
+## [0.12.6]
+
+_released `2024-12-12`_
+
+### ✨ Added
 
 - Added 'cancel_batches' method, allowing to cancel a group of batches based on a list of batch ids
 
 ## [0.12.5]
 
-_release `2024-11-12`_
+_released `2024-11-12`_
 
 ### ✨ Added
 
@@ -40,11 +44,11 @@ _released `2024-10-02`_
 ### Changed
 
 - Now these methods are using V2 endpoints:
-    - Cancel a batch
-    - Cancel a job
-    - Cancel a group of jobs
-    - Add jobs to a batch
-    - Close a batch
+  - Cancel a batch
+  - Cancel a job
+  - Cancel a group of jobs
+  - Add jobs to a batch
+  - Close a batch
 
 ## [0.12.1] - 2024-09-11
 
@@ -160,8 +164,8 @@ A Batch that does not accept new jobs is now called "closed" instead of "complet
 ### Added
 
 - Added feature to create an "open" batch.
-    - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
-    - To add jobs to an open batch, use the `add_jobs` method.
+  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+  - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 
