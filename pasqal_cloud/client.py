@@ -119,9 +119,7 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @retry_http_error(
-        max_retries=5, retry_status_code={408, 425, 429, 500, 502, 503, 504}
-    )
+    @retry_http_error(max_retries=5, retry_status_code={408, 425, 429, 500, 502, 504})
     def _authenticated_request(
         self,
         method: str,
