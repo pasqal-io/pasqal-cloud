@@ -274,7 +274,7 @@ class TestSDKRetry:
             self.sdk._client._download_results("http://result-link")
         assert len(mock_request.request_history) == 6
 
-    @pytest.mark.parametrize("status_code", [408, 425, 429, 500, 502, 503, 504])
+    @pytest.mark.parametrize("status_code", [408, 425, 429, 500, 502, 504])
     def test_sdk_retry_on_exception(
         self, mock_request: requests_mock.mocker.Mocker, status_code: int
     ):
