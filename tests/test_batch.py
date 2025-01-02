@@ -389,13 +389,14 @@ class TestBatch:
         ("emulator", "configuration", "expected"),
         [
             (EmulatorType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
-            (None, None, None),
+            (EmulatorType.EMU_FRESNEL, None, None),
+            (EmulatorType.EMU_MPS, None, None),
             (
                 EmulatorType.EMU_FREE,
                 EmuFreeConfig(),
                 EmuFreeConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
-            (EmulatorType.EMU_FRESNEL, None, None),
+            (None, None, None),
             (
                 "SomethingElse",
                 BaseConfig(),
