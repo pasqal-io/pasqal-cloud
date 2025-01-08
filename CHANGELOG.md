@@ -9,6 +9,7 @@ _released `2024-12-12`_
 ### ✨ Added
 
 - Added 'cancel_batches' method, allowing to cancel a group of batches based on a list of batch ids
+- Introduce EMU_MPS device type
 
 ## [0.12.5]
 
