@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.12.7]
+
+_released `2025-01-14`_
+
+### ✨ Added
+
+- Introduce EMU_MPS device type
+
 ## [0.12.6]
 
 _released `2024-12-12`_
