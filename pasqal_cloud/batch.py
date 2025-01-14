@@ -147,7 +147,10 @@ class Batch(BaseModel):
             conf_class = EmuTNConfig
         elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
             conf_class = EmuFreeConfig
-        elif info.data["device_type"] == EmulatorType.EMU_FRESNEL.value:
+        elif info.data["device_type"] in {
+            EmulatorType.EMU_FRESNEL.value,
+            EmulatorType.EMU_MPS.value,
+        }:
             return None
         return conf_class.from_dict(configuration)
 
