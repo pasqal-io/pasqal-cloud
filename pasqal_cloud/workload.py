@@ -23,14 +23,14 @@ class Workload(BaseModel):
     Attributes:
         id: Unique identifier for the workload.
         project_id: ID of the project which the users scheduling the workload
-        belong to.
+            belong to.
         status: Status of the workload. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         _client: A Client instance to connect to PCS.
         backend: The backend used for the workload.
         workload_type: The type of the workload.
         config: The config containing all the necessary information for
-        the workload to run.
+            the workload to run.
         created_at: Timestamp of the creation of the workload.
         updated_at: Timestamp of the last update of the workload.
         errors: Error messages that occurred while processing workload.

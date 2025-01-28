@@ -534,8 +534,8 @@ class SDK:
         Add jobs to an already existing batch.
 
         Args:
-            batch_ID: A unique identifier for the batch data.
-            Jobs: a collection of CreateJob payloads
+            batch_id: A unique identifier for the batch data.
+            jobs: a collection of CreateJob payloads
 
         Returns:
             An instance of a Batch model from the PCS database
@@ -566,10 +566,10 @@ class SDK:
         can be submitted.
 
         Args:
-            batch_ID: A unique identifier for the batch data.
+            batch_id: A unique identifier for the batch data.
 
-            Returns:
-                An instance of a Batch model from the PCS database
+        Returns:
+            An instance of a Batch model from the PCS database
 
         Raises:
             BatchClosingError: spawns from a HTTPError
