@@ -193,7 +193,7 @@ class Batch(BaseModel):
             wait: Whether to wait for job completion
 
         Raises:
-            JobRetryError if there was an error adding the job to the batch.
+            JobRetryError: if there was an error adding the job to the batch.
         """
         retried_job = CreateJob(runs=job.runs, variables=job.variables)
         try:

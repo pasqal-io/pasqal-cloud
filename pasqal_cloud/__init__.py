@@ -380,7 +380,7 @@ class SDK:
             the batches that could not be cancelled with the reason explained
 
         Raises:
-            BatchCancellingError which spawns from a HTTPError
+            BatchCancellingError: spawns from a HTTPError
 
         """
 
@@ -415,7 +415,7 @@ class SDK:
             is recreated as to prevent modifying the original batch.
 
         Raises:
-            RebatchError if rebatch call failed.
+            RebatchError: if rebatch call failed.
         """
         if filters is None:
             filters = RebatchFilters()
@@ -541,7 +541,7 @@ class SDK:
             An instance of a Batch model from the PCS database
 
         Raises:
-            JobCreationError, which spawns from a HTTPError.
+            JobCreationError: spawns from a HTTPError.
         """
         try:
             resp = self._client.add_jobs(batch_id, jobs)
@@ -572,7 +572,7 @@ class SDK:
                 An instance of a Batch model from the PCS database
 
         Raises:
-            BatchClosingError which spawns from a HTTPError
+            BatchClosingError: spawns from a HTTPError
         """
         try:
             resp = self._client.close_batch(batch_id)
@@ -615,7 +615,7 @@ class SDK:
             that could not be cancelled with the reason explained
 
         Raises:
-            JobCancellingError which spawns from a HTTPError
+            JobCancellingError: spawns from a HTTPError
 
         """
         if filters is None:
