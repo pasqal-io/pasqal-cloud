@@ -1,0 +1,37 @@
+site_name: Pasqal Cloud SDK
+repo_url: "https://github.com/pasqal-io/pasqal-cloud/"
+repo_name: "pasqal-cloud"
+
+theme:
+  name: "material"
+
+nav:
+  - Home: index.md
+
+  - API:
+      - SDK: api/sdk.md
+      - api/job.md
+      - api/batch.md
+      - api/workload.md
+      - api/errors.md
+
+plugins:
+  - mkdocstrings:
+      # same config as Qadence
+      default_handler: python
+      handlers:
+        python:
+          selection:
+            filters:
+              - "!^_" # exlude all members starting with _
+              - "^__init__$" # but always include __init__ modules and methods
+              - "^__new__$" # but always include __init__ modules and methods
+          options:
+            show_root_toc_entry: false
+            heading_level: 3
+            merge_init_into_class: true
+            docstring_section_style: spacy
+
+extra_css:
+  # from Qadence, to get paddings on blocks
+  - extras/css/mkdocstrings.css
