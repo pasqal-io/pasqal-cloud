@@ -17,7 +17,7 @@ class Job(BaseModel):
         id: Unique identifier for the job.
         project_id: ID of the project which the users scheduling the job belong to.
         status: Status of the job. Possible values are:
-          PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         _client: A Client instance to connect to PCS.
         created_at: Timestamp of the creation of the job.
         updated_at: Timestamp of the last update of the job.
@@ -25,11 +25,11 @@ class Job(BaseModel):
         start_timestamp: The timestamp of when the job began processing.
         end_timestamp: The timestamp of when the job finished processing.
         full_result: Dictionnary of all the results obtained after complete execution
-          of the job. It maps the type of results (e.g. "counter", "raw")
-          to the associated execution result.
+            of the job. It maps the type of results (e.g. "counter", "raw")
+            to the associated execution result.
         result: Bitstring counter result. Should be equal to `full_results["counter"]`
         variables: Dictionary of variables of the job.
-          None if the associated batch is non-parametrized.
+            None if the associated batch is non-parametrized.
     """
 
     runs: int

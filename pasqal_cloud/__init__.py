@@ -180,19 +180,19 @@ class SDK:
             complete: Opposite of open, deprecated.
             jobs: List of jobs to be added to the batch at creation.
             open: If all jobs are sent at creation.
-              If set to True, jobs can be added using the `Batch.add_jobs` method.
-              Once all the jobs are sent, use the `Batch.close` method.
-              Otherwise, the batch will be timed out if all jobs have already
-              been terminated and no new jobs are sent.
+                If set to True, jobs can be added using the `Batch.add_jobs` method.
+                Once all the jobs are sent, use the `Batch.close` method.
+                Otherwise, the batch will be timed out if all jobs have already
+                been terminated and no new jobs are sent.
             emulator: The type of emulator to use,
-              If set to None, the device_type will be set to the one
-              stored in the serialized sequence
+                If set to None, the device_type will be set to the one
+                stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
-             that accept it.
+                that accept it.
             wait: Whether to block on this statement until all the submitted jobs are
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
-              be done and fetch results
+                be done and fetch results
 
 
         Returns:
@@ -262,7 +262,7 @@ class SDK:
 
         Args:
             fetch_results (deprecated): Whether to wait for the batch to be
-              done and fetch results
+                done and fetch results
             id: ID of the batch.
 
         Returns:

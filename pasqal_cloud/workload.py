@@ -25,7 +25,7 @@ class Workload(BaseModel):
         project_id: ID of the project which the users scheduling the workload
         belong to.
         status: Status of the workload. Possible values are:
-          PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         _client: A Client instance to connect to PCS.
         backend: The backend used for the workload.
         workload_type: The type of the workload.

@@ -41,7 +41,7 @@ class Batch(BaseModel):
         id: Unique identifier for the batch.
         user_id: Unique identifier of the user that created the batch.
         status: Status of the batch. Possible values are:
-          PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         webhook: Webhook where the job results are automatically sent to.
         _client: A Client instance to connect to PCS.
         sequence_builder: Pulser sequence of the batch.
@@ -50,7 +50,7 @@ class Batch(BaseModel):
         device_status: Status of the device where the batch is running.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         ordered_jobs: List of all the jobs added to the batch,
-          ordered by creation time.
+            ordered by creation time.
         jobs_count: Number of jobs added to the batch.
         jobs_count_per_status: Number of jobs per status.
         configuration: Further configuration for certain emulators.
