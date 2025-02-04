@@ -59,11 +59,9 @@ class Workload(BaseModel):
     )
 
     def __init__(self, **data: Any) -> None:
-        """
-        Workaround to make the private attribute '_client' working
-        like we need with Pydantic V2, more information on:
-        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
-        """
+        # Workaround to make the private attribute '_client' working
+        # like we need with Pydantic V2, more information on
+        # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         super().__init__(**data)
         self._client = data["_client"]
 
