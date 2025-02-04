@@ -32,28 +32,28 @@ class Batch(BaseModel):
     device until all its jobs are done and declared complete.
 
     Attributes:
-        - open: Whether the batch accepts more jobs or not.
-        - complete: Opposite of open, deprecated.
-        - created_at: Timestamp of the creation of the batch.
-        - updated_at: Timestamp of the last update of the batch.
-        - device_type: Type of device to run the batch on.
-        - project_id: ID of the owner project of the batch.
-        - id: Unique identifier for the batch.
-        - user_id: Unique identifier of the user that created the batch.
-        - status: Status of the batch. Possible values are:
+        open: Whether the batch accepts more jobs or not.
+        complete: Opposite of open, deprecated.
+        created_at: Timestamp of the creation of the batch.
+        updated_at: Timestamp of the last update of the batch.
+        device_type: Type of device to run the batch on.
+        project_id: ID of the owner project of the batch.
+        id: Unique identifier for the batch.
+        user_id: Unique identifier of the user that created the batch.
+        status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        - webhook: Webhook where the job results are automatically sent to.
-        - _client: A Client instance to connect to PCS.
-        - sequence_builder: Pulser sequence of the batch.
-        - start_datetime: Timestamp of the time the batch was sent to the QPU.
-        - end_datetime: Timestamp of when the batch process was finished.
-        - device_status: Status of the device where the batch is running.
-        - jobs (deprecated): Dictionary of all the jobs added to the batch.
-        - ordered_jobs: List of all the jobs added to the batch,
+        webhook: Webhook where the job results are automatically sent to.
+        _client: A Client instance to connect to PCS.
+        sequence_builder: Pulser sequence of the batch.
+        start_datetime: Timestamp of the time the batch was sent to the QPU.
+        end_datetime: Timestamp of when the batch process was finished.
+        device_status: Status of the device where the batch is running.
+        jobs (deprecated): Dictionary of all the jobs added to the batch.
+        ordered_jobs: List of all the jobs added to the batch,
             ordered by creation time.
-        - jobs_count: Number of jobs added to the batch.
-        - jobs_count_per_status: Number of jobs per status.
-        - configuration: Further configuration for certain emulators.
+        jobs_count: Number of jobs added to the batch.
+        jobs_count_per_status: Number of jobs per status.
+        configuration: Further configuration for certain emulators.
     """
 
     open: bool
@@ -79,11 +79,9 @@ class Batch(BaseModel):
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
     def __init__(self, **data: Any) -> None:
-        """
-        Workaround to make the private attribute '_client' working
-        like we need with Pydantic V2, more information on:
-        https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
-        """
+        # Workaround to make the private attribute '_client' working
+        # like we need with Pydantic V2, more information on
+        # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         super().__init__(**data)
         self._client = data["_client"]
         if data.get("jobs"):
@@ -193,7 +191,7 @@ class Batch(BaseModel):
             wait: Whether to wait for job completion
 
         Raises:
-            JobRetryError if there was an error adding the job to the batch.
+            JobRetryError: if there was an error adding the job to the batch.
         """
         retried_job = CreateJob(runs=job.runs, variables=job.variables)
         try:

@@ -49,6 +49,12 @@ setup(
             "pytest-cov==5.0.0",
             "types-requests==2.31.0.1",
             "requests-mock==1.12.1",
+        },
+        "docs": {
+            "mkdocs==1.6.1",
+            "mkdocs-material==9.5.50",
+            "mkdocstrings==0.27.0",
+            "mkdocstrings-python==1.13.0",
         }
     },
 )
