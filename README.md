@@ -31,4 +31,4 @@ use pip:
 pip install pasqal-cloud
 ```
 
-Then, follow [usage steps in the documentation](https://pasqal-io.github.io/pasqal-cloud/usage/authentication/).
+Then, follow [usage steps in the documentation](https://pasqal-io.github.io/pasqal-cloud/#getting-started).
