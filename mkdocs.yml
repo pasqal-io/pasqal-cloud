@@ -8,6 +8,12 @@ theme:
 nav:
   - Home: index.md
 
+  - Usage:
+      - usage/installation.md
+      - usage/authentication.md
+      - usage/basic_usage.md
+      - usage/advanced_usage.md
+
   - API:
       - SDK: api/sdk.md
       - api/job.md
