@@ -4,6 +4,9 @@ repo_name: "pasqal-cloud"
 
 theme:
   name: "material"
+  features:
+    - navigation.tabs
+    - content.code.copy
 
 nav:
   - Home: index.md
@@ -37,6 +40,17 @@ plugins:
             heading_level: 3
             merge_init_into_class: true
             docstring_section_style: spacy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences:
+      custom_fences:
+        - name: python
+          class: python
+          validator: "!!python/name:markdown_exec.validator"
+          format: "!!python/name:markdown_exec.formatter"
 
 extra_css:
   # from Qadence, to get paddings on blocks
