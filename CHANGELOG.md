@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Not released
+
+### Changed
+
+- Move documentation to a web-based site using MkDocs
+
 ## [0.12.7]
 
 _released `2025-01-14`_

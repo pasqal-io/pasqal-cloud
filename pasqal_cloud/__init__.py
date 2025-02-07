@@ -113,9 +113,9 @@ class SDK:
         project_id: Optional[str] = None,
     ):
         """
-        This class provides helper methods to call the PASQAL Cloud endpoints.
+        This class provides helper methods to call the Pasqal Cloud endpoints.
 
-        To authenticate to PASQAL Cloud, you have to provide either an
+        To authenticate to Pasqal Cloud, you have to provide either an
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
 
