@@ -9,6 +9,7 @@ _released `2025-01-14`_
 ### ✨ Added
 
 - Introduce EMU_MPS device type
+- Move documentation to a web-based site
 
 ## [0.12.6]
 
