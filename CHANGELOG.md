@@ -4,13 +4,29 @@ All notable changes to this project will be documented in this file.
 
 ## [0.20.2]
 
-_release `2024-11-26`_
+_release `2025-02-21`_
 
 - Synchronizes the version with `pulser-pasqal`. From now on, both packages are released in tandem.
 
+## [0.12.7]
+
+_released `2025-01-14`_
+
+### ✨ Added
+
+- Introduce EMU_MPS device type
+
+## [0.12.6]
+
+_released `2024-12-12`_
+
+### ✨ Added
+
+- Added 'cancel_batches' method, allowing to cancel a group of batches based on a list of batch ids
+
 ## [0.12.5]
 
-_release `2024-11-12`_
+_released `2024-11-12`_
 
 ### ✨ Added
 

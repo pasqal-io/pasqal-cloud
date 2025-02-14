@@ -119,9 +119,7 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @retry_http_error(
-        max_retries=5, retry_status_code={408, 425, 429, 500, 502, 503, 504}
-    )
+    @retry_http_error(max_retries=5, retry_status_code={408, 425, 429, 500, 502, 504})
     def _authenticated_request(
         self,
         method: str,
@@ -263,6 +261,14 @@ class Client:
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
+        )["data"]
+        return response
+
+    def cancel_batches(self, batch_ids: List[str]) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "PATCH",
+            f"{self.endpoints.core}/api/v1/batches/cancel",
+            payload={"batch_ids": batch_ids},
         )["data"]
         return response
 

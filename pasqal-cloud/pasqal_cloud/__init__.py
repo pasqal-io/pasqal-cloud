@@ -48,7 +48,11 @@ from pasqal_cloud.errors import (
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
-from pasqal_cloud.utils.constants import JobStatus  # noqa: F401
+from pasqal_cloud.utils.constants import (  # noqa: F401
+    BatchStatus,
+    JobStatus,
+    QueuePriority,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -56,7 +60,11 @@ from pasqal_cloud.utils.filters import (
     PaginationParams,
     RebatchFilters,
 )
-from pasqal_cloud.utils.responses import JobCancellationResponse, PaginatedResponse
+from pasqal_cloud.utils.responses import (
+    BatchCancellationResponse,
+    JobCancellationResponse,
+    PaginatedResponse,
+)
 from pasqal_cloud.workload import Workload
 
 from ._version import __version__, deprecation_date
@@ -175,19 +183,19 @@ class SDK:
             complete: Opposite of open, deprecated.
             jobs: List of jobs to be added to the batch at creation.
             open: If all jobs are sent at creation.
-              If set to True, jobs can be added using the `Batch.add_jobs` method.
-              Once all the jobs are sent, use the `Batch.close` method.
-              Otherwise, the batch will be timed out if all jobs have already
-              been terminated and no new jobs are sent.
+                If set to True, jobs can be added using the `Batch.add_jobs` method.
+                Once all the jobs are sent, use the `Batch.close` method.
+                Otherwise, the batch will be timed out if all jobs have already
+                been terminated and no new jobs are sent.
             emulator: The type of emulator to use,
-              If set to None, the device_type will be set to the one
-              stored in the serialized sequence
+                If set to None, the device_type will be set to the one
+                stored in the serialized sequence
             configuration: A dictionary with extra configuration for the emulators
-             that accept it.
+                that accept it.
             wait: Whether to block on this statement until all the submitted jobs are
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
-              be done and fetch results
+                be done and fetch results
 
 
         Returns:
@@ -257,7 +265,7 @@ class SDK:
 
         Args:
             fetch_results (deprecated): Whether to wait for the batch to be
-              done and fetch results
+                done and fetch results
             id: ID of the batch.
 
         Returns:
@@ -362,6 +370,36 @@ class SDK:
             raise BatchCancellingError(e) from e
         return Batch(**batch_rsp, _client=self._client)
 
+    def cancel_batches(self, batch_ids: List[str]) -> BatchCancellationResponse:
+        """
+        Cancel a group of batches by their ids.
+
+        Args:
+            batch_ids: batch ids to cancel.
+
+        Returns:
+            BatchCancellationResponse:
+            a class containing the batches that have been cancelled and the id of
+            the batches that could not be cancelled with the reason explained
+
+        Raises:
+            BatchCancellingError: spawns from a HTTPError
+
+        """
+
+        try:
+            response = self._client.cancel_batches(
+                batch_ids=batch_ids,
+            )
+        except HTTPError as e:
+            raise BatchCancellingError(e) from e
+        return BatchCancellationResponse(
+            batches=[
+                Batch(**batch, _client=self._client) for batch in response["batches"]
+            ],
+            errors=response["errors"],
+        )
+
     def rebatch(
         self,
         id: Union[UUID, str],
@@ -380,7 +418,7 @@ class SDK:
             is recreated as to prevent modifying the original batch.
 
         Raises:
-            RebatchError if rebatch call failed.
+            RebatchError: if rebatch call failed.
         """
         if filters is None:
             filters = RebatchFilters()
@@ -499,14 +537,14 @@ class SDK:
         Add jobs to an already existing batch.
 
         Args:
-            batch_ID: A unique identifier for the batch data.
-            Jobs: a collection of CreateJob payloads
+            batch_id: A unique identifier for the batch data.
+            jobs: a collection of CreateJob payloads
 
         Returns:
             An instance of a Batch model from the PCS database
 
         Raises:
-            JobCreationError, which spawns from a HTTPError.
+            JobCreationError: spawns from a HTTPError.
         """
         try:
             resp = self._client.add_jobs(batch_id, jobs)
@@ -531,13 +569,13 @@ class SDK:
         can be submitted.
 
         Args:
-            batch_ID: A unique identifier for the batch data.
+            batch_id: A unique identifier for the batch data.
 
-            Returns:
-                An instance of a Batch model from the PCS database
+        Returns:
+            An instance of a Batch model from the PCS database
 
         Raises:
-            BatchClosingError which spawns from a HTTPError
+            BatchClosingError: spawns from a HTTPError
         """
         try:
             resp = self._client.close_batch(batch_id)
@@ -580,7 +618,7 @@ class SDK:
             that could not be cancelled with the reason explained
 
         Raises:
-            JobCancellingError which spawns from a HTTPError
+            JobCancellingError: spawns from a HTTPError
 
         """
         if filters is None:
