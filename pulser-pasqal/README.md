@@ -2,7 +2,7 @@
 
 [Pulser](https://pypi.org/project/pulser/) is a framework for composing, simulating and executing **pulse** sequences for neutral-atom quantum devices.
 
-This is the `pulser-pasqal` extension, which provides the functionalities needed to execute `pulser` sequences on [Pasqal](https://pasqal.io/)'s backends.
+This is the `pulser-pasqal` extension, which provides the functionalities needed to execute `pulser` sequences on [Pasqal](https://portal.pasqal.cloud/)'s backends.
 
 ## Installation
 
