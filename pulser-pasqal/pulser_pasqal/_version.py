@@ -1,4 +1,4 @@
-# Copyright 2020 Pasqal Cloud Services development team
+# Copyright 2022 Pulser Development Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from pathlib import PurePath
 
+version_file_path = PurePath(__file__).parent.parent.parent / "VERSION.txt"
 
-__version__ = "0.12.7"
-deprecation_date = "2026-01-14"
+with open(version_file_path, "r", encoding="utf-8") as f:
+    __version__ = f.read().strip()

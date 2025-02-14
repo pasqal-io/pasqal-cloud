@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.2]
+
+_release `2025-02-21`_
+
+- Synchronizes the version with `pulser-pasqal`. From now on, both packages are released in tandem.
+
 ## [0.12.7]
 
 _released `2025-01-14`_
