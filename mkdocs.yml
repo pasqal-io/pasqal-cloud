@@ -42,6 +42,7 @@ plugins:
             docstring_section_style: spacy
 
 markdown_extensions:
+  - admonition
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
