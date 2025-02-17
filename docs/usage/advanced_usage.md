@@ -50,7 +50,7 @@ Replace the corresponding section in the code examples above with this to add fu
 
 ## List of supported device specifications
 
-The SDK provides a method to retrieve the device specs currently defined on PASQAL's cloud platform.
+The SDK provides a method to retrieve the device specs currently defined on Pasqal's cloud platform.
 They define the physical constraints of our QPUs, and these constraints enforce some rules on
 the pulser sequence that can be run on QPUs (e.g., max number of atoms, available pulse channels, ...)
 
@@ -64,7 +64,7 @@ to instantiate a `Device` instance in the `Pulser` library.
 ## Target different API endpoints
 
 This is intended for the package developers or users which were given access to non-prod
-environments of the PASQAL cloud platform.
+environments of the Pasqal cloud platform.
 
 To target a specific environment (`prod`, `preprod` or `dev`), instantiate the SDK class using
 `PASQAL_ENDPOINTS['env']` for the parameter `endpoints` and `AUTH0_CONFIG['env']` for
