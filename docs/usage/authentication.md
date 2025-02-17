@@ -1,4 +1,4 @@
-To authenticate with the SDK, you need to enter the credentials of your account as well as a project ID you are a member of. The jobs created with the SDK will then be billed to this project.
+To authenticate with the [`SDK`][pasqal_cloud.SDK], you need to enter the credentials of your account as well as a project ID you are a member of. The jobs created with the SDK will then be billed to this project.
 
 There are several ways to authenticate using the SDK:
 

@@ -2,9 +2,9 @@ A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a Python object called `SDK` which can be used to create a `Batch`.
+The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [`Batch`][pasqal_cloud.Batch].
 
-For each job of a given batch, you must set a value for each variable, if any, defined in your sequence.
+For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your sequence.
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
