@@ -11,13 +11,9 @@ You can create a [`Workload`][pasqal_cloud.Workload] through the [`SDK`][pasqal_
 workload = sdk.create_workload(workload_type="<WORKLOAD_TYPE>", backend="<BACKEND>", config={"config_param_1": "value"})
 ```
 
-You can cancel the workload by doing:
+## Get a workload status/result
 
-```python
-sdk.cancel_workload(workload.id)
-```
-
-Or refresh the workload status/results by with the following:
+Refresh the workload status/results with the following:
 
 ```python
 workload = sdk.get_workload(workload.id)
@@ -27,4 +23,12 @@ Once the workload has been processed, you can fetch the result like this:
 
 ```python
 print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload.result}")
+```
+
+## Cancel a workload
+
+You can cancel a workload by doing:
+
+```python
+sdk.cancel_workload(workload.id)
 ```
