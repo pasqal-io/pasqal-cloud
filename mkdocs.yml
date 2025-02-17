@@ -14,7 +14,8 @@ nav:
   - Usage:
       - usage/installation.md
       - usage/authentication.md
-      - usage/basic_usage.md
+      - Batches & Jobs: usage/batches_jobs.md
+      - usage/workloads.md
       - usage/advanced_usage.md
 
   - API:

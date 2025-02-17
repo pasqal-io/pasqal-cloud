@@ -1,17 +1,17 @@
+A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a python object called `SDK` which can be used to create a `Batch`.
+The package main component is a Python object called `SDK` which can be used to create a `Batch`.
 
-A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch, you
-must set a value for each variable, if any, defined in your sequence.
+For each job of a given batch, you must set a value for each variable, if any, defined in your sequence.
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
 their [documentation](https://pulser.readthedocs.io/en/stable/),
 for more information on how to install the library and create your own sequence.
 
-The sequence should be a pulser sequence object. Once it's created, you can serialize like so:
+The sequence should be a Pulser sequence object. Once it's created, you can serialize like so:
 
 ```python
 serialized_sequence = sequence.to_abstract_repr()
@@ -222,35 +222,4 @@ sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(id=["job_id_1", "j
 
 # Cancel jobs created in a given period of time
 sdk.cancel_jobs(batch_id="batch_id", filters=CancelJobFilters(start_date=datetime(...), end_date=datetime(...)))
-```
-
-## Create a workload
-
-A workload is a unit of work to be executed on Pasqal Cloud Services infrastructure.
-
-To submit a new workload, select a type, target one of the available
-backends and provide a configuration object to execute it.
-
-You can create a workload through the SDK with the following command:
-
-```python
-workload = sdk.create_workload(workload_type="<WORKLOAD_TYPE>", backend="<BACKEND>", config={"config_param_1": "value"})
-```
-
-You can cancel the workload by doing:
-
-```python
-sdk.cancel_workload(workload.id)
-```
-
-Or refresh the workload status/results by with the following:
-
-```python
-workload = sdk.get_workload(workload.id)
-```
-
-Once the workload has been processed, you can fetch the result like this:
-
-```python
-print(f"workload-id: {workload.id}, status: {workload.status}, result: {workload.result}")
 ```

@@ -7,22 +7,27 @@ By default, validation rules are more permissive for jobs targeting an emulator 
 jobs to the cloud platform.
 
 You may however wish to validate that your job running on an emulator is compatible with Fresnel.
-To that extent, set the `strict_validation` key in the configuration to `True`. Defaults to False.
+To that extent, set the `strict_validation` key in the configuration to `True`. Defaults to `False`.
+
+For EMU_TN:
 
 ```python
-
-from pasqal_cloud.device import EmulatorType, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.device import EmulatorType, EmuTNConfig
 
 configuration = EmuTNConfig(strict_validation=True)
 batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
+```
 
-# or
+For EMU_FREE:
+
+```python
+from pasqal_cloud.device import EmulatorType, EmuFreeConfig
 
 configuration = EmuFreeConfig(strict_validation=True)
 batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
 ```
 
-For EMU_TN you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network
+For EMU_TN, you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network
 compression, and the maximal bond dimension of tensor network state.
 
 ```python
