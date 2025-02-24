@@ -24,7 +24,7 @@ SDK to be used to access Pasqal Cloud Services.
 
 ## Getting started
 
-To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.8.0 or higher installed, then
+To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.9.0 or higher installed, then
 use pip:
 
 ```bash
