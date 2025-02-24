@@ -7,7 +7,7 @@ _released `2025-02-25`_
 
 ### Added
 
-- Drop support for 3.8 and update CI
+- Drop support for Python 3.8 and update CI
 
 ## Not released
 
