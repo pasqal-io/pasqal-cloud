@@ -13,3 +13,6 @@ pipfile.lock
 .idea/
 
 .vscode
+
+# Mkdocs
+site/
