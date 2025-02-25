@@ -28,7 +28,7 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
     maintainer_email="pcs@pasqal.io",
-    python_requires=">=3.8",
+    python_requires=">=3.9",
     license="Apache 2.0",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -55,6 +55,6 @@ setup(
             "mkdocs-material==9.5.50",
             "mkdocstrings==0.27.0",
             "mkdocstrings-python==1.13.0",
-        }
+        },
     },
 )

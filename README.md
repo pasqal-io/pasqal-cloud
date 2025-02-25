@@ -21,10 +21,11 @@ SDK to be used to access Pasqal Cloud Services.
 | 0.12.5  | 2024-11-12   | 2025-11-12     |
 | 0.12.6  | 2024-12-12   | 2025-12-12     |
 | 0.12.7  | 2025-01-14   | 2026-01-14     |
+| 0.13.0  | 2025-02-25   | 2026-02-25     |
 
 ## Getting started
 
-To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.8.0 or higher installed, then
+To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.9.0 or higher installed, then
 use pip:
 
 ```bash
