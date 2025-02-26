@@ -8,7 +8,6 @@ _release `2024-11-26`_
 
 - Synchronizes the version with `pulser-pasqal`. From now on, both packages are released in tandem.
 
-<<<<<<< HEAD
 ## [0.13.0]
 _released `2025-02-25`_
 
@@ -21,13 +20,6 @@ _released `2025-02-25`_
 ### Changed
 
 - Move documentation to a web-based site using MkDocs
-=======
-## Not released
-### Changed
-
-  - Move documentation to a web-based site using MkDocs
-
->>>>>>> 18d19ad (introduce changes from origin pulser-pasqal source)
 
 ## [0.12.7]
 
