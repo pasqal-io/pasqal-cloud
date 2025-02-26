@@ -71,7 +71,7 @@ class Client:
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
-    def user_token(self) -> str | None:
+    def user_token(self) -> Union[str, None]:
         return self.authenticator.token_provider.get_token() if self.authenticator else None
 
     @property
