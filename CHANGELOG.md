@@ -2,14 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## Not released
+- Added `sdk.user_token()` method
+
 ## [0.13.0]
 _released `2025-02-25`_
 
 ### Added
 
 - Drop support for Python 3.8 and update CI
-
-## Not released
 
 ### Changed
 
