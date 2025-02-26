@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 _release `2025-03-04`_
 
 - Synchronizes the version with `pulser-pasqal`. From now on, both packages are released in tandem.
+- Added `sdk.user_token()` method to obtain an auth token directly.
 
 ## [0.13.0]
 _released `2025-02-25`_
@@ -14,8 +15,6 @@ _released `2025-02-25`_
 ### Added
 
 - Drop support for Python 3.8 and update CI
-
-## Not released
 
 ### Changed
 
