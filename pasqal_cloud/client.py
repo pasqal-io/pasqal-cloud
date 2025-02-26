@@ -71,6 +71,9 @@ class Client:
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
+    def user_token(self) -> str | None:
+        return self.authenticator.token_provider.get_token() if self.authenticator else None
+
     @property
     def project_id(self) -> str:
         if not self._project_id:
