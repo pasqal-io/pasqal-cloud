@@ -73,7 +73,7 @@ class Client:
 
     def user_token(self) -> Union[str, None]:
         return (
-            self.authenticator.token_provider.get_token()
+            self.authenticator.token_provider.get_token()  # type: ignore[attr-defined]
             if self.authenticator
             else None
         )
