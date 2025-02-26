@@ -22,6 +22,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pulser
 import pytest
+from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
@@ -34,8 +35,6 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-
-from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pulser_pasqal import EmulatorType, Endpoints, PasqalCloud
 from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
 
