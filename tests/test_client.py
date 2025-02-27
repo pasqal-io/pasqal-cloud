@@ -47,7 +47,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             project_id=self.project_id,
             token_provider=FakeAuth0AuthenticationSuccess("username", "password", None),
         )
-        assert sdk.user_token()
+        assert sdk.user_token() == "some_token"
 
     def test_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
@@ -61,12 +61,14 @@ class TestAuthSuccess(TestSDKCommonAttributes):
     def test_get_token_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
 
+        CUSTOM_TOKEN="your-custom-token"
+
         class CustomTokenProvider(TokenProvider):
             def get_token(self):
-                return "your-token"  # Replace this value with your token
+                return CUSTOM_TOKEN
 
         sdk = SDK(token_provider=CustomTokenProvider(), project_id="project_id")
-        assert sdk.user_token()
+        assert sdk.user_token() == CUSTOM_TOKEN
 
     @pytest.mark.filterwarnings(
         "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
