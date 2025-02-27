@@ -67,9 +67,16 @@ class Client:
             auth0 = self._make_auth0(auth0)
             token_provider = self._credential_login(username, password, auth0)
 
-        self.authenticator = None
+        self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
+
+    def user_token(self) -> Union[str, None]:
+        return (
+            self.authenticator.token_provider.get_token()  # type: ignore[attr-defined]
+            if self.authenticator
+            else None
+        )
 
     @property
     def project_id(self) -> str:
