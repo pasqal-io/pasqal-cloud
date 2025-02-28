@@ -75,6 +75,7 @@ class Batch(BaseModel):
     device_status: Optional[str] = None
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
+    _sequence_builder: Optional[str] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -93,12 +94,8 @@ class Batch(BaseModel):
     def sequence_builder(self) -> Optional[str]:
         if self._sequence_builder is None:
             batch_response = self._client.get_batch(self.id)
-            self.sequence_builder = batch_response["sequence_builder"]
+            self._sequence_builder = batch_response["sequence_builder"]
         return self._sequence_builder
-
-    @sequence_builder.setter
-    def sequence_builder(self, value: Any) -> None:
-        self._sequence_builder = value
 
     @property
     def ordered_jobs(self) -> List[Job]:
