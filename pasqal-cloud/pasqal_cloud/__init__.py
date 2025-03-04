@@ -156,6 +156,10 @@ class SDK:
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
 
+    def user_token(self) -> Union[str, None]:
+        return self._client.user_token()
+
+
     def _get_batch(
         self,
         id: str,
