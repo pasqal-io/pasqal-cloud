@@ -1,6 +1,6 @@
 # Pasqal Cloud
 
-SDK to be used to access Pasqal Cloud Services.
+Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and the `pulser-pasqal` extension.
 
 ## Version Support & Deprecation Timeline
 
@@ -22,6 +22,7 @@ SDK to be used to access Pasqal Cloud Services.
 | 0.12.6  | 2024-12-12   | 2025-12-12     |
 | 0.12.7  | 2025-01-14   | 2026-01-14     |
 | 0.13.0  | 2025-02-25   | 2026-02-25     |
+| 0.20.2  | 2025-03-04   | 2026-03-04     |
 
 ## Getting started
 
@@ -32,4 +33,42 @@ use pip:
 pip install pasqal-cloud
 ```
 
-Then, follow [usage steps in the documentation](https://pasqal-io.github.io/pasqal-cloud/#getting-started).
+Likewise, with Python 3.9.0 or higher, `pulser-pasqal` is installed with:
+
+```bash
+pip install pulser-pasqal
+```
+
+If you wish to **install the development version of the pasqal-cloud and pulser-pasqal from source** instead, do the following from within
+this repository after cloning it:
+
+```bash
+git checkout dev
+pip install -e pasqal-cloud -e pulser-pasqal
+```
+
+Bear in mind that this installation will track the contents of your local
+pasqal-cloud and pulser-pasqal repository folders, so if you check out a different branch (e.g. `master`),
+your installation will change accordingly.
+
+### Development Requirements (Optional)
+
+To run the tutorials or the test suite locally, run the following to install the development requirements:
+
+```bash
+pip install -e pasqal-cloud[dev] -e pulser-pasqal
+```
+
+We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
+
+```bash
+python3 -m pip install pre-commit
+pre-commit install
+```
+
+## Basic usage
+
+For an overview of how to use each library, please refer to
+
+- [The `pasqal-cloud` README](https://pasqal-io.github.io/pasqal-cloud/#getting-started)
+- [The `pulser-pasqal` documentation](https://pulser.readthedocs.io/en/stable/tutorials/backends.html#Backend-Execution-of-Pulser-Sequences)
