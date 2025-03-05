@@ -40,6 +40,7 @@ setup(
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
+        "httpx>=0.28.0, <1.0.0",
     ],
     extras_require={
         "dev": {
