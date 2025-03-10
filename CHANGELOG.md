@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## Next release
+
+- Use `device_type` parameter to assign the device to the batch.
+
 ## [0.20.2]
 
 _release `2025-03-05`_
@@ -10,6 +14,7 @@ _release `2025-03-05`_
 - Added `sdk.user_token()` method to obtain an auth token directly.
 
 ## [0.13.0]
+
 _released `2025-02-25`_
 
 ### Added
