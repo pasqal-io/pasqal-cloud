@@ -215,3 +215,15 @@ class OnlyCompleteOrOpenCanBeSet(BaseException):
 
     def __init__(self) -> None:
         super().__init__("Only complete or open can be set when creating a batch.")
+
+
+class OnlyEmulatorOrDeviceTypeCanBeSet(BaseException):
+    """
+    Exception class raised when both emulator and device_type
+    arguments are set on a batch.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Only emulator or device_type can be set when creating a batch."
+        )
