@@ -22,12 +22,15 @@ from requests.exceptions import HTTPError
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import BaseConfig, EmulatorType
+from pasqal_cloud.device import BaseConfig as BaseConfig
+from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
-    Endpoints,
     PASQAL_ENDPOINTS,  # noqa: F401
+)
+from pasqal_cloud.endpoints import (
+    Endpoints as Endpoints,
 )
 from pasqal_cloud.errors import (
     BatchCancellingError,
@@ -113,9 +116,9 @@ class SDK:
         project_id: Optional[str] = None,
     ):
         """
-        This class provides helper methods to call the PASQAL Cloud endpoints.
+        This class provides helper methods to call the Pasqal Cloud endpoints.
 
-        To authenticate to PASQAL Cloud, you have to provide either an
+        To authenticate to Pasqal Cloud, you have to provide either an
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
 
@@ -152,6 +155,10 @@ class SDK:
         self.batches: Dict[str, Batch] = {}
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
+
+    def user_token(self) -> Union[str, None]:
+        return self._client.user_token()
+
 
     def _get_batch(
         self,

@@ -9,13 +9,16 @@ jobs:
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
     runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
     steps:
       - uses: actions/checkout@master
 
-      - name: Set up Python 3.8
+      - name: Set up Python 3.9
         uses: actions/setup-python@v5
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Install pypa/build
         run: >-
@@ -24,24 +27,19 @@ jobs:
           build
           --user
 
-      - name: Build a binary wheel and a source tarball
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/
+      - name: Build the binary wheels and source tarballs
+        shell: bash
+        run: ./.github/scripts/package.sh
 
       - name: Publish distribution 📦 to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          password: ${{ secrets.PASQAL_CLOUD_TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
+          skip-existing: true  # Allows repeating the action
+          attestations: false  # Otherwise an attestation is added to dist/
 
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PASQAL_CLOUD_PYPI_TOKEN }}
 
   create-github-release:
     name: Create GitHub Release

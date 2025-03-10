@@ -24,7 +24,7 @@
 
 #### Versioning (PASQAL developers only)
 
-- [ ] Update the version of pasqal-cloud in `_version.py` following the changes in your PR and by using [semantic versioning](https://semver.org/).
+- [ ] Update the version of pasqal-cloud in `VERSION.txt` following the changes in your PR and by using [semantic versioning](https://semver.org/).
 
 #### Documentation
 
