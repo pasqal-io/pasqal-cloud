@@ -170,8 +170,8 @@ class SDK:
 
     def _validate_device_type(
         self,
-        emulator: EmulatorType | None,
-        device_type: DeviceTypeName | None,
+        emulator: Optional[EmulatorType],
+        device_type: Optional[DeviceTypeName],
     ) -> DeviceTypeName:
         if emulator is not None and device_type is not None:
             raise OnlyEmulatorOrDeviceTypeCanBeSet
@@ -189,8 +189,8 @@ class SDK:
 
     def _validate_open(
         self,
-        complete: bool | None,
-        open: bool | None,
+        complete: Optional[bool],
+        open: Optional[bool],
     ) -> bool:
         if complete is not None and open is not None:
             raise OnlyCompleteOrOpenCanBeSet
@@ -210,10 +210,10 @@ class SDK:
         self,
         serialized_sequence: str,
         jobs: List[CreateJob],
-        complete: bool | None = None,
-        open: bool | None = None,
-        emulator: EmulatorType | None = None,
-        device_type: DeviceTypeName | None = None,
+        complete: Optional[bool] = None,
+        open: Optional[bool] = None,
+        emulator: Optional[EmulatorType] = None,
+        device_type: Optional[DeviceTypeName] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
