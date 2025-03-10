@@ -18,7 +18,7 @@ SDK to be used to access Pasqal Cloud Services.
 | 0.12.2  | 2024-09-11   | 2025-09-11     |
 | 0.12.3  | 2024-10-02   | 2025-10-02     |
 | 0.12.4  | 2024-10-09   | 2025-10-09     |
-| 0.20.2  | 2024-11-26   | 2025-11-26     |
+| 0.20.2  | 2024-11-26   |  2025-11-26    |
 
 ## Installation
 
@@ -115,7 +115,7 @@ to the next statement.
 
 ```python
 # Create a closed batch with 2 jobs and wait for its termination
-batch = sdk.create_batch(serialized_sequence, [job1, job2], wait=True)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.FRESNEL, wait=True)
 ```
 
 To create an open batch, set the `open` argument to `True`, you can then add jobs to your batch.
@@ -123,7 +123,7 @@ Don't forget to mark your batch as closed when you are done adding new jobs to i
 
 ```python
 # Create an open batch with 1 job
-batch = sdk.create_batch(serialized_sequence, [job1], open=True)
+batch = sdk.create_batch(serialized_sequence, [job1], open=True, device_type=DeviceTypeName.FRESNEL)
 # Add some jobs to it and wait for the jobs to be terminated
 job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
 batch.add_jobs([job2, job3], wait=True)
@@ -132,14 +132,14 @@ batch.add_jobs([job2, job3], wait=True)
 batch.close()
 ```
 
-You can also choose to run your batch on an emulator using the optional argument `emulator`.
+You should choose the device on which to run the batch with the parameter `device_type`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
 ```python
-from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device import DeviceTypeName
 
 batch = sdk.create_batch(
-    serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE
+    serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE
 )
 ```
 

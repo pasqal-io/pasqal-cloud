@@ -17,7 +17,13 @@ from pasqal_cloud import (
     SDK,
 )
 from pasqal_cloud.batch import Batch as BatchModel
-from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmulatorType, EmuTNConfig
+from pasqal_cloud.device import (
+    BaseConfig,
+    DeviceTypeName,
+    EmuFreeConfig,
+    EmulatorType,
+    EmuTNConfig,
+)
 from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
@@ -80,9 +86,9 @@ class TestBatch:
             "raw": ["1001", "1001", "0110", "1001", "0110"],
         }
 
-    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch(
-        self, emulator: Optional[str], mock_request: requests_mock.mocker.Mocker
+        self, device_type: DeviceTypeName, mock_request: requests_mock.mocker.Mocker
     ):
         """
         When successfully creating a batch, we should be able to assert
@@ -91,7 +97,7 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
-            emulator=emulator,
+            device_type=device_type,
         )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
@@ -100,8 +106,45 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
 
-    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
+    @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_with_complete_raises_warning(
+        self, device_type: DeviceTypeName, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        Test that using complete at batch definition is still accepted but will
+        trigger a deprecation warning.
+        """
+        with pytest.warns(DeprecationWarning):
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                device_type=device_type,
+                complete=True,
+            )
+        assert batch.id == self.batch_id
+        assert batch.sequence_builder == self.pulser_sequence
+        assert not batch.open
+        assert mock_request.last_request.method == "POST"
+
+    @pytest.mark.parametrize("device_type", DeviceTypeName.list())
+    def test_create_batch_open_and_complete_raises_error(
+        self, device_type: DeviceTypeName
+    ):
+        """
+        Test that setting both complete and open values will result in the proper
+        error being raised.
+        """
+        with pytest.raises(OnlyCompleteOrOpenCanBeSet):
+            _ = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                device_type=device_type,
+                complete=True,
+                open=True,
+            )
+
+    @pytest.mark.parametrize("emulator", EmulatorType.list())
+    def test_create_batch_with_emulator_raises_warning(
         self, emulator: Optional[str], mock_request: requests_mock.mocker.Mocker
     ):
         """
@@ -113,27 +156,12 @@ class TestBatch:
                 serialized_sequence=self.pulser_sequence,
                 jobs=[self.simple_job_args],
                 emulator=emulator,
-                complete=True,
+                open=True,
             )
         assert batch.id == self.batch_id
         assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
         assert mock_request.last_request.method == "POST"
-
-    @pytest.mark.parametrize("emulator", [None] + [e.value for e in EmulatorType])
-    def test_create_batch_open_and_complete_raises_error(self, emulator: Optional[str]):
-        """
-        Test that setting both complete and open values will result in the proper
-        error being raised.
-        """
-        with pytest.raises(OnlyCompleteOrOpenCanBeSet):
-            _ = self.sdk.create_batch(
-                serialized_sequence=self.pulser_sequence,
-                jobs=[self.simple_job_args],
-                emulator=emulator,
-                complete=True,
-                open=True,
-            )
 
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
