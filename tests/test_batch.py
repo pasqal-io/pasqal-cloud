@@ -6,7 +6,6 @@ from uuid import UUID, uuid4
 
 import pytest
 import requests_mock
-
 from pasqal_cloud import (
     Batch,
     BatchCancellationResponse,
@@ -36,6 +35,7 @@ from pasqal_cloud.errors import (
 )
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import BatchFilters
+
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params
@@ -148,7 +148,7 @@ class TestBatch:
         self, emulator: Optional[str], mock_request: requests_mock.mocker.Mocker
     ):
         """
-        Test that using complete at batch definition is still accepted but will
+        Test that using emulator at batch definition is still accepted but will
         trigger a deprecation warning.
         """
         with pytest.warns(DeprecationWarning):
@@ -414,27 +414,22 @@ class TestBatch:
         )
 
     @pytest.mark.parametrize(
-        ("emulator", "configuration", "expected"),
+        ("device_type", "configuration", "expected"),
         [
-            (EmulatorType.EMU_TN, EmuTNConfig(), EmuTNConfig()),
-            (EmulatorType.EMU_FRESNEL, None, None),
-            (EmulatorType.EMU_MPS, None, None),
+            (DeviceTypeName.EMU_TN, EmuTNConfig(), EmuTNConfig()),
+            (DeviceTypeName.EMU_FRESNEL, None, None),
+            (DeviceTypeName.EMU_MPS, None, None),
             (
-                EmulatorType.EMU_FREE,
+                DeviceTypeName.EMU_FREE,
                 EmuFreeConfig(),
                 EmuFreeConfig(extra_config={"dt": 10.0, "precision": "normal"}),
             ),
             (None, None, None),
-            (
-                "SomethingElse",
-                BaseConfig(),
-                BaseConfig(extra_config={"dt": 10.0, "precision": "normal"}),
-            ),
         ],
     )
     @pytest.mark.usefixtures("mock_request")
     def test_create_batch_configuration(
-        self, emulator: str, configuration: BaseConfig, expected: BaseConfig
+        self, device_type: str, configuration: BaseConfig, expected: BaseConfig
     ):
         """
         Assert that when creating a batch with a certain confiuration,
@@ -443,7 +438,7 @@ class TestBatch:
         batch = self.sdk.create_batch(
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
-            emulator=emulator,
+            device_type=device_type,
             configuration=configuration,
         )
         assert batch.configuration == expected
