@@ -184,7 +184,7 @@ class SDK:
                 DeprecationWarning,
                 stacklevel=2,
             )
-            return DeviceTypeName(emulator.value)
+            return DeviceTypeName(str(emulator))
         if emulator is None and device_type is None:
             return DeviceTypeName.FRESNEL
         return device_type
