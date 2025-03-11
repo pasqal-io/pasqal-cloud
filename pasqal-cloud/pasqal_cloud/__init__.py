@@ -22,7 +22,9 @@ from requests.exceptions import HTTPError
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
+from pasqal_cloud.device import BaseConfig as BaseConfig
+from pasqal_cloud.device import DeviceTypeName as DeviceTypeName
+from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
@@ -182,7 +184,7 @@ class SDK:
                 DeprecationWarning,
                 stacklevel=2,
             )
-            return emulator
+            return DeviceTypeName(emulator.value)
         if emulator is None and device_type is None:
             return DeviceTypeName.FRESNEL
         return device_type
