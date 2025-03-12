@@ -1,18 +1,13 @@
-from warnings import warn
-
 from pasqal_cloud.utils.strenum import StrEnum
 
 
 class EmulatorType(StrEnum):
+    """
+    Enum for the emulator type, deprecated.
+    Use DeviceTypeName instead.
+    """
+
     EMU_FREE = "EMU_FREE"
     EMU_TN = "EMU_TN"
     EMU_FRESNEL = "EMU_FRESNEL"
     EMU_MPS = "EMU_MPS"
-
-    def __init__(self, _: str) -> None:
-        warn(
-            "EmulatorType is deprecated, use DeviceTypeName instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        super().__init__()
