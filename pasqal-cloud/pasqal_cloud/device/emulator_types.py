@@ -1,6 +1,9 @@
-from warnings import warn
+from warnings import simplefilter, warn
 
 from pasqal_cloud.utils.strenum import StrEnum
+
+# Ensure DeprecationWarnings are not filtered out at runtime
+simplefilter("always", DeprecationWarning)
 
 
 class EmulatorType(StrEnum):
@@ -12,7 +15,7 @@ class EmulatorType(StrEnum):
 
 def __init__(_, *args, **kwargs) -> None:
     warn(
-        "EmulatorType is deprecated," "use DeviceTypeName instead.",
+        "EmulatorType is deprecated, use DeviceTypeName instead.",
         DeprecationWarning,
         stacklevel=2,
     )
