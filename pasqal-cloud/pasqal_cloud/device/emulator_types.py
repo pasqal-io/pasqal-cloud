@@ -1,4 +1,3 @@
-from typing import Self, Type
 from warnings import warn
 
 from pasqal_cloud.utils.strenum import StrEnum
@@ -10,11 +9,10 @@ class EmulatorType(StrEnum):
     EMU_FRESNEL = "EMU_FRESNEL"
     EMU_MPS = "EMU_MPS"
 
-    def __new__(cls: Type[Self], value) -> Self:
-        instance = super().__new__(cls, value)
+    def __init__(self, value: str) -> None:
         warn(
             "EmulatorType is deprecated, use DeviceTypeName instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return instance
+        super().__init__(value)
