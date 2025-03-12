@@ -9,10 +9,10 @@ class EmulatorType(StrEnum):
     EMU_FRESNEL = "EMU_FRESNEL"
     EMU_MPS = "EMU_MPS"
 
-    def __init__(self, value: str) -> None:
+    def __init__(self, _: str) -> None:
         warn(
             "EmulatorType is deprecated, use DeviceTypeName instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        super().__init__(value)
+        super().__init__()
