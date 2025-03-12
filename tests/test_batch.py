@@ -152,6 +152,8 @@ class TestBatch:
         trigger a deprecation warning.
         """
         with pytest.warns(DeprecationWarning):
+            _ = EmulatorType(emulator)
+        with pytest.warns(DeprecationWarning):
             batch = self.sdk.create_batch(
                 serialized_sequence=self.pulser_sequence,
                 jobs=[self.simple_job_args],

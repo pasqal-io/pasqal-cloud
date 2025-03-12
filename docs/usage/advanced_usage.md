@@ -12,38 +12,38 @@ To that extent, set the `strict_validation` key in the configuration to `True`. 
 For EMU_TN:
 
 ```python
-from pasqal_cloud.device import EmulatorType, EmuTNConfig
+from pasqal_cloud.device import DeviceTypeName, EmuTNConfig
 
 configuration = EmuTNConfig(strict_validation=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN, configuration=configuration)
 ```
 
 For EMU_FREE:
 
 ```python
-from pasqal_cloud.device import EmulatorType, EmuFreeConfig
+from pasqal_cloud.device import DeviceTypeName, EmuFreeConfig
 
 configuration = EmuFreeConfig(strict_validation=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE, configuration=configuration)
 ```
 
 For EMU_TN, you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network
 compression, and the maximal bond dimension of tensor network state.
 
 ```python
-from pasqal_cloud.device import EmulatorType, EmuTNConfig
+from pasqal_cloud.device import DeviceTypeName, EmuTNConfig
 
 configuration = EmuTNConfig(dt=10.0, precision="normal", max_bond_dim=100)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_TN, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN, configuration=configuration)
 ```
 
 For EMU_FREE, you may add some default SPAM noise. Beware this makes your job take much longer.
 
 ```python
-from pasqal_cloud.device import EmulatorType, EmuFreeConfig
+from pasqal_cloud.device import DeviceTypeName, EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE, configuration=configuration)
 ```
 
 Replace the corresponding section in the code examples above with this to add further configuration.
