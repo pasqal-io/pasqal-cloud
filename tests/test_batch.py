@@ -100,11 +100,12 @@ class TestBatch:
             device_type=device_type,
         )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
         assert batch.complete
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_with_complete_raises_warning(
@@ -122,9 +123,10 @@ class TestBatch:
                 complete=True,
             )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_open_and_complete_raises_error(
