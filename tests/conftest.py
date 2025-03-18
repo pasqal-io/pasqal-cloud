@@ -5,10 +5,10 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from requests import HTTPError, Request
-
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
+from requests import HTTPError, Request
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"

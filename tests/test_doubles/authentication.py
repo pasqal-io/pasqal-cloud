@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Any
 
 from auth0.v3.exceptions import Auth0Error
-
 from pasqal_cloud.authentication import Auth0TokenProvider
 
 
