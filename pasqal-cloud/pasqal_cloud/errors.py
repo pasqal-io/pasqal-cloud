@@ -217,7 +217,7 @@ class OnlyCompleteOrOpenCanBeSet(BaseException):
         super().__init__("Only complete or open can be set when creating a batch.")
 
 
-class OnlyEmulatorOrDeviceTypeCanBeSet(BaseException):
+class InvalidDeviceTypeSet(BaseException):
     """
     Exception class raised when both emulator and device_type
     arguments are set on a batch.

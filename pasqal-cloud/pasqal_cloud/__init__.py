@@ -39,11 +39,11 @@ from pasqal_cloud.errors import (
     BatchCreationError,
     BatchFetchingError,
     DeviceSpecsFetchingError,
+    InvalidDeviceTypeSet,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
     OnlyCompleteOrOpenCanBeSet,
-    OnlyEmulatorOrDeviceTypeCanBeSet,
     RebatchError,
     WorkloadCancellingError,
     WorkloadCreationError,
@@ -176,7 +176,7 @@ class SDK:
         device_type: Optional[DeviceTypeName],
     ) -> DeviceTypeName:
         if emulator is not None and device_type is not None:
-            raise OnlyEmulatorOrDeviceTypeCanBeSet
+            raise InvalidDeviceTypeSet
         if emulator is not None:
             warn(
                 "Argument `emulator` is deprecated and will be removed in a"
