@@ -23,6 +23,7 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig as BaseConfig
+from pasqal_cloud.device import DeviceTypeName as DeviceTypeName
 from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
@@ -38,6 +39,7 @@ from pasqal_cloud.errors import (
     BatchCreationError,
     BatchFetchingError,
     DeviceSpecsFetchingError,
+    InvalidDeviceTypeSet,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
@@ -159,7 +161,6 @@ class SDK:
     def user_token(self) -> Union[str, None]:
         return self._client.user_token()
 
-
     def _get_batch(
         self,
         id: str,
@@ -169,6 +170,44 @@ class SDK:
         except HTTPError as e:
             raise BatchFetchingError(e) from e
 
+    def _validate_device_type(
+        self,
+        emulator: Optional[EmulatorType],
+        device_type: Optional[DeviceTypeName],
+    ) -> DeviceTypeName:
+        if emulator is not None and device_type is not None:
+            raise InvalidDeviceTypeSet
+        if emulator is not None:
+            warn(
+                "Argument `emulator` is deprecated and will be removed in a"
+                " future version. Please use argument `device_type` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return DeviceTypeName(str(emulator))
+        if emulator is None and device_type is None:
+            return DeviceTypeName.FRESNEL
+        return device_type
+
+    def _validate_open(
+        self,
+        complete: Optional[bool],
+        open: Optional[bool],
+    ) -> bool:
+        if complete is not None and open is not None:
+            raise OnlyCompleteOrOpenCanBeSet
+        if complete is not None:
+            warn(
+                "Argument `complete` is deprecated and will be removed in a"
+                " future version. Please use argument `open` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return not complete
+        if complete is None and open is None:
+            return False
+        return open
+
     def create_batch(
         self,
         serialized_sequence: str,
@@ -176,6 +215,7 @@ class SDK:
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
+        device_type: Optional[DeviceTypeName] = None,
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
@@ -209,18 +249,9 @@ class SDK:
             BatchCreationError: If batch creation failed
             BatchFetchingError: If batch fetching failed
         """
-        if complete is not None and open is not None:
-            raise OnlyCompleteOrOpenCanBeSet
-        if complete is not None:
-            warn(
-                "Argument `complete` is deprecated and will be removed in a"
-                " future version. Please use argument `open` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            open = not complete
-        elif complete is None and open is None:
-            open = False
+        device_type = self._validate_device_type(emulator, device_type)
+        open = self._validate_open(complete, open)
+
         if fetch_results:
             warn(
                 "Argument `fetch_results` is deprecated and will be removed in a"
@@ -235,13 +266,8 @@ class SDK:
             "webhook": self.webhook,
             "jobs": jobs,
             "open": open,
+            "device_type": device_type,
         }
-
-        # the emulator field is only added in the case
-        # an emulator job is requested otherwise it's left empty
-        if emulator:
-            req.update({"emulator": emulator})
-
         # The configuration field is only added in the case
         # it's requested
         if configuration:

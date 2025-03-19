@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr, Valida
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device import DeviceTypeName
 from pasqal_cloud.device.configuration import (
     BaseConfig,
     EmuFreeConfig,
@@ -141,13 +141,13 @@ class Batch(BaseModel):
         if not isinstance(configuration, dict):
             return configuration
         conf_class: Type[BaseConfig] = BaseConfig
-        if info.data["device_type"] == EmulatorType.EMU_TN.value:
+        if info.data["device_type"] == DeviceTypeName.EMU_TN:
             conf_class = EmuTNConfig
-        elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
+        elif info.data["device_type"] == DeviceTypeName.EMU_FREE:
             conf_class = EmuFreeConfig
         elif info.data["device_type"] in {
-            EmulatorType.EMU_FRESNEL.value,
-            EmulatorType.EMU_MPS.value,
+            DeviceTypeName.EMU_FRESNEL.value,
+            DeviceTypeName.EMU_MPS.value,
         }:
             return None
         return conf_class.from_dict(configuration)
