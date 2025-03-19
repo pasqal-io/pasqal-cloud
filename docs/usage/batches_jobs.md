@@ -43,8 +43,10 @@ To create an open batch, set the `open` argument to `True`, you can then add job
 Don't forget to mark your batch as closed when you are done adding new jobs to it.
 
 ```python
+from pasqal_cloud.device import DeviceTypeName
+
 # Create an open batch with 1 job
-batch = sdk.create_batch(serialized_sequence, [job1], open=True)
+batch = sdk.create_batch(serialized_sequence, [job1], device_type=DeviceTypeName.FRESNEL, open=True)
 # Add some jobs to it and wait for the jobs to be terminated
 job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
 batch.add_jobs([job2, job3], wait=True)
@@ -53,14 +55,14 @@ batch.add_jobs([job2, job3], wait=True)
 batch.close()
 ```
 
-You can also choose to run your batch on an emulator using the optional argument `emulator`.
+You can also choose to run your batch on an emulator using the argument `device_type_name`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
 ```python
-from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device import DeviceTypeName
 
 batch = sdk.create_batch(
-    serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE
+    serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE
 )
 ```
 
