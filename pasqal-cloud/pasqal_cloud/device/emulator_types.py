@@ -3,7 +3,7 @@ from pasqal_cloud.utils.strenum import StrEnum
 
 class EmulatorType(StrEnum):
     """
-    Enum for the emulator type, deprecated.
+    Enum for the emulator type, is deprecated.
     Use DeviceTypeName instead.
     """
 
