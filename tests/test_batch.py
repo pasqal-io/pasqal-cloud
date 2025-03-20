@@ -161,9 +161,10 @@ class TestBatch:
                 open=True,
             )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
-        assert not batch.open
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
+        assert not batch.open
 
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
