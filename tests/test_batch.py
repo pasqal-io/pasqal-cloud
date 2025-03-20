@@ -931,3 +931,14 @@ class TestBatch:
         )
 
         assert mock_request.last_request.json() == {"batch_ids": batch_ids}
+
+    def test_sequence_builder_field_is_accessible(
+        self,
+        mock_request: Any,
+    ):
+        """Simple test verifying the property sequence_builder
+        of a batch is accessible"""
+        response = self.sdk.get_batches()
+        first_batch = response.results[0]
+        assert first_batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
