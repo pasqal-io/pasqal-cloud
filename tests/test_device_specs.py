@@ -5,9 +5,9 @@ from uuid import uuid4
 
 import pytest
 import requests_mock
-
 from pasqal_cloud import SDK
 from pasqal_cloud.errors import DeviceSpecsFetchingError
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 

@@ -1,9 +1,8 @@
 import json
 
 import pytest
-from requests import HTTPError, Response
-
 from pasqal_cloud.errors import ExceptionWithResponseContext
+from requests import HTTPError, Response
 
 
 def test_exception_for_response_with_description():
