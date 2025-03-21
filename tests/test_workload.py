@@ -5,7 +5,6 @@ from uuid import UUID, uuid4
 import pytest
 import requests
 import requests_mock
-
 from pasqal_cloud import SDK, Workload
 from pasqal_cloud.errors import (
     WorkloadCancellingError,
@@ -14,6 +13,7 @@ from pasqal_cloud.errors import (
     WorkloadResultsConnectionError,
     WorkloadResultsDecodeError,
 )
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
