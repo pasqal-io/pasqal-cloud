@@ -100,11 +100,12 @@ class TestBatch:
             device_type=device_type,
         )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
         assert batch.complete
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_with_complete_raises_warning(
@@ -122,9 +123,10 @@ class TestBatch:
                 complete=True,
             )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
         assert not batch.open
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_open_and_complete_raises_error(
@@ -159,9 +161,10 @@ class TestBatch:
                 open=True,
             )
         assert batch.id == self.batch_id
-        assert batch.sequence_builder == self.pulser_sequence
-        assert not batch.open
         assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
+        assert not batch.open
 
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
@@ -931,3 +934,28 @@ class TestBatch:
         )
 
         assert mock_request.last_request.json() == {"batch_ids": batch_ids}
+
+    def test_sequence_builder_field_is_accessible(
+        self,
+        mock_request: Any,
+    ):
+        """Test verifying that the sequence_builder property of a job
+        is accessible when we need to get it.
+
+        The get_batches endpoint doesn't return the sequence_builder of jobs,
+        but when accessing the attribute, it automatically triggers
+        a get_batch call to retrieve the sequence_builder from the APIs.
+        """
+        response = self.sdk.get_batches()
+        first_batch = response.results[0]
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches?offset=0&limit=100"
+        )
+        assert first_batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{first_batch.id}"
+        )

@@ -3,8 +3,8 @@ from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
-
 from pasqal_cloud import SDK
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 

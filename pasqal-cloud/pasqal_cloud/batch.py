@@ -99,12 +99,8 @@ class Batch(BaseModel):
     def sequence_builder(self) -> Optional[str]:
         if self._sequence_builder is None:
             batch_response = self._client.get_batch(self.id)
-            self.sequence_builder = batch_response["sequence_builder"]
+            self._sequence_builder = batch_response["sequence_builder"]
         return self._sequence_builder
-
-    @sequence_builder.setter
-    def sequence_builder(self, value: Any) -> None:
-        self._sequence_builder = value
 
     @property
     def ordered_jobs(self) -> List[Job]:
