@@ -939,9 +939,23 @@ class TestBatch:
         self,
         mock_request: Any,
     ):
-        """Simple test verifying the property sequence_builder
-        of a batch is accessible"""
+        """Test verifying that the sequence_builder property of a job
+        is accessible when we need to get it.
+
+        The get_batches endpoint doesn't return the sequence_builder of jobs,
+        but when accessing the attribute, it automatically triggers
+        a get_batch call to retrieve the sequence_builder from the APIs.
+        """
         response = self.sdk.get_batches()
         first_batch = response.results[0]
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v1/batches?offset=0&limit=100"
+        )
         assert first_batch.sequence_builder == self.pulser_sequence
         assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.url
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{first_batch.id}"
+        )
