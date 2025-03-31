@@ -243,7 +243,7 @@ class TestWorkload:
         ],
         ids=["timeout", "http_500", "connection_error"],
     )
-    def test_create_workload_retries_on_transient_errors(
+    def test_create_and_get_workload_retries_on_transient_errors(
         self,
         mock_request,
         exception,
@@ -293,7 +293,7 @@ class TestWorkload:
         ],
         ids=["timeout", "http_500", "connection_error"],
     )
-    def test_get_workload_on_transient_errors(
+    def test_get_workload_retries_on_transient_errors(
         self,
         mock_request,
         exception,
@@ -321,3 +321,48 @@ class TestWorkload:
             == f"/core-fast/api/v2/workloads/{self.workload_id}"
         )
         assert mock_request.last_request.matcher.call_count == 6
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                WorkloadCreationError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_create_workload_only_no_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that POST create workload call do not retry on
+        transient errors"""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "POST",
+            "https://apis.pasqal.cloud/core-fast/api/v1/workloads",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.create_workload(
+                backend=self.backend,
+                workload_type=self.workload_type,
+                config=self.config,
+                wait=False,
+            )
+
+        # There is only one call to create the workload
+        assert mock_request.call_count == 1
+        assert mock_request.last_request.method == "POST"
+        assert mock_request.last_request.path == "/core-fast/api/v1/workloads"
+        assert mock_request.last_request.matcher.call_count == 1
