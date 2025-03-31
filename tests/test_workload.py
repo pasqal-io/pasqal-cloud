@@ -234,7 +234,7 @@ class TestWorkload:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 WorkloadFetchingError,
@@ -254,11 +254,10 @@ class TestWorkload:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/workloads/{self.workload_id}",
-            exc=exc,
+            exc=exception,
         )
 
         with contextlib.suppress(expected_exception):
@@ -285,7 +284,7 @@ class TestWorkload:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 WorkloadFetchingError,
@@ -304,11 +303,10 @@ class TestWorkload:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/workloads/{self.workload_id}",
-            exc=exc,
+            exc=exception,
         )
 
         with contextlib.suppress(expected_exception):

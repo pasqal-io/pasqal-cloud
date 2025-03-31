@@ -967,7 +967,7 @@ class TestBatch:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 BatchFetchingError,
@@ -987,11 +987,10 @@ class TestBatch:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
-            exc=exc,
+            exc=exception,
         )
 
         with contextlib.suppress(expected_exception):
@@ -1018,7 +1017,7 @@ class TestBatch:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 BatchFetchingError,
@@ -1038,11 +1037,10 @@ class TestBatch:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
-            exc=exc,
+            exc=exception,
         )
 
         batch = self.sdk.create_batch(
@@ -1070,7 +1068,7 @@ class TestBatch:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 BatchFetchingError,
@@ -1089,11 +1087,10 @@ class TestBatch:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
-            exc=exc,
+            exc=exception,
         )
 
         with contextlib.suppress(expected_exception):

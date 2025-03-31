@@ -447,7 +447,7 @@ class TestJob:
         [
             (requests.Timeout, requests.Timeout),
             (
-                lambda: requests.HTTPError(
+                requests.HTTPError(
                     "500 Server Error", response=mock_500_http_error_response()
                 ),
                 JobFetchingError,
@@ -466,11 +466,10 @@ class TestJob:
         mock_request.reset_mock()
 
         # Register the URI with the appropriate exception
-        exc = exception() if callable(exception) else exception
         mock_request.register_uri(
             "GET",
             f"https://apis.pasqal.cloud/core-fast/api/v2/jobs/{self.job_id}",
-            exc=exc,
+            exc=exception,
         )
 
         with contextlib.suppress(expected_exception):
