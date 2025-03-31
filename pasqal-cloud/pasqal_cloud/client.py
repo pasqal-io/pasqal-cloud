@@ -126,6 +126,12 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
+    @staticmethod
+    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
+        resp = requests.request(*args, **kwargs)
+        resp.raise_for_status()
+        return resp
+
     def _authenticated_request(
         self,
         method: str,
@@ -145,11 +151,13 @@ class Client:
         }
 
         if method == "GET":
-            resp = retry_http_error(
+            request_with_retry = retry_http_error(
                 max_retries=5,
                 retry_status_code={408, 425, 429, 500, 502, 504},
-                retry_exceptions=(requests.ConnectionError, requests.Timeout),
-            )(requests.request)(
+                retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
+            )(self._request_with_status_check)
+
+            resp = request_with_retry(
                 method,
                 url,
                 json=payload,
@@ -159,7 +167,7 @@ class Client:
                 params=params,
             )
         else:
-            resp = requests.request(
+            resp = self._request_with_status_check(
                 method,
                 url,
                 json=payload,
@@ -168,8 +176,6 @@ class Client:
                 auth=self.authenticator,
                 params=params,
             )
-
-        resp.raise_for_status()
         data: JSendPayload = resp.json()
         return data
 
@@ -253,6 +259,7 @@ class Client:
             # the same order as they do in the GET /batches/{id} response
         )
 
+    @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
         response = requests.request("GET", results_link)
         response.raise_for_status()
