@@ -156,31 +156,21 @@ class Client:
                 retry_status_code={408, 425, 429, 500, 502, 504},
                 retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
             )(self._request_with_status_check)
-
-            resp = request_with_retry(
-                method,
-                url,
-                json=payload,
-                timeout=TIMEOUT,
-                headers=headers,
-                auth=self.authenticator,
-                params=params,
-            )
         else:
             request_with_retry = retry_http_error(
                 max_retries=5,
                 retry_status_code={408, 425, 429, 500, 502, 504},
             )(self._request_with_status_check)
 
-            resp = request_with_retry(
-                method,
-                url,
-                json=payload,
-                timeout=TIMEOUT,
-                headers=headers,
-                auth=self.authenticator,
-                params=params,
-            )
+        resp = request_with_retry(
+            method,
+            url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers=headers,
+            auth=self.authenticator,
+            params=params,
+        )
         data: JSendPayload = resp.json()
         return data
 
