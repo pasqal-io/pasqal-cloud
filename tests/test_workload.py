@@ -1,3 +1,4 @@
+import contextlib
 import json
 from unittest.mock import patch
 from uuid import UUID, uuid4
@@ -15,6 +16,7 @@ from pasqal_cloud.errors import (
 )
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from tests.utils import mock_500_http_error_response
 
 
 class TestWorkload:
@@ -226,3 +228,96 @@ class TestWorkload:
         with patch("requests.get", return_value=resp):
             res = Workload(**workload_dict)
         assert res.result == {"some": "data"}
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                WorkloadFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_create_and_get_workload_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET workload call retries on transient errors
+        after we create a workload."""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/workloads/{self.workload_id}",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.create_workload(
+                backend=self.backend,
+                workload_type=self.workload_type,
+                config=self.config,
+                wait=True,
+            )
+
+        # Assertions to verify retry behavior
+        # There is one call to create the workload, then 6 calls
+        # to get the workload, 5 of which are retries
+        assert mock_request.call_count == 7
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v2/workloads/{self.workload_id}"
+        )
+        assert mock_request.last_request.matcher.call_count == 6
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                WorkloadFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_get_workload_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET workload call retries on transient errors"""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/workloads/{self.workload_id}",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.get_workload(self.workload_id, True)
+
+        # Assertions to verify retry behavior
+        # There are 6 calls to get the workload, 5 of which are retries
+        assert mock_request.call_count == 6
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v2/workloads/{self.workload_id}"
+        )
+        assert mock_request.last_request.matcher.call_count == 6
