@@ -3,6 +3,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode
 from uuid import UUID
 
+import requests
+
 
 def convert_to_serializable(value: Any) -> Any:
     """Convert values to a serializable format."""
@@ -34,3 +36,10 @@ def build_query_params(
         serialised_params.update(pagination_params)
     # To avoid returning a single interrogation point without query parameters
     return "?" + urlencode(serialised_params, doseq=True) if serialised_params else ""
+
+
+def mock_500_http_error_response():
+    response = requests.Response()
+    response.status_code = 500
+    response._content = b'{"error": "Internal Server Error"}'
+    return response
