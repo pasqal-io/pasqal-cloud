@@ -306,7 +306,7 @@ class TestSDKRetry:
         """
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=status_code)
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(requests.HTTPError):
             self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 6
 

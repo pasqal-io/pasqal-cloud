@@ -1,9 +1,11 @@
+import contextlib
 from datetime import datetime
 from typing import Any, Dict, List, Union
 from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests
 import requests_mock
 from pasqal_cloud import (
     CancelJobFilters,
@@ -19,10 +21,19 @@ from pasqal_cloud.utils.constants import JobStatus
 from pasqal_cloud.utils.responses import JobCancellationResponse
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
-from tests.utils import build_query_params
+from tests.utils import build_query_params, mock_500_http_error_response
 
 
 class TestJob:
+    @pytest.fixture(autouse=True)
+    def _mock_sleep(self):
+        """
+        This fixture overrides sleeps, so tests don't need to wait for
+        the entire duration of a sleep command.
+        """
+        with patch("time.sleep"):
+            yield
+
     @pytest.fixture(autouse=True)
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
@@ -430,3 +441,43 @@ class TestJob:
             TypeError, match="Filters needs to be a CancelJobFilters instance"
         ):
             _ = self.sdk.cancel_jobs(batch_id=UUID(int=0x1), filters={"min_runs": 10})
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                JobFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_get_job_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET job call retries on transient errors"""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/jobs/{self.job_id}",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.get_job(self.job_id, True)
+
+        # Assertions to verify retry behavior
+        # there are 6 calls to get the job, 5 of which are retries
+        assert mock_request.call_count == 6
+        assert mock_request.last_request.method == "GET"
+        assert mock_request.last_request.path == f"/core-fast/api/v2/jobs/{self.job_id}"
+        assert mock_request.last_request.matcher.call_count == 6

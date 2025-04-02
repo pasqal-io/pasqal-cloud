@@ -1,3 +1,4 @@
+import contextlib
 import json
 from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional, Union
@@ -5,6 +6,7 @@ from unittest.mock import patch
 from uuid import UUID, uuid4
 
 import pytest
+import requests
 import requests_mock
 from pasqal_cloud import (
     Batch,
@@ -38,7 +40,7 @@ from pasqal_cloud.utils.filters import BatchFilters
 
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
-from tests.utils import build_query_params
+from tests.utils import build_query_params, mock_500_http_error_response
 
 
 class TestBatch:
@@ -959,3 +961,147 @@ class TestBatch:
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/batches/{first_batch.id}"
         )
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                BatchFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_create_and_get_batch_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET batch call retries on transient errors
+        after we create a batch."""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                device_type=DeviceTypeName.EMU_MPS,
+                wait=True,
+            )
+
+        # Assertions to verify retry behavior
+        # There is one call to create the batch, then 6 calls
+        # to get the batch, 5 of which are retries
+        assert mock_request.call_count == 7
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v2/batches/{self.batch_id}"
+        )
+        assert mock_request.last_request.matcher.call_count == 6
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                BatchFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_add_and_get_jobs_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET batch call retries on transient errors
+        after we add jobs to a batch."""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
+            exc=exception,
+        )
+
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[self.simple_job_args],
+            device_type=DeviceTypeName.EMU_MPS,
+        )
+
+        with contextlib.suppress(expected_exception):
+            batch.add_jobs(jobs=[self.simple_job_args], wait=True)
+
+        # Assertions to verify retry behavior
+        # There is one call to create the batch, one call to add a job,
+        # then 6 calls to add the job, 5 of which are retries
+        assert mock_request.call_count == 8
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v2/batches/{self.batch_id}"
+        )
+        assert mock_request.last_request.matcher.call_count == 6
+
+    @pytest.mark.parametrize(
+        ("exception", "expected_exception"),
+        [
+            (requests.Timeout, requests.Timeout),
+            (
+                requests.HTTPError(
+                    "500 Server Error", response=mock_500_http_error_response()
+                ),
+                BatchFetchingError,
+            ),
+            (requests.ConnectionError("Connection refused"), requests.ConnectionError),
+        ],
+        ids=["timeout", "http_500", "connection_error"],
+    )
+    def test_get_batch_retries_on_transient_errors(
+        self,
+        mock_request,
+        exception,
+        expected_exception,
+    ):
+        """Test that GET batch call retries on transient errors"""
+        mock_request.reset_mock()
+
+        # Register the URI with the appropriate exception
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v2/batches/{self.batch_id}",
+            exc=exception,
+        )
+
+        with contextlib.suppress(expected_exception):
+            self.sdk.get_batch(self.batch_id)
+
+        # Assertions to verify retry behavior
+        # there are 6 calls to get the batch, 5 of which are retries
+        assert mock_request.call_count == 6
+        assert mock_request.last_request.method == "GET"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v2/batches/{self.batch_id}"
+        )
+        assert mock_request.last_request.matcher.call_count == 6

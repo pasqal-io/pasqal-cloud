@@ -19,7 +19,7 @@ def retry_http_error(
 
     Args:
         max_retries: The maximum number of retry attempts
-        retry_status_codes: Specific HTTP status codes to trigger a retry.
+        retry_status_code: Specific HTTP status codes to trigger a retry.
             - NB: If None, retries on all HTTP error status codes.
         retry_exceptions:  List of specific Exception classes that trigger a retry.
             - NB: If None, retries will only occur based on status codes, not
@@ -30,9 +30,11 @@ def retry_http_error(
         @functools.wraps(func)
         def wrapper(*args: Param.args, **kwargs: Param.kwargs) -> RT:
             for iteration in range(max_retries + 1):
+                # 2 seconds, 4 seconds, 8 seconds, 16 seconds, 32 seconds
+                delay = 2**iteration
                 try:
                     response = func(*args, **kwargs)
-                except HTTPError as e:  # noqa:  PERF203
+                except HTTPError as e:
                     if (
                         e.response is None
                         or (
@@ -42,7 +44,6 @@ def retry_http_error(
                         or iteration == max_retries
                     ):
                         raise e
-                    delay = (1 * 2) ** iteration
                     time.sleep(delay)
                 except Exception as e:
                     if (
@@ -50,7 +51,6 @@ def retry_http_error(
                         and isinstance(e, retry_exceptions)
                         and iteration < max_retries
                     ):
-                        delay = (1 * 2) ** iteration
                         time.sleep(delay)
                     else:
                         raise e
