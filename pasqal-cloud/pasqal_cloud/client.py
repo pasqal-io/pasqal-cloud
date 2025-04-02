@@ -126,12 +126,11 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, **kwargs)
-        resp.raise_for_status()
-        return resp
-
+    @retry_http_error(
+        max_retries=5,
+        retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
+        retry_status_code={408, 425, 429, 500, 502, 504},
+    )
     def _authenticated_request(
         self,
         method: str,
@@ -145,37 +144,19 @@ class Client:
                 " initializing the client."
             )
 
-        headers = {
-            "content-type": "application/json",
-            "User-Agent": self.user_agent,
-        }
-
-        if method == "GET":
-            request_with_retry = retry_http_error(
-                max_retries=5,
-                retry_status_code={408, 425, 429, 500, 502, 504},
-                retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
-            )(self._request_with_status_check)
-
-            resp = request_with_retry(
-                method,
-                url,
-                json=payload,
-                timeout=TIMEOUT,
-                headers=headers,
-                auth=self.authenticator,
-                params=params,
-            )
-        else:
-            resp = self._request_with_status_check(
-                method,
-                url,
-                json=payload,
-                timeout=TIMEOUT,
-                headers=headers,
-                auth=self.authenticator,
-                params=params,
-            )
+        resp = requests.request(
+            method,
+            url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers={
+                "content-type": "application/json",
+                "User-Agent": self.user_agent,
+            },
+            auth=self.authenticator,
+            params=params,
+        )
+        resp.raise_for_status()
         data: JSendPayload = resp.json()
         return data
 
