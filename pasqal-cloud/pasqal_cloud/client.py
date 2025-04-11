@@ -17,6 +17,7 @@ from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
 
+import aiohttp
 import requests
 from requests.auth import AuthBase
 
@@ -35,7 +36,10 @@ from pasqal_cloud.utils.filters import (
     RebatchFilters,
 )
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
-from pasqal_cloud.utils.retry import retry_http_error
+from pasqal_cloud.utils.retry import (
+    async_retry_http_error,
+    retry_http_error,
+)
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -127,6 +131,12 @@ class Client:
         return token_provider
 
     @staticmethod
+    async def _async_request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
+        async with aiohttp.request(*args, **kwargs) as resp:
+            resp.raise_for_status()
+            return resp
+
+    @staticmethod
     def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
         resp = requests.request(*args, **kwargs)
         resp.raise_for_status()
@@ -172,6 +182,48 @@ class Client:
             params=params,
         )
         data: JSendPayload = resp.json()
+        return data
+
+    async def _async_authenticated_request(
+        self,
+        method: str,
+        url: str,
+        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        params: Optional[Mapping[str, Any]] = None,
+    ) -> JSendPayload:
+        if self.authenticator is None:
+            raise ValueError(
+                "Authentication required. Please provide your credentials when"
+                " initializing the client."
+            )
+
+        headers = {
+            "content-type": "application/json",
+            "User-Agent": self.user_agent,
+        }
+
+        if method == "GET":
+            request_with_retry = async_retry_http_error(
+                max_retries=5,
+                retry_status_code={408, 425, 429, 500, 502, 504},
+                retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
+            )(self._async_request_with_status_check)
+        else:
+            request_with_retry = async_retry_http_error(
+                max_retries=5,
+                retry_status_code={408, 425, 429, 500, 502, 504},
+            )(self._async_request_with_status_check)
+
+        resp = await request_with_retry(
+            method,
+            url,
+            json=payload,
+            timeout=TIMEOUT,
+            headers=headers,
+            auth=self.authenticator,
+            params=params,
+        )
+        data: JSendPayload = await resp.json()
         return data
 
     def _request_all_pages(
@@ -240,6 +292,12 @@ class Client:
             "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
         )["data"]
         return response
+
+    async def async_get_batch(self, batch_id: str) -> Dict[str, Any]:
+        response = await self._async_authenticated_request(
+            "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
+        )
+        return response["data"]
 
     def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_all_pages(
@@ -345,6 +403,12 @@ class Client:
         )["data"]
         return response
 
+    async def async_get_job(self, job_id: str) -> Dict[str, Any]:
+        response = await self._async_authenticated_request(
+            "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
+        )
+        return response["data"]
+
     def cancel_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH", f"{self.endpoints.core}/api/v2/jobs/{job_id}/cancel"
@@ -383,6 +447,7 @@ class Client:
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
+        # FIXME: Port to async
         if self.authenticator is not None:
             response: Dict[str, str] = self._authenticated_request(
                 "GET", f"{self.endpoints.core}/api/v1/devices/specs"
@@ -397,3 +462,13 @@ class Client:
         response.raise_for_status()
         devices = response.json()["data"]
         return {device["device_type"]: device["specs"] for device in devices}
+
+    async def async_get_public_device_specs(self) -> Dict[str, str]:
+        async with aiohttp.request(
+            method="GET",
+            url=f"{self.endpoints.core}/api/v1/devices/public-specs",
+        ) as response:
+            response.raise_for_status()
+            json = await response.json()
+            devices = json["data"]
+            return {device["device_type"]: device["specs"] for device in devices}

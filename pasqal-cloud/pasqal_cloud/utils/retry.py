@@ -1,12 +1,20 @@
 import functools
 import time
-from typing import Callable, Iterable, Optional, Tuple, Type, TypeVar
+from typing import Awaitable, Callable, Iterable, Optional, Tuple, Type, TypeVar
 
 from requests import HTTPError
 from typing_extensions import ParamSpec
 
 Param = ParamSpec("Param")
 RT = TypeVar("RT")  # return type
+
+
+def async_retry_http_error(
+    max_retries: int = 5,
+    retry_status_code: Optional[Iterable[int]] = None,
+    retry_exceptions: Optional[Tuple[Type[Exception]]] = None,
+) -> Callable[[Callable[..., Awaitable[RT]]], Callable[..., Awaitable[RT]]]:
+    raise NotImplementedError
 
 
 def retry_http_error(

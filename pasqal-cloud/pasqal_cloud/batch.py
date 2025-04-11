@@ -1,5 +1,6 @@
+import asyncio
 import time
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Generator, List, Optional, Type, Union
 from warnings import warn
 
 from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr, ValidationInfo
@@ -248,6 +249,14 @@ class Batch(BaseModel):
             raise BatchFetchingError(e) from e
         self._update_from_api_response(batch_rsp)
 
+    async def async_refresh(self) -> None:
+        """Fetch the batch from the API and update it in place."""
+        try:
+            batch_rsp = await self._client.async_get_batch(self.id)
+        except HTTPError as e:
+            raise BatchFetchingError(e) from e
+        self._update_from_api_response(batch_rsp)
+
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""
         updated_batch = Batch(**data, _client=self._client)
@@ -258,3 +267,35 @@ class Batch(BaseModel):
         for field in batch_model_fields:
             value = getattr(updated_batch, field)
             setattr(self, field, value)
+
+    def wait(self) -> List[Job]:
+        """
+        Wait synchronously until remote execution is ready.
+
+        This WILL BLOCK your main thread, so this method is NOT
+        recommended for use on a server or an interactive application.
+        You may use it in e.g. Python notebooks.
+
+        Example:
+            batch.wait()
+        """
+        # FIXME: If we're running without a Jupyter notebook, display a warning.
+        while any(job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs):
+            time.sleep(RESULT_POLLING_INTERVAL)
+            self.refresh()
+        return self.ordered_jobs
+
+    def __await__(self) -> Generator[Any, Any, List[Job]]:
+        """
+        Wait asynchronously until remote execution is ready.
+
+        This will NOT block your main thread, so this method is strongly
+        recommended for use on a server or an interactive application.
+
+        Example:
+            await batch
+        """
+        while any(job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs):
+            yield asyncio.sleep(RESULT_POLLING_INTERVAL)
+            self.refresh()
+        return self.ordered_jobs
