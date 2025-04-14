@@ -69,6 +69,7 @@ setup(
         "grequests==0.7.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
+        "aiohttp == 3.11",
     ],
     extras_require={
         "dev": {
