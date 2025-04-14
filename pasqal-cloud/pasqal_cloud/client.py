@@ -297,7 +297,9 @@ class Client:
         response = await self._async_authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
         )
-        return response["data"]
+        result = response["data"]
+        assert isinstance(result, Dict)
+        return result
 
     def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_all_pages(
@@ -407,7 +409,9 @@ class Client:
         response = await self._async_authenticated_request(
             "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
         )
-        return response["data"]
+        result = response["data"]
+        assert isinstance(result, Dict)
+        return result
 
     def cancel_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
