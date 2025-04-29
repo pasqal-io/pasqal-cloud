@@ -38,7 +38,7 @@ from pasqal_cloud.errors import (
     BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
-    BatchTagsSettingError,
+    BatchSetTagsError,
     DeviceSpecsFetchingError,
     InvalidDeviceTypeSet,
     JobCancellingError,
@@ -777,8 +777,11 @@ class SDK:
         except HTTPError as e:
             raise DeviceSpecsFetchingError(e) from e
 
-    def set_tags(
-        self, batch_id: str, tags_to_add: list[str], tags_to_remove: list[str]
+    def set_batch_tags(
+        self,
+        batch_id: str,
+        tags_to_add: Optional[list[str]] = None,
+        tags_to_remove: Optional[list[str]] = None,
     ) -> Batch:
         """Set tags to an existing batch by adding or removing them.
 
@@ -797,6 +800,6 @@ class SDK:
         try:
             resp = self._client.set_batch_tags(batch_id, tags_to_add, tags_to_remove)
         except HTTPError as e:
-            raise BatchTagsSettingError(e)
+            raise BatchSetTagsError(e)
 
         return Batch(**resp, _client=self._client)

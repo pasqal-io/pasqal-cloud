@@ -79,13 +79,13 @@ class RebatchError(BatchException):
         super().__init__("Batch retry failed", e)
 
 
-class BatchTagsSettingError(BatchException):
+class BatchSetTagsError(BatchException):
     """
     Exception class when setting tags to a batch failed.
     """
 
     def __init__(self, e: HTTPError) -> None:
-        super().__init__("Batch tags setting failed", e)
+        super().__init__("Setting Batch tags failed", e)
 
 
 class JobException(ExceptionWithResponseContext):

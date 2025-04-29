@@ -16,7 +16,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
     BatchFetchingError,
-    BatchTagsSettingError,
+    BatchSetTagsError,
     JobCreationError,
     JobRetryError,
 )
@@ -78,7 +78,7 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     _sequence_builder: Optional[str] = None
-    tags: Optional[set[str]] = None
+    tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -262,12 +262,16 @@ class Batch(BaseModel):
             value = getattr(updated_batch, field)
             setattr(self, field, value)
 
-    def set_tags(self, tags_to_add: list[str], tags_to_remove: list[str]) -> None:
+    def set_tags(
+        self,
+        tags_to_add: Optional[list[str]] = None,
+        tags_to_remove: Optional[list[str]] = None,
+    ) -> None:
         """Set tags to the current batch by adding or removing them."""
         try:
             batch_rsp = self._client.set_batch_tags(
                 self.id, tags_to_add, tags_to_remove
             )
         except HTTPError as e:
-            raise BatchTagsSettingError(e) from e
+            raise BatchSetTagsError(e) from e
         return self._update_from_api_response(batch_rsp)

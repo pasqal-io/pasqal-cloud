@@ -403,7 +403,7 @@ class Client:
     ) -> Dict[str, str]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
-            f"{self.endpoints.core}/api/v1/{batch_id}/tags",
+            f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
             {"add": tags_to_add, "remove": tags_to_remove},
         )["data"]
         return response
