@@ -399,7 +399,10 @@ class Client:
         return {device["device_type"]: device["specs"] for device in devices}
 
     def set_batch_tags(
-        self, batch_id: str, tags_to_add: list[str], tags_to_remove: list[str]
+        self,
+        batch_id: str,
+        tags_to_add: Optional[list[str]] = None,
+        tags_to_remove: Optional[list[str]] = None,
     ) -> Dict[str, str]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",

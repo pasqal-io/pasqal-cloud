@@ -13,9 +13,15 @@
     "updated_at": "2021-11-10T15:27:44.110274",
     "user_id": "EQZj1ZQE",
     "webhook": "10.0.1.5",
-    "configuration": { "dt": 10.0, "precision": "normal" },
+    "configuration": {
+      "dt": 10.0,
+      "precision": "normal"
+    },
     "start_datetime": "2023-03-23T10:42:27.611384+00:00",
     "end_datetime": "2023-03-23T10:42:27.611384+00:00",
+    "tags": [
+      "test"
+    ],
     "jobs": [
       {
         "batch_id": "00000000-0000-0000-0000-000000000001",
@@ -29,7 +35,10 @@
         "variables": {
           "Omega_max": 14.4,
           "last_target": "q1",
-          "ts": [200, 500]
+          "ts": [
+            200,
+            500
+          ]
         }
       }
     ]
