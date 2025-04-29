@@ -38,6 +38,7 @@ from pasqal_cloud.errors import (
     BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
+    BatchTagsSettingError,
     DeviceSpecsFetchingError,
     InvalidDeviceTypeSet,
     JobCancellingError,
@@ -219,6 +220,7 @@ class SDK:
         configuration: Optional[BaseConfig] = None,
         wait: bool = False,
         fetch_results: bool = False,
+        tags: Optional[list[str]] = None,
     ) -> Batch:
         """Create a new batch and send it to the API.
 
@@ -240,7 +242,7 @@ class SDK:
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
                 be done and fetch results
-
+            tags: List of keywords that can be used to refine the Batch search
 
         Returns:
             Batch: The new batch that has been created in the database.
@@ -267,6 +269,7 @@ class SDK:
             "jobs": jobs,
             "open": open,
             "device_type": device_type,
+            "tags": tags,
         }
         # The configuration field is only added in the case
         # it's requested
@@ -773,3 +776,27 @@ class SDK:
             return self._client.get_device_specs_dict()
         except HTTPError as e:
             raise DeviceSpecsFetchingError(e) from e
+
+    def set_tags(
+        self, batch_id: str, tags_to_add: list[str], tags_to_remove: list[str]
+    ) -> Batch:
+        """Set tags to an existing batch by adding or removing them.
+
+        Args:
+            batch_id: Batch id.
+            tags_to_add: the tags to add to the batch.
+            tags_to_remove: the tags to remove from the batch.
+
+        Returns:
+            batch: The updated batch with tags.
+
+        Raises:
+            BatchTagsSettingError: If setting tags to a batch failed.
+        """
+
+        try:
+            resp = self._client.set_batch_tags(batch_id, tags_to_add, tags_to_remove)
+        except HTTPError as e:
+            raise BatchTagsSettingError(e)
+
+        return Batch(**resp, _client=self._client)
