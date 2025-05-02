@@ -2,9 +2,11 @@ A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [`Batch`][pasqal_cloud.Batch].
+The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [
+`Batch`][pasqal_cloud.Batch].
 
-For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your sequence.
+For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your
+sequence.
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
@@ -55,6 +57,16 @@ batch.add_jobs([job2, job3], wait=True)
 batch.close()
 ```
 
+You can assign multiple tags to your batches when creating them to help organize and retrieve them later.
+
+```python
+batch = sdk.create_batch(
+    serialized_sequence,
+    [job1, job2],
+    tags=["special_experiment"]
+)
+```
+
 You can also choose to run your batch on an emulator using the argument `device_type_name`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
@@ -96,6 +108,9 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 
 # Get the first 100 batches in DONE from a specific project
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
+
+# Get batches with a specific tag
+sdk.get_batches(filters=BatchFilters(tag="special_experiment"))
 
 # Get two batches using two ids
 sdk.get_batches(filters=BatchFilters(id=["batch_id_1", "batch_id_2"]))
