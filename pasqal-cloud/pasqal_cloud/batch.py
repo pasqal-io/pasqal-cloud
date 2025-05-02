@@ -262,16 +262,24 @@ class Batch(BaseModel):
             value = getattr(updated_batch, field)
             setattr(self, field, value)
 
-    def set_tags(
+    def add_tags(
         self,
-        tags_to_add: Optional[list[str]] = None,
-        tags_to_remove: Optional[list[str]] = None,
+        tags: list[str],
     ) -> None:
-        """Set tags to the current batch by adding or removing them."""
+        """Add tags to the current batch"""
         try:
-            batch_rsp = self._client.set_batch_tags(
-                self.id, tags_to_add, tags_to_remove
-            )
+            batch_rsp = self._client.add_batch_tags(self.id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e) from e
+        return self._update_from_api_response(batch_rsp)
+
+    def remove_tags(
+        self,
+        tags: list[str],
+    ) -> None:
+        """Remove tags from the current batch"""
+        try:
+            batch_rsp = self._client.remove_batch_tags(self.id, tags)
         except HTTPError as e:
             raise BatchSetTagsError(e) from e
         return self._update_from_api_response(batch_rsp)

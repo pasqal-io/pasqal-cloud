@@ -398,15 +398,26 @@ class Client:
         devices = response.json()["data"]
         return {device["device_type"]: device["specs"] for device in devices}
 
-    def set_batch_tags(
+    def add_batch_tags(
         self,
         batch_id: str,
-        tags_to_add: Optional[list[str]] = None,
-        tags_to_remove: Optional[list[str]] = None,
+        tags_to_add: list[str],
     ) -> Dict[str, str]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
-            {"add": tags_to_add, "remove": tags_to_remove},
+            {"add": tags_to_add},
+        )["data"]
+        return response
+
+    def remove_batch_tags(
+        self,
+        batch_id: str,
+        tags_to_remove: list[str],
+    ) -> Dict[str, str]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "PATCH",
+            f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
+            {"remove": tags_to_remove},
         )["data"]
         return response
