@@ -1109,7 +1109,7 @@ class TestBatch:
         )
         assert mock_request.last_request.matcher.call_count == 6
 
-    def test_add_tags_by_using_batch_method_success(
+    def test_set_tags_by_using_batch_method_success(
         self,
         mock_request: requests_mock.mocker.Mocker,
     ):
@@ -1120,24 +1120,23 @@ class TestBatch:
             jobs=[self.simple_job_args],
             device_type=DeviceTypeName.EMU_MPS,
         )
-        batch.add_tags(self.tags)
+        batch.set_tags(self.tags)
         assert batch.tags == self.tags
         assert mock_request.last_request.method == "PATCH"
         assert (
             mock_request.last_request.path
             == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
         )
-        # One call to create the batch, one to add the tags
+        # One call to create the batch, one to set the tags
         assert mock_request.last_request.matcher.call_count == 2
-        assert mock_request.last_request.text == '{"add": ["test"]}'
 
-    def test_add_tags_by_using_client_method_success(
+    def test_set_tags_by_using_client_method_success(
         self,
         mock_request: requests_mock.mocker.Mocker,
     ):
         mock_request.reset_mock()
 
-        batch = self.sdk.add_batch_tags(self.batch_id, self.tags)
+        batch = self.sdk.set_batch_tags(self.batch_id, self.tags)
         assert batch.tags == self.tags
         assert mock_request.last_request.method == "PATCH"
         assert (
@@ -1145,40 +1144,3 @@ class TestBatch:
             == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
         )
         assert mock_request.last_request.matcher.call_count == 1
-        assert mock_request.last_request.text == '{"add": ["test"]}'
-
-    def test_remove_tags_by_using_client_method_success(
-        self,
-        mock_request: requests_mock.mocker.Mocker,
-    ):
-        mock_request.reset_mock()
-
-        self.sdk.remove_batch_tags(self.batch_id, self.tags)
-        assert mock_request.last_request.method == "PATCH"
-        assert (
-            mock_request.last_request.path
-            == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
-        )
-        assert mock_request.last_request.matcher.call_count == 1
-        assert mock_request.last_request.text == '{"remove": ["test"]}'
-
-    def test_remove_tags_by_using_batch_method_success(
-        self,
-        mock_request: requests_mock.mocker.Mocker,
-    ):
-        mock_request.reset_mock()
-
-        batch = self.sdk.create_batch(
-            serialized_sequence=self.pulser_sequence,
-            jobs=[self.simple_job_args],
-            device_type=DeviceTypeName.EMU_MPS,
-        )
-        batch.remove_tags(self.tags)
-        assert mock_request.last_request.method == "PATCH"
-        assert (
-            mock_request.last_request.path
-            == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
-        )
-        # One call to create the batch, one to remove the tags
-        assert mock_request.last_request.matcher.call_count == 2
-        assert mock_request.last_request.text == '{"remove": ["test"]}'

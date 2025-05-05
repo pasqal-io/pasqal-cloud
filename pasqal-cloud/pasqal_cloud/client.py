@@ -136,7 +136,7 @@ class Client:
         self,
         method: str,
         url: str,
-        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        payload: Optional[Union[Mapping, Sequence[Mapping], Sequence[str]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
         if self.authenticator is None:
@@ -398,26 +398,14 @@ class Client:
         devices = response.json()["data"]
         return {device["device_type"]: device["specs"] for device in devices}
 
-    def add_batch_tags(
+    def set_batch_tags(
         self,
         batch_id: str,
-        tags_to_add: list[str],
+        tags: list[str],
     ) -> Dict[str, str]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
             f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
-            {"add": tags_to_add},
-        )["data"]
-        return response
-
-    def remove_batch_tags(
-        self,
-        batch_id: str,
-        tags_to_remove: list[str],
-    ) -> Dict[str, str]:
-        response: Dict[str, Any] = self._authenticated_request(
-            "PATCH",
-            f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
-            {"remove": tags_to_remove},
+            tags,
         )["data"]
         return response

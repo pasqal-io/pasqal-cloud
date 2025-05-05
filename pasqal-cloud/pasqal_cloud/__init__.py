@@ -269,12 +269,14 @@ class SDK:
             "jobs": jobs,
             "open": open,
             "device_type": device_type,
-            "tags": tags,
         }
         # The configuration field is only added in the case
         # it's requested
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
+
+        if tags:
+            req.update({"tags": tags})  # type: ignore[dict-item]
 
         try:
             batch_rsp = self._client.send_batch(req)
@@ -777,51 +779,26 @@ class SDK:
         except HTTPError as e:
             raise DeviceSpecsFetchingError(e) from e
 
-    def add_batch_tags(
+    def set_batch_tags(
         self,
         batch_id: str,
-        tags_to_add: list[str],
+        tags: list[str],
     ) -> Batch:
-        """Add tags to an existing batch.
+        """Set tags to an existing batch, overwriting previous ones already set.
 
         Args:
             batch_id: Batch id.
-            tags_to_add: the tags to add to the batch.
+            tags: the tags defining the batch
 
         Returns:
-            batch: The updated batch.
+            batch: The updated batch with newly set tags.
 
         Raises:
-            BatchTagsSettingError: If adding tags to a batch failed.
+            BatchTagsSettingError: If setting tags to a batch failed.
         """
 
         try:
-            resp = self._client.add_batch_tags(batch_id, tags_to_add)
-        except HTTPError as e:
-            raise BatchSetTagsError(e)
-
-        return Batch(**resp, _client=self._client)
-
-    def remove_batch_tags(
-        self,
-        batch_id: str,
-        tags_to_remove: list[str],
-    ) -> Batch:
-        """Remove tags to an existing batch.
-
-        Args:
-            batch_id: Batch id.
-            tags_to_remove: the tags to remove from the batch.
-
-        Returns:
-            batch: The updated batch.
-
-        Raises:
-            BatchTagsSettingError: If removing tags from a batch failed.
-        """
-
-        try:
-            resp = self._client.remove_batch_tags(batch_id, tags_to_remove)
+            resp = self._client.set_batch_tags(batch_id, tags)
         except HTTPError as e:
             raise BatchSetTagsError(e)
 
