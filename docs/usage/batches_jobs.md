@@ -2,8 +2,8 @@ A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [
-`Batch`][pasqal_cloud.Batch].
+The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a
+[`Batch`][pasqal_cloud.Batch].
 
 For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your
 sequence.
@@ -57,16 +57,6 @@ batch.add_jobs([job2, job3], wait=True)
 batch.close()
 ```
 
-You can assign multiple tags to your batches when creating them to help organize and retrieve them later.
-
-```python
-batch = sdk.create_batch(
-    serialized_sequence,
-    [job1, job2],
-    tags=["special_experiment"]
-)
-```
-
 You can also choose to run your batch on an emulator using the argument `device_type_name`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
@@ -83,6 +73,34 @@ Once the API has returned the results, you can access them with the following:
 ```python
 for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
+```
+
+## Set tags to batches
+
+You can assign multiple tags to your batches when creating them to help organize and retrieve them later.
+
+```python
+batch = sdk.create_batch(
+    serialized_sequence,
+    [job1, job2],
+    tags=["special_experiment", "first_try"]
+)
+```
+
+You can also assign tags to an existing batch using two different methods.
+Note that setting tags completely replace any existing tags of the batch.
+
+```python
+batch = sdk.set_batch_tags(
+    batch_id,
+    ["special_experiment", "first_try"]
+)
+```
+
+OR, with the batch object itself.
+
+```python
+batch.set_tags(["special_experiment", "first_try"])
 ```
 
 ## Get a list of batches
@@ -109,7 +127,7 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 # Get the first 100 batches in DONE from a specific project
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
 
-# Get batches with a specific tag
+# Get all batches with a specific tag
 sdk.get_batches(filters=BatchFilters(tag="special_experiment"))
 
 # Get two batches using two ids
