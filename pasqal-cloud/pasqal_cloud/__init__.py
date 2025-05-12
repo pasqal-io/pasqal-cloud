@@ -794,7 +794,7 @@ class SDK:
             batch: The updated batch with newly set tags.
 
         Raises:
-            BatchTagsSettingError: If setting tags to a batch failed.
+            BatchSetTagsError: If setting tags to a batch failed.
         """
 
         try:

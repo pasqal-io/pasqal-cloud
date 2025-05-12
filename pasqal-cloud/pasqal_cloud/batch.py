@@ -266,7 +266,7 @@ class Batch(BaseModel):
         self,
         tags: list[str],
     ) -> None:
-        """Set tags to the current batch, overwriting previous ones already set"""
+        """Set tags for the current batch, overwriting previous ones already set"""
         try:
             batch_rsp = self._client.set_batch_tags(self.id, tags)
         except HTTPError as e:
