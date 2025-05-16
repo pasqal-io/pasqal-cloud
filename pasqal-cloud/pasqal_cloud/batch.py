@@ -43,7 +43,7 @@ class Batch(BaseModel):
         status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
         _client: A Client instance to connect to PCS.
-        _ordered_jobs: List of all the jobs added to the batch,
+        ordered_jobs: List of all the jobs added to the batch,
             ordered by creation time.
         jobs_count: Number of jobs added to the batch.
         jobs_count_per_status: Number of jobs per status.
@@ -51,9 +51,12 @@ class Batch(BaseModel):
         start_datetime: Timestamp of the time the batch was sent to the QPU.
         end_datetime: Timestamp of when the batch process was finished.
         device_status: Status of the device where the batch is running.
-        parent_id: ID from previous batc if a batch was resubmitted for execution.
+        parent_id: ID from previous batch if a batch was resubmitted for execution.
         configuration: Further configuration for certain emulators.
-        backend_configuration: serialised config object for emulation runtimes.
+        backend_configuration: serialised config object for emulation runtimes. This is
+            a configuration from the pulser library that can be used on certain
+            backend emulator types. It must be in the form of an
+            abstract representation/encoded string.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
     """
