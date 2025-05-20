@@ -276,15 +276,8 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
 
-<<<<<<< HEAD
-        # The backend_configuration is only added if
-        # a value is provided
-        if backend_configuration:
-            req.update({"backend_configuration": backend_configuration})
-=======
         if tags:
             req.update({"tags": tags})  # type: ignore[dict-item]
->>>>>>> fe30385 ([FEAT] Introduce tags for batches (#175))
 
         # The backend_configuration is only added if
         # a value is provided

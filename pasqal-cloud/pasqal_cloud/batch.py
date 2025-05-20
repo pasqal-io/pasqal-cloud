@@ -28,9 +28,10 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch(BaseModel):
     """Class to load batch data return by the API.
 
-    A batch groups up several jobs with the same sequence. When a batch is assigned to
-    a QPU, all its jobs are run sequentially and no other batch can be assigned to the
-    device until all its jobs are done and declared complete.
+        A batch groups up several jobs with the same sequence. When
+        a batch is assigned to a QPU, all its jobs are run sequentially
+        and no other batch can be assigned to the device until all its
+        jobs are done and declared complete.
 
     Attributes:
         open: Whether the batch accepts more jobs or not.
@@ -85,7 +86,6 @@ class Batch(BaseModel):
     backend_configuration: Optional[str] = None
     _sequence_builder: Optional[str] = None
     tags: Optional[list[str]] = None
-    backend_configuration: Optional[str] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
