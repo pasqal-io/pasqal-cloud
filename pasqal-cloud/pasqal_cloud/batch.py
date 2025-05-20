@@ -42,18 +42,23 @@ class Batch(BaseModel):
         user_id: Unique identifier of the user that created the batch.
         status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        webhook: Webhook where the job results are automatically sent to.
         _client: A Client instance to connect to PCS.
-        sequence_builder: Pulser sequence of the batch.
-        start_datetime: Timestamp of the time the batch was sent to the QPU.
-        end_datetime: Timestamp of when the batch process was finished.
-        device_status: Status of the device where the batch is running.
-        jobs (deprecated): Dictionary of all the jobs added to the batch.
         ordered_jobs: List of all the jobs added to the batch,
             ordered by creation time.
         jobs_count: Number of jobs added to the batch.
         jobs_count_per_status: Number of jobs per status.
+        webhook: Webhook where the job results are automatically sent to.
+        start_datetime: Timestamp of the time the batch was sent to the QPU.
+        end_datetime: Timestamp of when the batch process was finished.
+        device_status: Status of the device where the batch is running.
+        parent_id: ID from previous batch if a batch was resubmitted for execution.
         configuration: Further configuration for certain emulators.
+        backend_configuration: serialised config object for emulation runtimes. This is
+            a configuration from the pulser library that can be used on certain
+            backend emulator types. It must be in the form of an
+            abstract representation/encoded string.
+        jobs (deprecated): Dictionary of all the jobs added to the batch.
+        sequence_builder: Pulser sequence of the batch.
     """
 
     open: bool
@@ -75,6 +80,7 @@ class Batch(BaseModel):
     device_status: Optional[str] = None
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
+    backend_configuration: Optional[str] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 

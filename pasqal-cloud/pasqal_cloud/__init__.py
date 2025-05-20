@@ -159,7 +159,6 @@ class SDK:
     def user_token(self) -> Union[str, None]:
         return self._client.user_token()
 
-
     def _get_batch(
         self,
         id: str,
@@ -177,6 +176,7 @@ class SDK:
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
         configuration: Optional[BaseConfig] = None,
+        backend_configuration: Optional[str] = None,
         wait: bool = False,
         fetch_results: bool = False,
     ) -> Batch:
@@ -246,6 +246,11 @@ class SDK:
         # it's requested
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
+
+        # The backend_configuration is only added if
+        # a value is provided
+        if backend_configuration:
+            req.update({"backend_configuration": backend_configuration})
 
         try:
             batch_rsp = self._client.send_batch(req)
