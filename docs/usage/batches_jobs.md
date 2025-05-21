@@ -2,9 +2,11 @@ A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [`Batch`][pasqal_cloud.Batch].
+The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a
+[`Batch`][pasqal_cloud.Batch].
 
-For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your sequence.
+For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your
+sequence.
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
@@ -73,6 +75,34 @@ for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
 ```
 
+## Set tags to batches
+
+You can assign multiple tags to your batches when creating them to help organize and retrieve them later.
+
+```python
+batch = sdk.create_batch(
+    serialized_sequence,
+    [job1, job2],
+    tags=["custom_tag_1", "custom_tag_2"]
+)
+```
+
+You can also assign tags to an existing batch using two different methods.
+Note that setting tags completely replace any existing tags of the batch.
+
+```python
+batch = sdk.set_batch_tags(
+    batch_id,
+    ["custom_tag_1", "custom_tag_2"]
+)
+```
+
+OR, with the batch object itself.
+
+```python
+batch.set_tags(["custom_tag_1", "custom_tag_2"])
+```
+
 ## Get a list of batches
 
 It is possible to get all batches or a selection of batches with the `get_batches` method.
@@ -96,6 +126,9 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 
 # Get the first 100 batches in DONE from a specific project
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
+
+# Get all batches with a specific tag
+sdk.get_batches(filters=BatchFilters(tag="custom_tag_1"))
 
 # Get two batches using two ids
 sdk.get_batches(filters=BatchFilters(id=["batch_id_1", "batch_id_2"]))
