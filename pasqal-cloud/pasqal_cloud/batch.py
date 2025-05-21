@@ -16,6 +16,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
     BatchFetchingError,
+    BatchSetTagsError,
     JobCreationError,
     JobRetryError,
 )
@@ -27,38 +28,42 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch(BaseModel):
     """Class to load batch data return by the API.
 
-    A batch groups up several jobs with the same sequence. When a batch is assigned to
-    a QPU, all its jobs are run sequentially and no other batch can be assigned to the
-    device until all its jobs are done and declared complete.
+        A batch groups up several jobs with the same sequence. When a batch is assigned to
+        a QPU, all its jobs are run sequentially and no other batch can be assigned to the
+        device until all its jobs are done and declared complete.
 
-    Attributes:
-        open: Whether the batch accepts more jobs or not.
-        complete: Opposite of open, deprecated.
-        created_at: Timestamp of the creation of the batch.
-        updated_at: Timestamp of the last update of the batch.
-        device_type: Type of device to run the batch on.
-        project_id: ID of the owner project of the batch.
-        id: Unique identifier for the batch.
-        user_id: Unique identifier of the user that created the batch.
-        status: Status of the batch. Possible values are:
-            PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        _client: A Client instance to connect to PCS.
-        ordered_jobs: List of all the jobs added to the batch,
-            ordered by creation time.
-        jobs_count: Number of jobs added to the batch.
-        jobs_count_per_status: Number of jobs per status.
-        webhook: Webhook where the job results are automatically sent to.
-        start_datetime: Timestamp of the time the batch was sent to the QPU.
-        end_datetime: Timestamp of when the batch process was finished.
-        device_status: Status of the device where the batch is running.
-        parent_id: ID from previous batch if a batch was resubmitted for execution.
-        configuration: Further configuration for certain emulators.
-        backend_configuration: serialised config object for emulation runtimes. This is
-            a configuration from the pulser library that can be used on certain
-            backend emulator types. It must be in the form of an
-            abstract representation/encoded string.
-        jobs (deprecated): Dictionary of all the jobs added to the batch.
-        sequence_builder: Pulser sequence of the batch.
+        Attributes:
+            open: Whether the batch accepts more jobs or not.
+            complete: Opposite of open, deprecated.
+            created_at: Timestamp of the creation of the batch.
+            updated_at: Timestamp of the last update of the batch.
+            device_type: Type of device to run the batch on.
+            project_id: ID of the owner project of the batch.
+            id: Unique identifier for the batch.
+            user_id: Unique identifier of the user that created the batch.
+            status: Status of the batch. Possible values are:
+                PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
+            _client: A Client instance to connect to PCS.
+            ordered_jobs: List of all the jobs added to the batch,
+                ordered by creation time.
+            jobs_count: Number of jobs added to the batch.
+            jobs_count_per_status: Number of jobs per status.
+            webhook: Webhook where the job results are automatically sent to.
+            start_datetime: Timestamp of the time the batch was sent to the QPU.
+            end_datetime: Timestamp of when the batch process was finished.
+            device_status: Status of the device where the batch is running.
+            parent_id: ID from previous batch if a batch was resubmitted for execution.
+            configuration: Further configuration for certain emulators.
+    <<<<<<< HEAD
+            backend_configuration: serialised config object for emulation runtimes. This is
+                a configuration from the pulser library that can be used on certain
+                backend emulator types. It must be in the form of an
+                abstract representation/encoded string.
+            jobs (deprecated): Dictionary of all the jobs added to the batch.
+            sequence_builder: Pulser sequence of the batch.
+    =======
+            tags: Keyword used to refine the batch search.
+    >>>>>>> fe30385 ([FEAT] Introduce tags for batches (#175))
     """
 
     open: bool
@@ -81,6 +86,8 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
+    _sequence_builder: Optional[str] = None
+    tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -263,3 +270,14 @@ class Batch(BaseModel):
         for field in batch_model_fields:
             value = getattr(updated_batch, field)
             setattr(self, field, value)
+
+    def set_tags(
+        self,
+        tags: list[str],
+    ) -> None:
+        """Set tags for the current batch, overwriting previous ones already set"""
+        try:
+            batch_rsp = self._client.set_batch_tags(self.id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e) from e
+        return self._update_from_api_response(batch_rsp)
