@@ -194,6 +194,7 @@ class BatchFilters(BaseFilters):
         start_date: Batches created at or after this datetime.
         end_date: Batches created at or before this datetime.
         queue_priority: Filter by queue priority value.
+        tag: Filter by a specific tag.
     """
 
     project_id: Optional[Union[List[Union[UUID, str]], Union[UUID, str]]] = None
@@ -202,6 +203,7 @@ class BatchFilters(BaseFilters):
     status: Optional[Union[List[BatchStatus], BatchStatus]] = None
     open: Optional[bool] = None
     queue_priority: Optional[Union[List[QueuePriority], QueuePriority]] = None
+    tag: Optional[str] = None
 
     @field_validator(
         "id",
