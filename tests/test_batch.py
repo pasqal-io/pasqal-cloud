@@ -87,6 +87,7 @@ class TestBatch:
             "counter": {"1001": 12, "0110": 35, "1111": 1},
             "raw": ["1001", "1001", "0110", "1001", "0110"],
         }
+        self.tags = ["test"]
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch(
@@ -100,6 +101,7 @@ class TestBatch:
             serialized_sequence=self.pulser_sequence,
             jobs=[self.simple_job_args],
             device_type=device_type,
+            tags=self.tags,
         )
         assert batch.id == self.batch_id
         assert not batch.open
@@ -108,6 +110,7 @@ class TestBatch:
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
         assert mock_request.last_request.method == "GET"
+        assert batch.tags == self.tags
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_with_complete_raises_warning(
@@ -1105,3 +1108,39 @@ class TestBatch:
             == f"/core-fast/api/v2/batches/{self.batch_id}"
         )
         assert mock_request.last_request.matcher.call_count == 6
+
+    def test_set_tags_by_using_batch_method_success(
+        self,
+        mock_request: requests_mock.mocker.Mocker,
+    ):
+        mock_request.reset_mock()
+
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[self.simple_job_args],
+            device_type=DeviceTypeName.EMU_MPS,
+        )
+        batch.set_tags(self.tags)
+        assert batch.tags == self.tags
+        assert mock_request.last_request.method == "PATCH"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
+        )
+        # One call to create the batch, one to set the tags
+        assert mock_request.last_request.matcher.call_count == 2
+
+    def test_set_tags_by_using_client_method_success(
+        self,
+        mock_request: requests_mock.mocker.Mocker,
+    ):
+        mock_request.reset_mock()
+
+        batch = self.sdk.set_batch_tags(self.batch_id, self.tags)
+        assert batch.tags == self.tags
+        assert mock_request.last_request.method == "PATCH"
+        assert (
+            mock_request.last_request.path
+            == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
+        )
+        assert mock_request.last_request.matcher.call_count == 1

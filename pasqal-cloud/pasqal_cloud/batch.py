@@ -16,6 +16,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
     BatchFetchingError,
+    BatchSetTagsError,
     JobCreationError,
     JobRetryError,
 )
@@ -81,6 +82,8 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
+    _sequence_builder: Optional[str] = None
+    tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -263,3 +266,14 @@ class Batch(BaseModel):
         for field in batch_model_fields:
             value = getattr(updated_batch, field)
             setattr(self, field, value)
+
+    def set_tags(
+        self,
+        tags: list[str],
+    ) -> None:
+        """Set tags for the current batch, overwriting previous ones already set"""
+        try:
+            batch_rsp = self._client.set_batch_tags(self.id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e) from e
+        return self._update_from_api_response(batch_rsp)

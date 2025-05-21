@@ -38,6 +38,7 @@ from pasqal_cloud.errors import (
     BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
+    BatchSetTagsError,
     DeviceSpecsFetchingError,
     InvalidDeviceTypeSet,
     JobCancellingError,
@@ -220,6 +221,7 @@ class SDK:
         backend_configuration: Optional[str] = None,
         wait: bool = False,
         fetch_results: bool = False,
+        tags: Optional[list[str]] = None,
     ) -> Batch:
         """Create a new batch and send it to the API.
 
@@ -241,7 +243,7 @@ class SDK:
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
                 be done and fetch results
-
+            tags: List of keywords that can be used to refine the Batch search
 
         Returns:
             Batch: The new batch that has been created in the database.
@@ -274,10 +276,15 @@ class SDK:
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
 
+<<<<<<< HEAD
         # The backend_configuration is only added if
         # a value is provided
         if backend_configuration:
             req.update({"backend_configuration": backend_configuration})
+=======
+        if tags:
+            req.update({"tags": tags})  # type: ignore[dict-item]
+>>>>>>> fe30385 ([FEAT] Introduce tags for batches (#175))
 
         try:
             batch_rsp = self._client.send_batch(req)
@@ -779,3 +786,28 @@ class SDK:
             return self._client.get_device_specs_dict()
         except HTTPError as e:
             raise DeviceSpecsFetchingError(e) from e
+
+    def set_batch_tags(
+        self,
+        batch_id: str,
+        tags: list[str],
+    ) -> Batch:
+        """Set tags to an existing batch, overwriting previous ones already set.
+
+        Args:
+            batch_id: Batch id.
+            tags: the tags defining the batch
+
+        Returns:
+            batch: The updated batch with newly set tags.
+
+        Raises:
+            BatchSetTagsError: If setting tags to a batch failed.
+        """
+
+        try:
+            resp = self._client.set_batch_tags(batch_id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e)
+
+        return Batch(**resp, _client=self._client)
