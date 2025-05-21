@@ -757,7 +757,7 @@ class TestBatch:
             # End date
             BatchFilters(end_date=datetime(2023, 1, 1)),
             # Tag
-            BatchFilters(tag="special_experiment"),
+            BatchFilters(tag="custom_tag_1"),
             # Combined
             BatchFilters(
                 id=[UUID(int=0x1), str(UUID(int=0x2))],

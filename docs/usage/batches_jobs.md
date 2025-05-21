@@ -83,7 +83,7 @@ You can assign multiple tags to your batches when creating them to help organize
 batch = sdk.create_batch(
     serialized_sequence,
     [job1, job2],
-    tags=["special_experiment", "first_try"]
+    tags=["custom_tag_1", "custom_tag_2"]
 )
 ```
 
@@ -93,14 +93,14 @@ Note that setting tags completely replace any existing tags of the batch.
 ```python
 batch = sdk.set_batch_tags(
     batch_id,
-    ["special_experiment", "first_try"]
+    ["custom_tag_1", "custom_tag_2"]
 )
 ```
 
 OR, with the batch object itself.
 
 ```python
-batch.set_tags(["special_experiment", "first_try"])
+batch.set_tags(["custom_tag_1", "custom_tag_2"])
 ```
 
 ## Get a list of batches
@@ -128,7 +128,7 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
 
 # Get all batches with a specific tag
-sdk.get_batches(filters=BatchFilters(tag="special_experiment"))
+sdk.get_batches(filters=BatchFilters(tag="custom_tag_1"))
 
 # Get two batches using two ids
 sdk.get_batches(filters=BatchFilters(id=["batch_id_1", "batch_id_2"]))
