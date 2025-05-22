@@ -13,10 +13,8 @@
     "updated_at": "2021-11-10T15:27:44.110274",
     "user_id": "EQZj1ZQE",
     "webhook": "10.0.1.5",
-    "configuration": {
-      "dt": 10.0,
-      "precision": "normal"
-    },
+    "configuration": {"dt": 10.0,"precision": "normal"},
+    "backend_configuration":"i-am-a-serialised-configuration",
     "start_datetime": "2023-03-23T10:42:27.611384+00:00",
     "end_datetime": "2023-03-23T10:42:27.611384+00:00",
     "tags": [
