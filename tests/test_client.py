@@ -6,10 +6,10 @@ import pytest
 import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
+
 from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
-
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,

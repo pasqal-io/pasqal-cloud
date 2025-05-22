@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 import pytest
 import requests
 import requests_mock
+
 from pasqal_cloud import (
     Batch,
     BatchCancellationResponse,
@@ -37,7 +38,6 @@ from pasqal_cloud.errors import (
 )
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import BatchFilters
-
 from tests.conftest import mock_core_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params, mock_500_http_error_response

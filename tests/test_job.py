@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import pytest
 import requests
 import requests_mock
+
 from pasqal_cloud import (
     CancelJobFilters,
     Job,
@@ -19,7 +20,6 @@ from pasqal_cloud import (
 )
 from pasqal_cloud.utils.constants import JobStatus
 from pasqal_cloud.utils.responses import JobCancellationResponse
-
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params, mock_500_http_error_response
 
