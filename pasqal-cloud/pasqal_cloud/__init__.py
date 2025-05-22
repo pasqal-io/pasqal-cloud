@@ -218,6 +218,7 @@ class SDK:
         emulator: Optional[EmulatorType] = None,
         device_type: Optional[DeviceTypeName] = None,
         configuration: Optional[BaseConfig] = None,
+        backend_configuration: Optional[str] = None,
         wait: bool = False,
         fetch_results: bool = False,
         tags: Optional[list[str]] = None,
@@ -274,6 +275,11 @@ class SDK:
         # it's requested
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
+
+        # The backend_configuration is only added if
+        # a value is provided
+        if backend_configuration:
+            req.update({"backend_configuration": backend_configuration})
 
         if tags:
             req.update({"tags": tags})  # type: ignore[dict-item]
