@@ -463,6 +463,17 @@ def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
         emu_cls(seq, RemoteConnection())
 
     # With mimic_qpu=True
+    with pytest.raises(ValueError, match="'sequence' should not be empty"):
+        emu_cls(
+            seq.switch_device(virtual_device),
+            fixt.pasqal_cloud,
+            mimic_qpu=True,
+        )
+
+    # Add a delay so that it's no longer empty
+    seq.declare_channel("rydberg_global", "rydberg_global")
+    seq.delay(100, "rydberg_global")
+
     with pytest.raises(TypeError, match="must be a real device"):
         emu_cls(
             seq.switch_device(virtual_device),
