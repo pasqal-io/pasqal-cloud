@@ -58,6 +58,7 @@ class Batch(BaseModel):
             a configuration from the pulser library that can be used on certain
             backend emulator types. It must be in the form of an
             abstract representation/encoded string.
+        tags: Keyword used to refine the batch search.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
     """
@@ -84,6 +85,7 @@ class Batch(BaseModel):
     backend_configuration: Optional[str] = None
     _sequence_builder: Optional[str] = None
     tags: Optional[list[str]] = None
+    backend_configuration: Optional[str] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
