@@ -7,6 +7,12 @@ All notable changes to this project will be documented in this file.
 - Use `device_type` parameter to assign the device to the batch.
 - Tags can be assigned to batches
 
+## [0.20.3]
+
+- Use `device_type` parameter to assign the device to the batch.
+- Tags can be assigned to batches
+- Add backend_configuration arg to create_batch for serialised configurations
+
 ## [0.20.2]
 
 _release `2025-03-05`_
