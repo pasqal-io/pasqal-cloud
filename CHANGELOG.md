@@ -4,9 +4,6 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
-- Use `device_type` parameter to assign the device to the batch.
-- Tags can be assigned to batches
-
 ## [0.20.3]
 
 - Use `device_type` parameter to assign the device to the batch.
