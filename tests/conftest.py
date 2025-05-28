@@ -5,10 +5,10 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from requests import HTTPError, Request
-
 from pasqal_cloud import Batch, Client, Job, Workload
 from pasqal_cloud.endpoints import Endpoints
+from requests import HTTPError, Request
+
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 TEST_API_FIXTURES_PATH = "tests/fixtures/api"
@@ -35,11 +35,10 @@ def mock_core_response(request):
     with open(json_path) as json_file:
         result = json.load(json_file)
         if path == "batches" and data:
-            if data.get("emulator"):
-                result["data"]["device_type"] = data["emulator"]
-            else:
-                result["data"]["device_type"] = "FRESNEL"
+            result["data"]["device_type"] = data["device_type"]
+            if not data.get("configuration"):
                 result["data"]["configuration"] = None
+
         return result
 
 

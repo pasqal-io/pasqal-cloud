@@ -79,6 +79,15 @@ class RebatchError(BatchException):
         super().__init__("Batch retry failed", e)
 
 
+class BatchSetTagsError(BatchException):
+    """
+    Exception class when setting tags to a batch failed.
+    """
+
+    def __init__(self, e: HTTPError) -> None:
+        super().__init__("Setting Batch tags failed", e)
+
+
 class JobException(ExceptionWithResponseContext):
     """
     Base Exception class for jobs.
@@ -215,3 +224,15 @@ class OnlyCompleteOrOpenCanBeSet(BaseException):
 
     def __init__(self) -> None:
         super().__init__("Only complete or open can be set when creating a batch.")
+
+
+class InvalidDeviceTypeSet(BaseException):
+    """
+    Exception class raised when both emulator and device_type
+    arguments are set on a batch.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Only emulator or device_type can be set when creating a batch."
+        )

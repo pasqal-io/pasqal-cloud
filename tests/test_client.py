@@ -6,10 +6,10 @@ import pytest
 import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
-
 from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
+
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
     FakeAuth0AuthenticationSuccess,
@@ -61,7 +61,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
     def test_get_token_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
 
-        CUSTOM_TOKEN="your-custom-token"
+        CUSTOM_TOKEN = "your-custom-token"
 
         class CustomTokenProvider(TokenProvider):
             def get_token(self):
@@ -306,7 +306,7 @@ class TestSDKRetry:
         """
         mock_request.reset_mock()
         mock_request.register_uri("GET", "http://test-domain", status_code=status_code)
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(requests.HTTPError):
             self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 6
 

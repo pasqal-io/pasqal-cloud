@@ -126,12 +126,17 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @retry_http_error(max_retries=5, retry_status_code={408, 425, 429, 500, 502, 504})
+    @staticmethod
+    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
+        resp = requests.request(*args, **kwargs)
+        resp.raise_for_status()
+        return resp
+
     def _authenticated_request(
         self,
         method: str,
         url: str,
-        payload: Optional[Union[Mapping, Sequence[Mapping]]] = None,
+        payload: Optional[Union[Mapping, Sequence[Mapping], Sequence[str]]] = None,
         params: Optional[Mapping[str, Any]] = None,
     ) -> JSendPayload:
         if self.authenticator is None:
@@ -140,19 +145,32 @@ class Client:
                 " initializing the client."
             )
 
-        resp = requests.request(
+        headers = {
+            "content-type": "application/json",
+            "User-Agent": self.user_agent,
+        }
+
+        if method == "GET":
+            request_with_retry = retry_http_error(
+                max_retries=5,
+                retry_status_code={408, 425, 429, 500, 502, 504},
+                retry_exceptions=(requests.ConnectionError, requests.Timeout),  # type: ignore
+            )(self._request_with_status_check)
+        else:
+            request_with_retry = retry_http_error(
+                max_retries=5,
+                retry_status_code={408, 425, 429, 500, 502, 504},
+            )(self._request_with_status_check)
+
+        resp = request_with_retry(
             method,
             url,
             json=payload,
             timeout=TIMEOUT,
-            headers={
-                "content-type": "application/json",
-                "User-Agent": self.user_agent,
-            },
+            headers=headers,
             auth=self.authenticator,
             params=params,
         )
-        resp.raise_for_status()
         data: JSendPayload = resp.json()
         return data
 
@@ -379,3 +397,15 @@ class Client:
         response.raise_for_status()
         devices = response.json()["data"]
         return {device["device_type"]: device["specs"] for device in devices}
+
+    def set_batch_tags(
+        self,
+        batch_id: str,
+        tags: list[str],
+    ) -> Dict[str, str]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "PATCH",
+            f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
+            tags,
+        )["data"]
+        return response

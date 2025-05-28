@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr, Valida
 from requests import HTTPError
 
 from pasqal_cloud.client import Client
-from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device import DeviceTypeName
 from pasqal_cloud.device.configuration import (
     BaseConfig,
     EmuFreeConfig,
@@ -16,6 +16,7 @@ from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
     BatchFetchingError,
+    BatchSetTagsError,
     JobCreationError,
     JobRetryError,
 )
@@ -27,9 +28,10 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch(BaseModel):
     """Class to load batch data return by the API.
 
-    A batch groups up several jobs with the same sequence. When a batch is assigned to
-    a QPU, all its jobs are run sequentially and no other batch can be assigned to the
-    device until all its jobs are done and declared complete.
+        A batch groups up several jobs with the same sequence. When
+        a batch is assigned to a QPU, all its jobs are run sequentially
+        and no other batch can be assigned to the device until all its
+        jobs are done and declared complete.
 
     Attributes:
         open: Whether the batch accepts more jobs or not.
@@ -57,6 +59,7 @@ class Batch(BaseModel):
             a configuration from the pulser library that can be used on certain
             backend emulator types. It must be in the form of an
             abstract representation/encoded string.
+        tags: Keyword used to refine the batch search.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
     """
@@ -81,6 +84,8 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
+    _sequence_builder: Optional[str] = None
+    tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -99,12 +104,8 @@ class Batch(BaseModel):
     def sequence_builder(self) -> Optional[str]:
         if self._sequence_builder is None:
             batch_response = self._client.get_batch(self.id)
-            self.sequence_builder = batch_response["sequence_builder"]
+            self._sequence_builder = batch_response["sequence_builder"]
         return self._sequence_builder
-
-    @sequence_builder.setter
-    def sequence_builder(self, value: Any) -> None:
-        self._sequence_builder = value
 
     @property
     def ordered_jobs(self) -> List[Job]:
@@ -147,13 +148,13 @@ class Batch(BaseModel):
         if not isinstance(configuration, dict):
             return configuration
         conf_class: Type[BaseConfig] = BaseConfig
-        if info.data["device_type"] == EmulatorType.EMU_TN.value:
+        if info.data["device_type"] == DeviceTypeName.EMU_TN:
             conf_class = EmuTNConfig
-        elif info.data["device_type"] == EmulatorType.EMU_FREE.value:
+        elif info.data["device_type"] == DeviceTypeName.EMU_FREE:
             conf_class = EmuFreeConfig
         elif info.data["device_type"] in {
-            EmulatorType.EMU_FRESNEL.value,
-            EmulatorType.EMU_MPS.value,
+            DeviceTypeName.EMU_FRESNEL.value,
+            DeviceTypeName.EMU_MPS.value,
         }:
             return None
         return conf_class.from_dict(configuration)
@@ -267,3 +268,14 @@ class Batch(BaseModel):
         for field in batch_model_fields:
             value = getattr(updated_batch, field)
             setattr(self, field, value)
+
+    def set_tags(
+        self,
+        tags: list[str],
+    ) -> None:
+        """Set tags for the current batch, overwriting previous ones already set"""
+        try:
+            batch_rsp = self._client.set_batch_tags(self.id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e) from e
+        return self._update_from_api_response(batch_rsp)

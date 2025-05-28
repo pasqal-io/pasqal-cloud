@@ -3,7 +3,6 @@ from __future__ import annotations
 import re
 
 import pytest
-
 from pasqal_cloud.device import EmuFreeConfig
 from pasqal_cloud.device.configuration.base_config import (
     BaseConfig,

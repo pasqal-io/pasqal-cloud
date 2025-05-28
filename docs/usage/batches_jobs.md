@@ -2,9 +2,11 @@ A batch is a group of jobs with the same sequence that will run on the same QPU.
 
 ## Create a batch of jobs
 
-The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a [`Batch`][pasqal_cloud.Batch].
+The package main component is a Python object called [`SDK`][pasqal_cloud.SDK] which can be used to create a
+[`Batch`][pasqal_cloud.Batch].
 
-For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your sequence.
+For each [`Job`][pasqal_cloud.Job] of a given batch, you must set a value for each variable, if any, defined in your
+sequence.
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
@@ -43,8 +45,10 @@ To create an open batch, set the `open` argument to `True`, you can then add job
 Don't forget to mark your batch as closed when you are done adding new jobs to it.
 
 ```python
+from pasqal_cloud.device import DeviceTypeName
+
 # Create an open batch with 1 job
-batch = sdk.create_batch(serialized_sequence, [job1], open=True)
+batch = sdk.create_batch(serialized_sequence, [job1], device_type=DeviceTypeName.FRESNEL, open=True)
 # Add some jobs to it and wait for the jobs to be terminated
 job3 = {"runs": 50, "variables": {"omega_max": 10.5}}
 batch.add_jobs([job2, job3], wait=True)
@@ -53,14 +57,14 @@ batch.add_jobs([job2, job3], wait=True)
 batch.close()
 ```
 
-You can also choose to run your batch on an emulator using the optional argument `emulator`.
+You can also choose to run your batch on an emulator using the argument `device_type_name`.
 For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:
 
 ```python
-from pasqal_cloud.device import EmulatorType
+from pasqal_cloud.device import DeviceTypeName
 
 batch = sdk.create_batch(
-    serialized_sequence, [job1, job2], emulator=EmulatorType.EMU_FREE
+    serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE
 )
 ```
 
@@ -69,6 +73,34 @@ Once the API has returned the results, you can access them with the following:
 ```python
 for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
+```
+
+## Set tags to batches
+
+You can assign multiple tags to your batches when creating them to help organize and retrieve them later.
+
+```python
+batch = sdk.create_batch(
+    serialized_sequence,
+    [job1, job2],
+    tags=["custom_tag_1", "custom_tag_2"]
+)
+```
+
+You can also assign tags to an existing batch using two different methods.
+Note that setting tags completely replace any existing tags of the batch.
+
+```python
+batch = sdk.set_batch_tags(
+    batch_id,
+    ["custom_tag_1", "custom_tag_2"]
+)
+```
+
+OR, with the batch object itself.
+
+```python
+batch.set_tags(["custom_tag_1", "custom_tag_2"])
 ```
 
 ## Get a list of batches
@@ -94,6 +126,9 @@ sdk.get_batches(filters=BatchFilters(device_type=EmulatorType.EMU_TN))
 
 # Get the first 100 batches in DONE from a specific project
 sdk.get_batches(filters=BatchFilters(status=BatchStatus.DONE, project_id="project_id"))
+
+# Get all batches with a specific tag
+sdk.get_batches(filters=BatchFilters(tag="custom_tag_1"))
 
 # Get two batches using two ids
 sdk.get_batches(filters=BatchFilters(id=["batch_id_1", "batch_id_2"]))

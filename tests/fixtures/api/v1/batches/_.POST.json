@@ -17,6 +17,9 @@
     "backend_configuration":"i-am-a-serialised-configuration",
     "start_datetime": "2023-03-23T10:42:27.611384+00:00",
     "end_datetime": "2023-03-23T10:42:27.611384+00:00",
+    "tags": [
+      "test"
+    ],
     "jobs": [
       {
         "batch_id": "00000000-0000-0000-0000-000000000001",
@@ -30,7 +33,10 @@
         "variables": {
           "Omega_max": 14.4,
           "last_target": "q1",
-          "ts": [200, 500]
+          "ts": [
+            200,
+            500
+          ]
         }
       }
     ]

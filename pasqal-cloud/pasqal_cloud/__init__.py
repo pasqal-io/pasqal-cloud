@@ -23,6 +23,7 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig as BaseConfig
+from pasqal_cloud.device import DeviceTypeName as DeviceTypeName
 from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
@@ -37,7 +38,9 @@ from pasqal_cloud.errors import (
     BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
+    BatchSetTagsError,
     DeviceSpecsFetchingError,
+    InvalidDeviceTypeSet,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
@@ -168,6 +171,44 @@ class SDK:
         except HTTPError as e:
             raise BatchFetchingError(e) from e
 
+    def _validate_device_type(
+        self,
+        emulator: Optional[EmulatorType],
+        device_type: Optional[DeviceTypeName],
+    ) -> DeviceTypeName:
+        if emulator is not None and device_type is not None:
+            raise InvalidDeviceTypeSet
+        if emulator is not None:
+            warn(
+                "Argument `emulator` is deprecated and will be removed in a"
+                " future version. Please use argument `device_type` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return DeviceTypeName(str(emulator))
+        if emulator is None and device_type is None:
+            return DeviceTypeName.FRESNEL
+        return device_type
+
+    def _validate_open(
+        self,
+        complete: Optional[bool],
+        open: Optional[bool],
+    ) -> bool:
+        if complete is not None and open is not None:
+            raise OnlyCompleteOrOpenCanBeSet
+        if complete is not None:
+            warn(
+                "Argument `complete` is deprecated and will be removed in a"
+                " future version. Please use argument `open` instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            return not complete
+        if complete is None and open is None:
+            return False
+        return open
+
     def create_batch(
         self,
         serialized_sequence: str,
@@ -175,10 +216,12 @@ class SDK:
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
+        device_type: Optional[DeviceTypeName] = None,
         configuration: Optional[BaseConfig] = None,
         backend_configuration: Optional[str] = None,
         wait: bool = False,
         fetch_results: bool = False,
+        tags: Optional[list[str]] = None,
     ) -> Batch:
         """Create a new batch and send it to the API.
 
@@ -200,7 +243,7 @@ class SDK:
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
                 be done and fetch results
-
+            tags: List of keywords that can be used to refine the Batch search
 
         Returns:
             Batch: The new batch that has been created in the database.
@@ -209,18 +252,9 @@ class SDK:
             BatchCreationError: If batch creation failed
             BatchFetchingError: If batch fetching failed
         """
-        if complete is not None and open is not None:
-            raise OnlyCompleteOrOpenCanBeSet
-        if complete is not None:
-            warn(
-                "Argument `complete` is deprecated and will be removed in a"
-                " future version. Please use argument `open` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            open = not complete
-        elif complete is None and open is None:
-            open = False
+        device_type = self._validate_device_type(emulator, device_type)
+        open = self._validate_open(complete, open)
+
         if fetch_results:
             warn(
                 "Argument `fetch_results` is deprecated and will be removed in a"
@@ -235,17 +269,15 @@ class SDK:
             "webhook": self.webhook,
             "jobs": jobs,
             "open": open,
+            "device_type": device_type,
         }
-
-        # the emulator field is only added in the case
-        # an emulator job is requested otherwise it's left empty
-        if emulator:
-            req.update({"emulator": emulator})
-
         # The configuration field is only added in the case
         # it's requested
         if configuration:
             req.update({"configuration": configuration.to_dict()})  # type: ignore[dict-item]
+
+        if tags:
+            req.update({"tags": tags})  # type: ignore[dict-item]
 
         # The backend_configuration is only added if
         # a value is provided
@@ -752,3 +784,28 @@ class SDK:
             return self._client.get_device_specs_dict()
         except HTTPError as e:
             raise DeviceSpecsFetchingError(e) from e
+
+    def set_batch_tags(
+        self,
+        batch_id: str,
+        tags: list[str],
+    ) -> Batch:
+        """Set tags to an existing batch, overwriting previous ones already set.
+
+        Args:
+            batch_id: Batch id.
+            tags: the tags defining the batch
+
+        Returns:
+            batch: The updated batch with newly set tags.
+
+        Raises:
+            BatchSetTagsError: If setting tags to a batch failed.
+        """
+
+        try:
+            resp = self._client.set_batch_tags(batch_id, tags)
+        except HTTPError as e:
+            raise BatchSetTagsError(e)
+
+        return Batch(**resp, _client=self._client)
