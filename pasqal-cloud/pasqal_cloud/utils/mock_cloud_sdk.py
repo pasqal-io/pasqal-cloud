@@ -4,7 +4,7 @@ Utilities for testing client libraries against the cloud SDK.
 
 import json
 from collections import defaultdict
-from typing import Any
+from typing import Any, Union
 from unittest.mock import MagicMock
 from uuid import uuid4
 
@@ -108,9 +108,9 @@ class MockSDK:
         self,
         serialized_sequence: str,  # noqa: ARG002
         jobs: list[CreateJob],
-        open: bool | None = None,
-        emulator: EmulatorType | None = None,
-        configuration: BaseConfig | None = None,
+        open: Union[bool, None] = None,
+        emulator: Union[EmulatorType, None] = None,
+        configuration: Union[BaseConfig, None] = None,
         wait: bool = False,  # noqa: ARG002
     ) -> Batch:
         """Create a batch of jobs and simulate its creation in the mock server."""
