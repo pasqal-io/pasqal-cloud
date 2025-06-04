@@ -1,0 +1,1 @@
+recursive-include pasqal_cloud/mock/fixtures *.json
