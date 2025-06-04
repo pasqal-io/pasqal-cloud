@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+- New MockSDK/MockServer, used for testing code that uses this SDK
+
 ## [0.20.3]
 
 - Use `device_type` parameter to assign the device to the batch.
 - Tags can be assigned to batches
 - Filter batches by tag
 - Add backend_configuration arg to create_batch for serialised configurations
-- New MockSDK/MockServer, used for testing code that uses this SDK
 
 ## [0.20.2]
 

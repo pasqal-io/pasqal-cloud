@@ -79,9 +79,8 @@ class MockSDK:
 
     Warning: This implements only a small subset of the functions available
         in the cloud SDK; focusing on the functions used by qek.
-        This should be extended to support all methods and moved to the
-        pasqal-cloud repository so that it can be reused for all future
-        libraries using the SDK.
+        This should be extended as needed for testing client libraries using
+        the SDK.
 
     Intended use:
     ```py
@@ -101,7 +100,9 @@ class MockSDK:
 
     def get_device_specs_dict(self) -> Any:
         """Retrieve the device specifications from a local JSON file."""
-        with open("tests/cloud_fixtures/device_specs.json", "r") as f:
+        with open(
+            "pasqal-cloud/pasqal_cloud/mock/fixtures/device_specs.json", "r"
+        ) as f:
             return json.load(f)
 
     def create_batch(
