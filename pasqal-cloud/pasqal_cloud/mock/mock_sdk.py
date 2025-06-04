@@ -2,6 +2,7 @@
 Utilities for testing client libraries against the cloud SDK.
 """
 
+import importlib.resources as resources
 import json
 from collections import defaultdict
 from typing import Any, Union
@@ -11,6 +12,7 @@ from uuid import uuid4
 from pasqal_cloud.batch import Batch
 from pasqal_cloud.device import BaseConfig, EmulatorType
 from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.mock import fixtures
 from pasqal_cloud.utils.filters import JobFilters
 from pasqal_cloud.utils.responses import PaginatedResponse
 
@@ -100,9 +102,8 @@ class MockSDK:
 
     def get_device_specs_dict(self) -> Any:
         """Retrieve the device specifications from a local JSON file."""
-        with open(
-            "pasqal-cloud/pasqal_cloud/mock/fixtures/device_specs.json", "r"
-        ) as f:
+        file_path = resources.files(fixtures) / "device_specs.json"
+        with file_path.open("r", encoding="utf-8") as f:
             return json.load(f)
 
     def create_batch(
