@@ -236,3 +236,30 @@ class InvalidDeviceTypeSet(BaseException):
         super().__init__(
             "Only emulator or device_type can be set when creating a batch."
         )
+
+
+class ProjectException(ExceptionWithResponseContext):
+    """
+    Base Exception class for projects
+    """
+
+
+class ProjectFetchingError(ProjectException):
+    """
+    Exception class raised when project fetching failed.
+    """
+
+    def __init__(self, e: HTTPError) -> None:
+        super().__init__("Project fetching failed", e)
+
+
+class ProjectNotFoundError(BaseException):
+    """
+    Exception class raised when a Project doesn't
+    exist or the user isn't a member of it.
+    """
+
+    def __init__(self, project_id: str) -> None:
+        super().__init__(
+            f"Project ID {project_id} does not exist or you are not a member of it."
+        )

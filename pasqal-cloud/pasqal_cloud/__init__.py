@@ -45,6 +45,8 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobFetchingError,
     OnlyCompleteOrOpenCanBeSet,
+    ProjectFetchingError,
+    ProjectNotFoundError,
     RebatchError,
     WorkloadCancellingError,
     WorkloadCreationError,
@@ -71,6 +73,7 @@ from pasqal_cloud.utils.responses import (
 from pasqal_cloud.workload import Workload
 
 from ._version import __version__, deprecation_date
+from .project import Project
 
 DEPRECATION_WARNING_PERIOD = timedelta(days=30)
 
@@ -809,3 +812,53 @@ class SDK:
             raise BatchSetTagsError(e)
 
         return Batch(**resp, _client=self._client)
+
+    def get_current_project(
+        self,
+    ) -> str:
+        """Get the ID of the project linked to the current SDK context.
+
+        Returns:
+            str: The ID of the project linked the current SDK context.
+        """
+        return self._client.project_id
+
+    def get_all_projects(
+        self,
+    ) -> list[Project]:
+        """Retrieve all active projects.
+
+        Returns:
+            list[Project]: A list of all active projects that the user has access to.
+
+        Raises:
+            ProjectFetchingError: If fetching projects failed.
+        """
+        try:
+            response = self._client.get_all_active_projects()
+        except HTTPError as e:
+            raise ProjectFetchingError(e)
+
+        return [Project(**project) for project in response]
+
+    def switch_to_project(self, project_id: str) -> str:
+        """Switch the SDK context to a different project.
+
+        Args:
+            project_id: The ID of the project to switch to.
+
+        Returns:
+            str: The ID of the newly chosen project.
+
+        Raises:
+            ProjectNotFoundError: If the specified project ID doesn't
+            exist or isn't accessible to the current user.
+        """
+        user_projects = self.get_all_projects()
+
+        if not any(project.id == project_id for project in user_projects):
+            raise ProjectNotFoundError(project_id)
+
+        self._client.project_id = project_id
+
+        return self._client.project_id
