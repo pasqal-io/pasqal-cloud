@@ -35,6 +35,7 @@ from pasqal_cloud.utils.filters import (
     RebatchFilters,
 )
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
+from pasqal_cloud.utils.requester import DefaultRequester, Requester
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -55,7 +56,12 @@ class Client:
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
+        requester: Requester | None = None,
     ):
+        if requester is None:
+            requester = DefaultRequester()
+        self.requester = requester
+
         self.endpoints = self._make_endpoints(endpoints)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
@@ -126,9 +132,8 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, **kwargs)
+    def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
+        resp = self.requester.request(*args, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -256,7 +261,7 @@ class Client:
 
     @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
-        response = requests.request("GET", results_link)
+        response = self.requester.request("GET", results_link)
         response.raise_for_status()
         data = response.json()
         return JobResult(
@@ -391,7 +396,7 @@ class Client:
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
-        response = requests.request(
+        response = self.requester.request(
             "GET", f"{self.endpoints.core}/api/v1/devices/public-specs"
         )
         response.raise_for_status()
