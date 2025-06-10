@@ -414,6 +414,6 @@ class Client:
         self,
     ) -> List[Dict[str, Any]]:
         response: List[Dict[str, Any]] = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v1/projects", {}, {"status": "ACTIVE"}
+            "GET", f"{self.endpoints.account}/api/v1/projects", {}, {"status": "ACTIVE"}
         )["data"]
         return response

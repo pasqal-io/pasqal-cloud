@@ -38,7 +38,7 @@ from pasqal_cloud.errors import (
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import BatchFilters
 
-from tests.conftest import mock_core_response
+from tests.conftest import mock_service_response
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.utils import build_query_params, mock_500_http_error_response
 
@@ -46,7 +46,7 @@ from tests.utils import build_query_params, mock_500_http_error_response
 class TestBatch:
     @pytest.fixture
     def load_mock_batch_json_response(self) -> Dict[str, Any]:
-        with open("tests/fixtures/api/v1/batches/_.POST.json") as f:
+        with open("tests/fixtures/core-fast/api/v1/batches/_.POST.json") as f:
             return json.load(f)
 
     @pytest.fixture(autouse=True)
@@ -291,7 +291,7 @@ class TestBatch:
 
         def custom_get_batch_mock(request, _):
             nonlocal call_count
-            resp = mock_core_response(request)
+            resp = mock_service_response(request, "core-fast")
             # Override with custom status the fixture data
             resp["data"]["jobs"][0]["status"] = job_statuses[call_count][0]
             resp["data"]["jobs"][1]["status"] = job_statuses[call_count][1]
@@ -634,7 +634,7 @@ class TestBatch:
         mock_request.reset_mock()
 
         def inline_mock_batch_response(request, _):
-            resp = mock_core_response(request)
+            resp = mock_service_response(request, "core-fast")
             resp["data"]["complete"] = False
             resp["data"]["open"] = True
             resp["data"]["id"] = self.batch_id
