@@ -68,6 +68,7 @@ setup(
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
+        "requests-mock==1.12.1",
     ],
     extras_require={
         "dev": {
@@ -76,7 +77,6 @@ setup(
             "pytest==8.1.1",
             "pytest-cov==5.0.0",
             "types-requests==2.31.0.1",
-            "requests-mock==1.12.1",
         },
         "docs": {
             "mkdocs==1.6.1",
