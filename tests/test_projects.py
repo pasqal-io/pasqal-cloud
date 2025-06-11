@@ -27,7 +27,6 @@ class TestProject:
         mock_request: requests_mock.mocker.Mocker,
     ):
         mock_request.reset_mock()
-
         projects = self.sdk.get_all_projects()
         assert len(projects) == 2
 
@@ -36,26 +35,18 @@ class TestProject:
         mock_request: requests_mock.mocker.Mocker,
     ):
         mock_request.reset_mock()
-
-        first_project_id = self.sdk.get_current_project()
-        assert first_project_id == self.project_id
-
+        assert self.sdk.project_id == self.project_id
         new_project_id = "54fd6ddf-73a6-45de-89c5-554ac48f8626"
         second_project_id = self.sdk.switch_to_project(new_project_id)
         assert second_project_id == new_project_id
-
-        verify_project_id = self.sdk.get_current_project()
-        assert verify_project_id == new_project_id
+        assert self.sdk.project_id == new_project_id
 
     def test_switch_to_other_non_existing_project(
         self,
         mock_request: requests_mock.mocker.Mocker,
     ):
         mock_request.reset_mock()
-
-        first_project_id = self.sdk.get_current_project()
-        assert first_project_id == self.project_id
-
+        assert self.sdk.project_id == self.project_id
         new_project_id = "00000000-0000-0000-0000-000000000001"
         with pytest.raises(
             ProjectNotFoundError,
@@ -63,6 +54,4 @@ class TestProject:
             "exist or you are not a member of it.",
         ):
             self.sdk.switch_to_project(new_project_id)
-
-        verify_project_id = self.sdk.get_current_project()
-        assert verify_project_id == first_project_id
+        assert self.sdk.project_id == self.project_id

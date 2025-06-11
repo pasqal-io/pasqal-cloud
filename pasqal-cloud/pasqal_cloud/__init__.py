@@ -165,6 +165,14 @@ class SDK:
     def user_token(self) -> Union[str, None]:
         return self._client.user_token()
 
+    @property
+    def project_id(self) -> Union[str, None]:
+        return self._client._project_id
+
+    @project_id.setter
+    def project_id(self, project_id: str) -> None:
+        self._client._project_id = project_id
+
     def _get_batch(
         self,
         id: str,
@@ -813,16 +821,6 @@ class SDK:
 
         return Batch(**resp, _client=self._client)
 
-    def get_current_project(
-        self,
-    ) -> str:
-        """Get the ID of the project linked to the current SDK context.
-
-        Returns:
-            str: The ID of the project linked the current SDK context.
-        """
-        return self._client.project_id
-
     def get_all_projects(
         self,
     ) -> list[Project]:
@@ -860,6 +858,6 @@ class SDK:
         if not any(project.id == project_id for project in user_projects):
             raise ProjectNotFoundError(project_id)
 
-        self._client.project_id = project_id
+        self.project_id = project_id
 
-        return self._client.project_id
+        return self.project_id
