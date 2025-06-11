@@ -53,6 +53,7 @@ from pasqal_cloud.errors import (
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import (  # noqa: F401
     BatchStatus,
     JobStatus,
@@ -73,7 +74,6 @@ from pasqal_cloud.utils.responses import (
 from pasqal_cloud.workload import Workload
 
 from ._version import __version__, deprecation_date
-from .project import Project
 
 DEPRECATION_WARNING_PERIOD = timedelta(days=30)
 
@@ -826,10 +826,11 @@ class SDK:
     def get_all_projects(
         self,
     ) -> list[Project]:
-        """Retrieve all active projects.
+        """Retrieve all active projects the user is a member of.
 
         Returns:
-            list[Project]: A list of all active projects that the user has access to.
+            list[Project]: A list of all active projects that
+            the user is a member of.
 
         Raises:
             ProjectFetchingError: If fetching projects failed.

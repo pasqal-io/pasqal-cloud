@@ -10,7 +10,7 @@ from pasqal_cloud import (
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
-class TestBatch:
+class TestProject:
     @pytest.fixture(autouse=True)
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
