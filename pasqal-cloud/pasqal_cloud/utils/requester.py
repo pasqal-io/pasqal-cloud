@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any
 
 import requests
@@ -12,7 +12,8 @@ class Requester(ABC):
     to mock up server responses during testing.
     """
 
-    def request(*args: Any, **kwargs: Any) -> Any:
+    @abstractmethod
+    def request(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
 
@@ -21,5 +22,5 @@ class DefaultRequester(Requester):
     The basic implementation of Requester, using `requests`.
     """
 
-    def request(*args: Any, **kwargs: Any) -> Any:
+    def request(self, *args: Any, **kwargs: Any) -> Any:
         return requests.request(*args, **kwargs)
