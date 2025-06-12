@@ -25,4 +25,5 @@ jobs:
           restore-keys: |
             doc-publish-
       - run: pip install .[docs]
+        working-directory: pasqal-cloud
       - run: mkdocs gh-deploy --force
