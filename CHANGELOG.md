@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+- Use `switch_to_project("project_id")` method to change the project linked to your SDK
+
 ## [0.20.3]
 
 - Use `device_type` parameter to assign the device to the batch.
