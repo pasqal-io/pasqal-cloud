@@ -20,7 +20,7 @@ from typing import Any, ClassVar
 
 import pasqal_cloud
 import pulser
-from pulser.backend.config import EmulatorConfig
+from pulser.backend import EmulationConfig, EmulatorConfig
 from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 
 from pulser_pasqal.pasqal_cloud import PasqalCloud
@@ -162,3 +162,29 @@ class EmuFreeBackend(PasqalEmulator):
 
     emulator = pasqal_cloud.EmulatorType.EMU_FREE
     default_config = DEFAULT_CONFIG_EMU_FREE
+
+
+class EmuMpsBackend(RemoteBackend):
+    def __init__(
+        self,
+        sequence: pulser.Sequence,
+        connection: PasqalCloud,
+        config: EmulationConfig,
+        mimic_qpu: bool = False,
+    ) -> None:
+        super().__init__(
+            sequence=sequence,
+            connection=connection,
+            mimic_qpu=mimic_qpu,
+        )
+        self._config = config
+        self._device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
+
+    def _submit_kwargs(self) -> dict[str, Any]:
+        """Keyword arguments given to any call to RemoteConnection.submit()."""
+        return dict(
+            batch_id=self._batch_id,
+            mimic_qpu=self._mimic_qpu,
+            backend_configuration=self._config,
+            device_type=self._device_type,
+        )
