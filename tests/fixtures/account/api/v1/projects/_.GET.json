@@ -1,0 +1,90 @@
+{
+  "code": 200,
+  "data": [
+    {
+      "account_manager": {
+        "email": "N/A",
+        "family_name": "N/A",
+        "given_name": "N/A",
+        "id": "testid"
+      },
+      "additional_access_grants": [],
+      "allowed_device_types": [
+        "EMU_FREE"
+      ],
+      "allowed_workload_types": [],
+      "company": "Pasqal",
+      "count": {
+        "ACTIVE_ADMIN": 1,
+        "ACTIVE_MEMBER": 0,
+        "PENDING": 0
+      },
+      "description": "A very interesting test",
+      "email_domain": null,
+      "id": "73feca86-a140-4ed8-a8e7-fe71428e0542",
+      "last_activity_date": null,
+      "main_admin": {
+        "email": "test@pasqal.com",
+        "family_name": "Test",
+        "given_name": "Super",
+        "id": "622d2e2d717e6b18dab02c0f"
+      },
+      "name": "Starter project test",
+      "package": "LEARN_BY_CODING",
+      "project_id": "73feca86-a140-4ed8-a8e7-fe71428e0542",
+      "project_status": "ACTIVE",
+      "project_type": "STARTER",
+      "queue_priority": "FREE"
+    },
+    {
+      "account_manager": {
+        "email": "N/A",
+        "family_name": "N/A",
+        "given_name": "N/A",
+        "id": "testid2"
+      },
+      "additional_access_grants": [
+        {
+          "grant": "usecase:submit",
+          "role": "ADMIN"
+        },
+        {
+          "grant": "usecase:submit",
+          "role": "MEMBER"
+        }
+      ],
+      "allowed_device_types": [
+        "EMU_FREE",
+        "EMU_TN",
+        "FRESNEL",
+        "EMU_MPS",
+        "EMU_FRESNEL"
+      ],
+      "allowed_workload_types": [],
+      "company": "company",
+      "count": {
+        "ACTIVE_ADMIN": 8,
+        "ACTIVE_MEMBER": 33,
+        "PENDING": 6
+      },
+      "description": "",
+      "email_domain": null,
+      "id": "54fd6ddf-73a6-45de-89c5-554ac48f8626",
+      "last_activity_date": "2025-06-09T14:42:32.538054+00:00",
+      "main_admin": {
+        "email": "N/A",
+        "family_name": "N/A",
+        "given_name": "N/A",
+        "id": "test2"
+      },
+      "name": "Pasqal",
+      "package": "QUANTUM_DISCOVERY",
+      "project_id": "54fd6ddf-73a6-45de-89c5-554ac48f8626",
+      "project_status": "ACTIVE",
+      "project_type": "INTERNAL",
+      "queue_priority": "LOW"
+    }
+  ],
+  "message": "OK.",
+  "status": "success"
+}

@@ -15,7 +15,8 @@ For EMU_TN:
 from pasqal_cloud.device import DeviceTypeName, EmuTNConfig
 
 configuration = EmuTNConfig(strict_validation=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN,
+                         configuration=configuration)
 ```
 
 For EMU_FREE:
@@ -24,7 +25,8 @@ For EMU_FREE:
 from pasqal_cloud.device import DeviceTypeName, EmuFreeConfig
 
 configuration = EmuFreeConfig(strict_validation=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE,
+                         configuration=configuration)
 ```
 
 For EMU_TN, you may add the integrator timestep in nanoseconds, the numerical accuracy desired in the tensor network
@@ -34,7 +36,8 @@ compression, and the maximal bond dimension of tensor network state.
 from pasqal_cloud.device import DeviceTypeName, EmuTNConfig
 
 configuration = EmuTNConfig(dt=10.0, precision="normal", max_bond_dim=100)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_TN,
+                         configuration=configuration)
 ```
 
 For EMU_FREE, you may add some default SPAM noise. Beware this makes your job take much longer.
@@ -43,7 +46,8 @@ For EMU_FREE, you may add some default SPAM noise. Beware this makes your job ta
 from pasqal_cloud.device import DeviceTypeName, EmuFreeConfig
 
 configuration = EmuFreeConfig(with_noise=True)
-batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE, configuration=configuration)
+batch = sdk.create_batch(serialized_sequence, [job1, job2], device_type=DeviceTypeName.EMU_FREE,
+                         configuration=configuration)
 ```
 
 Replace the corresponding section in the code examples above with this to add further configuration.
@@ -79,3 +83,20 @@ sdk = SDK(..., endpoints=PASQAL_ENDPOINTS['preprod'], auth0=AUTH0_CONFIG['prepro
 ```
 
 By default, the targeted environment for `endpoints` and `auth0` is `prod`.
+
+## Change the project linked to your SDK
+
+When you instantiate an SDK, you set the project it is linked to:
+
+```python
+sdk = SDK(username=username, password=password, project_id=project_id)
+```
+
+If you need to send batches/jobs/workloads to another project, you can do it without
+having to instantiate another SDK:
+
+```python
+sdk.switch_to_project("other_project_id")
+```
+
+Once switched, all your next actions will target the new chosen project.

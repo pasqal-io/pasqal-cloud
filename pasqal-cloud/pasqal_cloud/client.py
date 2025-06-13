@@ -409,3 +409,13 @@ class Client:
             tags,
         )["data"]
         return response
+
+    def get_all_active_projects(
+        self,
+    ) -> List[Dict[str, Any]]:
+        response: List[Dict[str, Any]] = self._authenticated_request(
+            "GET",
+            f"{self.endpoints.account}/api/v1/projects",
+            params={"project_status": "ACTIVE"},
+        )["data"]
+        return response
