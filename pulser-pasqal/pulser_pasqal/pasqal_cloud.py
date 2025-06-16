@@ -96,9 +96,6 @@ class PasqalCloud(RemoteConnection):
             logging.warning("emulator is deprecated. Please use device_type instead")
             if device_type:
                 raise ValueError("Can't use emulator and device_type at the same time.")
-            device_type = emulator
-        elif not device_type:
-            device_type = pasqal_cloud.DeviceTypeName.FRESNEL
 
         job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
 
@@ -140,6 +137,7 @@ class PasqalCloud(RemoteConnection):
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
                 jobs=job_params or [],  # type: ignore[arg-type]
+                emulator=emulator,
                 device_type=device_type,
                 configuration=configuration,
                 backend_configuration=backend_configuration_str,
