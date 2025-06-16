@@ -164,7 +164,7 @@ class EmuFreeBackend(PasqalEmulator):
     default_config = DEFAULT_CONFIG_EMU_FREE
 
 
-class EmuMpsBackend(RemoteBackend):
+class EmuMPSBackend(RemoteBackend):
     def __init__(
         self,
         sequence: pulser.Sequence,
@@ -177,6 +177,11 @@ class EmuMpsBackend(RemoteBackend):
             connection=connection,
             mimic_qpu=mimic_qpu,
         )
+        if not isinstance(config, EmulationConfig):
+            raise TypeError(
+                "'config' must be an instance of 'EmulationConfig', "
+                f"not {type(config)}."
+            )
         self._config = config
         self._device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
 
