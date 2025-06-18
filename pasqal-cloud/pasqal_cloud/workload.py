@@ -82,7 +82,6 @@ class Workload(BaseModel):
         if result or not result_link:
             return result
         try:
-            # FIXME: How do we mock this?
             res = requests.get(result_link)
         except HTTPError as e:
             raise WorkloadResultsDownloadError(e) from e

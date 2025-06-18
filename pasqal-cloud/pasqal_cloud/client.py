@@ -309,6 +309,7 @@ class Client:
     def get_jobs(
         self, filters: JobFilters, pagination_params: PaginationParams
     ) -> JSendPayload:
+        # Note: For some reason, we have two methods for calling /api/v2/jobs.
         filters_params = filters.model_dump(exclude_unset=True)
         filters_params.update(pagination_params.model_dump())
         response: JSendPayload = self._authenticated_request(
