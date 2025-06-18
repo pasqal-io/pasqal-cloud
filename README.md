@@ -45,7 +45,8 @@ this repository after cloning it:
 
 ```bash
 git checkout dev
-pip install -e pasqal-cloud -e pulser-pasqal
+pip install -e pasqal-cloud --config-settings editable_mode=compat
+pip install -e pulser-pasqal --config-settings editable_mode=compat
 ```
 
 Bear in mind that this installation will track the contents of your local
@@ -57,7 +58,7 @@ your installation will change accordingly.
 To run the tutorials or the test suite locally, run the following to install the development requirements:
 
 ```bash
-pip install -e pasqal-cloud[dev] -e pulser-pasqal
+pip install -e pulser-pasqal[dev] --config-settings editable_mode=compat
 ```
 
 We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
