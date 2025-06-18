@@ -100,7 +100,10 @@ class PasqalCloud(RemoteConnection):
         job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
 
         mimic_qpu: bool = kwargs.get("mimic_qpu", False)
-        if mimic_qpu:
+
+        # This check will be moved to RemoteBackend.run() and can be removed
+        # once the following Pulser PR is released: https://github.com/pasqal-io/Pulser/pull/888
+        if (not emulator and not device_type) or mimic_qpu:
             sequence = self.update_sequence_device(sequence)
             QPUBackend.validate_job_params(job_params, sequence.device.max_runs)
 
