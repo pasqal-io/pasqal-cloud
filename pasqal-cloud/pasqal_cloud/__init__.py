@@ -189,11 +189,11 @@ class SDK:
     ) -> DeviceTypeName:
         if device_type == DeviceTypeName.EMU_TN:
             warn(
-                "EMU_TN will be deprecated on September 1st. While you will be able to "
-                "resubmit existing batches, you won't be able to create new submissions "
-                "for it. Please consider moving any work using EMU_TN to our EMU_MPS "
-                "device.  See our official documentation for details "
-                "https://docs.pasqal.com/cloud/emu-mps/."
+                "EMU_TN will be deprecated on September 1st. While you will be "
+                "able to resubmit existing batches, you won't be able to create "
+                "new submissions for it. Please consider moving any work using "
+                "EMU_TN to our EMU_MPS device.  See our official documentation "
+                "for details https://docs.pasqal.com/cloud/emu-mps/."
             )
         if emulator is not None and device_type is not None:
             raise InvalidDeviceTypeSet
