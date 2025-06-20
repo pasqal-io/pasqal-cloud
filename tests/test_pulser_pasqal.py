@@ -289,7 +289,7 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
     seq.delay(t if parametrized else 100, "rydberg_global")
     assert seq.is_parametrized() == parametrized
 
-    if not emulator or mimic_qpu:
+    if mimic_qpu:
         seq2 = seq.switch_device(virtual_device)
         with pytest.raises(
             ValueError,
@@ -396,6 +396,8 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
         emulator=emulator,
+        device_type=None,
+        backend_configuration=None,
         configuration=sdk_config,
         wait=False,
         open=False,
@@ -533,6 +535,8 @@ def test_emulators_run(fixt, seq, emu_cls, parametrized: bool, mimic_qpu):
         serialized_sequence=seq.to_abstract_repr(),
         jobs=good_kwargs.get("job_params", []),
         emulator=emulator_type,
+        device_type=None,
+        backend_configuration=None,
         configuration=sdk_config,
         wait=False,
         open=False,
