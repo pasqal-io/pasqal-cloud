@@ -20,7 +20,7 @@ from typing import Any, ClassVar
 
 import pasqal_cloud
 import pulser
-from pulser.backend import EmulationConfig, EmulatorConfig
+from pulser.backend import BitStrings, EmulationConfig, EmulatorConfig, EmulatorBackend
 from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 
 from pulser_pasqal.pasqal_cloud import PasqalCloud
@@ -164,25 +164,29 @@ class EmuFreeBackend(PasqalEmulator):
     default_config = DEFAULT_CONFIG_EMU_FREE
 
 
-class EmuMPSBackend(RemoteBackend):
+class EmuMPSBackend(RemoteBackend, EmulatorBackend):
+    default_config = EmulationConfig(observables=[BitStrings()])
+
     def __init__(
         self,
         sequence: pulser.Sequence,
         connection: PasqalCloud,
-        config: EmulationConfig,
+        *,
+        config: EmulationConfig | None = None,
         mimic_qpu: bool = False,
     ) -> None:
-        super().__init__(
+        RemoteBackend.__init__(
+            self,
             sequence=sequence,
             connection=connection,
             mimic_qpu=mimic_qpu,
         )
-        if not isinstance(config, EmulationConfig):
-            raise TypeError(
-                "'config' must be an instance of 'EmulationConfig', "
-                f"not {type(config)}."
-            )
-        self._config = config
+        EmulatorBackend.__init__(
+            self,
+            sequence,
+            config=config,
+            mimic_qpu=mimic_qpu,
+        )
         self._device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
 
     def _submit_kwargs(self) -> dict[str, Any]:
