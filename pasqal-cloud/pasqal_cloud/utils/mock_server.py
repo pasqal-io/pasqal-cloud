@@ -1,6 +1,6 @@
 import abc
 import re
-from typing import Any
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
 import requests_mock
@@ -25,7 +25,7 @@ class BaseMockServer(abc.ABC):
     ```
     """
 
-    def __init__(self, endpoints: Endpoints | None = None):
+    def __init__(self, endpoints: Optional[Endpoints] = None):
         self.mocker = requests_mock.Mocker()
         self.endpoints = endpoints
         if self.endpoints is None:
@@ -89,7 +89,7 @@ class BaseMockServer(abc.ABC):
                 request: Any,
                 context: Any,
                 # Force capture from current loop iteration.
-                impl=impl,
+                impl: Callable[[Any, Any, list[str]], Any] = impl,
                 compiled_full_url=compiled_full_url,
             ) -> Any:
                 matches: list[str] = compiled_full_url.findall(request.url)
