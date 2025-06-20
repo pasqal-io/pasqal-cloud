@@ -126,8 +126,7 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
+    def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
         resp = requests.request(*args, **kwargs)
         resp.raise_for_status()
         return resp
@@ -310,6 +309,7 @@ class Client:
     def get_jobs(
         self, filters: JobFilters, pagination_params: PaginationParams
     ) -> JSendPayload:
+        # Note: For some reason, we have two methods for calling /api/v2/jobs.
         filters_params = filters.model_dump(exclude_unset=True)
         filters_params.update(pagination_params.model_dump())
         response: JSendPayload = self._authenticated_request(
