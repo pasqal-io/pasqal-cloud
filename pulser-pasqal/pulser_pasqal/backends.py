@@ -20,6 +20,7 @@ from typing import Any, ClassVar
 
 import pasqal_cloud
 import pulser
+from pasqal_cloud.device.device_types import DeviceTypeName
 from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend, EmulatorConfig
 from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 
@@ -165,7 +166,7 @@ class EmuFreeBackend(PasqalEmulator):
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
-    _device_type = None
+    _device_type: DeviceTypeName
 
     def __init__(
         self,
