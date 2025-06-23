@@ -27,6 +27,7 @@ test_device = dataclasses.replace(
     FakeAuth0AuthenticationSuccess,
 )
 def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker):
+    mock_request.reset_mock()
     connection = PasqalCloud(username="test", password="test", project_id=str(uuid4()))
 
     device = AnalogDevice

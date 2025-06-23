@@ -166,7 +166,7 @@ class EmuFreeBackend(PasqalEmulator):
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
-    _device_type: DeviceTypeName
+    _device_type: ClassVar[DeviceTypeName]
 
     def __init__(
         self,
@@ -188,6 +188,13 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
             config=config,
             mimic_qpu=mimic_qpu,
         )
+        # To be deleted once this PR is released: https://github.com/pasqal-io/Pulser/pull/890
+        self._config = type(self.default_config)(
+            **{
+                **self.default_config._backend_options,
+                **(config._backend_options if config else {}),
+            }
+        )
 
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""
@@ -201,17 +208,26 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
 
 
 class EmuMPSBackend(RemoteEmulatorBackend):
-    default_config = EmulationConfig(observables=[BitStrings()])
-    _device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
+    """
+    Backend for executing quantum programs using the EMU-MPS emulator.
 
-    def __init__(
-        self,
-        sequence: pulser.Sequence,
-        connection: PasqalCloud,
-        *,
-        config: EmulationConfig | None = None,
-        mimic_qpu: bool = False,
-    ) -> None:
-        super().__init__(
-            sequence=sequence, connection=connection, config=config, mimic_qpu=mimic_qpu
-        )
+    The config supports various fields. For a complete list of accepted
+    parameters (passed as `**kwargs`), refer to the official EMU-MPS documentation:
+    https://pasqal-io.github.io/emulators/latest/emu_mps/api/#mpsconfig
+
+    Args:
+        sequence: The quantum sequence to execute on the backend.
+        connection: An open PasqalCloud connection.
+        config: An EmulationConfig object to configure the backend. If not provided,
+            the default configuration will be used.
+        mimic_qpu: Whether to mimic the validations required for
+            execution on a QPU.
+    """
+
+    default_config = EmulationConfig(
+        observables=[BitStrings()],
+        num_gpus_to_use=1,
+        autosave_dt=float("inf"),
+        optimize_qubit_ordering=True,
+    )
+    _device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
