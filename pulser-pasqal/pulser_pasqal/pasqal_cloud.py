@@ -15,19 +15,15 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import fields
 from typing import Any, Mapping, Type, cast
 
 import backoff
 import pasqal_cloud
-from pasqal_cloud.device.configuration import (
-    BaseConfig,
-    EmuFreeConfig,
-    EmuTNConfig,
-)
-
+from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pulser import Sequence
-from pulser.backend.config import EmulatorConfig
+from pulser.backend.config import EmulationConfig, EmulatorConfig
 from pulser.backend.qpu import QPUBackend
 from pulser.backend.remote import (
     BatchStatus,
@@ -88,14 +84,26 @@ class PasqalCloud(RemoteConnection):
         wait: bool = False,
         open: bool = False,
         batch_id: str | None = None,
+        device_type: pasqal_cloud.DeviceTypeName | None = None,
+        backend_configuration: EmulationConfig | None = None,
         **kwargs: Any,
     ) -> RemoteResults:
         """Submits the sequence for execution on a remote Pasqal backend."""
         sequence = self._add_measurement_to_sequence(sequence)
+
         emulator = kwargs.get("emulator", None)
+        if emulator:
+            logging.warning("emulator is deprecated. Please use device_type instead")
+            if device_type:
+                raise ValueError("Can't use emulator and device_type at the same time.")
+
         job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
+
         mimic_qpu: bool = kwargs.get("mimic_qpu", False)
-        if emulator is None or mimic_qpu:
+
+        # This check will be moved to RemoteBackend.run() and can be removed
+        # once the following Pulser PR is released: https://github.com/pasqal-io/Pulser/pull/888
+        if (not emulator and not device_type) or mimic_qpu:
             sequence = self.update_sequence_device(sequence)
             QPUBackend.validate_job_params(job_params, sequence.device.max_runs)
 
@@ -109,7 +117,9 @@ class PasqalCloud(RemoteConnection):
             emulator=emulator,
             strict_validation=mimic_qpu,
         )
-
+        backend_configuration_str = (
+            backend_configuration.to_abstract_repr() if backend_configuration else None
+        )
         # If batch_id is not empty, then we can submit new jobs to a
         # batch we just created otherwise, create a new one with
         #  _sdk_connection.create_batch()
@@ -131,7 +141,9 @@ class PasqalCloud(RemoteConnection):
                 serialized_sequence=sequence.to_abstract_repr(),
                 jobs=job_params or [],  # type: ignore[arg-type]
                 emulator=emulator,
+                device_type=device_type,
                 configuration=configuration,
+                backend_configuration=backend_configuration_str,
                 wait=wait,
                 open=open,
             )
