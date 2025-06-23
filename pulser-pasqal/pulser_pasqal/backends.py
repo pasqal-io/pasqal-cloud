@@ -165,6 +165,8 @@ class EmuFreeBackend(PasqalEmulator):
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
+    _device_type = None
+
     def __init__(
         self,
         sequence: pulser.Sequence,
