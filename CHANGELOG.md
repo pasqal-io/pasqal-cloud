@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
-- Added `switch_to_project("project_id")` method to change the project linked to your SDK
-- Added `get_all_projects()` method to get the list of all active projects the user is a member
+### pulser-pasqal
+* Introduce a new Backend for EMU MPS on `pulser-pasqal`
+
+### pasqal-cloud
+* Added `switch_to_project("project_id")` method to change the project linked to your SDK
+* Added `get_all_projects()` method to get the list of all active projects the user is a member
 
 ## [0.20.3]
 
