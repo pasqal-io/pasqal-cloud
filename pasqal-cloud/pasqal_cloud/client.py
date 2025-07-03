@@ -39,8 +39,11 @@ from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
+
+
 # Env variable to disable SSL verification. Should be used only in testing environement
-SKIP_SSL_VERIFY = os.getenv("PASQAL_SKIP_SSL_VERIFY", False)
+def skip_ssl_certif():
+    return os.getenv("PASQAL_SKIP_SSL_VERIFY", False)
 
 
 class EmptyFilter:
@@ -131,7 +134,7 @@ class Client:
 
     @staticmethod
     def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, verify=not SKIP_SSL_VERIFY, **kwargs)
+        resp = requests.request(*args, verify=not skip_ssl_certif(), **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -262,7 +265,7 @@ class Client:
         response = requests.request(
             "GET",
             results_link,
-            verify=not SKIP_SSL_VERIFY,
+            verify=not skip_ssl_certif(),
         )
         response.raise_for_status()
         data = response.json()
@@ -401,7 +404,7 @@ class Client:
         response = requests.request(
             "GET",
             f"{self.endpoints.core}/api/v1/devices/public-specs",
-            verify=not SKIP_SSL_VERIFY,
+            verify=not skip_ssl_certif(),
         )
         response.raise_for_status()
         devices = response.json()["data"]
