@@ -117,6 +117,10 @@ class ExpiringTokenProvider(TokenProvider, ABC):
         return None
 
 
+AUTH0_TOKEN_PROVIDER_SCOPE = "openid profile email"
+AUTH0_TOKEN_PROVIDER_GRANT_TYPE = "http://auth0.com/oauth/grant-type/password-realm"
+
+
 class Auth0TokenProvider(ExpiringTokenProvider):
     """ExpiringTokenProvider implementation which fetches a token from auth0."""
 
@@ -147,9 +151,9 @@ class Auth0TokenProvider(ExpiringTokenProvider):
             username=self.username,
             password=self.password,
             audience=self.auth0.audience,
-            scope="openid profile email",
+            scope=AUTH0_TOKEN_PROVIDER_SCOPE,
             realm=self.auth0.realm,
-            grant_type="http://auth0.com/oauth/grant-type/password-realm",
+            grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
         )
         return validated_token
 
@@ -169,9 +173,9 @@ class InsecureAuth0TokenProvider(Auth0TokenProvider):
                 "password": self.password,
                 "realm": self.auth0.realm,
                 "client_secret": "",
-                "scope": "openid profile email",
+                "scope": AUTH0_TOKEN_PROVIDER_SCOPE,
                 "audience": self.auth0.audience,
-                "grant_type": "http://auth0.com/oauth/grant-type/password-realm",
+                "grant_type": AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
             },
             verify=False,
         )
