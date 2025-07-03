@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
+import requests
 from auth0.v3.authentication import GetToken  # type: ignore[import-untyped]
 from jwt import decode, DecodeError
 from requests import PreparedRequest
@@ -151,3 +152,28 @@ class Auth0TokenProvider(ExpiringTokenProvider):
             grant_type="http://auth0.com/oauth/grant-type/password-realm",
         )
         return validated_token
+
+
+class InsecureAuth0TokenProvider(Auth0TokenProvider):
+    """Token Provider for auth0 with SSL verification disabled
+
+    Should be only used in testing environments.
+    """
+
+    def _query_token(self) -> Any:
+        response = requests.post(
+            "https://{}/oauth/token".format(self.auth0.domain),
+            data={
+                "client_id": self.auth0.public_client_id,
+                "username": self.username,
+                "password": self.password,
+                "realm": self.auth0.realm,
+                "client_secret": "",
+                "scope": "openid profile email",
+                "audience": self.auth0.audience,
+                "grant_type": "http://auth0.com/oauth/grant-type/password-realm",
+            },
+            verify=False,
+        )
+        response.raise_for_status()
+        return response.json()

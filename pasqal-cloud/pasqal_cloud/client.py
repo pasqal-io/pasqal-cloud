@@ -13,6 +13,7 @@
 # limitations under the License.
 from __future__ import annotations
 
+import os
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
@@ -38,6 +39,8 @@ from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
+# Env variable to disable SSL verification. Should be used only in testing environement
+SKIP_SSL_VERIFY = os.getenv("PASQAL_SKIP_SSL_VERIFY", False)
 
 
 class EmptyFilter:
@@ -128,7 +131,7 @@ class Client:
 
     @staticmethod
     def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, **kwargs)
+        resp = requests.request(*args, verify=not SKIP_SSL_VERIFY, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -256,7 +259,11 @@ class Client:
 
     @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
-        response = requests.request("GET", results_link)
+        response = requests.request(
+            "GET",
+            results_link,
+            verify=not SKIP_SSL_VERIFY,
+        )
         response.raise_for_status()
         data = response.json()
         return JobResult(
@@ -392,7 +399,9 @@ class Client:
 
     def get_public_device_specs(self) -> Dict[str, str]:
         response = requests.request(
-            "GET", f"{self.endpoints.core}/api/v1/devices/public-specs"
+            "GET",
+            f"{self.endpoints.core}/api/v1/devices/public-specs",
+            verify=not SKIP_SSL_VERIFY,
         )
         response.raise_for_status()
         devices = response.json()["data"]
