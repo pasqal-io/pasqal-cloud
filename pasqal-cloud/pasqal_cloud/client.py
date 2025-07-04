@@ -126,8 +126,7 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
+    def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
         resp = requests.request(*args, **kwargs)
         resp.raise_for_status()
         return resp
