@@ -77,6 +77,9 @@ class Client:
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
+        self.session = requests.Session()
+        self.session.verify = not _skip_ssl_verify()
+
     def user_token(self) -> Union[str, None]:
         return (
             self.authenticator.token_provider.get_token()  # type: ignore[attr-defined]
@@ -132,9 +135,8 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, verify=not _skip_ssl_verify(), **kwargs)
+    def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
+        resp = self.session.request(*args, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -262,11 +264,7 @@ class Client:
 
     @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
-        response = requests.request(
-            "GET",
-            results_link,
-            verify=not _skip_ssl_verify(),
-        )
+        response = self.session.request("GET", results_link)
         response.raise_for_status()
         data = response.json()
         return JobResult(
@@ -401,10 +399,9 @@ class Client:
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
-        response = requests.request(
+        response = self.session.request(
             "GET",
             f"{self.endpoints.core}/api/v1/devices/public-specs",
-            verify=not _skip_ssl_verify(),
         )
         response.raise_for_status()
         devices = response.json()["data"]
