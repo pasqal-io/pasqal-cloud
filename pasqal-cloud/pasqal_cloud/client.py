@@ -13,6 +13,7 @@
 # limitations under the License.
 from __future__ import annotations
 
+import os
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
@@ -38,6 +39,11 @@ from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
+
+
+# Env variable to disable SSL verification. Should be used only in testing environement
+def _skip_ssl_verify() -> bool:
+    return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
 
 
 class EmptyFilter:
@@ -70,6 +76,9 @@ class Client:
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
+
+        self.session = requests.Session()
+        self.session.verify = not _skip_ssl_verify()
 
     def user_token(self) -> Union[str, None]:
         return (
@@ -126,9 +135,8 @@ class Client:
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
         return token_provider
 
-    @staticmethod
-    def _request_with_status_check(*args: Any, **kwargs: Any):  # type: ignore
-        resp = requests.request(*args, **kwargs)
+    def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
+        resp = self.session.request(*args, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -256,7 +264,7 @@ class Client:
 
     @retry_http_error(max_retries=5, retry_exceptions=(requests.ConnectionError,))
     def _download_results(self, results_link: str) -> JobResult:
-        response = requests.request("GET", results_link)
+        response = self.session.request("GET", results_link)
         response.raise_for_status()
         data = response.json()
         return JobResult(
@@ -391,8 +399,9 @@ class Client:
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
-        response = requests.request(
-            "GET", f"{self.endpoints.core}/api/v1/devices/public-specs"
+        response = self.session.request(
+            "GET",
+            f"{self.endpoints.core}/api/v1/devices/public-specs",
         )
         response.raise_for_status()
         devices = response.json()["data"]
