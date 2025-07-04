@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+- Allow skipping the SSL certificate validation when making http requests in test environments by setting the `PASQAL_SKIP_SSL_VERIFY` env variable. Introduce `InsecureAuth0TokenProvider` to fetch a token from auth0 without SSL verification check.
+
 ## [0.20.3]
 
 - Use `device_type` parameter to assign the device to the batch.
