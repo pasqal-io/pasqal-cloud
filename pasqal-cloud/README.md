@@ -304,6 +304,12 @@ sdk.get_device_specs_dict()
 The method returns a dict object mapping a device type to a serialized device specs. These specs can be used
 to instantiate a `Device` instance in the `Pulser` library.
 
+### Use the pasqal-cloud SDK behind a proxy
+
+The pasqal-cloud SDK uses the [`requests` library](https://requests.readthedocs.io/en/latest/) to make HTTP calls to Pasqal's cloud APIs.
+
+Please refer to the [requests documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies) to use the SDK behind a proxy. Be sure to set the HTTP_PROXY, HTTPS_PROXY, or ALL_PROXY environment variables to route traffic through your proxy. If your proxy uses a custom certificate, you may also need to set REQUESTS_CA_BUNDLE so that your local machine trusts the proxy's certificate.
+
 ### Target different API endpoints
 
 This is intended for the package developers or users which were given access to non-prod
