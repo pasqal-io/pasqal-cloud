@@ -308,7 +308,7 @@ to instantiate a `Device` instance in the `Pulser` library.
 
 The pasqal-cloud SDK uses the [`requests` library](https://requests.readthedocs.io/en/latest/) to make HTTP calls to Pasqal's cloud APIs.
 
-Please refer to the [requests documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies) to use the SDK behind a proxy. Be sure to set the HTTP_PROXY, HTTPS_PROXY, or ALL_PROXY environment variables to route traffic through your proxy. If your proxy uses a custom certificate, you may also need to set REQUESTS_CA_BUNDLE so that your local machine trusts the proxy's certificate.
+Please refer to the [requests documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies) to use the SDK behind a proxy. Be sure to set the HTTP_PROXY, HTTPS_PROXY, or ALL_PROXY environment variables to route traffic through your proxy. If your proxy uses a self-signed certificate, the certificate authority must be included in your CA bundle. One way to do it is to set the environment variable REQUESTS_CA_BUNDLE to the path of the file containing the certificate authority.
 
 ### Target different API endpoints
 
