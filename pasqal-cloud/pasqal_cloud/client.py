@@ -88,6 +88,10 @@ class Client:
         )
 
     @property
+    def batch_endpoint_url(self) -> str:
+        return f"{self.endpoints.core}/api/v1/batches"
+
+    @property
     def project_id(self) -> str:
         if not self._project_id:
             raise ValueError("You need to set a project_id.")
@@ -238,7 +242,7 @@ class Client:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
-            f"{self.endpoints.core}/api/v1/batches",
+            self.batch_endpoint_url,
             batch_data,
         )["data"]
         return response

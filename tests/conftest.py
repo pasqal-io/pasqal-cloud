@@ -209,3 +209,10 @@ def job(pasqal_client_mock):
         "variables": {"param1": 1, "param2": 2, "param3": 3},
     }
     return Job(**job_data)
+
+
+@pytest.fixture
+def _clear_ovh_test_env():
+    os.environ.pop("PASQAL_DELEGATED_TOKEN", None)
+    yield
+    os.environ.pop("PASQAL_DELEGATED_TOKEN", None)
