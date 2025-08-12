@@ -17,10 +17,10 @@ from typing import Any, Dict, Optional
 
 from requests.auth import AuthBase
 
-from pasqal_cloud import Client
 from pasqal_cloud.authentication import (
     TokenProvider,
 )
+from pasqal_cloud.client import Client
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
 
 TIMEOUT = 30  # client http requests timeout after 30s
@@ -40,7 +40,7 @@ class OvhClient(Client):
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
-        project_id=None,
+        project_id: Optional[str] = None,
     ):
         super().__init__(
             project_id=project_id,
@@ -59,6 +59,10 @@ class OvhClient(Client):
         a project_id
         """
         return ""
+
+    @project_id.setter
+    def project_id(self, _project_id: str) -> None:
+        self._project_id = ""
 
     @property
     def batch_endpoint_url(self) -> str:

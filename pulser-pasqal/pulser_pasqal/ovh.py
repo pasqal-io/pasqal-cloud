@@ -1,7 +1,7 @@
 import os
 
 import pasqal_cloud
-from pasqal_cloud import TokenProvider
+from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.ovh_client import OvhClient
 
 from pulser_pasqal.pasqal_cloud import PasqalCloud
@@ -18,15 +18,16 @@ class OVHConnection(PasqalCloud):
        EnvironmentError: If PASQAL_DELEGATED_TOKEN environment variable is not set.
     """
 
-    def __init__(self):
-        token = os.environ.get("PASQAL_DELEGATED_TOKEN")
-        if not token:
+    def __init__(self) -> None:
+        try:
+            token = os.environ["PASQAL_DELEGATED_TOKEN"]
+        except KeyError:
             raise EnvironmentError(
                 "Missing PASQAL_DELEGATED_TOKEN environment variable"
             )
 
         class OvhTokenProvider(TokenProvider):
-            def get_token(self):
+            def get_token(self) -> str:
                 return token
 
         self._sdk_connection = pasqal_cloud.SDK(
