@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import pasqal_cloud
 from pasqal_cloud.authentication import TokenProvider
@@ -18,7 +19,7 @@ class OVHConnection(PasqalCloud):
        EnvironmentError: If PASQAL_DELEGATED_TOKEN environment variable is not set.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         try:
             token = os.environ["PASQAL_DELEGATED_TOKEN"]
         except KeyError:
@@ -31,7 +32,7 @@ class OVHConnection(PasqalCloud):
                 return token
 
         self._sdk_connection = pasqal_cloud.SDK(
-            token_provider=OvhTokenProvider(), client_class=OvhClient
+            token_provider=OvhTokenProvider(), client_class=OvhClient, **kwargs
         )
 
     def supports_open_batch(self) -> bool:
