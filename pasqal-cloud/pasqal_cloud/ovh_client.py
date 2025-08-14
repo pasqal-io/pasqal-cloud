@@ -17,11 +17,13 @@ from typing import Any, Dict, Optional
 
 from requests.auth import AuthBase
 
+from pasqal_cloud import JobFilters, PaginationParams
 from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.client import Client
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s
 
@@ -65,13 +67,53 @@ class OvhClient(Client):
         self._project_id = ""
 
     @property
-    def batch_endpoint_url(self) -> str:
-        return f"{self.endpoints.core}/api/v1/third-party-access/ovh/batches"
+    def ovh_endpoint_url(self) -> str:
+        return f"{self.endpoints.core}/api/v1/third-party-access/ovh"
 
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
-            self.batch_endpoint_url,
+            f"{self.ovh_endpoint_url}/batches",
             batch_data,
         )["data"]
         return response
+
+    def get_batch(self, batch_id: str) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "GET", f"{self.ovh_endpoint_url}/batches/{batch_id}"
+        )["data"]
+        return response
+
+    def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
+        return self._request_all_pages(
+            "GET",
+            f"{self.ovh_endpoint_url}/jobs",
+            params={
+                "batch_id": batch_id,
+                "order_by": "created_at",
+                "order_by_direction": "ASC",
+            },
+        )
+
+    def get_jobs(
+        self, filters: JobFilters, pagination_params: PaginationParams
+    ) -> JSendPayload:
+        filters_params = filters.model_dump(exclude_unset=True)
+        filters_params.update(pagination_params.model_dump())
+        response: JSendPayload = self._authenticated_request(
+            "GET",
+            f"{self.ovh_endpoint_url}/jobs",
+            params=filters_params,
+        )
+        return response
+
+    def get_job_results(self, job_id: str) -> Optional[JobResult]:
+        results_link = self._authenticated_request(
+            "GET", f"{self.ovh_endpoint_url}/jobs/{job_id}/results_link"
+        )["data"]["results_link"]
+        if results_link:
+            return self._download_results(results_link)
+        return None
+
+    def get_device_specs_dict(self) -> Dict[str, str]:
+        return self.get_public_device_specs()

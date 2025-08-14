@@ -20,4 +20,10 @@ from pulser_pasqal.backends import EmuFreeBackend, EmuMPSBackend, EmuTNBackend
 from pulser_pasqal.ovh import OVHConnection
 from pulser_pasqal.pasqal_cloud import PasqalCloud
 
-__all__ = ["EmuFreeBackend", "EmuTNBackend", "PasqalCloud", "EmuMPSBackend", "OVHConnection"]
+__all__ = [
+    "EmuFreeBackend",
+    "EmuTNBackend",
+    "PasqalCloud",
+    "EmuMPSBackend",
+    "OVHConnection",
+]
