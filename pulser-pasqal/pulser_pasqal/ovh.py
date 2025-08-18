@@ -8,6 +8,10 @@ from pasqal_cloud.ovh_client import OvhClient
 from pulser_pasqal.pasqal_cloud import PasqalCloud
 
 
+class MissingEnvironmentVariableError(RuntimeError):
+    pass
+
+
 class OVHConnection(PasqalCloud):
     """PasqalCloud connection designed for OVH users.
 
@@ -23,7 +27,7 @@ class OVHConnection(PasqalCloud):
         try:
             token = os.environ["PASQAL_DELEGATED_TOKEN"]
         except KeyError:
-            raise EnvironmentError(
+            raise MissingEnvironmentVariableError(
                 "Missing PASQAL_DELEGATED_TOKEN environment variable"
             )
 

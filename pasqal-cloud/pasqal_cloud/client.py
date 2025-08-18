@@ -46,10 +46,6 @@ def _skip_ssl_verify() -> bool:
     return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
 
 
-class EmptyFilter:
-    pass
-
-
 class Client:
     authenticator: AuthBase | None
 

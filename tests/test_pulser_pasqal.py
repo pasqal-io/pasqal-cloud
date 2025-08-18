@@ -42,6 +42,7 @@ from pulser.result import SampledResult
 from pulser.sequence import Sequence
 from pulser_pasqal import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
 from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
+from pulser_pasqal.ovh import MissingEnvironmentVariableError
 
 root = Path(__file__).parent.parent
 
@@ -613,11 +614,12 @@ def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
 
 def test_init_without_token_raises_error(_clear_ovh_test_env):
     """
-    OVHConnection.__init__ should raise EnvironmentError
+    OVHConnection.__init__ should raise MissingEnvironmentVariableError
     if PASQAL_DELEGATED_TOKEN is missing.
     """
     with pytest.raises(
-        EnvironmentError, match="Missing PASQAL_DELEGATED_TOKEN environment variable"
+        MissingEnvironmentVariableError,
+        match="Missing PASQAL_DELEGATED_TOKEN environment variable",
     ):
         ovh.OVHConnection()
 

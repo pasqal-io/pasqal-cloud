@@ -28,10 +28,6 @@ from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 TIMEOUT = 30  # client http requests timeout after 30s
 
 
-class EmptyFilter:
-    pass
-
-
 class OvhClient(Client):
     authenticator: AuthBase | None
 
