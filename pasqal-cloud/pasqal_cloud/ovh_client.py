@@ -17,12 +17,12 @@ from typing import Any, Dict, Optional
 
 from requests.auth import AuthBase
 
-from pasqal_cloud import JobFilters, PaginationParams
 from pasqal_cloud.authentication import (
     TokenProvider,
 )
 from pasqal_cloud.client import Client
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.utils.filters import JobFilters, PaginationParams
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 
 TIMEOUT = 30  # client http requests timeout after 30s

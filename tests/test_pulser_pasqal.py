@@ -25,6 +25,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pulser
 import pytest
+from pasqal_cloud import DeviceTypeName
 from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.ovh_client import OvhClient
 from pulser.backend.config import EmulatorConfig
@@ -628,14 +629,12 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
 
     This test verifies that when submitting a pulser sequence
     through the OVH connection:
-    1. Job parameters are passed through correctly
-    2. EmulatorConfig is converted to the appropriate EmuFreeConfig
-    for EMU_FREE emulator
-    3. All submission parameters are preserved
-    4. The pasqal-cloud create_batch method is called exactly once with
+    - Job parameters are passed through correctly
+    - All submission parameters are preserved
+    - The pasqal-cloud create_batch method is called exactly once with
     the expected arguments
     """
-    # Replace SDK create_batch with mock
+    # Replace pasqal-cloud create_batch method with mock
     fixt_ovh_connection.mock_cloud_sdk.create_batch = MagicMock()
 
     # Create a dummy sequence
@@ -647,31 +646,21 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
 
     job_params = [{"runs": 10, "variables": {"qubits": {"q0": 0, "q1": 1}}}]
 
-    config = EmulatorConfig(sampling_rate=0.5, backend_options={"with_noise": False})
-
     fixt_ovh_connection.ovh_connection.submit(
         sequence=seq,
-        job_params=job_params,
-        emulator=EmulatorType.EMU_FREE,
-        config=config,
         wait=True,
         open=False,
-    )
-
-    # Check create_batch was called once
-    fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once()
-
-    # The config is converted so the expected config is not the
-    # same class as the one passed in the connection
-    expected_configuration = EmuFreeConfig(
-        strict_validation=False, extra_config=None, result_types=None, with_noise=False
+        job_params=job_params,
+        device_type=DeviceTypeName.FRESNEL,
     )
 
     fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
-        emulator=EmulatorType.EMU_FREE,
-        configuration=expected_configuration,
+        emulator=None,
+        configuration=None,
+        device_type=DeviceTypeName.FRESNEL,
+        backend_configuration=None,
         wait=True,
         open=False,
     )
