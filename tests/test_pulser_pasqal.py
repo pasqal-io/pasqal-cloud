@@ -27,7 +27,6 @@ import pulser
 import pytest
 from pasqal_cloud import DeviceTypeName
 from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
-from pasqal_cloud.ovh_client import OvhClient
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
@@ -42,7 +41,7 @@ from pulser.result import SampledResult
 from pulser.sequence import Sequence
 from pulser_pasqal import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
 from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
-from pulser_pasqal.ovh import MissingEnvironmentVariableError
+from pulser_pasqal.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
 
@@ -119,7 +118,7 @@ def mock_batch():
 
 
 def mock_pasqal_cloud_ovh_sdk(mock_batch):
-    os.environ["PASQAL_DELEGATED_TOKEN"] = "fake-ovh-token"
+    os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
     with patch("pasqal_cloud.SDK", autospec=True) as mock_cloud_sdk_class:
         ovh = OVHConnection()
         mock_cloud_sdk = mock_cloud_sdk_class.return_value
@@ -593,11 +592,11 @@ def test_emulators_run(fixt_pasqal_cloud, seq, emu_cls, parametrized: bool, mimi
 
 def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
     """
-    OVHConnection reads the PASQAL_DELEGATED_TOKEN env variable,
+    OVHConnection reads the PASQAL_PULSER_ACCESS_TOKEN env variable,
     sets it correctly, and overrides the "Client" class
     by "OvhClient".
     """
-    os.environ["PASQAL_DELEGATED_TOKEN"] = "fake-ovh-token"
+    os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
     with patch("pasqal_cloud.SDK") as mock_sdk_class:
         ovh.OVHConnection()
         mock_sdk_class.assert_called_once()
@@ -615,11 +614,11 @@ def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
 def test_init_without_token_raises_error(_clear_ovh_test_env):
     """
     OVHConnection.__init__ should raise MissingEnvironmentVariableError
-    if PASQAL_DELEGATED_TOKEN is missing.
+    if PASQAL_PULSER_ACCESS_TOKEN is missing.
     """
     with pytest.raises(
         MissingEnvironmentVariableError,
-        match="Missing PASQAL_DELEGATED_TOKEN environment variable",
+        match="Missing PASQAL_PULSER_ACCESS_TOKEN environment variable",
     ):
         ovh.OVHConnection()
 

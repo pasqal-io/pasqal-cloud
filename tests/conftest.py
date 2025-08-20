@@ -213,6 +213,6 @@ def job(pasqal_client_mock):
 
 @pytest.fixture
 def _clear_ovh_test_env():
-    os.environ.pop("PASQAL_DELEGATED_TOKEN", None)
+    os.environ.pop("PASQAL_PULSER_ACCESS_TOKEN", None)
     yield
-    os.environ.pop("PASQAL_DELEGATED_TOKEN", None)
+    os.environ.pop("PASQAL_PULSER_ACCESS_TOKEN", None)

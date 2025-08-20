@@ -27,7 +27,7 @@ Note that `pulser-core` is a requirement of `pulser-pasqal`, so it will be insta
 pulser-pasqal provides two ways to connect to Pasqal Cloud services:
 
 1. **Direct connection** using `PasqalCloud` with username/password authentication
-2. **OVH integration** using `OVHConnection` with delegated token authentication for OVH customers
+2. **OVH integration** using `OVHConnection` with token authentication for OVH customers
 
 ### Using PasqalCloud
 
@@ -50,27 +50,19 @@ print(results)
 
 ### OVH Integration
 
-1. **Set the token**:
+```python
+from pulser_pasqal import OVHConnection
+from pulser import QPUBackend
 
-   ```bash
-   export PASQAL_DELEGATED_TOKEN="<your-ovh-delegated-token>"
-   ```
+# Initiate the appropriate OVH connection
+connection = OVHConnection()
 
-2. **Use `OVHConnection`**:
+# Build a pulser sequence
+...
 
-   ```python
-   from pulser_pasqal import OVHConnection
-   from pulser import QPUBackend
-
-   # Initiate the appropriate OVH connection
-   connection = OVHConnection()
-
-   # Build a pulser sequence
-    ...
-
-   # Submit and retrieve results
-   backend = QPUBackend(sequence, connection)
-   job = backend.run(wait=True)
-   results = job.results
-   print(results)
-   ```
+# Submit and retrieve results
+backend = QPUBackend(sequence, connection)
+job = backend.run(wait=True)
+results = job.results
+print(results)
+```

@@ -76,6 +76,67 @@ class Client:
         self.session = requests.Session()
         self.session.verify = not _skip_ssl_verify()
 
+    def _get_api_urls(self) -> Dict[str, str]:
+        """Return a dictionary mapping API endpoint names to their URLs."""
+        return {
+            # Batch endpoints
+            "send_batch": f"{self.endpoints.core}/api/v1/batches",
+            "get_batch": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}",
+            "close_batch": f"{self.endpoints.core}/api/v2/"
+            f"batches/{{batch_id}}/complete",
+            "cancel_batch": f"{self.endpoints.core}/api/v2/"
+            f"batches/{{batch_id}}/cancel",
+            "cancel_batches": f"{self.endpoints.core}/api/v1/batches/cancel",
+            "rebatch": f"{self.endpoints.core}/api/v1/batches/{{batch_id}}/rebatch",
+            "get_batches": f"{self.endpoints.core}/api/v1/batches",
+            "add_jobs": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}/jobs",
+            "set_batch_tags": f"{self.endpoints.core}/api/v1/batches/{{batch_id}}/tags",
+            "cancel_jobs": f"{self.endpoints.core}/api/v2/batches/"
+            f"{{batch_id}}/cancel/jobs",
+            # Job endpoints
+            "get_jobs": f"{self.endpoints.core}/api/v2/jobs",
+            "get_job": f"{self.endpoints.core}/api/v2/jobs/{{job_id}}",
+            "cancel_job": f"{self.endpoints.core}/api/v2/jobs/{{job_id}}/cancel",
+            "get_job_results_link": f"{self.endpoints.core}/api/v1/"
+            f"jobs/{{job_id}}/results_link",
+            # Workload endpoints
+            "send_workload": f"{self.endpoints.core}/api/v1/workloads",
+            "get_workload": f"{self.endpoints.core}/api/v2/workloads/{{workload_id}}",
+            "cancel_workload": f"{self.endpoints.core}/api/v1/"
+            f"workloads/{{workload_id}}/cancel",
+            # Device endpoints
+            "get_devices_specs": f"{self.endpoints.core}/api/v1/devices/specs",
+            "get_public_devices_specs": f"{self.endpoints.core}"
+            f"/api/v1/devices/public-specs",
+            # Project endpoints
+            "get_all_active_projects": f"{self.endpoints.account}/api/v1/projects",
+        }
+
+    def _get_url(self, endpoint_name: str, **kwargs: Any) -> str:
+        """Get the URL for a specific endpoint, with path parameters substituted.
+
+        Args:
+            endpoint_name: The name of the endpoint from _get_api_urls()
+            **kwargs: Path parameters to substitute in the URL template
+                      Possible parameters: batch_id, job_id, workload_id
+
+        Returns:
+            The formatted URL
+        """
+        urls = self._get_api_urls()
+        if endpoint_name not in urls:
+            raise ValueError(
+                self.unknown_endpoint_message.format(endpoint=endpoint_name)
+            )
+
+        url_template = urls[endpoint_name]
+        # Format the URL with any provided path parameters
+        return url_template.format(**kwargs)
+
+    @property
+    def unknown_endpoint_message(self) -> str:
+        return "Unknown endpoint: {endpoint}"
+
     def user_token(self) -> Union[str, None]:
         return (
             self.authenticator.token_provider.get_token()  # type: ignore[attr-defined]
@@ -234,21 +295,21 @@ class Client:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
-            f"{self.endpoints.core}/api/v1/batches",
+            self._get_url("send_batch"),
             batch_data,
         )["data"]
         return response
 
     def get_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v2/batches/{batch_id}"
+            "GET", self._get_url("get_batch", batch_id=batch_id)
         )["data"]
         return response
 
     def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_all_pages(
             "GET",
-            f"{self.endpoints.core}/api/v2/jobs",
+            self._get_url("get_jobs"),
             params={
                 "batch_id": batch_id,
                 "order_by": "ordered_id",
@@ -275,7 +336,7 @@ class Client:
         Once the presigned-url is obtained, it downloads the result from S3.
         """
         results_link = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v1/jobs/{job_id}/results_link"
+            "GET", self._get_url("get_job_results_link", job_id=job_id)
         )["data"]["results_link"]
         if results_link:
             return self._download_results(results_link)
@@ -283,20 +344,20 @@ class Client:
 
     def close_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/complete"
+            "PATCH", self._get_url("close_batch", batch_id=batch_id)
         )["data"]
         return response
 
     def cancel_batch(self, batch_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PATCH", f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel"
+            "PATCH", self._get_url("cancel_batch", batch_id=batch_id)
         )["data"]
         return response
 
     def cancel_batches(self, batch_ids: List[str]) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
-            f"{self.endpoints.core}/api/v1/batches/cancel",
+            self._get_url("cancel_batches"),
             payload={"batch_ids": batch_ids},
         )["data"]
         return response
@@ -306,7 +367,7 @@ class Client:
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
-            f"{self.endpoints.core}/api/v1/batches/{batch_id}/rebatch",
+            self._get_url("rebatch", batch_id=batch_id),
             params=filters.model_dump(exclude_unset=True),
         )["data"]
         return response
@@ -318,7 +379,7 @@ class Client:
         filters_params.update(pagination_params.model_dump())
         response: JSendPayload = self._authenticated_request(
             "GET",
-            f"{self.endpoints.core}/api/v2/jobs",
+            self._get_url("get_jobs"),
             params=filters_params,
         )
         return response
@@ -330,7 +391,7 @@ class Client:
         filters_params.update(pagination_params.model_dump())
         response: JSendPayload = self._authenticated_request(
             "GET",
-            f"{self.endpoints.core}/api/v1/batches",
+            self._get_url("get_batches"),
             params=filters_params,
         )
         return response
@@ -339,19 +400,19 @@ class Client:
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "POST", f"{self.endpoints.core}/api/v2/batches/{batch_id}/jobs", jobs_data
+            "POST", self._get_url("add_jobs", batch_id=batch_id), jobs_data
         )["data"]
         return response
 
     def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v2/jobs/{job_id}"
+            "GET", self._get_url("get_job", job_id=job_id)
         )["data"]
         return response
 
     def cancel_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PATCH", f"{self.endpoints.core}/api/v2/jobs/{job_id}/cancel"
+            "PATCH", self._get_url("cancel_job", job_id=job_id)
         )["data"]
         return response
 
@@ -360,7 +421,7 @@ class Client:
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
-            f"{self.endpoints.core}/api/v2/batches/{batch_id}/cancel/jobs",
+            self._get_url("cancel_jobs", batch_id=batch_id),
             params=filters.model_dump(exclude_unset=True),
         )["data"]
         return response
@@ -369,27 +430,27 @@ class Client:
         workload_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
             "POST",
-            f"{self.endpoints.core}/api/v1/workloads",
+            self._get_url("send_workload"),
             workload_data,
         )["data"]
         return response
 
     def get_workload(self, workload_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "GET", f"{self.endpoints.core}/api/v2/workloads/{workload_id}"
+            "GET", self._get_url("get_workload", workload_id=workload_id)
         )["data"]
         return response
 
     def cancel_workload(self, workload_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "PUT", f"{self.endpoints.core}/api/v1/workloads/{workload_id}/cancel"
+            "PUT", self._get_url("cancel_workload", workload_id=workload_id)
         )["data"]
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         if self.authenticator is not None:
             response: Dict[str, str] = self._authenticated_request(
-                "GET", f"{self.endpoints.core}/api/v1/devices/specs"
+                "GET", self._get_url("get_devices_specs")
             )["data"]
             return response
         return self.get_public_device_specs()
@@ -397,7 +458,7 @@ class Client:
     def get_public_device_specs(self) -> Dict[str, str]:
         response = self.session.request(
             "GET",
-            f"{self.endpoints.core}/api/v1/devices/public-specs",
+            self._get_url("get_public_devices_specs"),
         )
         response.raise_for_status()
         devices = response.json()["data"]
@@ -410,7 +471,7 @@ class Client:
     ) -> Dict[str, str]:
         response: Dict[str, Any] = self._authenticated_request(
             "PATCH",
-            f"{self.endpoints.core}/api/v1/batches/{batch_id}/tags",
+            self._get_url("set_batch_tags", batch_id=batch_id),
             tags,
         )["data"]
         return response
@@ -420,7 +481,7 @@ class Client:
     ) -> List[Dict[str, Any]]:
         response: List[Dict[str, Any]] = self._authenticated_request(
             "GET",
-            f"{self.endpoints.account}/api/v1/projects",
+            self._get_url("get_all_active_projects"),
             params={"project_status": "ACTIVE"},
         )["data"]
         return response

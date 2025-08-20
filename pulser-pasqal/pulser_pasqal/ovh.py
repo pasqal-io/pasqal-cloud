@@ -1,11 +1,63 @@
+from __future__ import annotations
+
 import os
-from typing import Any
+from typing import Any, Dict, Optional
 
 import pasqal_cloud
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.ovh_client import OvhClient
+from pasqal_cloud.client import Client
+from requests.auth import AuthBase
 
 from pulser_pasqal.pasqal_cloud import PasqalCloud
+
+
+class OvhClient(Client):
+    """OVH specific client that uses different API endpoints."""
+
+    authenticator: AuthBase | None
+
+    def __init__(
+        self,
+        token_provider: Optional[TokenProvider] = None,
+    ):
+        super().__init__(
+            token_provider=token_provider,
+        )
+
+    @property
+    def project_id(self) -> str:
+        """
+        Override property of class Client to prevent
+        ValueError to be raised as OvhClient does not need
+        a project_id
+        """
+        return ""
+
+    @project_id.setter
+    def project_id(self, _project_id: str) -> None:
+        self._project_id = ""
+
+    def _get_api_urls(self) -> Dict[str, str]:
+        base_url = f"{self.endpoints.core}/api/v1/third-party-access/ovh"
+        return {
+            # Batch endpoints
+            "send_batch": f"{base_url}/batches",
+            "get_batch": f"{base_url}/batches/{{batch_id}}",
+            # Job endpoints
+            "get_jobs": f"{base_url}/jobs",
+            "get_job_results_link": f"{base_url}/jobs/{{job_id}}/results_link",
+            # Use of public specs because we are authenticated
+            # but OvhClient cannot access specs endpoint
+            "get_devices_specs": f"{self.endpoints.core}"
+            f"/api/v1/devices/public-specs",
+        }
+
+    @property
+    def unknown_endpoint_message(self) -> str:
+        return (
+            "Endpoint '{endpoint}' does not exist or "
+            "is not supported by the OVH client."
+        )
 
 
 class MissingEnvironmentVariableError(RuntimeError):
@@ -16,19 +68,20 @@ class OVHConnection(PasqalCloud):
     """PasqalCloud connection designed for OVH users.
 
     This connection class enables OVH users to access Pasqal Cloud services.
-    Authentication is handled via a delegated token that must be provided
-    through the PASQAL_DELEGATED_TOKEN environment variable.
+    Authentication is handled via a token that must be provided
+    through the PASQAL_PULSER_ACCESS_TOKEN environment variable.
 
     Raises:
-       EnvironmentError: If PASQAL_DELEGATED_TOKEN environment variable is not set.
+       MissingEnvironmentVariableError: If PASQAL_PULSER_ACCESS_TOKEN
+       environment variable is not set.
     """
 
     def __init__(self, **kwargs: Any) -> None:
         try:
-            token = os.environ["PASQAL_DELEGATED_TOKEN"]
+            token = os.environ["PASQAL_PULSER_ACCESS_TOKEN"]
         except KeyError:
             raise MissingEnvironmentVariableError(
-                "Missing PASQAL_DELEGATED_TOKEN environment variable"
+                "Missing PASQAL_PULSER_ACCESS_TOKEN environment variable"
             )
 
         class OvhTokenProvider(TokenProvider):
