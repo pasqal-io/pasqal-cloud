@@ -46,9 +46,8 @@ class OvhClient(Client):
             # Job endpoints
             "get_jobs": f"{base_url}/jobs",
             "get_job_results_link": f"{base_url}/jobs/{{job_id}}/results_link",
-            # Use of public specs because we are authenticated
-            # but OvhClient cannot access specs endpoint
-            "get_devices_specs": f"{self.endpoints.core}"
+            # Device endpoints
+            "get_public_devices_specs": f"{self.endpoints.core}"
             f"/api/v1/devices/public-specs",
         }
 
@@ -58,6 +57,12 @@ class OvhClient(Client):
             "Endpoint '{endpoint}' does not exist or "
             "is not supported by the OVH client."
         )
+
+    def get_device_specs_dict(self) -> Dict[str, str]:
+        # We cannot just swap the endpoint with `get_public_device_specs()`,
+        # because `get_device_specs` returns a dict (device : spec),
+        # while `get_public_device_specs` returns a list of devices
+        return self.get_public_device_specs()
 
 
 class MissingEnvironmentVariableError(RuntimeError):
