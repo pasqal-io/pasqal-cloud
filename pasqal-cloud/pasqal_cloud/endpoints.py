@@ -25,6 +25,8 @@ else:
 # Prod Core API URL
 CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
 
+ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"
+
 PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/core-fast"
 
 DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
@@ -33,6 +35,7 @@ DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
 @dataclass
 class Endpoints:
     core: str = CORE_API_URL
+    account: str = ACCOUNT_API_URL
 
 
 # ---- Auth0 ----
