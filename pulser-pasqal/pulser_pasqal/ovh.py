@@ -1,28 +1,17 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import pasqal_cloud
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.client import Client
-from requests.auth import AuthBase
 
 from pulser_pasqal.pasqal_cloud import PasqalCloud
 
 
 class OvhClient(Client):
     """OVH specific client that uses different API endpoints."""
-
-    authenticator: AuthBase | None
-
-    def __init__(
-        self,
-        token_provider: Optional[TokenProvider] = None,
-    ):
-        super().__init__(
-            token_provider=token_provider,
-        )
 
     @property
     def project_id(self) -> str:

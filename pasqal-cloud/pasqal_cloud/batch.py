@@ -120,7 +120,6 @@ class Batch(BaseModel):
     def ordered_jobs(self, value: Any) -> None:
         self._ordered_jobs = value
 
-    # Ticket (#704), to be removed or updated
     @property
     def jobs(self) -> Dict[str, Job]:
         """Once the 'ordered_jobs' is built, we need to keep the 'jobs' attribute

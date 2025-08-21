@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import inspect
 import time
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Type, Union
@@ -154,26 +153,15 @@ class SDK:
         """
         _check_sdk_version()
 
-        # Collect all arguments we want to pass
-        # to instantiate a Client
-        client_kwargs_arguments = {
-            "username": username,
-            "password": password,
-            "token_provider": token_provider,
-            "endpoints": endpoints,
-            "auth0": auth0,
-            "project_id": project_id,
-        }
+        self._client = client_class(
+            project_id=project_id,
+            username=username,
+            password=password,
+            token_provider=token_provider,
+            endpoints=endpoints,
+            auth0=auth0,
+        )
 
-        # Filter only what the client_class.__init__ accepts
-        client_signature = inspect.signature(client_class.__init__)
-        accepted = {
-            k: v
-            for k, v in client_kwargs_arguments.items()
-            if k in client_signature.parameters and v is not None
-        }
-
-        self._client = client_class(**accepted)  # type: ignore[arg-type]
         self.batches: Dict[str, Batch] = {}
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook

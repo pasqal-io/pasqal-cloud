@@ -312,7 +312,7 @@ class Client:
             self._get_url("get_jobs"),
             params={
                 "batch_id": batch_id,
-                "order_by": "ordered_id",
+                "order_by": "creation_order",
                 "order_by_direction": "ASC",
             },
             # The order-by parameters are required to ensure that the jobs appear in
