@@ -187,7 +187,7 @@ class SDK:
         emulator: Optional[EmulatorType],
         device_type: Optional[DeviceTypeName],
     ) -> DeviceTypeName:
-        if device_type == DeviceTypeName.EMU_TN:
+        if device_type == DeviceTypeName.EMU_TN or emulator == EmulatorType.EMU_TN:
             warn(
                 "EMU_TN will be deprecated on September 1st. While you will be "
                 "able to resubmit existing batches, you won't be able to create "
