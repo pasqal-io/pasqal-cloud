@@ -213,7 +213,6 @@ class TestBatch:
         assert batch.ordered_jobs[0].id == self.job_id
         assert batch.ordered_jobs[0].result == self.job_result
         assert batch.ordered_jobs[0].full_result == self.job_full_result
-        # Ticket (#704)
         with pytest.warns(
             DeprecationWarning,
             match="'jobs' attribute is deprecated, use 'ordered_jobs' instead",
@@ -356,7 +355,6 @@ class TestBatch:
     def test_batch_close_and_wait_for_results(
         self, batch: Batch, mock_request: requests_mock.mocker.Mocker
     ):
-        """TODO"""
         batch.close(wait=True)
         assert batch.complete
         assert not batch.open
@@ -364,7 +362,7 @@ class TestBatch:
         assert (
             mock_request.last_request.url
             == f"{self.sdk._client.endpoints.core}/api/v2/jobs?batch_id={batch.id}"
-            "&order_by=ordered_id&order_by_direction=ASC"
+            "&order_by=creation_order&order_by_direction=ASC"
         )
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert batch.ordered_jobs[0].result == self.job_result

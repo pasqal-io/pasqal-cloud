@@ -6,9 +6,17 @@ import pytest
 import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
-from pasqal_cloud import AUTH0_CONFIG, Auth0Conf, Endpoints, PASQAL_ENDPOINTS, SDK
+from pasqal_cloud import (
+    AUTH0_CONFIG,
+    Auth0Conf,
+    Client,
+    Endpoints,
+    PASQAL_ENDPOINTS,
+    SDK,
+)
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
+from pulser_pasqal.ovh import OvhClient
 
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -503,3 +511,22 @@ class TestHeaders:
         assert mock_request.last_request.headers["User-Agent"] == (
             f"PasqalCloudSDK/{sdk_version}"
         )
+
+    def test_client_endpoint_does_not_exist(self):
+        client = Client()
+        # 'add_job' does not exist in Client urls
+        with pytest.raises(
+            ValueError,
+            match="Unknown endpoint: add_job",
+        ):
+            client._get_url("add_job")
+
+    def test_ovh_client_endpoint_does_not_exist_or_not_supported(self):
+        client = OvhClient()
+        # 'add_jobs' exists in Client urls, but is not supported by the OVH client
+        with pytest.raises(
+            ValueError,
+            match="Endpoint 'add_jobs' does not exist or is "
+            "not supported by the OVH client",
+        ):
+            client._get_url("add_jobs")

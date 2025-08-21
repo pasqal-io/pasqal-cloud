@@ -1,3 +1,5 @@
+# ruff: noqa: PT019
+
 # Copyright 2022 Pulser Development Team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +16,7 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -22,6 +25,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pulser
 import pytest
+from pasqal_cloud import DeviceTypeName
 from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
@@ -35,10 +39,17 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pulser_pasqal import EmulatorType, Endpoints, PasqalCloud
+from pulser_pasqal import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
 from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
+from pulser_pasqal.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
+
+
+@dataclasses.dataclass
+class OVHFixture:
+    ovh_connection: OVHConnection
+    mock_cloud_sdk: Any
 
 
 @dataclasses.dataclass
@@ -106,6 +117,23 @@ def mock_batch():
     return MockBatch()
 
 
+def mock_pasqal_cloud_ovh_sdk(mock_batch):
+    os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
+    with patch("pasqal_cloud.SDK", autospec=True) as mock_cloud_sdk_class:
+        ovh = OVHConnection()
+        mock_cloud_sdk = mock_cloud_sdk_class.return_value
+        mock_cloud_sdk_class.reset_mock()
+        mock_cloud_sdk.create_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_sdk.get_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_sdk.add_jobs = MagicMock(return_value=mock_batch)
+        mock_cloud_sdk._close_batch = MagicMock(return_value=None)
+        mock_cloud_sdk.get_device_specs_dict = MagicMock(
+            return_value={test_device.name: test_device.to_abstract_repr()}
+        )
+
+        return OVHFixture(ovh_connection=ovh, mock_cloud_sdk=mock_cloud_sdk)
+
+
 def mock_pasqal_cloud_sdk(mock_batch):
     with patch("pasqal_cloud.SDK", autospec=True) as mock_cloud_sdk_class:
         pasqal_cloud_kwargs = {
@@ -136,17 +164,24 @@ def mock_pasqal_cloud_sdk(mock_batch):
 
 
 @pytest.fixture
-def fixt(mock_batch):
+def fixt_pasqal_cloud(mock_batch):
     return mock_pasqal_cloud_sdk(mock_batch)
 
 
+@pytest.fixture
+def fixt_ovh_connection(mock_batch):
+    return mock_pasqal_cloud_ovh_sdk(mock_batch)
+
+
 @pytest.mark.parametrize("with_job_id", [False, True])
-def test_remote_results(fixt, mock_batch, with_job_id):
+def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
     with pytest.raises(
         RuntimeError, match=re.escape("does not contain jobs ['badjobid']")
     ):
-        RemoteResults(mock_batch.id, fixt.pasqal_cloud, job_ids=["badjobid"])
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+        RemoteResults(
+            mock_batch.id, fixt_pasqal_cloud.pasqal_cloud, job_ids=["badjobid"]
+        )
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
 
     select_jobs = (
         mock_batch.ordered_jobs[::-1][:2] if with_job_id else mock_batch.ordered_jobs
@@ -155,23 +190,29 @@ def test_remote_results(fixt, mock_batch, with_job_id):
 
     remote_results = RemoteResults(
         mock_batch.id,
-        fixt.pasqal_cloud,
+        fixt_pasqal_cloud.pasqal_cloud,
         job_ids=select_job_ids if with_job_id else None,
     )
 
     assert remote_results.batch_id == mock_batch.id
     assert remote_results.job_ids == select_job_ids
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_once_with(
+        id=remote_results.batch_id
+    )
 
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
 
     assert remote_results.get_batch_status() == BatchStatus.DONE
 
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_once_with(
+        id=remote_results.batch_id
+    )
 
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     results = remote_results.results
-    fixt.mock_cloud_sdk.get_batch.assert_called_with(id=remote_results.batch_id)
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+        id=remote_results.batch_id
+    )
     assert results == tuple(
         SampledResult(
             atom_order=("q0", "q1", "q2", "q3"),
@@ -181,7 +222,7 @@ def test_remote_results(fixt, mock_batch, with_job_id):
         for job in select_jobs
     )
 
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     available_results = remote_results.get_available_results()
     assert available_results == {
         job.id: SampledResult(
@@ -276,13 +317,13 @@ def test_partial_results():
 @pytest.mark.parametrize("mimic_qpu", [False, True])
 @pytest.mark.parametrize("emulator", [None, EmulatorType.EMU_TN, EmulatorType.EMU_FREE])
 @pytest.mark.parametrize("parametrized", [True, False])
-def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
+def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_batch):
     with pytest.raises(
         ValueError,
         match="The measurement basis can't be implicitly determined for a "
         "sequence not addressing a single basis",
     ):
-        fixt.pasqal_cloud.submit(seq)
+        fixt_pasqal_cloud.pasqal_cloud.submit(seq)
 
     seq.declare_channel("rydberg_global", "rydberg_global")
     t = seq.declare_variable("t", dtype=int)
@@ -297,7 +338,7 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
             "of the devices currently available through the remote "
             "connection.",
         ):
-            fixt.pasqal_cloud.submit(
+            fixt_pasqal_cloud.pasqal_cloud.submit(
                 seq2, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
             )
         mod_test_device = dataclasses.replace(test_device, max_atom_num=1000)
@@ -308,13 +349,13 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
             ValueError,
             match="sequence is not compatible with the latest device specs",
         ):
-            fixt.pasqal_cloud.submit(
+            fixt_pasqal_cloud.pasqal_cloud.submit(
                 seq3, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
             )
         seq4 = seq3.switch_register(pulser.Register.square(4, spacing=5, prefix="q"))
         # The sequence goes through QPUBackend.validate_sequence()
         with pytest.raises(ValueError, match="defined from a `RegisterLayout`"):
-            fixt.pasqal_cloud.submit(
+            fixt_pasqal_cloud.pasqal_cloud.submit(
                 seq4, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
             )
 
@@ -323,11 +364,13 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
             ValueError,
             match="must specify 'runs'",
         ):
-            fixt.pasqal_cloud.submit(seq, job_params=[{}], mimic_qpu=mimic_qpu)
+            fixt_pasqal_cloud.pasqal_cloud.submit(
+                seq, job_params=[{}], mimic_qpu=mimic_qpu
+            )
 
     if parametrized:
         with pytest.raises(TypeError, match="Did not receive values for variables"):
-            fixt.pasqal_cloud.submit(
+            fixt_pasqal_cloud.pasqal_cloud.submit(
                 seq.build(qubits={"q0": 1, "q1": 2, "q2": 4, "q3": 3}),
                 job_params=[{"runs": 10}],
                 mimic_qpu=mimic_qpu,
@@ -348,7 +391,7 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
         )
 
     assert (
-        fixt.pasqal_cloud._convert_configuration(
+        fixt_pasqal_cloud.pasqal_cloud._convert_configuration(
             config, emulator, strict_validation=mimic_qpu
         )
         == sdk_config
@@ -364,11 +407,11 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
         }
     ]
 
-    remote_results = fixt.pasqal_cloud.submit(
+    remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq, job_params=job_params, batch_id="open_batch"
     )
-    fixt.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
-    fixt.mock_cloud_sdk.add_jobs.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
+    fixt_pasqal_cloud.mock_cloud_sdk.add_jobs.assert_called_once_with(
         "open_batch",
         jobs=job_params,
     )
@@ -376,11 +419,11 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
     # so no new job ids are found
     assert remote_results.job_ids == []
 
-    assert fixt.pasqal_cloud.supports_open_batch() is True
-    fixt.pasqal_cloud._close_batch("open_batch")
-    fixt.mock_cloud_sdk.close_batch.assert_called_once_with("open_batch")
+    assert fixt_pasqal_cloud.pasqal_cloud.supports_open_batch() is True
+    fixt_pasqal_cloud.pasqal_cloud._close_batch("open_batch")
+    fixt_pasqal_cloud.mock_cloud_sdk.close_batch.assert_called_once_with("open_batch")
 
-    remote_results = fixt.pasqal_cloud.submit(
+    remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq,
         job_params=job_params,
         emulator=emulator,
@@ -392,7 +435,7 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
     assert not seq.is_measured()
     seq.measure(basis="ground-rydberg")
 
-    fixt.mock_cloud_sdk.create_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
         emulator=emulator,
@@ -406,7 +449,7 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
     job_params[0]["runs"] = {10}
     with pytest.raises(TypeError, match="Object of type set is not JSON serializable"):
         # Check that the decoder still fails on unsupported types
-        fixt.pasqal_cloud.submit(
+        fixt_pasqal_cloud.pasqal_cloud.submit(
             seq,
             job_params=job_params,
             emulator=emulator,
@@ -416,11 +459,15 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
     assert isinstance(remote_results, RemoteResults)
     assert remote_results.get_batch_status() == BatchStatus.DONE
 
-    fixt.mock_cloud_sdk.get_batch.assert_called_with(id=remote_results.batch_id)
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+        id=remote_results.batch_id
+    )
 
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     results = remote_results.results
-    fixt.mock_cloud_sdk.get_batch.assert_called_with(id=remote_results.batch_id)
+    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+        id=remote_results.batch_id
+    )
     assert results == tuple(
         SampledResult(
             atom_order=("q0", "q1", "q2", "q3"),
@@ -432,14 +479,14 @@ def test_submit(fixt, parametrized, emulator, mimic_qpu, seq, mock_batch):
 
 
 @pytest.mark.parametrize("emu_cls", [EmuTNBackend, EmuFreeBackend])
-def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
+def test_emulators_init(fixt_pasqal_cloud, seq, emu_cls, monkeypatch):
     with pytest.raises(
         TypeError,
         match="'connection' must be a valid RemoteConnection instance.",
     ):
         emu_cls(seq, "connection")
     with pytest.raises(TypeError, match="'config' must be of type 'EmulatorConfig'"):
-        emu_cls(seq, fixt.pasqal_cloud, {"with_noise": True})
+        emu_cls(seq, fixt_pasqal_cloud.pasqal_cloud, {"with_noise": True})
 
     with pytest.raises(
         NotImplementedError,
@@ -448,7 +495,7 @@ def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
     ):
         emu_cls(
             seq,
-            fixt.pasqal_cloud,
+            fixt_pasqal_cloud.pasqal_cloud,
             EmulatorConfig(
                 sampling_rate=0.25,
                 evaluation_times="Final",
@@ -468,7 +515,7 @@ def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
     with pytest.raises(ValueError, match="'sequence' should not be empty"):
         emu_cls(
             seq.switch_device(virtual_device),
-            fixt.pasqal_cloud,
+            fixt_pasqal_cloud.pasqal_cloud,
             mimic_qpu=True,
         )
 
@@ -479,7 +526,7 @@ def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
     with pytest.raises(TypeError, match="must be a real device"):
         emu_cls(
             seq.switch_device(virtual_device),
-            fixt.pasqal_cloud,
+            fixt_pasqal_cloud.pasqal_cloud,
             mimic_qpu=True,
         )
 
@@ -487,14 +534,14 @@ def test_emulators_init(fixt, seq, emu_cls, monkeypatch):
 @pytest.mark.parametrize("mimic_qpu", [True, False])
 @pytest.mark.parametrize("parametrized", [True, False])
 @pytest.mark.parametrize("emu_cls", [EmuTNBackend, EmuFreeBackend])
-def test_emulators_run(fixt, seq, emu_cls, parametrized: bool, mimic_qpu):
+def test_emulators_run(fixt_pasqal_cloud, seq, emu_cls, parametrized: bool, mimic_qpu):
     seq.declare_channel("rydberg_global", "rydberg_global")
     t = seq.declare_variable("t", dtype=int)
     seq.delay(t if parametrized else 100, "rydberg_global")
     assert seq.is_parametrized() == parametrized
     seq.measure(basis="ground-rydberg")
 
-    emu = emu_cls(seq, fixt.pasqal_cloud, mimic_qpu=mimic_qpu)
+    emu = emu_cls(seq, fixt_pasqal_cloud.pasqal_cloud, mimic_qpu=mimic_qpu)
 
     with pytest.raises(ValueError, match="'job_params' must be specified"):
         emu.run()
@@ -530,8 +577,8 @@ def test_emulators_run(fixt, seq, emu_cls, parametrized: bool, mimic_qpu):
     else:
         emulator_type = EmulatorType.EMU_FREE
         sdk_config = EmuFreeConfig(strict_validation=mimic_qpu)
-    fixt.mock_cloud_sdk.create_batch.assert_called_once()
-    fixt.mock_cloud_sdk.create_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once()
+    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=good_kwargs.get("job_params", []),
         emulator=emulator_type,
@@ -539,5 +586,82 @@ def test_emulators_run(fixt, seq, emu_cls, parametrized: bool, mimic_qpu):
         backend_configuration=None,
         configuration=sdk_config,
         wait=False,
+        open=False,
+    )
+
+
+def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
+    """
+    OVHConnection reads the PASQAL_PULSER_ACCESS_TOKEN env variable,
+    sets it correctly, and overrides the "Client" class
+    by "OvhClient".
+    """
+    os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
+    with patch("pasqal_cloud.SDK") as mock_sdk_class:
+        ovh.OVHConnection()
+        mock_sdk_class.assert_called_once()
+        called_kwargs = mock_sdk_class.call_args.kwargs
+
+        # Verify token_provider returns the correct token
+        token_provider = called_kwargs["token_provider"]
+        assert token_provider.get_token() == "fake-ovh-token"
+
+        # Verify "Client" class override by "OvhClient"
+        client_class = called_kwargs.get("client_class")
+        assert client_class is OvhClient
+
+
+def test_init_without_token_raises_error(_clear_ovh_test_env):
+    """
+    OVHConnection.__init__ should raise MissingEnvironmentVariableError
+    if PASQAL_PULSER_ACCESS_TOKEN is missing.
+    """
+    with pytest.raises(
+        MissingEnvironmentVariableError,
+        match="Missing PASQAL_PULSER_ACCESS_TOKEN environment variable",
+    ):
+        ovh.OVHConnection()
+
+
+def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
+    """
+    Test that OVHConnection.submit() correctly calls the create_batch
+    method from pasqal_cloud.
+
+    This test verifies that when submitting a pulser sequence
+    through the OVH connection:
+    - Job parameters are passed through correctly
+    - All submission parameters are preserved
+    - The pasqal-cloud create_batch method is called exactly once with
+    the expected arguments
+    """
+    # Replace pasqal-cloud create_batch method with mock
+    fixt_ovh_connection.mock_cloud_sdk.create_batch = MagicMock()
+
+    # Create a dummy sequence
+    reg = SquareLatticeLayout(2, 2, 4).make_mappable_register(2)
+    seq = Sequence(reg, DigitalAnalogDevice)
+    seq.declare_channel("ryd", "rydberg_global")
+    seq.delay(100, "ryd")
+    seq.measure(basis="ground-rydberg")
+
+    job_params = [{"runs": 10, "variables": {"qubits": {"q0": 0, "q1": 1}}}]
+
+    fixt_ovh_connection.ovh_connection.submit(
+        sequence=seq,
+        wait=True,
+        open=False,
+        job_params=job_params,
+        device_type=DeviceTypeName.FRESNEL,
+    )
+
+    fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once_with(
+        serialized_sequence=seq.to_abstract_repr(),
+        jobs=job_params,
+        emulator=None,
+        configuration=None,
+        device_type=DeviceTypeName.FRESNEL,
+        backend_configuration=None,
+        wait=True,
         open=False,
     )

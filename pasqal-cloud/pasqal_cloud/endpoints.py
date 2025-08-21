@@ -29,7 +29,11 @@ ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"
 
 PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/core-fast"
 
+PREPROD_ACCOUNT_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/account"
+
 DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
+
+DEV_ACCOUNT_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/account"
 
 
 @dataclass
@@ -68,9 +72,9 @@ class Auth0Conf:
 
 
 PASQAL_ENDPOINTS = {
-    "prod": Endpoints(core=CORE_API_URL),
-    "preprod": Endpoints(core=PREPROD_CORE_API_URL),
-    "dev": Endpoints(core=DEV_CORE_API_URL),
+    "prod": Endpoints(core=CORE_API_URL, account=ACCOUNT_API_URL),
+    "preprod": Endpoints(core=PREPROD_CORE_API_URL, account=PREPROD_ACCOUNT_API_URL),
+    "dev": Endpoints(core=DEV_CORE_API_URL, account=DEV_ACCOUNT_API_URL),
 }
 
 AUTH0_CONFIG = {

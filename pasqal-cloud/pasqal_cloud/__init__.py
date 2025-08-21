@@ -13,7 +13,7 @@
 # limitations under the License.
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 from uuid import UUID
 from warnings import simplefilter, warn
 
@@ -120,6 +120,7 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
         project_id: Optional[str] = None,
+        client_class: Type[Client] = Client,
     ):
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
@@ -147,10 +148,12 @@ class SDK:
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
+            client_class: client class used to determine authentification \
+            and endpoints targeted by the SDK
         """
         _check_sdk_version()
 
-        self._client = Client(
+        self._client = client_class(
             project_id=project_id,
             username=username,
             password=password,
@@ -158,6 +161,7 @@ class SDK:
             endpoints=endpoints,
             auth0=auth0,
         )
+
         self.batches: Dict[str, Batch] = {}
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
