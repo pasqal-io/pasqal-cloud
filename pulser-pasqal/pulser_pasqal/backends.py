@@ -231,3 +231,29 @@ class EmuMPSBackend(RemoteEmulatorBackend):
         optimize_qubit_ordering=True,
     )
     _device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
+
+
+class EmuFreeBackendV2(RemoteEmulatorBackend):
+    """
+    Backend for executing quantum programs using pulser-simulation (QuTiP).
+
+    The config supports various fields. For a complete list of accepted
+    parameters (passed as `**kwargs`), refer to the official EMU-MPS documentation:
+    https://pasqal-io.github.io/emulators/latest/emu_mps/api/#mpsconfig
+
+    Args:
+        sequence: The quantum sequence to execute on the backend.
+        connection: An open PasqalCloud connection.
+        config: An EmulationConfig object to configure the backend. If not provided,
+            the default configuration will be used.
+        mimic_qpu: Whether to mimic the validations required for
+            execution on a QPU.
+    """
+
+    default_config = EmulationConfig(
+        observables=[BitStrings()],
+        num_gpus_to_use=0,
+        autosave_dt=float("inf"),
+        optimize_qubit_ordering=True,
+    )
+    _device_type = pasqal_cloud.DeviceTypeName.EMU_FREE
