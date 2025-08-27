@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-import logging
+import warnings
 from dataclasses import fields
 from typing import Any, ClassVar
 
@@ -152,9 +152,11 @@ class EmuTNBackend(PasqalEmulator):
         config: EmulatorConfig | None = None,
         mimic_qpu: bool = False,
     ) -> None:
-        logging.warning(
+        warnings.warn(
             "EmuTNBackend is deprecated and will be removed in a future release. \
-                Use EmuMPSBackend instead."
+                Use EmuMPSBackend instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(sequence, connection, config, mimic_qpu)
 
@@ -191,9 +193,11 @@ class EmuFreeBackend(PasqalEmulator):
         config: EmulatorConfig | None = None,
         mimic_qpu: bool = False,
     ) -> None:
-        logging.warning(
+        warnings.warn(
             "EmuFreeBackend is deprecated and will be removed in a future release. \
-                Use EmuFreeBackendV2 instead."
+                Use EmuFreeBackendV2 instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
         super().__init__(sequence, connection, config, mimic_qpu)
 
