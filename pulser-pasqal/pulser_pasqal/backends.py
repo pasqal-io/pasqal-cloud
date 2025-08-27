@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import fields
 from typing import Any, ClassVar
 
@@ -115,7 +116,10 @@ class PasqalEmulator(RemoteBackend):
 
 
 class EmuTNBackend(PasqalEmulator):
-    """An emulator backend using tensor network simulation.
+    """
+    DEPRECATED: Use EmuMPSBackend instead. This class will be removed in a future release.
+
+    An emulator backend using tensor network simulation.
 
     Configurable fields in EmulatorConfig:
         - sampling_rate: Defaults to 0.1. This value must remain low to use
@@ -141,9 +145,26 @@ class EmuTNBackend(PasqalEmulator):
     default_config = DEFAULT_CONFIG_EMU_TN
     configurable_fields = ("backend_options", "sampling_rate")
 
+    def __init__(
+        self,
+        sequence: pulser.Sequence,
+        connection: PasqalCloud,
+        config: EmulatorConfig | None = None,
+        mimic_qpu: bool = False,
+    ) -> None:
+        warnings.warn(
+            "EmuTNBackend is deprecated and will be removed in a future release. Use EmuMPSBackend instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(sequence, connection, config, mimic_qpu)
+
 
 class EmuFreeBackend(PasqalEmulator):
-    """An emulator backend using free Hamiltonian time evolution.
+    """
+    DEPRECATED: Use EmuFreeBackendV2 instead. This class will be removed in a future release.
+
+    An emulator backend using free Hamiltonian time evolution.
 
     Configurable fields in EmulatorConfig:
         - backend_options:
@@ -163,6 +184,20 @@ class EmuFreeBackend(PasqalEmulator):
 
     emulator = pasqal_cloud.EmulatorType.EMU_FREE
     default_config = DEFAULT_CONFIG_EMU_FREE
+
+    def __init__(
+        self,
+        sequence: pulser.Sequence,
+        connection: PasqalCloud,
+        config: EmulatorConfig | None = None,
+        mimic_qpu: bool = False,
+    ) -> None:
+        warnings.warn(
+            "EmuFreeBackend is deprecated and will be removed in a future release. Use EmuFreeBackendV2 instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(sequence, connection, config, mimic_qpu)
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
@@ -231,3 +266,24 @@ class EmuMPSBackend(RemoteEmulatorBackend):
         optimize_qubit_ordering=True,
     )
     _device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
+
+
+class EmuFreeBackendV2(RemoteEmulatorBackend):
+    """
+    Backend for executing quantum programs using pulser-simulation (QuTiP).
+
+    The config supports various fields. For a complete list of accepted
+    parameters (passed as `**kwargs`), refer to the official documentation:
+    https://pulser.readthedocs.io/en/stable/apidoc/_autosummary/pulser_simulation.QutipConfig.html#pulser_simulation.QutipConfig
+
+    Args:
+        sequence: The quantum sequence to execute on the backend.
+        connection: An open PasqalCloud connection.
+        config: An EmulationConfig object to configure the backend. If not provided,
+            the default configuration will be used.
+        mimic_qpu: Whether to mimic the validations required for
+            execution on a QPU.
+    """
+
+    default_config = EmulationConfig(observables=[BitStrings()])
+    _device_type = pasqal_cloud.DeviceTypeName.EMU_FREE
