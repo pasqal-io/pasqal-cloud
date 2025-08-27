@@ -16,7 +16,14 @@
 from pasqal_cloud import BaseConfig, EmulatorType, Endpoints  # noqa: F401
 
 from pulser_pasqal._version import __version__ as __version__
-from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
+from pulser_pasqal.backends import EmuFreeBackend, EmuMPSBackend, EmuTNBackend
+from pulser_pasqal.ovh import OVHConnection
 from pulser_pasqal.pasqal_cloud import PasqalCloud
 
-__all__ = ["EmuFreeBackend", "EmuTNBackend", "PasqalCloud"]
+__all__ = [
+    "EmuFreeBackend",
+    "EmuTNBackend",
+    "PasqalCloud",
+    "EmuMPSBackend",
+    "OVHConnection",
+]

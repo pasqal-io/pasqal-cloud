@@ -24,6 +24,7 @@ Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and t
 | 0.13.0  | 2025-02-25   | 2026-02-25     |
 | 0.20.2  | 2025-03-05   | 2026-03-05     |
 | 0.20.3  | 2025-05-26   | 2026-05-26     |
+| 0.20.4  | 2025-08-27   | 2026-08-27     |
 
 ## Getting started
 
@@ -45,7 +46,8 @@ this repository after cloning it:
 
 ```bash
 git checkout dev
-pip install -e pasqal-cloud -e pulser-pasqal
+pip install -e pasqal-cloud --config-settings editable_mode=compat
+pip install -e pulser-pasqal --config-settings editable_mode=compat
 ```
 
 Bear in mind that this installation will track the contents of your local
@@ -57,7 +59,7 @@ your installation will change accordingly.
 To run the tutorials or the test suite locally, run the following to install the development requirements:
 
 ```bash
-pip install -e pasqal-cloud[dev] -e pulser-pasqal
+pip install -e pulser-pasqal[dev] --config-settings editable_mode=compat
 ```
 
 We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:

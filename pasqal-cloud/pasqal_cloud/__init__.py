@@ -13,7 +13,7 @@
 # limitations under the License.
 import time
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 from uuid import UUID
 from warnings import simplefilter, warn
 
@@ -45,12 +45,15 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobFetchingError,
     OnlyCompleteOrOpenCanBeSet,
+    ProjectFetchingError,
+    ProjectNotFoundError,
     RebatchError,
     WorkloadCancellingError,
     WorkloadCreationError,
     WorkloadFetchingError,
 )
 from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import (  # noqa: F401
     BatchStatus,
     JobStatus,
@@ -117,6 +120,7 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
         project_id: Optional[str] = None,
+        client_class: Type[Client] = Client,
     ):
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
@@ -144,10 +148,12 @@ class SDK:
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
+            client_class: client class used to determine authentification \
+            and endpoints targeted by the SDK
         """
         _check_sdk_version()
 
-        self._client = Client(
+        self._client = client_class(
             project_id=project_id,
             username=username,
             password=password,
@@ -155,12 +161,21 @@ class SDK:
             endpoints=endpoints,
             auth0=auth0,
         )
+
         self.batches: Dict[str, Batch] = {}
         self.workloads: Dict[str, Workload] = {}
         self.webhook = webhook
 
     def user_token(self) -> Union[str, None]:
         return self._client.user_token()
+
+    @property
+    def project_id(self) -> Union[str, None]:
+        return self._client._project_id
+
+    @project_id.setter
+    def project_id(self, project_id: str) -> None:
+        self._client._project_id = project_id
 
     def _get_batch(
         self,
@@ -809,3 +824,44 @@ class SDK:
             raise BatchSetTagsError(e)
 
         return Batch(**resp, _client=self._client)
+
+    def get_all_projects(
+        self,
+    ) -> list[Project]:
+        """Retrieve all active projects the user is a member of.
+
+        Returns:
+            list[Project]: A list of all active projects that
+            the user is a member of.
+
+        Raises:
+            ProjectFetchingError: If fetching projects failed.
+        """
+        try:
+            response = self._client.get_all_active_projects()
+        except HTTPError as e:
+            raise ProjectFetchingError(e)
+
+        return [Project(**project) for project in response]
+
+    def switch_to_project(self, project_id: str) -> str:
+        """Switch the SDK context to a different project.
+
+        Args:
+            project_id: The ID of the project to switch to.
+
+        Returns:
+            str: The ID of the newly chosen project.
+
+        Raises:
+            ProjectNotFoundError: If the specified project ID doesn't
+            exist or isn't accessible to the current user.
+        """
+        user_projects = self.get_all_projects()
+
+        if not any(project.id == project_id for project in user_projects):
+            raise ProjectNotFoundError(project_id)
+
+        self.project_id = project_id
+
+        return self.project_id

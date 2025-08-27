@@ -11,7 +11,6 @@ from requests import HTTPError, Request
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
-TEST_API_FIXTURES_PATH = "tests/fixtures/api"
 RESULT_LINK_ENDPOINT = "http://result-link/"
 JOB_RESULT_LINK_ENDPOINT = "http://jobs-result-link/"
 JSON_FILE = "_.{}.json"
@@ -22,15 +21,17 @@ def result_link_endpoint() -> str:
     return RESULT_LINK_ENDPOINT
 
 
-def mock_core_response(request):
+def mock_service_response(request, service_name: str):
     version = request.url.split("api/")[1].split("/")[0]
     path = request.url.split(f"{version}/")[1].split("?")[0]
     data = None
     if request.method == "POST" and request.body:
         data = request.json()
 
+    service_path = f"tests/fixtures/{service_name}/api/"
+
     json_path = os.path.join(
-        TEST_API_FIXTURES_PATH, version, path, JSON_FILE.format(request.method)
+        service_path, version, path, JSON_FILE.format(request.method)
     )
     with open(json_path) as json_file:
         result = json.load(json_file)
@@ -54,7 +55,9 @@ def mock_s3_presigned_url_response(request: Request) -> Dict[str, Any]:
     """
     resource_id = request.url.split("/")[-1]
     results_path = os.path.join(
-        TEST_API_FIXTURES_PATH, "v1", f"jobs/{resource_id}/results_link/result.json"
+        "tests/fixtures/core-fast/api",
+        "v1",
+        f"jobs/{resource_id}/results_link/result.json",
     )
     with open(results_path) as json_file:
         return json.load(json_file)
@@ -72,7 +75,9 @@ def mock_response(request, _) -> Dict[str, Any]:
     tests to execute.
     """
     if request.url.startswith(Endpoints.core):
-        return mock_core_response(request)
+        return mock_service_response(request, "core-fast")
+    if request.url.startswith(Endpoints.account):
+        return mock_service_response(request, "account")
     if request.url.startswith(JOB_RESULT_LINK_ENDPOINT):
         return mock_s3_presigned_url_response(request)
     if request.url.startswith(RESULT_LINK_ENDPOINT):
@@ -204,3 +209,10 @@ def job(pasqal_client_mock):
         "variables": {"param1": 1, "param2": 2, "param3": 3},
     }
     return Job(**job_data)
+
+
+@pytest.fixture
+def _clear_ovh_test_env():
+    os.environ.pop("PASQAL_PULSER_ACCESS_TOKEN", None)
+    yield
+    os.environ.pop("PASQAL_PULSER_ACCESS_TOKEN", None)
