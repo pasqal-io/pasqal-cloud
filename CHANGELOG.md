@@ -4,14 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+## [0.20.4]
+
 ### pulser-pasqal
+* Introduce a new Backend for EMU FREE on `pulser-pasqal`
 * Introduce a new Backend for EMU MPS on `pulser-pasqal`
 * New MockSDK, used for testing code that uses this SDK
 
 ### pasqal-cloud
 * Added `switch_to_project("project_id")` method to change the project linked to your SDK
 * Added `get_all_projects()` method to get the list of all active projects the user is a member
-
 
 ## [0.20.4dev0]
 
