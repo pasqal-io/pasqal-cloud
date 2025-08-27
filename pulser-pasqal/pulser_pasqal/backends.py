@@ -153,8 +153,7 @@ class EmuTNBackend(PasqalEmulator):
         mimic_qpu: bool = False,
     ) -> None:
         warnings.warn(
-            "EmuTNBackend is deprecated and will be removed in a future release. \
-                Use EmuMPSBackend instead.",
+            "EmuTNBackend is deprecated and will be removed in a future release. Use EmuMPSBackend instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -194,8 +193,7 @@ class EmuFreeBackend(PasqalEmulator):
         mimic_qpu: bool = False,
     ) -> None:
         warnings.warn(
-            "EmuFreeBackend is deprecated and will be removed in a future release. \
-                Use EmuFreeBackendV2 instead.",
+            "EmuFreeBackend is deprecated and will be removed in a future release. Use EmuFreeBackendV2 instead.",
             DeprecationWarning,
             stacklevel=2,
         )
