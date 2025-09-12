@@ -190,7 +190,7 @@ class SDK:
         self,
         emulator: Optional[EmulatorType],
         device_type: Optional[DeviceTypeName],
-    ) -> DeviceTypeName:
+    ) -> Optional[DeviceTypeName]:
         if emulator is not None and device_type is not None:
             raise InvalidDeviceTypeSet
         if emulator is not None:
@@ -201,8 +201,6 @@ class SDK:
                 stacklevel=2,
             )
             return DeviceTypeName(str(emulator))
-        if emulator is None and device_type is None:
-            return DeviceTypeName.FRESNEL
         return device_type
 
     def _validate_open(
