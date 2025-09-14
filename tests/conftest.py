@@ -36,7 +36,7 @@ def mock_service_response(request, service_name: str):
     with open(json_path) as json_file:
         result = json.load(json_file)
         if path == "batches" and data:
-            result["data"]["device_type"] = data["device_type"]
+            result["data"]["device_type"] = data["device_type"] or "FRESNEL"
             if not data.get("configuration"):
                 result["data"]["configuration"] = None
 
