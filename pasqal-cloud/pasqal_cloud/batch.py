@@ -263,7 +263,7 @@ class Batch(BaseModel):
         # Private fields are not exposed by the model_fields method, so we need to
         # explicitly add _ordered_jobs to ensure it is copied from the updated_batch
         # model.
-        batch_model_fields = [*list(updated_batch.model_fields), "_ordered_jobs"]
+        batch_model_fields = [*list(Batch.model_fields), "_ordered_jobs"]
         for field in batch_model_fields:
             value = getattr(updated_batch, field)
             setattr(self, field, value)
