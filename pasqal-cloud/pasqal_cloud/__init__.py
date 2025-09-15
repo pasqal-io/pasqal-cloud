@@ -203,6 +203,20 @@ class SDK:
             return DeviceTypeName(str(emulator))
         return device_type
 
+    def _validate_device_type_choice(
+        self, device_type: Optional[DeviceTypeName]
+    ) -> None:
+        if not device_type:
+            return
+
+        if device_type == DeviceTypeName.EMU_TN:
+            warn(
+                "EMU_TN is deprecated and will be removed in a future"
+                " release. Use EMU_MPS instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
     def _validate_open(
         self,
         complete: Optional[bool],
@@ -267,6 +281,8 @@ class SDK:
         """
         device_type = self._validate_device_type(emulator, device_type)
         open = self._validate_open(complete, open)
+
+        self._validate_device_type_choice(device_type)
 
         if fetch_results:
             warn(
