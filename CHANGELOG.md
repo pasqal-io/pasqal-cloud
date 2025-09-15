@@ -2,7 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## Next release
+## [0.20.5]
+
+### pasqal-cloud
+* Added warning on use of EMU_TN as `device_type` on batch creation
+* Fixed pydantic warning for use of `model_fields` on instance instead of class
 
 ## [0.20.4]
 
