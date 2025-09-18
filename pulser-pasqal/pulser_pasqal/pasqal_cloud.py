@@ -191,12 +191,12 @@ class PasqalCloud(RemoteConnection):
         seq_builder = Sequence.from_abstract_repr(batch.sequence_builder)
         reg = seq_builder.get_register(include_mappable=True)
         all_qubit_ids = reg.qubit_ids
-        meas_basis = seq_builder.get_measurement_basis()
 
         results: dict[str, tuple[JobStatus, Result | None]] = {}
 
         for job in batch.ordered_jobs:
             vars = job.variables
+            meas_basis = seq_builder.build(**vars).get_measurement_basis()
             size: int | None = None
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])

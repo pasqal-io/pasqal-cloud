@@ -410,6 +410,14 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq, job_params=job_params, batch_id="open_batch"
     )
+    assert remote_results.get_available_results() == {
+        _job.id: SampledResult(
+            atom_order=("q0", "q1", "q2", "q3"),
+            meas_basis="ground-rydberg",
+            bitstring_counts=_job.result,
+        )
+        for _job in mock_batch.ordered_jobs
+    }
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
     fixt_pasqal_cloud.mock_cloud_sdk.add_jobs.assert_called_once_with(
         "open_batch",
@@ -431,6 +439,14 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         mimic_qpu=mimic_qpu,
     )
     assert remote_results.batch_id == mock_batch.id
+    assert remote_results.get_available_results() == {
+        _job.id: SampledResult(
+            atom_order=("q0", "q1", "q2", "q3"),
+            meas_basis="ground-rydberg",
+            bitstring_counts=_job.result,
+        )
+        for _job in mock_batch.ordered_jobs
+    }
 
     assert not seq.is_measured()
     seq.measure(basis="ground-rydberg")
