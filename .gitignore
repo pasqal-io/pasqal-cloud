@@ -12,6 +12,8 @@ venv*
 pipfile
 pipfile.lock
 .idea/
+.venv
+.DS_Store
 
 .vscode
 

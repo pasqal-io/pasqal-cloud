@@ -190,7 +190,7 @@ class SDK:
         self,
         emulator: Optional[EmulatorType],
         device_type: Optional[DeviceTypeName],
-    ) -> DeviceTypeName:
+    ) -> Optional[DeviceTypeName]:
         if emulator is not None and device_type is not None:
             raise InvalidDeviceTypeSet
         if emulator is not None:
@@ -201,9 +201,21 @@ class SDK:
                 stacklevel=2,
             )
             return DeviceTypeName(str(emulator))
-        if emulator is None and device_type is None:
-            return DeviceTypeName.FRESNEL
         return device_type
+
+    def _validate_device_type_choice(
+        self, device_type: Optional[DeviceTypeName]
+    ) -> None:
+        if not device_type:
+            return
+
+        if device_type == DeviceTypeName.EMU_TN:
+            warn(
+                "EMU_TN is deprecated and will be removed in a future"
+                " release. Use EMU_MPS instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
 
     def _validate_open(
         self,
@@ -269,6 +281,8 @@ class SDK:
         """
         device_type = self._validate_device_type(emulator, device_type)
         open = self._validate_open(complete, open)
+
+        self._validate_device_type_choice(device_type)
 
         if fetch_results:
             warn(

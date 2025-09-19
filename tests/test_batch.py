@@ -171,6 +171,25 @@ class TestBatch:
         assert mock_request.last_request.method == "GET"
         assert not batch.open
 
+    def test_create_batch_with_emu_tn_raises_warning(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        Test that using emulator at batch definition is still accepted but will
+        trigger a deprecation warning.
+        """
+        with pytest.warns(DeprecationWarning):
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=[self.simple_job_args],
+                device_type=DeviceTypeName.EMU_TN,
+                open=True,
+            )
+        assert batch.id == self.batch_id
+        assert mock_request.last_request.method == "POST"
+        assert batch.sequence_builder == self.pulser_sequence
+        assert mock_request.last_request.method == "GET"
+
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
     ):
