@@ -195,7 +195,7 @@ class PasqalCloud(RemoteConnection):
         results: dict[str, tuple[JobStatus, Result | None]] = {}
 
         for job in batch.ordered_jobs:
-            vars = job.variables
+            vars = job.variables or {}
             meas_basis = seq_builder.build(**vars).get_measurement_basis()
             size: int | None = None
             if vars and "qubits" in vars:
