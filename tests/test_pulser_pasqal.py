@@ -107,12 +107,17 @@ class MockBatch:
             _MockJob(),
             _MockJob(result={"00": 10}),
             _MockJob(result={"11": 10}),
-            _MockJob(result='{"atom_order": ["q0", "q1", "q2", "q3"], "total_duration": 0, "tagmap": {"bitstrings": "00000000-0000-0000-0000-000000000000"}, "results": {"00000000-0000-0000-0000-000000000000": [{"11": 10}]}, "times": {"00000000-0000-0000-0000-000000000000": [1.0]}, "aggregation_methods": {"00000000-0000-0000-0000-000000000000": 3}}'),
+            _MockJob(
+                result='{"atom_order": ["q0", "q1", "q2", "q3"], "total_duration": 0, "tagmap": {"bitstrings": "00000000-0000-0000-0000-000000000000"}, "results": {"00000000-0000-0000-0000-000000000000": [{"11": 10}]}, "times": {"00000000-0000-0000-0000-000000000000": [1.0]}, "aggregation_methods": {"00000000-0000-0000-0000-000000000000": 3}}'
+            ),
         ]
     )
     sequence_builder = build_test_sequence().to_abstract_repr()
 
-def get_pulser_result_from_job_result(job_result:dict | str, atom_order:tuple=("q0", "q1", "q2", "q3")) -> pulser.backend.Results:
+
+def get_pulser_result_from_job_result(
+    job_result: dict | str, atom_order: tuple = ("q0", "q1", "q2", "q3")
+) -> pulser.backend.Results:
     if isinstance(job_result, str):
         return pulser.backend.Results.from_abstract_repr(job_result)
     return SampledResult(
@@ -120,6 +125,7 @@ def get_pulser_result_from_job_result(job_result:dict | str, atom_order:tuple=("
         meas_basis="ground-rydberg",
         bitstring_counts=job_result,
     )
+
 
 @pytest.fixture
 def mock_batch():
@@ -223,15 +229,13 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
         id=remote_results.batch_id
     )
     assert results == tuple(
-        get_pulser_result_from_job_result(job.result)
-        for job in select_jobs
+        get_pulser_result_from_job_result(job.result) for job in select_jobs
     )
 
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     available_results = remote_results.get_available_results()
     assert available_results == {
-        job.id:get_pulser_result_from_job_result(job.result)
-        for job in select_jobs
+        job.id: get_pulser_result_from_job_result(job.result) for job in select_jobs
     }
 
 
