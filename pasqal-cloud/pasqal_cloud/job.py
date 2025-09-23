@@ -67,8 +67,9 @@ class Job(BaseModel):
         counter_result = None
         if full_result := self.full_result:
             if "serialised_results" in full_result:
+                # Prefer returning a serialised result
                 return full_result["serialised_results"]
-            # legacy behaviour: counter is always present
+            # If not, return the associated counter object
             return full_result["counter"]
         return counter_result
 

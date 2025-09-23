@@ -208,9 +208,10 @@ class PasqalCloud(RemoteConnection):
                 results[job.id] = (job_status, None)
                 continue
             try:
+                # preferably, result is a serialized pulser Result
                 results[job.id] = (job_status, Results.from_abstract_repr(job.result))
             except TypeError:
-                # Legacy: job.result can be a counter
+                # Can also be a counter
                 results[job.id] = (
                     JobStatus[job.status],
                     SampledResult(
