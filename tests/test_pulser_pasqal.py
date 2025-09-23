@@ -108,7 +108,9 @@ class MockBatch:
             _MockJob(result={"00": 10}),
             _MockJob(result={"11": 10}),
             _MockJob(
-                result='{"atom_order": ["q0", "q1", "q2", "q3"], "total_duration": 0, "tagmap": {"bitstrings": "00000000-0000-0000-0000-000000000000"}, "results": {"00000000-0000-0000-0000-000000000000": [{"11": 10}]}, "times": {"00000000-0000-0000-0000-000000000000": [1.0]}, "aggregation_methods": {"00000000-0000-0000-0000-000000000000": 3}}'
+                result=SampledResult(
+                    ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
+                ).to_abstract_repr()
             ),
         ]
     )
