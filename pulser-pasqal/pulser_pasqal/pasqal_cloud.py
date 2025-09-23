@@ -23,6 +23,7 @@ import backoff
 import pasqal_cloud
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pulser import Sequence
+from pulser.backend import Results
 from pulser.backend.config import EmulationConfig, EmulatorConfig
 from pulser.backend.qpu import QPUBackend
 from pulser.backend.remote import (
@@ -196,13 +197,20 @@ class PasqalCloud(RemoteConnection):
 
         for job in batch.ordered_jobs:
             vars = job.variables or {}
-            meas_basis = seq_builder.build(**vars).get_measurement_basis()
+            meas_basis = (
+                seq_builder.build(**vars) if vars else seq_builder
+            ).get_measurement_basis()
             size: int | None = None
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])
+            job_status = JobStatus[job.status]
             if job.result is None:
-                results[job.id] = (JobStatus[job.status], None)
-            else:
+                results[job.id] = (job_status, None)
+                continue
+            try:
+                results[job.id] = (job_status, Results.from_abstract_repr(job.result))
+            except TypeError:
+                # Legacy: job.result can be a counter
                 results[job.id] = (
                     JobStatus[job.status],
                     SampledResult(
