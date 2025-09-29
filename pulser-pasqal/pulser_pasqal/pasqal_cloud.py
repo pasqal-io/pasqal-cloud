@@ -203,15 +203,14 @@ class PasqalCloud(RemoteConnection):
             size: int | None = None
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])
-            job_status = JobStatus[job.status]
             if job.result is None:
-                results[job.id] = (job_status, None)
+                results[job.id] = (JobStatus[job.status], None)
                 continue
-            try:
-                # preferably, result is a serialized pulser Result
-                results[job.id] = (job_status, Results.from_abstract_repr(job.result))
-            except TypeError:
-                # Can also be a counter
+            if "serialised_results" in job.full_result:
+                # preferably, has a serialized pulser Results
+                results[job.id] = (JobStatus[job.status], Results.from_abstract_repr(job.full_result["serialised_results"]))
+            else:
+                # There is always a counter
                 results[job.id] = (
                     JobStatus[job.status],
                     SampledResult(
