@@ -1,10 +1,11 @@
 from typing import Any, Dict, List, Optional, TypedDict, Union
 
+from pydantic import BaseModel, ConfigDict, PrivateAttr
+from requests import HTTPError
+
 from pasqal_cloud.client import Client
 from pasqal_cloud.errors import JobCancellingError
 from pasqal_cloud.utils.jsend import JobResult
-from pydantic import BaseModel, ConfigDict, PrivateAttr
-from requests import HTTPError
 
 
 class Job(BaseModel):
@@ -63,14 +64,9 @@ class Job(BaseModel):
 
     @property
     def result(self) -> Optional[Dict[str, Any] | str]:
-        """Returns a serialized pulser Results if got one or a Counter."""
         counter_result = None
-        if full_result := self.full_result:
-            if "serialised_results" in full_result:
-                # Prefer returning a serialised result
-                return full_result["serialised_results"]
-            # If not, return the associated counter object
-            return full_result["counter"]
+        if self.full_result:
+            counter_result = self.full_result["counter"]
         return counter_result
 
     def cancel(self) -> Dict[str, Any]:
