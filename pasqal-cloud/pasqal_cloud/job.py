@@ -63,7 +63,7 @@ class Job(BaseModel):
         return self._full_result
 
     @property
-    def result(self) -> Optional[Dict[str, Any] | str]:
+    def result(self) -> Optional[Dict[str, Any]]:
         counter_result = None
         if self.full_result:
             counter_result = self.full_result["counter"]
