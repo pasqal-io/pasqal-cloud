@@ -203,14 +203,18 @@ class PasqalCloud(RemoteConnection):
             size: int | None = None
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])
-            if "serialised_results" in job.full_result:
-                # preferably, has a serialized pulser Results
-                results[job.id] = (
-                    JobStatus[job.status],
-                    Results.from_abstract_repr(job.full_result["serialised_results"]),
-                )
-            elif job.result is not None:
+            if job.full_result is not None:
+                if "serialised_results" in job.full_result:
+                    # preferably, has a serialized pulser Results
+                    results[job.id] = (
+                        JobStatus[job.status],
+                        Results.from_abstract_repr(
+                            job.full_result["serialised_results"]
+                        ),
+                    )
+                    continue
                 # There is always a counter
+                assert job.result is not None
                 results[job.id] = (
                     JobStatus[job.status],
                     SampledResult(
@@ -219,8 +223,8 @@ class PasqalCloud(RemoteConnection):
                         bitstring_counts=job.result,
                     ),
                 )
-            else:
-                results[job.id] = (JobStatus[job.status], None)
+                continue
+            results[job.id] = (JobStatus[job.status], None)
         return results
 
     @backoff_decorator
