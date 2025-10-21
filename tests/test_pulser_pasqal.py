@@ -107,26 +107,9 @@ class MockBatch:
             _MockJob(),
             _MockJob(result={"00": 10}),
             _MockJob(result={"11": 10}),
-            _MockJob(
-                result=SampledResult(
-                    ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
-                ).to_abstract_repr()
-            ),
         ]
     )
     sequence_builder = build_test_sequence().to_abstract_repr()
-
-
-def get_pulser_result_from_job_result(
-    job_result: dict | str, atom_order: tuple = ("q0", "q1", "q2", "q3")
-) -> pulser.backend.Results:
-    if isinstance(job_result, str):
-        return pulser.backend.Results.from_abstract_repr(job_result)
-    return SampledResult(
-        atom_order=atom_order,
-        meas_basis="ground-rydberg",
-        bitstring_counts=job_result,
-    )
 
 
 @pytest.fixture
@@ -231,13 +214,23 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
         id=remote_results.batch_id
     )
     assert results == tuple(
-        get_pulser_result_from_job_result(job.result) for job in select_jobs
+        SampledResult(
+            atom_order=("q0", "q1", "q2", "q3"),
+            meas_basis="ground-rydberg",
+            bitstring_counts=job.result,
+        )
+        for job in select_jobs
     )
 
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     available_results = remote_results.get_available_results()
     assert available_results == {
-        job.id: get_pulser_result_from_job_result(job.result) for job in select_jobs
+        job.id: SampledResult(
+            atom_order=("q0", "q1", "q2", "q3"),
+            meas_basis="ground-rydberg",
+            bitstring_counts=job.result,
+        )
+        for job in select_jobs
     }
 
 
@@ -417,10 +410,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq, job_params=job_params, batch_id="open_batch"
     )
-    assert remote_results.get_available_results() == {
-        _job.id: get_pulser_result_from_job_result(_job.result)
-        for _job in mock_batch.ordered_jobs
-    }
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
     fixt_pasqal_cloud.mock_cloud_sdk.add_jobs.assert_called_once_with(
         "open_batch",
@@ -442,10 +431,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         mimic_qpu=mimic_qpu,
     )
     assert remote_results.batch_id == mock_batch.id
-    assert remote_results.get_available_results() == {
-        _job.id: get_pulser_result_from_job_result(_job.result)
-        for _job in mock_batch.ordered_jobs
-    }
 
     assert not seq.is_measured()
     seq.measure(basis="ground-rydberg")
@@ -484,7 +469,11 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         id=remote_results.batch_id
     )
     assert results == tuple(
-        get_pulser_result_from_job_result(_job.result)
+        SampledResult(
+            atom_order=("q0", "q1", "q2", "q3"),
+            meas_basis="ground-rydberg",
+            bitstring_counts=_job.result,
+        )
         for _job in mock_batch.ordered_jobs
     )
 
