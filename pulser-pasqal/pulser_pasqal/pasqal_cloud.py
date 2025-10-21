@@ -23,6 +23,7 @@ import backoff
 import pasqal_cloud
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pulser import Sequence
+from pulser.backend import Results
 from pulser.backend.config import EmulationConfig, EmulatorConfig
 from pulser.backend.qpu import QPUBackend
 from pulser.backend.remote import (
@@ -191,18 +192,29 @@ class PasqalCloud(RemoteConnection):
         seq_builder = Sequence.from_abstract_repr(batch.sequence_builder)
         reg = seq_builder.get_register(include_mappable=True)
         all_qubit_ids = reg.qubit_ids
-        meas_basis = seq_builder.get_measurement_basis()
 
         results: dict[str, tuple[JobStatus, Result | None]] = {}
 
         for job in batch.ordered_jobs:
-            vars = job.variables
+            vars = job.variables or {}
+            meas_basis = (
+                seq_builder.build(**vars) if vars else seq_builder
+            ).get_measurement_basis()
             size: int | None = None
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])
-            if job.result is None:
-                results[job.id] = (JobStatus[job.status], None)
-            else:
+            if job.full_result is not None:
+                if "serialised_results" in job.full_result:
+                    # preferably, has a serialized pulser Results
+                    results[job.id] = (
+                        JobStatus[job.status],
+                        Results.from_abstract_repr(
+                            job.full_result["serialised_results"]
+                        ),
+                    )
+                    continue
+                # There is always a counter
+                assert job.result is not None
                 results[job.id] = (
                     JobStatus[job.status],
                     SampledResult(
@@ -211,6 +223,8 @@ class PasqalCloud(RemoteConnection):
                         bitstring_counts=job.result,
                     ),
                 )
+                continue
+            results[job.id] = (JobStatus[job.status], None)
         return results
 
     @backoff_decorator
