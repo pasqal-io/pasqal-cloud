@@ -88,14 +88,15 @@ class _MockJob:
         self,
         runs=10,
         variables={"t": 100, "qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3}},
-        result={"00": 5, "11": 5},
+        full_result={"counter": {"00": 5, "11": 5}},
         status=JobStatus.DONE.name,
     ) -> None:
         self.runs = runs
         self.variables = variables
-        self.result = result
         self.id = str(np.random.randint(10000))
         self.status = status
+        self.full_result = full_result
+        self.result = self.full_result.get("counter", {}) if full_result else None
 
 
 @dataclasses.dataclass
@@ -105,12 +106,14 @@ class MockBatch:
     ordered_jobs: list[_MockJob] = dataclasses.field(
         default_factory=lambda: [
             _MockJob(),
-            _MockJob(result={"00": 10}),
-            _MockJob(result={"11": 10}),
+            _MockJob(full_result={"counter": {"00": 10}}),
+            _MockJob(full_result={"counter": {"11": 10}}),
             _MockJob(
-                result=SampledResult(
-                    ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
-                ).to_abstract_repr()
+                full_result={
+                    "serialisedResults": SampledResult(
+                        ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
+                    ).to_abstract_repr()
+                }
             ),
         ]
     )
@@ -246,7 +249,7 @@ def test_partial_results():
         status="RUNNING",
         ordered_jobs=[
             _MockJob(),
-            _MockJob(status="RUNNING", result=None),
+            _MockJob(status="RUNNING", full_result=None),
         ],
     )
 
@@ -286,7 +289,7 @@ def test_partial_results():
         status="DONE",
         ordered_jobs=[
             _MockJob(),
-            _MockJob(status="DONE", result=None),
+            _MockJob(status="DONE", full_result=None),
         ],
     )
 
