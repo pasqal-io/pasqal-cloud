@@ -110,7 +110,7 @@ class MockBatch:
             _MockJob(full_result={"counter": {"11": 10}}),
             _MockJob(
                 full_result={
-                    "serialisedResults": SampledResult(
+                    "serialised_results": SampledResult(
                         ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
                     ).to_abstract_repr()
                 }

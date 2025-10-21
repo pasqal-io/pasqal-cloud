@@ -24,6 +24,7 @@ else:
 class JobResult(TypedDict):
     raw: List[str]
     counter: Dict[str, Any]
+    serialised_results: Optional[str]
 
 
 class PaginationType(TypedDict):
