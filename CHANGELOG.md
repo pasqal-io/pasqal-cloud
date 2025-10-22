@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### pulser-pasqal
 * Fixes:
-  - Measurement basis in sequences built using job variables
+  - Fix retrieval of results for batches using parametrized sequence
+  - Deserialize all results returned by the emulator instead of solely the bitstrings counter
   - Results deserialization
 * Bump pulser-core minimum version to >=1.6
 
