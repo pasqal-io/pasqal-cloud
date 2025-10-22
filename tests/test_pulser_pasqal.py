@@ -88,14 +88,15 @@ class _MockJob:
         self,
         runs=10,
         variables={"t": 100, "qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3}},
-        result={"00": 5, "11": 5},
+        full_result={"counter": {"00": 5, "11": 5}},
         status=JobStatus.DONE.name,
     ) -> None:
         self.runs = runs
         self.variables = variables
-        self.result = result
         self.id = str(np.random.randint(10000))
         self.status = status
+        self.full_result = full_result
+        self.result = self.full_result.get("counter", {}) if full_result else None
 
 
 @dataclasses.dataclass
@@ -105,12 +106,14 @@ class MockBatch:
     ordered_jobs: list[_MockJob] = dataclasses.field(
         default_factory=lambda: [
             _MockJob(),
-            _MockJob(result={"00": 10}),
-            _MockJob(result={"11": 10}),
+            _MockJob(full_result={"counter": {"00": 10}}),
+            _MockJob(full_result={"counter": {"11": 10}}),
             _MockJob(
-                result=SampledResult(
-                    ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
-                ).to_abstract_repr()
+                full_result={
+                    "serialised_results": SampledResult(
+                        ("q0", "q1", "q2", "q3"), 100, bitstring_counts={"11": 10}
+                    ).to_abstract_repr()
+                }
             ),
         ]
     )
@@ -118,14 +121,16 @@ class MockBatch:
 
 
 def get_pulser_result_from_job_result(
-    job_result: dict | str, atom_order: tuple = ("q0", "q1", "q2", "q3")
+    job_full_result: dict | str, atom_order: tuple = ("q0", "q1", "q2", "q3")
 ) -> pulser.backend.Results:
-    if isinstance(job_result, str):
-        return pulser.backend.Results.from_abstract_repr(job_result)
+    if "serialised_results" in job_full_result:
+        return pulser.backend.Results.from_abstract_repr(
+            job_full_result["serialised_results"]
+        )
     return SampledResult(
         atom_order=atom_order,
         meas_basis="ground-rydberg",
-        bitstring_counts=job_result,
+        bitstring_counts=job_full_result["counter"],
     )
 
 
@@ -231,13 +236,14 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
         id=remote_results.batch_id
     )
     assert results == tuple(
-        get_pulser_result_from_job_result(job.result) for job in select_jobs
+        get_pulser_result_from_job_result(job.full_result) for job in select_jobs
     )
 
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
     available_results = remote_results.get_available_results()
     assert available_results == {
-        job.id: get_pulser_result_from_job_result(job.result) for job in select_jobs
+        job.id: get_pulser_result_from_job_result(job.full_result)
+        for job in select_jobs
     }
 
 
@@ -246,7 +252,7 @@ def test_partial_results():
         status="RUNNING",
         ordered_jobs=[
             _MockJob(),
-            _MockJob(status="RUNNING", result=None),
+            _MockJob(status="RUNNING", full_result=None),
         ],
     )
 
@@ -286,7 +292,7 @@ def test_partial_results():
         status="DONE",
         ordered_jobs=[
             _MockJob(),
-            _MockJob(status="DONE", result=None),
+            _MockJob(status="DONE", full_result=None),
         ],
     )
 
@@ -418,7 +424,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         seq, job_params=job_params, batch_id="open_batch"
     )
     assert remote_results.get_available_results() == {
-        _job.id: get_pulser_result_from_job_result(_job.result)
+        _job.id: get_pulser_result_from_job_result(_job.full_result)
         for _job in mock_batch.ordered_jobs
     }
     fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
@@ -443,7 +449,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     )
     assert remote_results.batch_id == mock_batch.id
     assert remote_results.get_available_results() == {
-        _job.id: get_pulser_result_from_job_result(_job.result)
+        _job.id: get_pulser_result_from_job_result(_job.full_result)
         for _job in mock_batch.ordered_jobs
     }
 
@@ -484,7 +490,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         id=remote_results.batch_id
     )
     assert results == tuple(
-        get_pulser_result_from_job_result(_job.result)
+        get_pulser_result_from_job_result(_job.full_result)
         for _job in mock_batch.ordered_jobs
     )
 
