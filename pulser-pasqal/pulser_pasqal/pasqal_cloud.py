@@ -37,7 +37,7 @@ from pulser.backend.remote import (
 from pulser.devices import Device
 from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
-from pulser.result import Result, SampledResult
+from pulser.result import SampledResult
 
 EMU_TYPE_TO_CONFIG: dict[pasqal_cloud.EmulatorType, Type[BaseConfig]] = {
     pasqal_cloud.EmulatorType.EMU_FREE: EmuFreeConfig,
@@ -162,14 +162,14 @@ class PasqalCloud(RemoteConnection):
 
     def _fetch_result(
         self, batch_id: str, job_ids: list[str] | None
-    ) -> tuple[Result, ...]:
+    ) -> tuple[Results, ...]:
         # For now, the results are always sampled results
         jobs = self._query_job_progress(batch_id)
 
         if job_ids is None:
             job_ids = list(jobs.keys())
 
-        results: list[Result] = []
+        results: list[Results] = []
         for id in job_ids:
             status, result = jobs[id]
             if status in {JobStatus.PENDING, JobStatus.RUNNING}:
@@ -184,7 +184,7 @@ class PasqalCloud(RemoteConnection):
 
     def _query_job_progress(
         self, batch_id: str
-    ) -> Mapping[str, tuple[JobStatus, Result | None]]:
+    ) -> Mapping[str, tuple[JobStatus, Results | None]]:
         get_batch_fn = backoff_decorator(self._sdk_connection.get_batch)
         batch = get_batch_fn(id=batch_id)
 
@@ -193,7 +193,7 @@ class PasqalCloud(RemoteConnection):
         reg = seq_builder.get_register(include_mappable=True)
         all_qubit_ids = reg.qubit_ids
 
-        results: dict[str, tuple[JobStatus, Result | None]] = {}
+        results: dict[str, tuple[JobStatus, Results | None]] = {}
 
         for job in batch.ordered_jobs:
             vars = job.variables or {}
@@ -204,12 +204,12 @@ class PasqalCloud(RemoteConnection):
             if vars and "qubits" in vars:
                 size = len(vars["qubits"])
             if job.full_result is not None:
-                if "serialised_results" in job.full_result:
+                if job.full_result.get("serialised_results", None) is not None:
                     # preferably, has a serialized pulser Results
                     results[job.id] = (
                         JobStatus[job.status],
                         Results.from_abstract_repr(
-                            job.full_result["serialised_results"]
+                            cast(str, job.full_result["serialised_results"])
                         ),
                     )
                     continue

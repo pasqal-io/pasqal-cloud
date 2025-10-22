@@ -86,6 +86,7 @@ class TestBatch:
         self.job_full_result = {
             "counter": {"1001": 12, "0110": 35, "1111": 1},
             "raw": ["1001", "1001", "0110", "1001", "0110"],
+            "serialised_results": None
         }
         self.tags = ["test"]
 

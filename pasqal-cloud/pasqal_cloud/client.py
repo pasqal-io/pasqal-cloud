@@ -325,7 +325,10 @@ class Client:
         response.raise_for_status()
         data = response.json()
         return JobResult(
-            raw=data.pop("raw", None), counter=data.pop("counter", None), **data
+            raw=data.pop("raw", None),
+            counter=data.pop("counter", None),
+            serialised_results=data.pop("serialised_results", None),
+            **data
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:
