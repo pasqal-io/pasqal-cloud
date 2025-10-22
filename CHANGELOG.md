@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.6]
+
+### pulser-pasqal
+* Fixes:
+  - Measurement basis in sequences built using job variables
+  - Results deserialization
+* Bump pulser-core minimum version to >=1.6
+
 ## [0.20.5]
 
 ### pasqal-cloud
