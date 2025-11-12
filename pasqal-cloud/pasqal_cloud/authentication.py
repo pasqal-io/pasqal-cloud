@@ -189,7 +189,7 @@ class FirebaseTokenProvider(ExpiringTokenProvider):
         except HTTPError as err:
             raise TokenProviderError(err)
 
-    def _query_token(self) -> dict[str, Any]:
+    def _query_token(self) -> Any:
         response = requests.post(
             "{}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={}".format(
                 self.config.hostname, self.config.api_key
