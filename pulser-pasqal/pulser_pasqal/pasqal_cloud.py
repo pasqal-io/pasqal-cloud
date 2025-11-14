@@ -140,7 +140,7 @@ class PasqalCloud(RemoteConnection):
                 open=open,
             )
             new_job_ids = self._get_job_ids(batch.id)
-        return RemoteResults(batch.id, self, job_ids=new_job_ids)
+        return self.get_results(batch_id=batch.id, job_ids=new_job_ids)
 
     @backoff_decorator
     def fetch_available_devices(self) -> dict[str, Device]:
@@ -150,6 +150,26 @@ class PasqalCloud(RemoteConnection):
             name: cast(Device, deserialize_device(dev_str))
             for name, dev_str in abstract_devices.items()
         }
+
+    def get_results(
+        self,
+        batch_id: str,
+        job_ids: list[str] | None = None,
+    ) -> RemoteResults:
+        """Gets the results for a specific batch.
+
+        Args:
+            batch_id: The ID that identifies the batch linked to the results.
+            connection: The remote connection over which to get the batch's
+                status and fetch the results.
+            job_ids: If given, specifies which jobs within the batch should
+                be included in the results and in what order. If left undefined,
+                all jobs are included.
+
+        Returns:
+            RemoteResults: The requested results.
+        """
+        return RemoteResults(batch_id=batch_id, connection=self, job_ids=job_ids)
 
     def _fetch_result(
         self, batch_id: str, job_ids: list[str] | None
