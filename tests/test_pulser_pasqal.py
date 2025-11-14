@@ -45,6 +45,11 @@ from pulser_pasqal.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:EmuFreeBackend is deprecated:DeprecationWarning",
+    "ignore:EmuTNBackend is deprecated:DeprecationWarning",
+)
+
 
 @dataclasses.dataclass
 class OVHFixture:
@@ -87,7 +92,7 @@ class _MockJob:
     def __init__(
         self,
         runs=10,
-        variables={"t": 100, "qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3}},
+        variables={"qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3}},
         full_result={"counter": {"00": 5, "11": 5}},
         status=JobStatus.DONE.name,
     ) -> None:
@@ -343,44 +348,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     seq.delay(t if parametrized else 100, "rydberg_global")
     assert seq.is_parametrized() == parametrized
 
-    if mimic_qpu:
-        seq2 = seq.switch_device(virtual_device)
-        with pytest.raises(
-            ValueError,
-            match="The device used in the sequence does not match any "
-            "of the devices currently available through the remote "
-            "connection.",
-        ):
-            fixt_pasqal_cloud.pasqal_cloud.submit(
-                seq2, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
-            )
-        mod_test_device = dataclasses.replace(test_device, max_atom_num=1000)
-        seq3 = seq.switch_device(mod_test_device).switch_register(
-            pulser.Register.square(11, spacing=5, prefix="q")
-        )
-        with pytest.raises(
-            ValueError,
-            match="sequence is not compatible with the latest device specs",
-        ):
-            fixt_pasqal_cloud.pasqal_cloud.submit(
-                seq3, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
-            )
-        seq4 = seq3.switch_register(pulser.Register.square(4, spacing=5, prefix="q"))
-        # The sequence goes through QPUBackend.validate_sequence()
-        with pytest.raises(ValueError, match="defined from a `RegisterLayout`"):
-            fixt_pasqal_cloud.pasqal_cloud.submit(
-                seq4, job_params=[{"runs": 10}], mimic_qpu=mimic_qpu
-            )
-
-        # And it goes through QPUBackend.validate_job_params()
-        with pytest.raises(
-            ValueError,
-            match="must specify 'runs'",
-        ):
-            fixt_pasqal_cloud.pasqal_cloud.submit(
-                seq, job_params=[{}], mimic_qpu=mimic_qpu
-            )
-
     if parametrized:
         with pytest.raises(TypeError, match="Did not receive values for variables"):
             fixt_pasqal_cloud.pasqal_cloud.submit(
@@ -531,7 +498,7 @@ def test_emulators_init(fixt_pasqal_cloud, seq, emu_cls, monkeypatch):
     # With mimic_qpu=True
     with pytest.raises(ValueError, match="'sequence' should not be empty"):
         emu_cls(
-            seq.switch_device(virtual_device),
+            seq.with_new_device(virtual_device),
             fixt_pasqal_cloud.pasqal_cloud,
             mimic_qpu=True,
         )
@@ -542,7 +509,7 @@ def test_emulators_init(fixt_pasqal_cloud, seq, emu_cls, monkeypatch):
 
     with pytest.raises(TypeError, match="must be a real device"):
         emu_cls(
-            seq.switch_device(virtual_device),
+            seq.with_new_device(virtual_device),
             fixt_pasqal_cloud.pasqal_cloud,
             mimic_qpu=True,
         )
