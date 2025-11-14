@@ -223,20 +223,55 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
             config=config,
             mimic_qpu=mimic_qpu,
         )
-        # To be deleted once this PR is released: https://github.com/pasqal-io/Pulser/pull/890
-        self._config = type(self.default_config)(
-            **{
-                **self.default_config._backend_options,
-                **(config._backend_options if config else {}),
-            }
-        )
+
+    def run(
+        self, job_params: list[JobParams] | None = None, wait: bool = False
+    ) -> RemoteResults:
+        """Runs the sequence on this remote emulator and returns the result.
+
+        Args:
+            job_params: A list of parameters for each job to execute. If the
+                sequence is parametrized, the values for all the variables
+                necessary to build the sequence must be given for
+                each job, under the 'variables' field. If not given, a single
+                job is executed.
+            wait: Whether to wait until the results of the jobs become
+                available.  If set to False, the call is non-blocking and the
+                obtained results' status can be checked using their `status`
+                property.
+
+        Warning:
+            Unlike a 'QPUBackend', this backend does not expect a value for
+            "runs" in each entry of 'job_params'. If provided, this value is
+            ignored. If you wish to set the total number of bitstring counts
+            in the Results, please provide a 'BitStrings' observable with the
+            desired 'num_shots' via this backend's 'config' instead."
+
+        Returns:
+            The results, which can be accessed once all sequences have been
+            successfully executed.
+        """
+        _job_params: list[JobParams]
+        if job_params is None:
+            # Assume a single job
+            _job_params = [{"runs": 1}]
+        else:
+            _job_params = job_params
+            if any(j.get("runs", 1) != 1 for j in job_params if isinstance(j, dict)):
+                warnings.warn(
+                    "The 'runs' parameter is ignored on jobs executed on "
+                    f"{self.__class__.__name__!r}. If you wish to set the "
+                    "total number of bitstring counts in the Results, please "
+                    "provide a 'BitStrings' observable with the desired "
+                    "'num_shots' via this backend's 'config' instead.",
+                    stacklevel=2,
+                )
+        super().run(job_params=_job_params, wait=wait)
 
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""
         return dict(
             batch_id=self._batch_id,
-            # To be deleted once this PR is released: https://github.com/pasqal-io/Pulser/pull/888
-            mimic_qpu=self._mimic_qpu,
             backend_configuration=self._config,
             device_type=self._device_type,
         )
