@@ -25,7 +25,6 @@ from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pulser import Sequence
 from pulser.backend import Results
 from pulser.backend.config import EmulationConfig, EmulatorConfig
-from pulser.backend.qpu import QPUBackend
 from pulser.backend.remote import (
     BatchStatus,
     JobParams,
@@ -100,14 +99,6 @@ class PasqalCloud(RemoteConnection):
 
         job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
 
-        mimic_qpu: bool = kwargs.get("mimic_qpu", False)
-
-        # This check will be moved to RemoteBackend.run() and can be removed
-        # once the following Pulser PR is released: https://github.com/pasqal-io/Pulser/pull/888
-        if (not emulator and not device_type) or mimic_qpu:
-            sequence = self.update_sequence_device(sequence)
-            QPUBackend.validate_job_params(job_params, sequence.device.max_runs)
-
         if sequence.is_parametrized() or sequence.is_register_mappable():
             for params in job_params:
                 vars = params.get("variables", {})
@@ -116,7 +107,7 @@ class PasqalCloud(RemoteConnection):
         configuration = self._convert_configuration(
             config=kwargs.get("config", None),
             emulator=emulator,
-            strict_validation=mimic_qpu,
+            strict_validation=kwargs.get("mimic_qpu", False),
         )
         backend_configuration_str = (
             backend_configuration.to_abstract_repr() if backend_configuration else None
@@ -129,7 +120,7 @@ class PasqalCloud(RemoteConnection):
             old_job_ids = self._get_job_ids(batch_id)
             batch = submit_jobs_fn(
                 batch_id,
-                jobs=job_params or [],  # type: ignore[arg-type]
+                jobs=job_params,
             )
             new_job_ids = [
                 job_id
@@ -140,7 +131,7 @@ class PasqalCloud(RemoteConnection):
             create_batch_fn = backoff_decorator(self._sdk_connection.create_batch)
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
-                jobs=job_params or [],  # type: ignore[arg-type]
+                jobs=job_params,
                 emulator=emulator,
                 device_type=device_type,
                 configuration=configuration,
