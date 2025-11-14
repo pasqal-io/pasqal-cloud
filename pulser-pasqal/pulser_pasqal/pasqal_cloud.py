@@ -22,12 +22,12 @@ from typing import Any, Mapping, Type, cast
 import backoff
 import pasqal_cloud
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
 from pulser.backend.config import EmulationConfig, EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
-    JobParams,
     JobStatus,
     RemoteConnection,
     RemoteResults,
@@ -97,11 +97,11 @@ class PasqalCloud(RemoteConnection):
             if device_type:
                 raise ValueError("Can't use emulator and device_type at the same time.")
 
-        job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
+        job_params: list[CreateJob] = make_json_compatible(kwargs.get("job_params", []))
 
         if sequence.is_parametrized() or sequence.is_register_mappable():
             for params in job_params:
-                vars = params.get("variables", {})
+                vars = params.get("variables", {}) or {}
                 sequence.build(**vars)
 
         configuration = self._convert_configuration(

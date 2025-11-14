@@ -266,7 +266,7 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
                     "'num_shots' via this backend's 'config' instead.",
                     stacklevel=2,
                 )
-        super().run(job_params=_job_params, wait=wait)
+        return super().run(job_params=_job_params, wait=wait)
 
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""
