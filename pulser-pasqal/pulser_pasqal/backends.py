@@ -257,7 +257,7 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
             _job_params = [{"runs": 1}]
         else:
             _job_params = job_params
-            if any(j.get("runs", 1) != 1 for j in job_params if isinstance(j, dict)):
+            if any(j.setdefault("runs", 1) != 1 for j in job_params if isinstance(j, dict)):
                 warnings.warn(
                     "The 'runs' parameter is ignored on jobs executed on "
                     f"{self.__class__.__name__!r}. If you wish to set the "
