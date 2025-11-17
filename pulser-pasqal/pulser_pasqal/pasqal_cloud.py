@@ -164,7 +164,7 @@ class PasqalCloud(RemoteConnection):
                 status and fetch the results.
             job_ids: If given, specifies which jobs within the batch should
                 be included in the results and in what order. If left undefined,
-                all jobs are included.
+                all jobs are included and ordered by date of creation.
 
         Returns:
             RemoteResults: The requested results.
