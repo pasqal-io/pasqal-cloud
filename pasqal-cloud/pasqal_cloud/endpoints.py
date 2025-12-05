@@ -59,6 +59,11 @@ DEV_AUDIENCE: Final[str] = "https://apis.dev.pasqal.cloud/account/api/v1"
 
 REALM: Final[str] = "pcs-users"
 
+# ---- Keycloak ----
+KEYCLOAK_BASE_URL = "https://keycloak-127-0-0-1.nip.io"
+KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
+KEYCLOAK_REALM = "users"
+
 
 @dataclass
 class Auth0Conf:
@@ -66,6 +71,13 @@ class Auth0Conf:
     public_client_id: str = PUBLIC_CLIENT_ID
     audience: str = AUDIENCE
     realm: str = REALM
+
+
+@dataclass
+class KeycloakConf:
+    base_url: str = KEYCLOAK_BASE_URL
+    public_client_id: str = KEYCLOAK_SDK_CLIENT_ID
+    realm: str = KEYCLOAK_REALM
 
 
 # ---- Pre-filled environment configuration ----
