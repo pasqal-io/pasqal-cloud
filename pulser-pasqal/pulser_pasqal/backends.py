@@ -287,7 +287,7 @@ class EmuSVBackend(RemoteEmulatorBackend):
 
     default_config = EmulationConfig(
         observables=[BitStrings()],
-        num_gpus_to_use=1,
+        gpu=True,
         autosave_dt=float("inf"),
         optimize_qubit_ordering=True,
     )
