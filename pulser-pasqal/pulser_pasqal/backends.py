@@ -287,9 +287,6 @@ class EmuSVBackend(RemoteEmulatorBackend):
 
     default_config = EmulationConfig(
         observables=[BitStrings()],
-        gpu=True,
-        autosave_dt=float("inf"),
-        optimize_qubit_ordering=True,
     )
     _device_type = pasqal_cloud.DeviceTypeName.EMU_SV
 
