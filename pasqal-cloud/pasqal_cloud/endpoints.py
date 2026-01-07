@@ -13,6 +13,7 @@
 # limitations under the License.
 from dataclasses import dataclass
 from sys import version_info
+from typing import Literal
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -20,26 +21,49 @@ else:
     from typing_extensions import Final  # type: ignore[assignment]
 
 
+Region = Literal["france", "saudi-arabia"]
+
 # ---- Endpoints ----
 
-# Prod Core API URL
+# Region = France
+# -- Prod --
 CORE_API_URL: Final[str] = "https://apis.pasqal.cloud/core-fast"
 
 ACCOUNT_API_URL: Final[str] = "https://apis.pasqal.cloud/account"
 
+# -- Preprod --
 PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/core-fast"
 
 PREPROD_ACCOUNT_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/account"
 
+# -- Dev --
 DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
 
 DEV_ACCOUNT_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/account"
+
+# Region = Saudi-Arabia
+
+# -- Prod --
+KSA_CORE_API_URL: Final[str] = "https://apis.sa.pasqal.cloud/core-fast"
+
+KSA_ACCOUNT_API_URL: Final[str] = "https://apis.sa.pasqal.cloud/account"
+
+# -- Preprod --
+KSA_PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.sa.pasqal.cloud/core-fast"
+
+KSA_PREPROD_ACCOUNT_API_URL: Final[str] = "https://apis.preprod.sa.pasqal.cloud/account"
 
 
 @dataclass
 class Endpoints:
     core: str = CORE_API_URL
     account: str = ACCOUNT_API_URL
+
+    @classmethod
+    def from_region(region: Region) -> "Endpoints":
+        if region == "saudi-arabia":
+            return Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL)
+        return Endpoints()
 
 
 # ---- Auth0 ----
@@ -60,9 +84,12 @@ DEV_AUDIENCE: Final[str] = "https://apis.dev.pasqal.cloud/account/api/v1"
 REALM: Final[str] = "pcs-users"
 
 # ---- Keycloak ----
-KEYCLOAK_BASE_URL = "https://keycloak-127-0-0-1.nip.io"
+KEYCLOAK_BASE_URL = "https://auth.sa.pasqal.cloud"
+
+PREPROD_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
+
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
-KEYCLOAK_REALM = "users"
+KEYCLOAK_REALM = "pasqal-cloud"
 
 
 @dataclass
@@ -87,6 +114,10 @@ PASQAL_ENDPOINTS = {
     "prod": Endpoints(core=CORE_API_URL, account=ACCOUNT_API_URL),
     "preprod": Endpoints(core=PREPROD_CORE_API_URL, account=PREPROD_ACCOUNT_API_URL),
     "dev": Endpoints(core=DEV_CORE_API_URL, account=DEV_ACCOUNT_API_URL),
+    "ksa-prod": Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL),
+    "ksa-preprod": Endpoints(
+        core=KSA_PREPROD_CORE_API_URL, account=KSA_PREPROD_ACCOUNT_API_URL
+    ),
 }
 
 AUTH0_CONFIG = {
