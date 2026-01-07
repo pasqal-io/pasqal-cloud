@@ -114,8 +114,8 @@ PASQAL_ENDPOINTS = {
     "prod": Endpoints(core=CORE_API_URL, account=ACCOUNT_API_URL),
     "preprod": Endpoints(core=PREPROD_CORE_API_URL, account=PREPROD_ACCOUNT_API_URL),
     "dev": Endpoints(core=DEV_CORE_API_URL, account=DEV_ACCOUNT_API_URL),
-    "ksa-prod": Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL),
-    "ksa-preprod": Endpoints(
+    "sa-prod": Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL),
+    "sa-preprod": Endpoints(
         core=KSA_PREPROD_CORE_API_URL, account=KSA_PREPROD_ACCOUNT_API_URL
     ),
 }
