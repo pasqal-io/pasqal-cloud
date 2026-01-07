@@ -28,11 +28,9 @@ from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
-    PASQAL_ENDPOINTS,  # noqa: F401
+    Region,
 )
-from pasqal_cloud.endpoints import (
-    Endpoints as Endpoints,
-)
+from pasqal_cloud.endpoints import Endpoints as Endpoints
 from pasqal_cloud.errors import (
     BatchCancellingError,
     BatchClosingError,
@@ -121,6 +119,7 @@ class SDK:
         webhook: Optional[str] = None,
         project_id: Optional[str] = None,
         client_class: Type[Client] = Client,
+        region: Optional[Region] = None,
     ):
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
@@ -150,6 +149,7 @@ class SDK:
             project_id: ID of the owner project of the batch.
             client_class: client class used to determine authentification \
             and endpoints targeted by the SDK
+            region: specifies the region to target
         """
         _check_sdk_version()
 
@@ -160,6 +160,7 @@ class SDK:
             token_provider=token_provider,
             endpoints=endpoints,
             auth0=auth0,
+            region=region,
         )
 
         self.batches: Dict[str, Batch] = {}

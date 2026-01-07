@@ -27,7 +27,7 @@ from pasqal_cloud.authentication import (
     HTTPBearerAuthenticator,
     TokenProvider,
 )
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -57,8 +57,9 @@ class Client:
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
+        region: Optional[Region] = None,
     ):
-        self.endpoints = self._make_endpoints(endpoints)
+        self.endpoints = self._make_endpoints(endpoints, region)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
@@ -155,10 +156,11 @@ class Client:
         self._project_id = project_id
 
     @staticmethod
-    def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
+    def _make_endpoints(
+        endpoints: Optional[Endpoints], region: Optional[Region] = None
+    ) -> Endpoints:
         if endpoints is None:
-            return Endpoints()
-
+            return Endpoints.from_region(region)
         if not isinstance(endpoints, Endpoints):
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
@@ -328,7 +330,7 @@ class Client:
             raw=data.pop("raw", None),
             counter=data.pop("counter", None),
             serialised_results=data.pop("serialised_results", None),
-            **data
+            **data,
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:
