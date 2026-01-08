@@ -14,6 +14,7 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 class TestDeviceSpecs:
     @pytest.fixture(autouse=True)
     @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
     def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com", password="password", project_id=str(uuid4())

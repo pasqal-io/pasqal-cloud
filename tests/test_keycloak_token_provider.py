@@ -1,8 +1,8 @@
-import pytest
-from datetime import datetime, timedelta, timezone
 import urllib.parse
+from datetime import datetime, timedelta, timezone
 
-from pasqal_cloud.authentication import KeycloakTokenProvider, KeycloakConf
+import pytest
+from pasqal_cloud.authentication import AccessTokenProvider, TokenProviderConf
 
 
 def make_token_response(
@@ -21,16 +21,13 @@ def make_token_response(
 
 @pytest.fixture
 def config():
-    return KeycloakConf(
-        base_url="http://keycloak",
+    return TokenProviderConf(
+        token_endpoint="http://keycloak/realms/myrealm/protocol/openid-connect/token",
         realm="myrealm",
         public_client_id="myclient",
+        grant_type="password",
+        audience="",
     )
-
-
-@pytest.fixture
-def token_url(config):
-    return f"{config.base_url}/realms/" f"{config.realm}/protocol/openid-connect/token"
 
 
 @pytest.fixture
@@ -47,7 +44,7 @@ def now(monkeypatch):
     return fixed_now
 
 
-def test_get_token_success(requests_mock, config, token_url):
+def test_get_token_success(requests_mock, config):
     """Assert that one can get an access token using the token provider
 
     Two requests should be made to keycloak:
@@ -55,11 +52,11 @@ def test_get_token_success(requests_mock, config, token_url):
         - one refresh token grant to get the access token
     """
     requests_mock.post(
-        token_url,
+        config.token_endpoint,
         json=make_token_response(access="AT1", refresh="RT1"),
     )
 
-    provider = KeycloakTokenProvider("user", "pwd", config)
+    provider = AccessTokenProvider("user", "pwd", config)
     token = provider.get_token()
 
     # Validate returned token
@@ -78,7 +75,7 @@ def test_get_token_success(requests_mock, config, token_url):
 
 
 def test_refresh_access_token_after_access_expiry(
-    requests_mock, config, token_url, now, monkeypatch
+    requests_mock, config, now, monkeypatch
 ):
     """Assert that the access token can be refreshed after it expires
     (case where refresh token is not yet expired.)
@@ -90,7 +87,7 @@ def test_refresh_access_token_after_access_expiry(
 
     """
     requests_mock.post(
-        token_url,
+        config.token_endpoint,
         [
             {"json": make_token_response("AT_INIT", "RT_INIT")},  # password grant
             {
@@ -102,7 +99,7 @@ def test_refresh_access_token_after_access_expiry(
         ],
     )
 
-    provider = KeycloakTokenProvider("user", "pwd", config)
+    provider = AccessTokenProvider("user", "pwd", config)
 
     # Advance time to expire the access token
     # Refresh token did not expire however
@@ -135,7 +132,7 @@ def test_refresh_access_token_after_access_expiry(
 
 
 def test_refresh_access_token_after_refresh_token_expiry(
-    requests_mock, config, token_url, now, monkeypatch
+    requests_mock, config, now, monkeypatch
 ):
     """Assert that the access token can be refreshed even when the refresh token expires
 
@@ -147,7 +144,7 @@ def test_refresh_access_token_after_refresh_token_expiry(
         - Refresh token grant to get the final access token when calling get_token
     """
     requests_mock.post(
-        token_url,
+        config.token_endpoint,
         [
             {
                 "json": make_token_response("AT1", "RT1", refresh_expires_in=1)
@@ -164,7 +161,7 @@ def test_refresh_access_token_after_refresh_token_expiry(
         ],
     )
 
-    provider = KeycloakTokenProvider("user", "pwd", config)
+    provider = AccessTokenProvider("user", "pwd", config)
 
     # Advance time so refresh token has expired
     new_now = now + timedelta(hours=2)
