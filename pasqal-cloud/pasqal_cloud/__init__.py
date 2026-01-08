@@ -28,7 +28,9 @@ from pasqal_cloud.device import EmulatorType as EmulatorType
 from pasqal_cloud.endpoints import (
     AUTH0_CONFIG,  # noqa: F401
     Auth0Conf,
+    PASQAL_ENDPOINTS,  # noqa: F401
     Region,
+    TokenProviderConf,
 )
 from pasqal_cloud.endpoints import Endpoints as Endpoints
 from pasqal_cloud.errors import (
@@ -120,6 +122,7 @@ class SDK:
         project_id: Optional[str] = None,
         client_class: Type[Client] = Client,
         region: Optional[Region] = None,
+        auth_config: Optional[TokenProviderConf] = None,
     ):
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
@@ -150,6 +153,7 @@ class SDK:
             client_class: client class used to determine authentification \
             and endpoints targeted by the SDK
             region: specifies the region to target
+            auth_config: TODO
         """
         _check_sdk_version()
 
@@ -161,6 +165,7 @@ class SDK:
             endpoints=endpoints,
             auth0=auth0,
             region=region,
+            auth_config=auth_config,
         )
 
         self.batches: Dict[str, Batch] = {}

@@ -17,6 +17,7 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
     "pasqal_cloud.client.Auth0TokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
+@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
     connection = PasqalCloud(username="test", password="test", project_id=str(uuid4()))
@@ -47,6 +48,7 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker):
     "pasqal_cloud.client.Auth0TokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
+@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_free_backend_with_custom_config(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
     connection = PasqalCloud(username="test", password="test", project_id=str(uuid4()))

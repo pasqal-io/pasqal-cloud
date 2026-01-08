@@ -11,7 +11,7 @@ from requests import PreparedRequest
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
-from pasqal_cloud.endpoints import Auth0Conf, KeycloakConf
+from pasqal_cloud.endpoints import Auth0Conf, TokenProviderConf
 
 
 class HTTPBearerAuthenticator(AuthBase):
@@ -183,39 +183,27 @@ class InsecureAuth0TokenProvider(Auth0TokenProvider):
         return response.json()
 
 
-class KeycloakTokenProvider(ExpiringTokenProvider):
-    def __init__(self, username: str, password: str, keycloak_config: KeycloakConf):
+class AccessTokenProvider(ExpiringTokenProvider):
+    def __init__(self, username: str, password: str, config: TokenProviderConf):
         """Initializes the token provider with user credentials and
-        a keycloak configuration object
+        a configuration object
 
         Args:
-            refresh_token: refresh token to query user access tokens
-            keycloak_config: configuration of the keycloack client
+            config: configuration of the auth client
         """
         self.username = username
         self.password = password
-        self.keycloak_config = keycloak_config
-
-        self.refresh_token = ""
-        self.refresh_token_expiry = None
-
+        self.config = config
         self.get_token()
 
-    def _token_url(self) -> str:
-        return (
-            f"{self.keycloak_config.base_url}/realms/"
-            f"{self.keycloak_config.realm}/protocol/openid-connect/token"
-        )
-
-    def _password_grant(self) -> tuple[str, datetime]:
-        """Acquire a refresh token using ROPC (password grant).
-
-        Returns the refresh token and its expiry date"""
+    def _query_token(self) -> dict[str, Any]:
         response = requests.post(
-            self._token_url(),
+            self.config.token_endpoint,
             data={
-                "client_id": self.keycloak_config.public_client_id,
-                "grant_type": "password",
+                "client_id": self.config.public_client_id,
+                "grant_type": self.config.grant_type,
+                "realm": self.config.realm,
+                "audience": self.config.audience,
                 "username": self.username,
                 "password": self.password,
             },
@@ -225,38 +213,4 @@ class KeycloakTokenProvider(ExpiringTokenProvider):
                 f"Login failed: {response.status_code} {response.text}"
             )
 
-        data = response.json()
-        return data["refresh_token"], datetime.now(tz=timezone.utc) + timedelta(
-            seconds=float(data["refresh_expires_in"])
-        )
-
-    def _query_token(self) -> dict[str, Any]:
-        if (
-            not self.refresh_token_expiry
-            or self.refresh_token_expiry - self.expiry_window
-            < datetime.now(tz=timezone.utc)
-        ):
-            # If refresh token has expired get a new one
-            self.refresh_token, self.refresh_token_expiry = self._password_grant()
-
-        # Refresh access token
-        response = requests.post(
-            self._token_url(),
-            data={
-                "client_id": self.keycloak_config.public_client_id,
-                "refresh_token": self.refresh_token,
-                "grant_type": "refresh_token",
-            },
-        )
-        if response.status_code >= 400:
-            raise TokenProviderError(
-                f"Unable to refresh token, code {response.status_code}"
-            )
-        data = response.json()
-        # The old refresh token is invalidated by keycloak automatically so store
-        # the new one in memory
-        self.refresh_token = data["refresh_token"]
-        self.refresh_token_expiry = datetime.now(tz=timezone.utc) + timedelta(
-            seconds=float(data["refresh_expires_in"])
-        )
-        return {"access_token": data["access_token"], "expires_in": data["expires_in"]}
+        return response.json()

@@ -23,11 +23,12 @@ from requests.auth import AuthBase
 
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
+    AccessTokenProvider,
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
     TokenProvider,
 )
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -57,6 +58,7 @@ class Client:
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
+        auth_config: Optional[TokenProviderConf] = None,
         region: Optional[Region] = None,
     ):
         self.endpoints = self._make_endpoints(endpoints, region)
@@ -67,8 +69,21 @@ class Client:
             self._check_token_provider(token_provider)
 
         if username:
-            auth0 = self._make_auth0(auth0)
-            token_provider = self._credential_login(username, password, auth0)
+            if auth0 is not None and auth_config is not None:
+                raise ValueError(
+                    "The auth0 and auth_config parameters cannot be used "
+                    "simultaneously."
+                )
+            if auth0 is not None:
+                auth0 = self._make_auth0(auth0)
+                token_provider = self._credential_login(username, password, auth0)
+            else:
+                if auth_config is None:
+                    auth_config = TokenProviderConf.from_region(region)
+
+                token_provider = self._credential_login_with_region(
+                    username, password, auth_config
+                )
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -192,6 +207,19 @@ class Client:
                 raise ValueError("The prompted password should not be empty")
 
         token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
+        return token_provider
+
+    def _credential_login_with_region(
+        self, username: str, password: Optional[str], config: TokenProviderConf
+    ) -> TokenProvider:
+        if not password:
+            password = getpass("Enter your password:")
+            #   We want to allow an empty string at first, but then
+            #   it results in an error
+            if not password:
+                raise ValueError("The prompted password should not be empty")
+
+        token_provider: TokenProvider = AccessTokenProvider(username, password, config)
         return token_provider
 
     def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
