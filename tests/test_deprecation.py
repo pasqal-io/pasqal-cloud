@@ -18,6 +18,10 @@ class TestDeprecation:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
+    @patch(
+        "pasqal_cloud.client.AccessTokenProvider",
+        FakeAuth0AuthenticationSuccess,
+    )
     def test_soon_to_be_deprecated(self):
         # Set deprecation_date to be 10 days from now (within the warning period)
         with pytest.warns(DeprecationWarning, match="will be deprecated on "):
@@ -34,6 +38,10 @@ class TestDeprecation:
     )
     @patch(
         "pasqal_cloud.client.Auth0TokenProvider",
+        FakeAuth0AuthenticationSuccess,
+    )
+    @patch(
+        "pasqal_cloud.client.AccessTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def test_already_deprecated(self):
