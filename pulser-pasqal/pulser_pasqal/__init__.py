@@ -22,6 +22,7 @@ from pulser_pasqal.backends import (
     EmuFreeBackendV2,
     EmuMPSBackend,
     EmuTNBackend,
+    EmuSVBackend,
 )
 
 from pulser_pasqal.ovh import OVHConnection
@@ -31,6 +32,7 @@ __all__ = [
     "EmuFreeBackend",
     "EmuFreeBackendV2",
     "EmuTNBackend",
+    "EmuSVBackend",
     "PasqalCloud",
     "EmuMPSBackend",
     "OVHConnection",
