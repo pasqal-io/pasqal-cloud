@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### pulser-pasqal
 
-* Introduce a new Backend for EMU SV on `pulser-pasqal`
+* Introduce a new Backend for EMU SV on `pulser-pasqal` (
+  see [documentation](https://docs.pasqal.com/cloud/emulators-integration/))
 
 ## [0.20.6]
 
