@@ -2,38 +2,51 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.7]
+
+### pulser-pasqal
+
+* Introduce a new Backend for EMU SV on `pulser-pasqal`
+
 ## [0.20.6]
 
 ### pulser-pasqal
+
 * Fixes:
-  - Fix retrieval of results for batches using parametrized sequence
-  - Deserialize all results returned by the emulator instead of solely the bitstrings counter
+    - Fix retrieval of results for batches using parametrized sequence
+    - Deserialize all results returned by the emulator instead of solely the bitstrings counter
 * Bump pulser-core minimum version to >=1.6
 
 ## [0.20.5]
 
 ### pasqal-cloud
+
 * Added warning on use of EMU_TN as `device_type` on batch creation
 * Fixed pydantic warning for use of `model_fields` on instance instead of class
 * Enable multi-qpu support by removing hard-coded reference to Fresnel
 
 ### pulser-pasqal
+
 * Bump pulser-core minimum version to >1.4
 
 ## [0.20.4]
 
 ### pulser-pasqal
+
 * Introduce a new Backend for EMU FREE on `pulser-pasqal`
 * Introduce a new Backend for EMU MPS on `pulser-pasqal`
 * New MockSDK, used for testing code that uses this SDK
 
 ### pasqal-cloud
+
 * Added `switch_to_project("project_id")` method to change the project linked to your SDK
 * Added `get_all_projects()` method to get the list of all active projects the user is a member
 
 ## [0.20.4dev0]
 
-- Allow skipping the SSL certificate validation when making http requests in test environments by setting the `PASQAL_SKIP_SSL_VERIFY` env variable. Introduce `InsecureAuth0TokenProvider` to fetch a token from auth0 without SSL verification check.
+- Allow skipping the SSL certificate validation when making http requests in test environments by setting the
+  `PASQAL_SKIP_SSL_VERIFY` env variable. Introduce `InsecureAuth0TokenProvider` to fetch a token from auth0 without SSL
+  verification check.
 
 ## [0.20.3]
 
