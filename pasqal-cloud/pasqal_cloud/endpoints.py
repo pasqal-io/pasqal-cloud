@@ -89,13 +89,13 @@ DEV_AUDIENCE: Final[str] = "https://apis.dev.pasqal.cloud/account/api/v1"
 REALM: Final[str] = "pcs-users"
 
 # ---- Keycloak ----
-KEYCLOAK_BASE_URL = "https://auth.sa.pasqal.cloud"
-KEYCLOAK_TOKEN_ENDPOINT = (
+SA_KEYCLOAK_BASE_URL = "https://auth.sa.pasqal.cloud"
+SA_KEYCLOAK_TOKEN_ENDPOINT = (
     "https://auth.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 )
 
-PREPROD_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
-PREPROD_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
+PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
+PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
 KEYCLOAK_REALM = "pasqal-cloud"
@@ -111,7 +111,7 @@ class Auth0Conf:
 
 @dataclass
 class KeycloakConf:
-    base_url: str = KEYCLOAK_BASE_URL
+    base_url: str = SA_KEYCLOAK_BASE_URL
     public_client_id: str = KEYCLOAK_SDK_CLIENT_ID
     realm: str = KEYCLOAK_REALM
 
@@ -128,7 +128,7 @@ class TokenProviderConf:
     def from_region(cls, region: Region) -> "TokenProviderConf":
         if region == "saudi-arabia":
             return TokenProviderConf(
-                token_endpoint=KEYCLOAK_TOKEN_ENDPOINT,
+                token_endpoint=SA_KEYCLOAK_TOKEN_ENDPOINT,
                 public_client_id=KEYCLOAK_SDK_CLIENT_ID,
                 audience=AUDIENCE,
                 realm=KEYCLOAK_REALM,
@@ -174,5 +174,43 @@ AUTH0_CONFIG = {
         public_client_id=DEV_PUBLIC_CLIENT_ID,
         audience=DEV_AUDIENCE,
         realm=REALM,
+    ),
+}
+
+AUTH_CONFIG = {
+    "fr-prod": TokenProviderConf(
+        token_endpoint=AUTH0_TOKEN_ENDPOINT,
+        public_client_id=PUBLIC_CLIENT_ID,
+        audience=AUDIENCE,
+        realm=REALM,
+        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+    ),
+    "fr-preprod": TokenProviderConf(
+        token_endpoint=PREPROD_AUTH0_TOKEN_ENDPOINT,
+        public_client_id=PREPROD_PUBLIC_CLIENT_ID,
+        audience=PREPROD_AUDIENCE,
+        realm=REALM,
+        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+    ),
+    "fr-dev": TokenProviderConf(
+        token_endpoint=DEV_AUTH0_TOKEN_ENDPOINT,
+        public_client_id=DEV_PUBLIC_CLIENT_ID,
+        audience=DEV_AUDIENCE,
+        realm=REALM,
+        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+    ),
+    "sa-prod": TokenProviderConf(
+        token_endpoint=SA_KEYCLOAK_TOKEN_ENDPOINT,
+        public_client_id=KEYCLOAK_SDK_CLIENT_ID,
+        audience=AUDIENCE,
+        realm=KEYCLOAK_REALM,
+        grant_type="password",
+    ),
+    "sa-preprod": TokenProviderConf(
+        token_endpoint=PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT,
+        public_client_id=KEYCLOAK_SDK_CLIENT_ID,
+        audience=PREPROD_AUDIENCE,
+        realm=KEYCLOAK_REALM,
+        grant_type="password",
     ),
 }
