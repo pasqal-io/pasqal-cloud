@@ -5,7 +5,7 @@ Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and t
 ## Version Support & Deprecation Timeline
 
 | Version | Release Date | End of Support |
-| ------- | ------------ | -------------- |
+|---------|--------------|----------------|
 | 0.5.0   | 2024-02-05   | 2025-02-05     |
 | 0.6.0   | 2024-02-26   | 2025-02-26     |
 | 0.7.0   | 2024-03-05   | 2025-03-05     |
@@ -22,11 +22,12 @@ Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and t
 | 0.12.6  | 2024-12-12   | 2025-12-12     |
 | 0.12.7  | 2025-01-14   | 2026-01-14     |
 | 0.13.0  | 2025-02-25   | 2026-02-25     |
-| 0.20.2  | 2025-03-05   | 2026-03-05     |
-| 0.20.3  | 2025-05-26   | 2026-05-26     |
-| 0.20.4  | 2025-08-27   | 2026-08-27     |
-| 0.20.5  | 2025-09-15   | 2026-09-15     |
+| 0.20.2  | 2025-03-05   | 2026-03-05     |
+| 0.20.3  | 2025-05-26   | 2026-05-26     |
+| 0.20.4  | 2025-08-27   | 2026-08-27     |
+| 0.20.5  | 2025-09-15   | 2026-09-15     |
 | 0.20.6  | 2025-10-21   | 2026-10-21     |
+| 0.20.7  | 2026-01-13   | 2027-01-13     |
 
 ## Getting started
 
@@ -43,7 +44,8 @@ Likewise, with Python 3.9.0 or higher, `pulser-pasqal` is installed with:
 pip install pulser-pasqal
 ```
 
-If you wish to **install the development version of the pasqal-cloud and pulser-pasqal from source** instead, do the following from within
+If you wish to **install the development version of the pasqal-cloud and pulser-pasqal from source** instead, do the
+following from within
 this repository after cloning it:
 
 ```bash
@@ -76,4 +78,5 @@ pre-commit install
 For an overview of how to use each library, please refer to
 
 - [The `pasqal-cloud` README](https://pasqal-io.github.io/pasqal-cloud/#getting-started)
-- [The `pulser-pasqal` documentation](https://pulser.readthedocs.io/en/stable/tutorials/backends.html#Backend-Execution-of-Pulser-Sequences)
+- [The
+  `pulser-pasqal` documentation](https://pulser.readthedocs.io/en/stable/tutorials/backends.html#Backend-Execution-of-Pulser-Sequences)
