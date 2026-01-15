@@ -150,10 +150,10 @@ class SDK:
             endpoints: Endpoints targeted of the public apis.
             auth0: Auth0Config object to define the auth0 tenant to target.
             project_id: ID of the owner project of the batch.
-            client_class: client class used to determine authentification \
+            client_class: client class used to determine authentication \
             and endpoints targeted by the SDK
             region: specifies the region to target
-            auth_config: TODO
+            auth_config: configuration object for the authentication provider
         """
         _check_sdk_version()
 
