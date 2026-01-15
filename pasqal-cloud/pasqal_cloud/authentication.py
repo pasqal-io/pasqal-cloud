@@ -196,7 +196,7 @@ class AccessTokenProvider(ExpiringTokenProvider):
         self.config = config
         self.get_token()
 
-    def _query_token(self) -> dict[str, Any]:
+    def _query_token(self) -> Any:
         response = requests.post(
             self.config.token_endpoint,
             data={

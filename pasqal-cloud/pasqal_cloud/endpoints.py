@@ -13,7 +13,7 @@
 # limitations under the License.
 from dataclasses import dataclass
 from sys import version_info
-from typing import Literal
+from typing import Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -60,7 +60,7 @@ class Endpoints:
     account: str = ACCOUNT_API_URL
 
     @classmethod
-    def from_region(cls, region: Region) -> "Endpoints":
+    def from_region(cls, region: Optional[Region]) -> "Endpoints":
         if region == "saudi-arabia":
             return Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL)
         return Endpoints()
@@ -125,7 +125,7 @@ class TokenProviderConf:
     grant_type: str
 
     @classmethod
-    def from_region(cls, region: Region) -> "TokenProviderConf":
+    def from_region(cls, region: Optional[Region]) -> "TokenProviderConf":
         if region == "saudi-arabia":
             return TokenProviderConf(
                 token_endpoint=SA_KEYCLOAK_TOKEN_ENDPOINT,
