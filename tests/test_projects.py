@@ -13,7 +13,9 @@ class TestProject:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
     def _init_sdk(self):
         self.project_id = "73feca86-a140-4ed8-a8e7-fe71428e0542"
         self.sdk = SDK(
