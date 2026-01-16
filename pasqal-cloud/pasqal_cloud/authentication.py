@@ -183,12 +183,14 @@ class InsecureAuth0TokenProvider(Auth0TokenProvider):
         return response.json()
 
 
-class AccessTokenProvider(ExpiringTokenProvider):
+class PasswordGrantTokenProvider(ExpiringTokenProvider):
     def __init__(self, username: str, password: str, config: TokenProviderConf):
         """Initializes the token provider with user credentials and
         a configuration object
 
         Args:
+            username: name of the user to log in as
+            password: password of the user to log in as
             config: configuration of the auth client
         """
         self.username = username

@@ -19,7 +19,7 @@ class TestDeprecation:
         FakeAuth0AuthenticationSuccess,
     )
     @patch(
-        "pasqal_cloud.client.AccessTokenProvider",
+        "pasqal_cloud.client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def test_soon_to_be_deprecated(self):
@@ -41,7 +41,7 @@ class TestDeprecation:
         FakeAuth0AuthenticationSuccess,
     )
     @patch(
-        "pasqal_cloud.client.AccessTokenProvider",
+        "pasqal_cloud.client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def test_already_deprecated(self):
