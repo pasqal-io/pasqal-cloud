@@ -29,7 +29,7 @@ test_device = dataclasses.replace(
 )
 @pytest.mark.parametrize("job_params", [None, [JobParams(runs=10)]])
 @patch(
-    "pasqal_cloud.client.AccessTokenProvider",
+    "pasqal_cloud.client.PasswordGrantTokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
 def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, config):

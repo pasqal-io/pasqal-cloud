@@ -16,6 +16,7 @@ from pasqal_cloud import (
 )
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
+from pasqal_cloud.endpoints import TokenProviderConf
 from pulser_pasqal.ovh import OvhClient
 
 from tests.test_doubles.authentication import (
@@ -34,7 +35,7 @@ class TestSDKCommonAttributes:
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 class TestAuthSuccess(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_success(self, getpass):
@@ -115,7 +116,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
-@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationFailure)
+@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthFailure(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
     def test_module_getpass_bad_password(self, getpass):
@@ -135,8 +136,35 @@ class TestAuthFailure(TestSDKCommonAttributes):
             )
 
 
+class TestInvalidAuthConfig(TestSDKCommonAttributes):
+    def test_cannot_init_sdk_with_auth0_and_auth_config(self):
+        """
+        verify that sdk initialization raises a ValueError when auth0 and auth_config
+        are passed at the same time.
+        """
+        auth0_config = Auth0Conf(domain="auth0-endpoint")
+        auth_config = TokenProviderConf(
+            token_endpoint="keycloak-endpoint",
+            public_client_id="client-id",
+            audience="audience",
+            realm="pasqal-cloud",
+            grant_type="password",
+        )
+        with pytest.raises(
+            ValueError,
+            match="The auth0 and auth_config parameters cannot be used simultaneously.",
+        ):
+            _ = SDK(
+                project_id=self.project_id,
+                username=self.username,
+                password=self.password,
+                auth0=auth0_config,
+                auth_config=auth_config,
+            )
+
+
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
-@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationFailure)
+@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_user_with_password(self):
         sdk = SDK(
@@ -214,7 +242,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
 
 
 @patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
-@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 class TestEnvSDK(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
         ("env", "core_endpoint_expected"),
@@ -247,7 +275,9 @@ class TestSDKRetry:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
     def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
@@ -359,7 +389,9 @@ class TestRequestAllPages:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
     def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
@@ -493,7 +525,9 @@ class TestHeaders:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
     def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",

@@ -33,7 +33,9 @@ class TestWorkload:
         "pasqal_cloud.client.Auth0TokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
-    @patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
     def _init_sdk(self):
         self.sdk = SDK(
             username="me@test.com",
