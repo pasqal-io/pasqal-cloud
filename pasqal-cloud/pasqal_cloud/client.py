@@ -23,9 +23,9 @@ from requests.auth import AuthBase
 
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
-    AccessTokenProvider,
     Auth0TokenProvider,
     HTTPBearerAuthenticator,
+    PasswordGrantTokenProvider,
     TokenProvider,
 )
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
@@ -219,7 +219,9 @@ class Client:
             if not password:
                 raise ValueError("The prompted password should not be empty")
 
-        token_provider: TokenProvider = AccessTokenProvider(username, password, config)
+        token_provider: TokenProvider = PasswordGrantTokenProvider(
+            username, password, config
+        )
         return token_provider
 
     def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore

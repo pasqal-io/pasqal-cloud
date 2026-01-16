@@ -26,7 +26,7 @@ test_device = dataclasses.replace(
     "pasqal_cloud.client.Auth0TokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
-@patch("pasqal_cloud.client.AccessTokenProvider", FakeAuth0AuthenticationSuccess)
+@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
     connection = PasqalCloud(username="test", password="test", project_id=str(uuid4()))
