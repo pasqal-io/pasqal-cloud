@@ -6,4 +6,5 @@ class DeviceTypeName(StrEnum):
     EMU_TN = "EMU_TN"
     EMU_FRESNEL = "EMU_FRESNEL"
     EMU_MPS = "EMU_MPS"
+    EMU_SV = "EMU_SV"
     FRESNEL = "FRESNEL"

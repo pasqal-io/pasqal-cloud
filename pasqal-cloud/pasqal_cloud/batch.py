@@ -154,6 +154,7 @@ class Batch(BaseModel):
         elif info.data["device_type"] in {
             DeviceTypeName.EMU_FRESNEL.value,
             DeviceTypeName.EMU_MPS.value,
+            DeviceTypeName.EMU_SV.value,
         }:
             return None
         return conf_class.from_dict(configuration)

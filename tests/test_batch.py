@@ -86,7 +86,7 @@ class TestBatch:
         self.job_full_result = {
             "counter": {"1001": 12, "0110": 35, "1111": 1},
             "raw": ["1001", "1001", "0110", "1001", "0110"],
-            "serialised_results": None
+            "serialised_results": None,
         }
         self.tags = ["test"]
 
@@ -445,6 +445,7 @@ class TestBatch:
             (DeviceTypeName.EMU_TN, EmuTNConfig(), EmuTNConfig()),
             (DeviceTypeName.EMU_FRESNEL, None, None),
             (DeviceTypeName.EMU_MPS, None, None),
+            (DeviceTypeName.EMU_SV, None, None),
             (
                 DeviceTypeName.EMU_FREE,
                 EmuFreeConfig(),
