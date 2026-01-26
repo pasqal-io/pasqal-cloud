@@ -22,10 +22,6 @@ test_device = dataclasses.replace(
 )
 
 
-@patch(
-    "pasqal_cloud.client.Auth0TokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()

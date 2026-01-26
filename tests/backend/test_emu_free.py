@@ -13,10 +13,6 @@ from pulser_pasqal.pasqal_cloud import PasqalCloud
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
 
-@patch(
-    "pasqal_cloud.client.Auth0TokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
@@ -44,10 +40,6 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker):
     assert "emulator" not in post_batch_body
 
 
-@patch(
-    "pasqal_cloud.client.Auth0TokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 def test_emu_free_backend_with_custom_config(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()

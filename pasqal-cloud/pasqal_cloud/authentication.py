@@ -5,7 +5,6 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 import requests
-from auth0.v3.authentication import GetToken  # type: ignore[import-untyped]
 from jwt import decode, DecodeError
 from requests import PreparedRequest
 from requests.auth import AuthBase
@@ -118,69 +117,6 @@ class ExpiringTokenProvider(TokenProvider, ABC):
 
 
 AUTH0_TOKEN_PROVIDER_SCOPE = "openid profile email"
-AUTH0_TOKEN_PROVIDER_GRANT_TYPE = "http://auth0.com/oauth/grant-type/password-realm"
-
-
-class Auth0TokenProvider(ExpiringTokenProvider):
-    """ExpiringTokenProvider implementation which fetches a token from auth0."""
-
-    def __init__(self, username: str, password: str, auth0: Auth0Conf):
-        """Initializes the token provider with user credentials and
-        an auth0 configuration object
-
-        Args:
-            username: name of the user to log in as
-            password: password of the user to log in as
-            auth0: auth0 configuration object to target the proper auth0 tenant and app
-        """
-        self.username = username
-        self.password = password
-        self.auth0 = auth0
-
-        # Makes a call in order to check the credentials at creation
-        self.get_token()
-
-    def _query_token(self) -> dict[str, Any]:
-        token = GetToken(self.auth0.domain)
-
-        # No client secret required for this Application since
-        # "Token Endpoint Authentication Method" set to None
-        validated_token: dict[str, Any] = token.login(
-            client_id=self.auth0.public_client_id,
-            client_secret="",
-            username=self.username,
-            password=self.password,
-            audience=self.auth0.audience,
-            scope=AUTH0_TOKEN_PROVIDER_SCOPE,
-            realm=self.auth0.realm,
-            grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
-        )
-        return validated_token
-
-
-class InsecureAuth0TokenProvider(Auth0TokenProvider):
-    """Token Provider for auth0 with SSL verification disabled
-
-    Should be only used in testing environments.
-    """
-
-    def _query_token(self) -> Any:
-        response = requests.post(
-            "https://{}/oauth/token".format(self.auth0.domain),
-            data={
-                "client_id": self.auth0.public_client_id,
-                "username": self.username,
-                "password": self.password,
-                "realm": self.auth0.realm,
-                "client_secret": "",
-                "scope": AUTH0_TOKEN_PROVIDER_SCOPE,
-                "audience": self.auth0.audience,
-                "grant_type": AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
-            },
-            verify=False,
-        )
-        response.raise_for_status()
-        return response.json()
 
 
 class PasswordGrantTokenProvider(ExpiringTokenProvider):
@@ -216,3 +152,64 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             )
 
         return response.json()
+
+
+class InsecurePasswordGrantTokenProvider(PasswordGrantTokenProvider):
+    """PasswordGrant Token provider with SSL verification disabled
+
+    Should be only used in testing environments.
+    """
+
+    def _query_token(self) -> Any:
+        response = requests.post(
+            self.config.token_endpoint,
+            data={
+                "client_id": self.config.public_client_id,
+                "grant_type": self.config.grant_type,
+                "realm": self.config.realm,
+                "audience": self.config.audience,
+                "username": self.username,
+                "password": self.password,
+            },
+            verify=False,
+        )
+        response.raise_for_status
+        if response.status_code >= 400:
+            raise TokenProviderError(
+                f"Login failed: {response.status_code} {response.text}"
+            )
+
+        return response.json()
+
+
+class Auth0TokenProvider(PasswordGrantTokenProvider):
+    """ExpiringTokenProvider implementation which fetches a token from auth0."""
+
+    def __init__(self, username: str, password: str, auth0: Auth0Conf):
+        """Initializes the token provider with user credentials and
+        an auth0 configuration object
+
+        Args:
+            username: name of the user to log in as
+            password: password of the user to log in as
+            auth0: auth0 configuration object to target the proper auth0 tenant and app
+        """
+        super().__init__(username, password, TokenProviderConf.from_auth0_config(auth0))
+
+
+class InsecureAuth0TokenProvider(InsecurePasswordGrantTokenProvider):
+    """Token Provider for auth0 with SSL verification disabled
+
+    Should be only used in testing environments.
+    """
+
+    def __init__(self, username: str, password: str, auth0: Auth0Conf):
+        """Initializes the token provider with user credentials and
+        an auth0 configuration object
+
+        Args:
+            username: name of the user to log in as
+            password: password of the user to log in as
+            auth0: auth0 configuration object to target the proper auth0 tenant and app
+        """
+        super().__init__(username, password, TokenProviderConf.from_auth0_config(auth0))
