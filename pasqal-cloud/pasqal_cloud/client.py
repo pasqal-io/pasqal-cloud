@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
@@ -23,11 +24,11 @@ from requests.auth import AuthBase
 
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
-    Auth0TokenProvider,
     HTTPBearerAuthenticator,
+    PasswordGrantTokenProvider,
     TokenProvider,
 )
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints
+from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -57,8 +58,10 @@ class Client:
         token_provider: Optional[TokenProvider] = None,
         endpoints: Optional[Endpoints] = None,
         auth0: Optional[Auth0Conf] = None,
+        auth_config: Optional[TokenProviderConf] = None,
+        region: Optional[Region] = None,
     ):
-        self.endpoints = self._make_endpoints(endpoints)
+        self.endpoints = self._make_endpoints(endpoints, region)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
@@ -66,8 +69,24 @@ class Client:
             self._check_token_provider(token_provider)
 
         if username:
-            auth0 = self._make_auth0(auth0)
-            token_provider = self._credential_login(username, password, auth0)
+            if auth0 is not None and auth_config is not None:
+                raise ValueError(
+                    "The auth0 and auth_config parameters cannot be used "
+                    "simultaneously."
+                )
+            if auth0 is not None:
+                warnings.warn(
+                    "Argument `auth0` is deprecated and will be removed in a"
+                    " future version. Please use auth_config instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                auth_config = TokenProviderConf.from_auth0_config(auth0)
+
+            if auth_config is None:
+                auth_config = TokenProviderConf.from_region(region)
+
+            token_provider = self._credential_login(username, password, auth_config)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -155,24 +174,15 @@ class Client:
         self._project_id = project_id
 
     @staticmethod
-    def _make_endpoints(endpoints: Optional[Endpoints]) -> Endpoints:
+    def _make_endpoints(
+        endpoints: Optional[Endpoints], region: Optional[Region] = None
+    ) -> Endpoints:
         if endpoints is None:
-            return Endpoints()
-
+            return Endpoints.from_region(region)
         if not isinstance(endpoints, Endpoints):
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
-
-    @staticmethod
-    def _make_auth0(auth0: Optional[Auth0Conf]) -> Auth0Conf:
-        if auth0 is None:
-            return Auth0Conf()
-
-        if not isinstance(auth0, Auth0Conf):
-            raise TypeError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
-
-        return auth0
 
     @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
@@ -180,7 +190,7 @@ class Client:
             raise TypeError("token_provider must be an instance of TokenProvider.")
 
     def _credential_login(
-        self, username: str, password: Optional[str], auth0: Auth0Conf
+        self, username: str, password: Optional[str], config: TokenProviderConf
     ) -> TokenProvider:
         if not password:
             password = getpass("Enter your password:")
@@ -189,7 +199,9 @@ class Client:
             if not password:
                 raise ValueError("The prompted password should not be empty")
 
-        token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
+        token_provider: TokenProvider = PasswordGrantTokenProvider(
+            username, password, config
+        )
         return token_provider
 
     def _request_with_status_check(self, *args: Any, **kwargs: Any):  # type: ignore
@@ -328,7 +340,7 @@ class Client:
             raw=data.pop("raw", None),
             counter=data.pop("counter", None),
             serialised_results=data.pop("serialised_results", None),
-            **data
+            **data,
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:

@@ -30,8 +30,7 @@ class TestWorkload:
 
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
     def _init_sdk(self):
         self.sdk = SDK(

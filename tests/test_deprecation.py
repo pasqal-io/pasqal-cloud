@@ -15,7 +15,7 @@ class TestDeprecation:
         (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d"),
     )
     @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
+        "pasqal_cloud.client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def test_soon_to_be_deprecated(self):
@@ -33,7 +33,7 @@ class TestDeprecation:
         (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
     )
     @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
+        "pasqal_cloud.client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def test_already_deprecated(self):

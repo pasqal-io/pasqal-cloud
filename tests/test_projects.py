@@ -2,10 +2,7 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from pasqal_cloud import (
-    ProjectNotFoundError,
-    SDK,
-)
+from pasqal_cloud import ProjectNotFoundError, SDK
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
@@ -13,8 +10,7 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 class TestProject:
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
     def _init_sdk(self):
         self.project_id = "73feca86-a140-4ed8-a8e7-fe71428e0542"
