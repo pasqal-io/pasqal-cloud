@@ -68,6 +68,8 @@ class Endpoints:
 
 # ---- Auth0 ----
 
+AUTH0_TOKEN_PROVIDER_GRANT_TYPE = "http://auth0.com/oauth/grant-type/password-realm"
+
 # Prod Auth0 configuration
 AUTH0_DOMAIN: Final[str] = "authenticate.pasqal.cloud"
 AUTH0_TOKEN_ENDPOINT: Final[str] = "https://pasqal.eu.auth0.com/oauth/token"
@@ -110,19 +112,25 @@ class Auth0Conf:
 
 
 @dataclass
-class KeycloakConf:
-    base_url: str = SA_KEYCLOAK_BASE_URL
-    public_client_id: str = KEYCLOAK_SDK_CLIENT_ID
-    realm: str = KEYCLOAK_REALM
-
-
-@dataclass
 class TokenProviderConf:
     token_endpoint: str
     public_client_id: str
     audience: str
     realm: str
     grant_type: str
+
+    @classmethod
+    def from_auth0_config(cls, auth0: Auth0Conf) -> "TokenProviderConf":
+        if not isinstance(auth0, Auth0Conf):
+            raise TypeError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
+
+        return TokenProviderConf(
+            token_endpoint="https://{}/oauth/token".format(auth0.domain),
+            public_client_id=auth0.public_client_id,
+            audience=auth0.audience,
+            realm=auth0.realm,
+            grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
+        )
 
     @classmethod
     def from_region(cls, region: Optional[Region]) -> "TokenProviderConf":
@@ -139,7 +147,7 @@ class TokenProviderConf:
             public_client_id=PUBLIC_CLIENT_ID,
             audience=AUDIENCE,
             realm=REALM,
-            grant_type="http://auth0.com/oauth/grant-type/password-realm",
+            grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
         )
 
 
@@ -183,21 +191,21 @@ AUTH_CONFIG = {
         public_client_id=PUBLIC_CLIENT_ID,
         audience=AUDIENCE,
         realm=REALM,
-        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+        grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
     ),
     "fr-preprod": TokenProviderConf(
         token_endpoint=PREPROD_AUTH0_TOKEN_ENDPOINT,
         public_client_id=PREPROD_PUBLIC_CLIENT_ID,
         audience=PREPROD_AUDIENCE,
         realm=REALM,
-        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+        grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
     ),
     "fr-dev": TokenProviderConf(
         token_endpoint=DEV_AUTH0_TOKEN_ENDPOINT,
         public_client_id=DEV_PUBLIC_CLIENT_ID,
         audience=DEV_AUDIENCE,
         realm=REALM,
-        grant_type="http://auth0.com/oauth/grant-type/password-realm",
+        grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
     ),
     "sa-prod": TokenProviderConf(
         token_endpoint=SA_KEYCLOAK_TOKEN_ENDPOINT,

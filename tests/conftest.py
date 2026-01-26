@@ -143,7 +143,6 @@ def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
 
 
 @pytest.fixture
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 def pasqal_client_mock():
     return Client(

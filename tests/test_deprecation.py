@@ -15,10 +15,6 @@ class TestDeprecation:
         (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d"),
     )
     @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
-    )
-    @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
@@ -35,10 +31,6 @@ class TestDeprecation:
     @patch(
         "pasqal_cloud.deprecation_date",
         (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
-    )
-    @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
     )
     @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider",
