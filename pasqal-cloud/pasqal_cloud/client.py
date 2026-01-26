@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
 from uuid import UUID
@@ -23,7 +24,6 @@ from requests.auth import AuthBase
 
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
-    Auth0TokenProvider,
     HTTPBearerAuthenticator,
     PasswordGrantTokenProvider,
     TokenProvider,
@@ -75,15 +75,18 @@ class Client:
                     "simultaneously."
                 )
             if auth0 is not None:
-                auth0 = self._make_auth0(auth0)
-                token_provider = self._credential_login(username, password, auth0)
-            else:
-                if auth_config is None:
-                    auth_config = TokenProviderConf.from_region(region)
-
-                token_provider = self._credential_login_with_region(
-                    username, password, auth_config
+                warnings.warn(
+                    "Argument `auth0` is deprecated and will be removed in a"
+                    " future version. Please use auth_config instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
                 )
+                auth_config = TokenProviderConf.from_auth0_config(auth0)
+
+            if auth_config is None:
+                auth_config = TokenProviderConf.from_region(region)
+
+            token_provider = self._credential_login(username, password, auth_config)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -182,34 +185,11 @@ class Client:
         return endpoints
 
     @staticmethod
-    def _make_auth0(auth0: Optional[Auth0Conf]) -> Auth0Conf:
-        if auth0 is None:
-            return Auth0Conf()
-
-        if not isinstance(auth0, Auth0Conf):
-            raise TypeError(f"auth0 parameter must be a {Auth0Conf.__name__} instance")
-
-        return auth0
-
-    @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
         if not isinstance(token_provider, TokenProvider):
             raise TypeError("token_provider must be an instance of TokenProvider.")
 
     def _credential_login(
-        self, username: str, password: Optional[str], auth0: Auth0Conf
-    ) -> TokenProvider:
-        if not password:
-            password = getpass("Enter your password:")
-            #   We want to allow an empty string at first, but then
-            #   it results in an error
-            if not password:
-                raise ValueError("The prompted password should not be empty")
-
-        token_provider: TokenProvider = Auth0TokenProvider(username, password, auth0)
-        return token_provider
-
-    def _credential_login_with_region(
         self, username: str, password: Optional[str], config: TokenProviderConf
     ) -> TokenProvider:
         if not password:

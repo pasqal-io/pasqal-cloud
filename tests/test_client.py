@@ -34,7 +34,6 @@ class TestSDKCommonAttributes:
     no_password = ""
 
 
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 class TestAuthSuccess(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
@@ -115,7 +114,6 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             sdk.create_batch("", [])
 
 
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthFailure(TestSDKCommonAttributes):
     @patch("pasqal_cloud.client.getpass")
@@ -163,7 +161,6 @@ class TestInvalidAuthConfig(TestSDKCommonAttributes):
             )
 
 
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationFailure)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
 class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_user_with_password(self):
@@ -241,7 +238,6 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             )
 
 
-@patch("pasqal_cloud.client.Auth0TokenProvider", FakeAuth0AuthenticationSuccess)
 @patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
 class TestEnvSDK(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
@@ -271,10 +267,6 @@ class TestSDKRetry:
     """
 
     @pytest.fixture(autouse=True)
-    @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
-    )
     @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
@@ -385,10 +377,6 @@ class TestSDKRetry:
 
 class TestRequestAllPages:
     @pytest.fixture(autouse=True)
-    @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
-    )
     @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
@@ -521,10 +509,6 @@ class TestRequestAllPages:
 
 class TestHeaders:
     @pytest.fixture(autouse=True)
-    @patch(
-        "pasqal_cloud.client.Auth0TokenProvider",
-        FakeAuth0AuthenticationSuccess,
-    )
     @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
