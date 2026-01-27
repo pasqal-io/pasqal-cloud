@@ -256,16 +256,22 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
             # Assume a single job
             _job_params = [{"runs": 1}]
         else:
-            _job_params = job_params
-            if any(j.setdefault("runs", 1) != 1 for j in job_params if isinstance(j, dict)):
+            if any(
+                j.get("runs", None) is not None
+                for j in job_params
+                if isinstance(j, dict)
+            ):
+                # Warns whenever runs is defined and not None
                 warnings.warn(
                     "The 'runs' parameter is ignored on jobs executed on "
-                    f"{self.__class__.__name__!r}. If you wish to set the "
-                    "total number of bitstring counts in the Results, please "
+                    f"{self.__class__.__name__!r}. If you wish to set a "
+                    "custom number of bitstring counts in the Results, please "
                     "provide a 'BitStrings' observable with the desired "
                     "'num_shots' via this backend's 'config' instead.",
                     stacklevel=2,
                 )
+            # TODO: Stop defaulting runs=1 once it is optional on pasqal-cloud
+            _job_params = [{"runs": 1, **j} for j in job_params]
         return super().run(job_params=_job_params, wait=wait)
 
     def _submit_kwargs(self) -> dict[str, Any]:
