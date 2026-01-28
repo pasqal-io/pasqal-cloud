@@ -68,6 +68,12 @@ class Auth0Conf:
     realm: str = REALM
 
 
+@dataclass
+class FirebaseConf:
+    hostname: str = ""
+    api_key: str = ""
+
+
 # ---- Pre-filled environment configuration ----
 
 
