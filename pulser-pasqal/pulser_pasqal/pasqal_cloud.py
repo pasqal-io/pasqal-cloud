@@ -22,13 +22,12 @@ from typing import Any, Mapping, Type, cast
 import backoff
 import pasqal_cloud
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
 from pulser.backend.config import EmulationConfig, EmulatorConfig
-from pulser.backend.qpu import QPUBackend
 from pulser.backend.remote import (
     BatchStatus,
-    JobParams,
     JobStatus,
     RemoteConnection,
     RemoteResults,
@@ -98,25 +97,17 @@ class PasqalCloud(RemoteConnection):
             if device_type:
                 raise ValueError("Can't use emulator and device_type at the same time.")
 
-        job_params: list[JobParams] = make_json_compatible(kwargs.get("job_params", []))
-
-        mimic_qpu: bool = kwargs.get("mimic_qpu", False)
-
-        # This check will be moved to RemoteBackend.run() and can be removed
-        # once the following Pulser PR is released: https://github.com/pasqal-io/Pulser/pull/888
-        if (not emulator and not device_type) or mimic_qpu:
-            sequence = self.update_sequence_device(sequence)
-            QPUBackend.validate_job_params(job_params, sequence.device.max_runs)
+        job_params: list[CreateJob] = make_json_compatible(kwargs.get("job_params", []))
 
         if sequence.is_parametrized() or sequence.is_register_mappable():
             for params in job_params:
-                vars = params.get("variables", {})
+                vars = params.get("variables", {}) or {}
                 sequence.build(**vars)
 
         configuration = self._convert_configuration(
             config=kwargs.get("config", None),
             emulator=emulator,
-            strict_validation=mimic_qpu,
+            strict_validation=kwargs.get("mimic_qpu", False),
         )
         backend_configuration_str = (
             backend_configuration.to_abstract_repr() if backend_configuration else None
@@ -129,7 +120,7 @@ class PasqalCloud(RemoteConnection):
             old_job_ids = self._get_job_ids(batch_id)
             batch = submit_jobs_fn(
                 batch_id,
-                jobs=job_params or [],  # type: ignore[arg-type]
+                jobs=job_params,
             )
             new_job_ids = [
                 job_id
@@ -140,7 +131,7 @@ class PasqalCloud(RemoteConnection):
             create_batch_fn = backoff_decorator(self._sdk_connection.create_batch)
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
-                jobs=job_params or [],  # type: ignore[arg-type]
+                jobs=job_params,
                 emulator=emulator,
                 device_type=device_type,
                 configuration=configuration,
@@ -149,7 +140,7 @@ class PasqalCloud(RemoteConnection):
                 open=open,
             )
             new_job_ids = self._get_job_ids(batch.id)
-        return RemoteResults(batch.id, self, job_ids=new_job_ids)
+        return self.get_results(batch_id=batch.id, job_ids=new_job_ids)
 
     @backoff_decorator
     def fetch_available_devices(self) -> dict[str, Device]:
@@ -159,6 +150,26 @@ class PasqalCloud(RemoteConnection):
             name: cast(Device, deserialize_device(dev_str))
             for name, dev_str in abstract_devices.items()
         }
+
+    def get_results(
+        self,
+        batch_id: str,
+        job_ids: list[str] | None = None,
+    ) -> RemoteResults:
+        """Gets the results for a specific batch.
+
+        Args:
+            batch_id: The ID that identifies the batch linked to the results.
+            connection: The remote connection over which to get the batch's
+                status and fetch the results.
+            job_ids: If given, specifies which jobs within the batch should
+                be included in the results and in what order. If left undefined,
+                all jobs are included and ordered by date of creation.
+
+        Returns:
+            RemoteResults: The requested results.
+        """
+        return RemoteResults(batch_id=batch_id, connection=self, job_ids=job_ids)
 
     def _fetch_result(
         self, batch_id: str, job_ids: list[str] | None
