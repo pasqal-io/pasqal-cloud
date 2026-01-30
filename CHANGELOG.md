@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.20.8]
+
+### pulser-pasqal
+
+* Make 'job_params' optional in RemoteEmulatorBackend
+* Add PasqalCloud.get_results()
+
 ## [0.20.7]
 
 ### pulser-pasqal
