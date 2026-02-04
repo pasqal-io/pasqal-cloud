@@ -11,7 +11,7 @@ from requests import PreparedRequest
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
-from pasqal_cloud.endpoints import Auth0Conf
+from pasqal_cloud.endpoints import Auth0Conf, FirebaseConf
 
 
 class HTTPBearerAuthenticator(AuthBase):
@@ -156,6 +156,52 @@ class Auth0TokenProvider(ExpiringTokenProvider):
             grant_type=AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
         )
         return validated_token
+
+
+class FirebaseTokenProvider(ExpiringTokenProvider):
+    """ExpiringTokenProvider implementation which fetches a token from firebase."""
+
+    def __init__(self, username: str, password: str, config: FirebaseConf):
+        """Initializes the token provider with user credentials and
+        an firebase configuration object
+
+        Args:
+            username: name of the user to log in as
+            password: password of the user to log in as
+            config: firebase configuration object to target the proper firebase project
+        """
+        self.username = username
+        self.password = password
+        self.config = config
+
+        # Makes a call in order to check the credentials at creation
+        self.get_token()
+
+    def _refresh_token_cache(self) -> tuple[datetime, str]:
+        try:
+            token_response = self._query_token()
+            expiry = self._extract_expiry(token_response)
+
+            if expiry is None:
+                expiry = datetime.now(tz=timezone.utc)
+
+            return (expiry, token_response["idToken"])
+        except HTTPError as err:
+            raise TokenProviderError(err)
+
+    def _query_token(self) -> Any:
+        response = requests.post(
+            "{}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={}".format(
+                self.config.hostname, self.config.api_key
+            ),
+            json={
+                "email": self.username,
+                "password": self.password,
+                "returnSecureToken": True,
+            },
+        )
+        response.raise_for_status()
+        return response.json()
 
 
 class InsecureAuth0TokenProvider(Auth0TokenProvider):
