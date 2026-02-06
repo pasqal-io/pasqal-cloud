@@ -1,0 +1,1043 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../authentication/">
+      
+      
+        <link rel="next" href="../workloads/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>Batches & Jobs - Pasqal Cloud SDK</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../extras/css/mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#create-a-batch-of-jobs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pasqal Cloud SDK" class="md-header__button md-logo" aria-label="Pasqal Cloud SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pasqal Cloud SDK
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Batches & Jobs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pasqal-io/pasqal-cloud/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pasqal-cloud
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../installation/" class="md-tabs__link">
+          
+  
+  Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/sdk/" class="md-tabs__link">
+          
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pasqal Cloud SDK" class="md-nav__button md-logo" aria-label="Pasqal Cloud SDK" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pasqal Cloud SDK
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pasqal-io/pasqal-cloud/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pasqal-cloud
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Batches & Jobs
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Batches & Jobs
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-batch-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a batch of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-tags-to-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set tags to batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-a-list-of-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get a list of batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-a-list-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get a list of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-a-batch-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry a batch of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-a-job-in-an-open-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry a job in an open batch
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancel-a-list-of-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancel a list of batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancel-a-list-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancel a list of jobs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workloads/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workloads
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced_usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            API
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sdk/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SDK
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/job/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Job
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/batch/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Batch
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workload/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workload
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/errors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Errors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-batch-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a batch of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-tags-to-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set tags to batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-a-list-of-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get a list of batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-a-list-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Get a list of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-a-batch-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry a batch of jobs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retry-a-job-in-an-open-batch" class="md-nav__link">
+    <span class="md-ellipsis">
+      Retry a job in an open batch
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancel-a-list-of-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancel a list of batches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cancel-a-list-of-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cancel a list of jobs
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+  <h1>Batches & Jobs</h1>
+
+<p>A batch is a group of jobs with the same sequence that will run on the same QPU.</p>
+<h2 id="create-a-batch-of-jobs">Create a batch of jobs</h2>
+<p>The package main component is a Python object called <a class="autorefs autorefs-internal" href="../../api/sdk/#pasqal_cloud.SDK"><code>SDK</code></a> which can be used to create a
+<a class="autorefs autorefs-internal" href="../../api/batch/#pasqal_cloud.batch.Batch"><code>Batch</code></a>.</p>
+<p>For each <a class="autorefs autorefs-internal" href="../../api/job/#pasqal_cloud.job.Job"><code>Job</code></a> of a given batch, you must set a value for each variable, if any, defined in your
+sequence.
+Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
+termination status (<code>DONE</code>, <code>ERROR</code>, <code>CANCELED</code>).
+The batch sequence can be generated using <a href="https://github.com/pasqal-io/Pulser">Pulser</a>. See
+their <a href="https://pulser.readthedocs.io/en/stable/">documentation</a>,
+for more information on how to install the library and create your own sequence.</p>
+<p>The sequence should be a Pulser sequence object. Once it's created, you can serialize like so:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">serialized_sequence</span> <span class="o">=</span> <span class="n">sequence</span><span class="o">.</span><span class="n">to_abstract_repr</span><span class="p">()</span>
+</code></pre></div>
+<p>When creating a job, select a number of runs and set the desired values for the variables defined in the sequence:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">job1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;omega_max&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">}}</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">job2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;omega_max&quot;</span><span class="p">:</span> <span class="mf">10.5</span><span class="p">}}</span>
+</code></pre></div>
+<p>Batches can either be "open" or "closed".
+An "open" batch will accept new jobs after its creation, unlike a "closed" batch.
+Open batch may be used to schedule variational algorithm where the next job parameter are derived from the results of
+the previous jobs, without losing access to the QPU.</p>
+<p>You can create a batch of jobs using the <code>create_batch</code> method of the SDK.
+By default, this will create a closed batch, so all jobs should be passed as arguments right away.
+You may set the <code>wait</code> argument to <code>True</code> to wait for all the jobs to end up in a termination status before proceeding
+to the next statement.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Create a closed batch with 2 jobs and wait for its termination</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span><span class="n">serialized_sequence</span><span class="p">,</span> <span class="p">[</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>To create an open batch, set the <code>open</code> argument to <code>True</code>, you can then add jobs to your batch.
+Don't forget to mark your batch as closed when you are done adding new jobs to it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceTypeName</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Create an open batch with 1 job</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span><span class="n">serialized_sequence</span><span class="p">,</span> <span class="p">[</span><span class="n">job1</span><span class="p">],</span> <span class="n">device_type</span><span class="o">=</span><span class="n">DeviceTypeName</span><span class="o">.</span><span class="n">FRESNEL</span><span class="p">,</span> <span class="nb">open</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># Add some jobs to it and wait for the jobs to be terminated</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">job3</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;omega_max&quot;</span><span class="p">:</span> <span class="mf">10.5</span><span class="p">}}</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">batch</span><span class="o">.</span><span class="n">add_jobs</span><span class="p">([</span><span class="n">job2</span><span class="p">,</span> <span class="n">job3</span><span class="p">],</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># When you have sent all the jobs to your batch, don&#39;t forget to mark it as closed</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Otherwise your batch will be timed out by the scheduler</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">batch</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre></div>
+<p>You can also choose to run your batch on an emulator using the argument <code>device_type_name</code>.
+For using a basic single-threaded QPU emulator that can go up to 10 qubits, you can specify the "EMU_FREE" emulator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeviceTypeName</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">serialized_sequence</span><span class="p">,</span> <span class="p">[</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span> <span class="n">device_type</span><span class="o">=</span><span class="n">DeviceTypeName</span><span class="o">.</span><span class="n">EMU_FREE</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span>
+</code></pre></div>
+<p>Once the API has returned the results, you can access them with the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">ordered_jobs</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;job-id: </span><span class="si">{</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, status: </span><span class="si">{</span><span class="n">job</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s2">, result: </span><span class="si">{</span><span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="set-tags-to-batches">Set tags to batches</h2>
+<p>You can assign multiple tags to your batches when creating them to help organize and retrieve them later.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">serialized_sequence</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="p">[</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;custom_tag_1&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_tag_2&quot;</span><span class="p">]</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
+</code></pre></div>
+<p>You can also assign tags to an existing batch using two different methods.
+Note that setting tags completely replace any existing tags of the batch.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">set_batch_tags</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">batch_id</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="p">[</span><span class="s2">&quot;custom_tag_1&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_tag_2&quot;</span><span class="p">]</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">)</span>
+</code></pre></div>
+<p>OR, with the batch object itself.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">batch</span><span class="o">.</span><span class="n">set_tags</span><span class="p">([</span><span class="s2">&quot;custom_tag_1&quot;</span><span class="p">,</span> <span class="s2">&quot;custom_tag_2&quot;</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="get-a-list-of-batches">Get a list of batches</h2>
+<p>It is possible to get all batches or a selection of batches with the <code>get_batches</code> method.
+The method returns by default a page of the 100 most recent batches but can be
+configured using the <code>pagination_params</code> argument.</p>
+<p>Here are few examples of how to use it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchFilters</span><span class="p">,</span> <span class="n">BatchStatus</span><span class="p">,</span> <span class="n">PaginationParams</span><span class="p">,</span> <span class="n">QueuePriority</span><span class="p">,</span> <span class="n">EmulatorType</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Get the first 100 batches, no filters applied</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">()</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Get the first 40 batches, no filters applied</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># Get the first 100 batches from a given device</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="n">EmulatorType</span><span class="o">.</span><span class="n">EMU_TN</span><span class="p">))</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c1"># Get the first 100 batches in DONE from a specific project</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">BatchStatus</span><span class="o">.</span><span class="n">DONE</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;project_id&quot;</span><span class="p">))</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="c1"># Get all batches with a specific tag</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="n">tag</span><span class="o">=</span><span class="s2">&quot;custom_tag_1&quot;</span><span class="p">))</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="c1"># Get two batches using two ids</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;batch_id_1&quot;</span><span class="p">,</span> <span class="s2">&quot;batch_id_2&quot;</span><span class="p">]))</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="c1"># Get the first 100 batches with HIGH priority from a specific project</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="n">queue_priority</span><span class="o">=</span><span class="n">QueuePriority</span><span class="o">.</span><span class="n">HIGH</span><span class="p">))</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="c1"># Get the first 20 DONE batches created in a given period from a specific list of users</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>                <span class="n">filters</span><span class="o">=</span><span class="n">BatchFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">BatchStatus</span><span class="o">.</span><span class="n">DONE</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">end_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>                                     <span class="n">user_id</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user_id_1&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id_2&quot;</span><span class="p">]))</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="c1"># Get the total number of batches matching the filters</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">total</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a><span class="c1"># Get the first 300 batches, no filters applied</span>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="n">batches</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="n">batches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a><span class="n">batches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a><span class="n">batches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="get-a-list-of-jobs">Get a list of jobs</h2>
+<p>It is possible to get all jobs or a selection of jobs with the <code>get_jobs</code> method.
+The method returns by default a page of the 100 most recent jobs but can be
+configured using the <code>pagination_params</code> argument.</p>
+<p>Here are few examples of how to use it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobFilters</span><span class="p">,</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="n">PaginationParams</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Get the first 100 jobs, no filters applied</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">()</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Get the first 40 jobs, no filters applied</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="c1"># Get the first 100 jobs from a given batch</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">JobFilters</span><span class="p">(</span><span class="n">batch_id</span><span class="o">=</span><span class="s2">&quot;batch_id&quot;</span><span class="p">))</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1"># Get the first 100 jobs in error from a specific project</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">JobFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;project_id&quot;</span><span class="p">))</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="c1"># Get two jobs using two ids</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="n">JobFilters</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;job_id_1&quot;</span><span class="p">,</span> <span class="s2">&quot;job_id_2&quot;</span><span class="p">]))</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="c1"># Get the first 20 cancelled jobs created in a given period from a specific list of users</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>             <span class="n">filters</span><span class="o">=</span><span class="n">JobFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">CANCELED</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">end_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>                                <span class="n">user_id</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;user_id_1&quot;</span><span class="p">,</span> <span class="s2">&quot;user_id_2&quot;</span><span class="p">]))</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a><span class="c1"># Get the total number of jobs matching the filters</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">total</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="c1"># Get the first 300 jobs, no filters applied</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="n">jobs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="n">jobs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="n">jobs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sdk</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span><span class="n">pagination_params</span><span class="o">=</span><span class="n">PaginationParams</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="mi">200</span><span class="p">))</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="retry-a-batch-of-jobs">Retry a batch of jobs</h2>
+<p>It is possible to retry a selection of jobs from a CLOSED batch with the <code>rebatch</code> method.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">RebatchFilters</span><span class="p">,</span> <span class="n">JobStatus</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Retry all jobs from a given batch</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">sdk</span><span class="o">.</span><span class="n">rebatch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">)</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Retry the first job of a batch</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">sdk</span><span class="o">.</span><span class="n">rebatch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">RebatchFilters</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">batch</span><span class="o">.</span><span class="n">ordered_jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="c1"># Retry all jobs in error</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="n">sdk</span><span class="o">.</span><span class="n">rebatch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">RebatchFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">ERROR</span><span class="p">))</span>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="c1"># Retry cancelled jobs created in a given period</span>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="n">sdk</span><span class="o">.</span><span class="n">rebatch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">RebatchFilters</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">JobStatus</span><span class="o">.</span><span class="n">CANCELED</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">end_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">)))</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="c1"># Retry jobs that have a run number between 5 and 10</span>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="n">sdk</span><span class="o">.</span><span class="n">rebatch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">RebatchFilters</span><span class="p">(</span><span class="n">min_runs</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_runs</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+</code></pre></div>
+<h2 id="retry-a-job-in-an-open-batch">Retry a job in an open batch</h2>
+<p>It is possible to retry a single job in a same open batch as an original job using <code>batch.retry</code>.
+The batch must be open in order for this method to work.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="nb">open</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">batch</span><span class="o">.</span><span class="n">retry</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">ordered_jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1"># Like for adding a job you can choose to wait for results.</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="n">batch</span><span class="o">.</span><span class="n">retry</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">ordered_jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="cancel-a-list-of-batches">Cancel a list of batches</h2>
+<p>It is possible to cancel a list of batches with the <code>cancel_batches</code> method by
+providing a list of batch ids.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">sdk</span><span class="o">.</span><span class="n">cancel_batches</span><span class="p">(</span><span class="n">batch_ids</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="cancel-a-list-of-jobs">Cancel a list of jobs</h2>
+<p>It is possible to cancel a selection of jobs with the <code>cancel_jobs</code> method, using the CancelJobFilters class.</p>
+<p>Here are few examples of how to use it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">CancelJobFilters</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="c1"># Cancel two specific jobs</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="n">sdk</span><span class="o">.</span><span class="n">cancel_jobs</span><span class="p">(</span><span class="n">batch_id</span><span class="o">=</span><span class="s2">&quot;batch_id&quot;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">CancelJobFilters</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;job_id_1&quot;</span><span class="p">,</span> <span class="s2">&quot;job_id_2&quot;</span><span class="p">]))</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Cancel jobs created in a given period of time</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">sdk</span><span class="o">.</span><span class="n">cancel_jobs</span><span class="p">(</span><span class="n">batch_id</span><span class="o">=</span><span class="s2">&quot;batch_id&quot;</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">CancelJobFilters</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">),</span> <span class="n">end_date</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="o">...</span><span class="p">)))</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>
