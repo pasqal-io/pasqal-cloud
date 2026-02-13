@@ -21,7 +21,7 @@ else:
     from typing_extensions import Final  # type: ignore[assignment]
 
 
-Region = Literal["france", "saudi-arabia"]
+Region = Literal["fr", "sa"]
 
 # ---- Endpoints ----
 
@@ -61,7 +61,7 @@ class Endpoints:
 
     @classmethod
     def from_region(cls, region: Optional[Region]) -> "Endpoints":
-        if region == "saudi-arabia":
+        if region == "sa":
             return Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL)
         return Endpoints()
 
@@ -134,7 +134,7 @@ class TokenProviderConf:
 
     @classmethod
     def from_region(cls, region: Optional[Region]) -> "TokenProviderConf":
-        if region == "saudi-arabia":
+        if region == "sa":
             return TokenProviderConf(
                 token_endpoint=SA_KEYCLOAK_TOKEN_ENDPOINT,
                 public_client_id=KEYCLOAK_SDK_CLIENT_ID,

@@ -173,7 +173,6 @@ class InsecurePasswordGrantTokenProvider(PasswordGrantTokenProvider):
             },
             verify=False,
         )
-        response.raise_for_status
         if response.status_code >= 400:
             raise TokenProviderError(
                 f"Login failed: {response.status_code} {response.text}"
