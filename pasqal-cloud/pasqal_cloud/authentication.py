@@ -146,11 +146,7 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
                 "password": self.password,
             },
         )
-        if response.status_code >= 400:
-            raise TokenProviderError(
-                f"Login failed: {response.status_code} {response.text}"
-            )
-
+        response.raise_for_status()
         return response.json()
 
 
@@ -173,11 +169,7 @@ class InsecurePasswordGrantTokenProvider(PasswordGrantTokenProvider):
             },
             verify=False,
         )
-        if response.status_code >= 400:
-            raise TokenProviderError(
-                f"Login failed: {response.status_code} {response.text}"
-            )
-
+        response.raise_for_status()
         return response.json()
 
 
