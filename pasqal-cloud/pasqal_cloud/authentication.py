@@ -161,12 +161,12 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             )
         return response.json()
 
-    def _get_error_message(self, content):
+    def _get_error_message(self, content: dict) -> Any:
         # error_description is standard and optional
         # error is standard and mandatory
         # source: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1
-        # auth0 note: message can be used despite non standard -> https://github.com/auth0/auth0-python/blob/master/src/auth0/authentication/rest.py#L338
-        # kc note: respects the standard -> https://github.com/keycloak/keycloak/blob/26.5.3/core/src/main/java/org/keycloak/representations/idm/OAuth2ErrorRepresentation.java#L27
+        # auth0 note: message can be returned while non standard -> https://github.com/auth0/auth0-python/blob/master/src/auth0/authentication/rest.py#L338
+        # kc note: ok wrt standard -> https://github.com/keycloak/keycloak/blob/26.5.3/core/src/main/java/org/keycloak/representations/idm/OAuth2ErrorRepresentation.java#L27
         return (
             content.get("error_description")
             if "error_description" in content
