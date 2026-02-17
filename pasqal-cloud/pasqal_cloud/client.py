@@ -200,7 +200,7 @@ class Client:
                 raise ValueError("The prompted password should not be empty")
 
         token_provider: TokenProvider = PasswordGrantTokenProvider(
-            username, password, config
+            username, password, config, verify=not _skip_ssl_verify()
         )
         return token_provider
 
