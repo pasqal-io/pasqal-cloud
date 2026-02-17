@@ -154,7 +154,11 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             },
             verify=self.verify,
         )
-        response.raise_for_status()
+        if response.status_code >= 400:
+            error_description = response.json().get("error_description")
+            raise HTTPError(
+                f"{response.status_code}: {error_description}", response=response
+            )
         return response.json()
 
 
