@@ -120,7 +120,13 @@ AUTH0_TOKEN_PROVIDER_SCOPE = "openid profile email"
 
 
 class PasswordGrantTokenProvider(ExpiringTokenProvider):
-    def __init__(self, username: str, password: str, config: TokenProviderConf):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        config: TokenProviderConf,
+        verify: bool = True,
+    ):
         """Initializes the token provider with user credentials and
         a configuration object
 
@@ -132,6 +138,7 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
         self.username = username
         self.password = password
         self.config = config
+        self.verify = verify
         self.get_token()
 
     def _query_token(self) -> Any:
@@ -145,29 +152,7 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
                 "username": self.username,
                 "password": self.password,
             },
-        )
-        response.raise_for_status()
-        return response.json()
-
-
-class InsecurePasswordGrantTokenProvider(PasswordGrantTokenProvider):
-    """PasswordGrant Token provider with SSL verification disabled
-
-    Should be only used in testing environments.
-    """
-
-    def _query_token(self) -> Any:
-        response = requests.post(
-            self.config.token_endpoint,
-            data={
-                "client_id": self.config.public_client_id,
-                "grant_type": self.config.grant_type,
-                "realm": self.config.realm,
-                "audience": self.config.audience,
-                "username": self.username,
-                "password": self.password,
-            },
-            verify=False,
+            verify=self.verify,
         )
         response.raise_for_status()
         return response.json()
@@ -188,7 +173,7 @@ class Auth0TokenProvider(PasswordGrantTokenProvider):
         super().__init__(username, password, TokenProviderConf.from_auth0_config(auth0))
 
 
-class InsecureAuth0TokenProvider(InsecurePasswordGrantTokenProvider):
+class InsecureAuth0TokenProvider(PasswordGrantTokenProvider):
     """Token Provider for auth0 with SSL verification disabled
 
     Should be only used in testing environments.
@@ -203,4 +188,6 @@ class InsecureAuth0TokenProvider(InsecurePasswordGrantTokenProvider):
             password: password of the user to log in as
             auth0: auth0 configuration object to target the proper auth0 tenant and app
         """
-        super().__init__(username, password, TokenProviderConf.from_auth0_config(auth0))
+        super().__init__(
+            username, password, TokenProviderConf.from_auth0_config(auth0), verify=False
+        )
