@@ -155,11 +155,23 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             verify=self.verify,
         )
         if response.status_code >= 400:
-            error_description = response.json().get("error_description")
+            error_description = self._get_error_message(response.json())
             raise HTTPError(
                 f"{response.status_code}: {error_description}", response=response
             )
         return response.json()
+
+    def _get_error_message(self, content):
+        # error_description is standard and optional
+        # error is standard and mandatory
+        # source: https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1
+        # auth0 note: message can be used despite non standard -> https://github.com/auth0/auth0-python/blob/master/src/auth0/authentication/rest.py#L338
+        # kc note: respects the standard -> https://github.com/keycloak/keycloak/blob/26.5.3/core/src/main/java/org/keycloak/representations/idm/OAuth2ErrorRepresentation.java#L27
+        return (
+            content.get("error_description")
+            if "error_description" in content
+            else content.get("error", "")
+        )
 
 
 class Auth0TokenProvider(PasswordGrantTokenProvider):
