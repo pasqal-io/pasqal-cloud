@@ -244,6 +244,7 @@ class Client:
                 retry_status_code={408, 425, 429, 500, 502, 504},
             )(self._request_with_status_check)
 
+        payload_args: Dict[str, Any]
         if gziped:
             payload_args = {
                 "data": gzip.compress(json.dumps(payload).encode("utf-8")),
