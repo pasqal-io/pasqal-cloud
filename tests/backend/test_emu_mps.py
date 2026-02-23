@@ -1,5 +1,6 @@
 import contextlib
 import dataclasses
+import gzip
 import json
 from unittest.mock import patch
 from uuid import uuid4
@@ -57,7 +58,8 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
         == "https://apis.pasqal.cloud/core-fast/api/v1/batches"
     )
     assert mock_request.request_history[0].method == "POST"
-    post_batch_body = json.loads(mock_request.request_history[0].body)
+    # batch POST request's body is gziped by the Client
+    post_batch_body = json.loads(gzip.decompress(mock_request.request_history[0].body))
     assert post_batch_body["device_type"] == "EMU_MPS"
     assert post_batch_body["sequence_builder"] == sequence.to_abstract_repr()
     assert "emulator" not in post_batch_body

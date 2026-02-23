@@ -13,6 +13,8 @@
 # limitations under the License.
 from __future__ import annotations
 
+import gzip
+import json
 import os
 import warnings
 from getpass import getpass
@@ -215,6 +217,7 @@ class Client:
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping], Sequence[str]]] = None,
         params: Optional[Mapping[str, Any]] = None,
+        gziped: bool = False,
     ) -> JSendPayload:
         if self.authenticator is None:
             raise ValueError(
@@ -226,6 +229,8 @@ class Client:
             "content-type": "application/json",
             "User-Agent": self.user_agent,
         }
+        if gziped:
+            headers.update({"Content-Encoding": "gzip"})
 
         if method == "GET":
             request_with_retry = retry_http_error(
@@ -239,14 +244,21 @@ class Client:
                 retry_status_code={408, 425, 429, 500, 502, 504},
             )(self._request_with_status_check)
 
+        if gziped:
+            payload_args = {
+                "data": gzip.compress(json.dumps(payload).encode("utf-8")),
+            }
+        else:
+            payload_args = {"json": payload}
+
         resp = request_with_retry(
             method,
             url,
-            json=payload,
             timeout=TIMEOUT,
             headers=headers,
             auth=self.authenticator,
             params=params,
+            **payload_args,
         )
         data: JSendPayload = resp.json()
         return data
@@ -306,9 +318,7 @@ class Client:
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
-            "POST",
-            self._get_url("send_batch"),
-            batch_data,
+            "POST", self._get_url("send_batch"), batch_data, gziped=True
         )["data"]
         return response
 
@@ -415,7 +425,7 @@ class Client:
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "POST", self._get_url("add_jobs", batch_id=batch_id), jobs_data
+            "POST", self._get_url("add_jobs", batch_id=batch_id), jobs_data, gziped=True
         )["data"]
         return response
 
