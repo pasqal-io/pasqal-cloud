@@ -49,6 +49,11 @@ def _skip_ssl_verify() -> bool:
     return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
 
 
+# Env variable to disable gzip outgoing request body content
+def _skip_gzip_request_body() -> bool:
+    return bool(os.getenv("PASQAL_SKIP_GZIP_REQUEST_BODY", False))
+
+
 class Client:
     authenticator: AuthBase | None
 
@@ -96,6 +101,7 @@ class Client:
 
         self.session = requests.Session()
         self.session.verify = not _skip_ssl_verify()
+        self.allow_gzip_request_body = not _skip_gzip_request_body()
 
     def _get_api_urls(self) -> Dict[str, str]:
         """Return a dictionary mapping API endpoint names to their URLs."""
@@ -229,7 +235,7 @@ class Client:
             "content-type": "application/json",
             "User-Agent": self.user_agent,
         }
-        if gziped:
+        if self.allow_gzip_request_body and gziped:
             headers.update({"Content-Encoding": "gzip"})
 
         if method == "GET":
@@ -245,7 +251,7 @@ class Client:
             )(self._request_with_status_check)
 
         payload_args: Dict[str, Any]
-        if gziped:
+        if self.allow_gzip_request_body and gziped:
             payload_args = {
                 "data": gzip.compress(json.dumps(payload).encode("utf-8")),
             }
