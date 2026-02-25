@@ -235,8 +235,6 @@ class Client:
             "content-type": "application/json",
             "User-Agent": self.user_agent,
         }
-        if self.allow_gzip_request_body and gziped:
-            headers.update({"Content-Encoding": "gzip"})
 
         if method == "GET":
             request_with_retry = retry_http_error(
@@ -252,6 +250,7 @@ class Client:
 
         payload_args: Dict[str, Any]
         if self.allow_gzip_request_body and gziped:
+            headers.update({"Content-Encoding": "gzip"})
             payload_args = {
                 "data": gzip.compress(json.dumps(payload).encode("utf-8")),
             }
