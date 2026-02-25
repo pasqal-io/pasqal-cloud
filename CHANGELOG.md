@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.0]
+
+### pulser-pasqal
+
+* Add region support
+  - `sa`: Saudi-Arabia platform
+  - `fr`: European platform
+
 ## [0.20.8]
 
 ### pulser-pasqal
