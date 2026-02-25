@@ -29,6 +29,7 @@ Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and t
 | 0.20.6  | 2025-10-21   | 2026-10-21     |
 | 0.20.7  | 2026-01-13   | 2027-01-13     |
 | 0.20.8  | 2026-01-30   | 2027-01-30     |
+| 0.21.0  | 2026-02-24   | 2027-02-24     |
 
 ## Getting started
 
