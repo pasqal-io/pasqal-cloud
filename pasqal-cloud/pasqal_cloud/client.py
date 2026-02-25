@@ -13,6 +13,8 @@
 # limitations under the License.
 from __future__ import annotations
 
+import gzip
+import json
 import os
 import warnings
 from getpass import getpass
@@ -45,6 +47,11 @@ TIMEOUT = 30  # client http requests timeout after 30s
 # Env variable to disable SSL verification. Should be used only in testing environement
 def _skip_ssl_verify() -> bool:
     return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
+
+
+# Env variable to disable gzip outgoing request body content
+def _skip_gzip_request_body() -> bool:
+    return bool(os.getenv("PASQAL_SKIP_GZIP_REQUEST_BODY", False))
 
 
 class Client:
@@ -94,6 +101,7 @@ class Client:
 
         self.session = requests.Session()
         self.session.verify = not _skip_ssl_verify()
+        self.allow_gzip_request_body = not _skip_gzip_request_body()
 
     def _get_api_urls(self) -> Dict[str, str]:
         """Return a dictionary mapping API endpoint names to their URLs."""
@@ -215,6 +223,7 @@ class Client:
         url: str,
         payload: Optional[Union[Mapping, Sequence[Mapping], Sequence[str]]] = None,
         params: Optional[Mapping[str, Any]] = None,
+        gziped: bool = False,
     ) -> JSendPayload:
         if self.authenticator is None:
             raise ValueError(
@@ -239,14 +248,23 @@ class Client:
                 retry_status_code={408, 425, 429, 500, 502, 504},
             )(self._request_with_status_check)
 
+        payload_args: Dict[str, Any]
+        if self.allow_gzip_request_body and gziped:
+            headers.update({"Content-Encoding": "gzip"})
+            payload_args = {
+                "data": gzip.compress(json.dumps(payload).encode("utf-8")),
+            }
+        else:
+            payload_args = {"json": payload}
+
         resp = request_with_retry(
             method,
             url,
-            json=payload,
             timeout=TIMEOUT,
             headers=headers,
             auth=self.authenticator,
             params=params,
+            **payload_args,
         )
         data: JSendPayload = resp.json()
         return data
@@ -306,9 +324,7 @@ class Client:
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
-            "POST",
-            self._get_url("send_batch"),
-            batch_data,
+            "POST", self._get_url("send_batch"), batch_data, gziped=True
         )["data"]
         return response
 
@@ -415,7 +431,7 @@ class Client:
         self, batch_id: str, jobs_data: Sequence[Mapping[str, Any]]
     ) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
-            "POST", self._get_url("add_jobs", batch_id=batch_id), jobs_data
+            "POST", self._get_url("add_jobs", batch_id=batch_id), jobs_data, gziped=True
         )["data"]
         return response
 

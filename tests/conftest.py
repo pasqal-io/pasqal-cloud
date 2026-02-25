@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 from typing import Any, Dict, Generator, Optional
@@ -26,7 +27,11 @@ def mock_service_response(request, service_name: str):
     path = request.url.split(f"{version}/")[1].split("?")[0]
     data = None
     if request.method == "POST" and request.body:
-        data = request.json()
+        if request.headers.get("Content-Encoding") == "gzip":
+            body = gzip.decompress(request.body)
+            data = json.loads(body)
+        else:
+            data = request.json()
 
     service_path = f"tests/fixtures/{service_name}/api/"
 
