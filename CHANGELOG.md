@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.21.0]
 
-### pulser-pasqal
+### pasqal-cloud
 
 * Add region support
   - `sa`: Saudi-Arabia platform
