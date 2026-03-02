@@ -40,10 +40,12 @@ from pasqal_cloud.errors import (
     BatchFetchingError,
     BatchSetTagsError,
     DeviceSpecsFetchingError,
+    InvalidBatchOrJobSequence,
     InvalidDeviceTypeSet,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
+    JobSequenceVariablesConflict,
     OnlyCompleteOrOpenCanBeSet,
     ProjectFetchingError,
     ProjectNotFoundError,
@@ -236,10 +238,49 @@ class SDK:
             return False
         return open
 
+    def _validate_required_sequences(
+        self,
+        jobs: List[CreateJob],
+        batch_serialized_sequence: Optional[str] = None,
+    ):
+        all_jobs_need_seq = batch_serialized_sequence is None
+
+        if all_jobs_need_seq and any(
+            job.get("serialized_sequence") is None for job in jobs
+        ):
+            raise InvalidBatchOrJobSequence
+
+    def _validate_jobs_variables(
+        self,
+        jobs: List[CreateJob],
+    ):
+        if any(
+            job.get("serialized_sequence") is not None and job.get("variables")
+            for job in jobs
+        ):
+            raise JobSequenceVariablesConflict
+
+    def _validate_open_batch_sequences(
+        self,
+        open: bool,
+        jobs: List[CreateJob],
+        batch_serialized_sequence: Optional[str] = None,
+    ):
+        if open:
+            return
+
+        if batch_serialized_sequence and all(
+            job.get("serialized_sequence") is not None for job in jobs
+        ):
+            warn(
+                "The batch sequence will not be used because all jobs in this closed "
+                + "batch define their own sequences."
+            )
+
     def create_batch(
         self,
-        serialized_sequence: str,
         jobs: List[CreateJob],
+        serialized_sequence: Optional[str] = None,
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
@@ -253,9 +294,12 @@ class SDK:
         """Create a new batch and send it to the API.
 
         Args:
-            serialized_sequence: Serialized pulser sequence.
-            complete: Opposite of open, deprecated.
             jobs: List of jobs to be added to the batch at creation.
+            serialized_sequence: Serialized pulser sequence.
+                If specified, jobs without their own sequence defined will inherit from
+                batch's sequence.
+                If not specified, all jobs must have their own sequence defined.
+            complete: Opposite of open, deprecated.
             open: If all jobs are sent at creation.
                 If set to True, jobs can be added using the `Batch.add_jobs` method.
                 Once all the jobs are sent, use the `Batch.close` method.
@@ -281,8 +325,10 @@ class SDK:
         """
         device_type = self._validate_device_type(emulator, device_type)
         open = self._validate_open(complete, open)
-
+        self._validate_open_batch_sequences(open, jobs, serialized_sequence)
         self._validate_device_type_choice(device_type)
+        self._validate_required_sequences(jobs, serialized_sequence)
+        self._validate_jobs_variables(jobs)
 
         if fetch_results:
             warn(
@@ -296,7 +342,14 @@ class SDK:
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
-            "jobs": jobs,
+            # rename "serialized_sequence" key to "sequence"
+            "jobs": [
+                {
+                    "sequence" if k == "serialized_sequence" else k: v
+                    for k, v in job.items()
+                }
+                for job in jobs
+            ],
             "open": open,
             "device_type": device_type,
         }
@@ -616,6 +669,7 @@ class SDK:
         Raises:
             JobCreationError: spawns from a HTTPError.
         """
+        self._validate_jobs_variables(jobs)
         try:
             resp = self._client.add_jobs(batch_id, jobs)
         except HTTPError as e:

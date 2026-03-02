@@ -85,6 +85,7 @@ class Batch(BaseModel):
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
     _sequence_builder: Optional[str] = None
+    _sequence_builder_fetched: bool = PrivateAttr(default=False)
     tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
@@ -95,6 +96,11 @@ class Batch(BaseModel):
         # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         super().__init__(**data)
         self._client = data["_client"]
+
+        if "sequence_builder" in data:
+            self._sequence_builder = data["sequence_builder"]
+            self._sequence_builder_fetched = True
+
         if data.get("jobs"):
             self._ordered_jobs = [
                 Job(**raw_job, _client=self._client) for raw_job in data["jobs"]
@@ -102,9 +108,11 @@ class Batch(BaseModel):
 
     @property
     def sequence_builder(self) -> Optional[str]:
-        if self._sequence_builder is None:
+        if not self._sequence_builder_fetched:
             batch_response = self._client.get_batch(self.id)
             self._sequence_builder = batch_response["sequence_builder"]
+            self._sequence_builder_fetched = True
+
         return self._sequence_builder
 
     @property
@@ -200,7 +208,9 @@ class Batch(BaseModel):
         Raises:
             JobRetryError: if there was an error adding the job to the batch.
         """
-        retried_job = CreateJob(runs=job.runs, variables=job.variables)
+        retried_job = CreateJob(
+            runs=job.runs, variables=job.variables, serialized_sequence=job._sequence
+        )
         try:
             self.add_jobs([retried_job], wait=wait)
         except JobCreationError as e:

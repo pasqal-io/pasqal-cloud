@@ -238,6 +238,28 @@ class InvalidDeviceTypeSet(BaseException):
         )
 
 
+class InvalidBatchOrJobSequence(BaseException):
+    """
+    Exception class raised when a batch without sequence_builder contains jobs without
+    their own sequence defined.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(
+            "Either the batch must have a sequence, or all jobs must have their own "
+            + "sequences."
+        )
+
+
+class JobSequenceVariablesConflict(BaseException):
+    """
+    Exception class raised when a job has sequence and variables specified
+    """
+
+    def __init__(self) -> None:
+        super().__init__("A job cannot have both sequence and variables specified")
+
+
 class ProjectException(ExceptionWithResponseContext):
     """
     Base Exception class for projects

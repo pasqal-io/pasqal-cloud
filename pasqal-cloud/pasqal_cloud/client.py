@@ -328,7 +328,7 @@ class Client:
             raw=data.pop("raw", None),
             counter=data.pop("counter", None),
             serialised_results=data.pop("serialised_results", None),
-            **data
+            **data,
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:
