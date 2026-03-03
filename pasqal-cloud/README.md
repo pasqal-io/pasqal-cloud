@@ -137,8 +137,8 @@ for job in batch.ordered_jobs:
 
 #### Job-level sequence
 
-When each job needs its own sequence, you can specify a different `serialized_sequence` for each job instead of
-providing one at the batch level. This is useful when you want to run different quantum programs in the same batch.
+Jobs can define their own `serialized_sequence`, which overrides the batch-level sequence.
+This is useful when you want to run different quantum programs in the same batch.
 
 ```python
 # Create jobs with their own sequences
