@@ -54,7 +54,7 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import (  # noqa: F401
     BatchStatus,
@@ -294,11 +294,11 @@ class SDK:
         """Create a new batch and send it to the API.
 
         Args:
-            jobs: List of jobs to be added to the batch at creation.
             serialized_sequence: Serialized pulser sequence.
                 If specified, jobs without their own sequence defined will inherit from
                 batch's sequence.
-                If not specified, all jobs must have their own sequence defined.
+                If None, all jobs must have their own sequence defined.
+            jobs: List of jobs to be added to the batch at creation.
             complete: Opposite of open, deprecated.
             open: If all jobs are sent at creation.
                 If set to True, jobs can be added using the `Batch.add_jobs` method.
@@ -342,14 +342,7 @@ class SDK:
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
-            # rename "serialized_sequence" key to "sequence"
-            "jobs": [
-                {
-                    "sequence" if k == "serialized_sequence" else k: v
-                    for k, v in job.items()
-                }
-                for job in jobs
-            ],
+            "jobs": create_jobs_to_api_payload(jobs),
             "open": open,
             "device_type": device_type,
         }
@@ -671,7 +664,7 @@ class SDK:
         """
         self._validate_jobs_variables(jobs)
         try:
-            resp = self._client.add_jobs(batch_id, jobs)
+            resp = self._client.add_jobs(batch_id, create_jobs_to_api_payload(jobs))
         except HTTPError as e:
             raise JobCreationError(e)
         return Batch(**resp, _client=self._client)

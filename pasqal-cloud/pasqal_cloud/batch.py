@@ -20,7 +20,7 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobRetryError,
 )
-from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -28,10 +28,12 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch(BaseModel):
     """Class to load batch data return by the API.
 
-        A batch groups up several jobs with the same sequence. When
-        a batch is assigned to a QPU, all its jobs are run sequentially
-        and no other batch can be assigned to the device until all its
-        jobs are done and declared complete.
+        A batch groups up several jobs that will run on the same QPU.
+        Sequences can be specified at the batch level, at the job level,
+        or both (jobs with their own sequence override the batch-level
+        one). When a batch is assigned to a QPU, all its
+        jobs are run sequentially and no other batch can be assigned to
+        the device until all its jobs are done and declared complete.
 
     Attributes:
         open: Whether the batch accepts more jobs or not.
@@ -183,7 +185,7 @@ class Batch(BaseModel):
 
         """
         try:
-            batch_rsp = self._client.add_jobs(self.id, jobs)
+            batch_rsp = self._client.add_jobs(self.id, create_jobs_to_api_payload(jobs))
         except HTTPError as e:
             raise JobCreationError(e) from e
         self._update_from_api_response(batch_rsp)

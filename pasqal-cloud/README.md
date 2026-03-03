@@ -64,8 +64,8 @@ See `Auth0TokenProvider` implementation for an example.
 
 The package main component is a python object called `SDK` which can be used to create a `Batch`.
 
-A `Batch` is a group of jobs that will run on the same QPU. Sequences can be specified either at the batch level (all
-jobs share the same sequence) or at the job level (each job can have its own sequence).
+A `Batch` is a group of jobs that will run on the same QPU. Sequences can be specified at the batch level,
+at the job level, or both (jobs with their own sequence override the batch-level one).
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
@@ -80,8 +80,8 @@ serialized_sequence = sequence.to_abstract_repr()
 
 #### Batch-level sequence
 
-When all jobs share the same sequence, you can specify it at the batch level. For each job, you must set a value for
-each variable, if any, defined in your sequence:
+You can specify a sequence at the batch level that will be used as default for jobs that don't define their own.
+If the batch-level sequence defines variables, each job using it must set their values:
 
 ```python
 job1 = {"runs": 20, "variables": {"omega_max": 6}}

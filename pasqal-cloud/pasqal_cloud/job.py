@@ -97,3 +97,16 @@ class CreateJob(TypedDict, total=False):
     runs: int
     variables: Union[Dict[str, Any], None]
     serialized_sequence: Optional[str]
+
+
+def create_jobs_to_api_payload(
+    jobs: List["CreateJob"],
+) -> List[Dict[str, Any]]:
+    """Convert CreateJob dicts to API payload format.
+
+    Renames the 'serialized_sequence' key to 'sequence' as expected by the API.
+    """
+    return [
+        {"sequence" if k == "serialized_sequence" else k: v for k, v in job.items()}
+        for job in jobs
+    ]
