@@ -112,7 +112,9 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
         assert batch.tags == self.tags
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
@@ -134,7 +136,9 @@ class TestBatch:
         assert not batch.open
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_open_and_complete_raises_error(
@@ -171,7 +175,9 @@ class TestBatch:
         assert batch.id == self.batch_id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
         assert not batch.open
 
     def test_create_batch_with_emu_tn_raises_warning(
@@ -191,7 +197,9 @@ class TestBatch:
         assert batch.id == self.batch_id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
 
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
@@ -254,6 +262,44 @@ class TestBatch:
         """
         batch_requested = self.sdk.get_batch(batch.id)
         assert isinstance(batch_requested, BatchModel)
+
+    def test_sequence_builder_fetched_from_api_when_not_provided(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        When a batch is fetched from the list endpoint (which does not include
+        sequence_builder), accessing sequence_builder should trigger an API
+        call to fetch it from the single batch endpoint.
+        """
+        response = self.sdk.get_batches()
+        batch = response.results[0]
+
+        mock_request.reset_mock()
+
+        # Accessing sequence_builder should trigger a GET request
+        result = batch.sequence_builder
+        assert result == "pulser_test_sequence"
+        assert mock_request.last_request.method == "GET"
+        assert batch.id in mock_request.last_request.url
+
+    def test_job_sequence_fetched_from_api_when_not_provided(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        When a job comes from a batch response (which does not include
+        the job sequence), accessing job.sequence should trigger an API
+        call to fetch it from the single job endpoint.
+        """
+        batch = self.sdk.get_batch(self.batch_id)
+        job = batch.ordered_jobs[0]
+
+        mock_request.reset_mock()
+
+        # Accessing sequence should trigger a GET request
+        result = job.sequence
+        assert result == "pulser_test_sequence"
+        assert mock_request.last_request.method == "GET"
+        assert job.id in mock_request.last_request.url
 
     def test_batch_add_jobs(self, mock_request: requests_mock.mocker.Mocker):
         """
