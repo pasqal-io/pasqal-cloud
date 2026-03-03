@@ -242,7 +242,7 @@ class SDK:
         self,
         jobs: List[CreateJob],
         batch_serialized_sequence: Optional[str] = None,
-    ):
+    ) -> None:
         all_jobs_need_seq = batch_serialized_sequence is None
 
         if all_jobs_need_seq and any(
@@ -253,7 +253,7 @@ class SDK:
     def _validate_jobs_variables(
         self,
         jobs: List[CreateJob],
-    ):
+    ) -> None:
         if any(
             job.get("serialized_sequence") is not None and job.get("variables")
             for job in jobs
@@ -265,7 +265,7 @@ class SDK:
         open: bool,
         jobs: List[CreateJob],
         batch_serialized_sequence: Optional[str] = None,
-    ):
+    ) -> None:
         if open:
             return
 
