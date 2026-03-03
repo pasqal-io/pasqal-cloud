@@ -279,8 +279,8 @@ class SDK:
 
     def create_batch(
         self,
+        serialized_sequence: Optional[str],
         jobs: List[CreateJob],
-        serialized_sequence: Optional[str] = None,
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
