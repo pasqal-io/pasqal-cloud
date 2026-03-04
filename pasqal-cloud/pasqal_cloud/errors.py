@@ -238,16 +238,30 @@ class InvalidDeviceTypeSet(BaseException):
         )
 
 
-class InvalidBatchOrJobSequence(BaseException):
+class MissingAllJobSequence(BaseException):
     """
-    Exception class raised when a batch without sequence_builder contains jobs without
-    their own sequence defined.
+    Exception class raised when a batch without sequence_builder have all its jobs
+    without their own sequence defined.
     """
 
     def __init__(self) -> None:
         super().__init__(
             "Either the batch must have a sequence, or all jobs must have their own "
             + "sequences."
+        )
+
+
+class MissingJobSequence(BaseException):
+    """
+    Exception class raised when a batch without sequence_builder contains jobs without
+    their own sequence defined.
+    """
+
+    def __init__(self, missing_seq_jobs_indexes: list[int]) -> None:
+        indexes = ", ".join([str(index) for index in missing_seq_jobs_indexes])
+        super().__init__(
+            "When batch do not have sequence defined, all jobs must have their own "
+            + f"sequence. Those jobs do not have sequence: {indexes}"
         )
 
 

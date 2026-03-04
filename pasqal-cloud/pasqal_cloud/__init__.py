@@ -40,12 +40,13 @@ from pasqal_cloud.errors import (
     BatchFetchingError,
     BatchSetTagsError,
     DeviceSpecsFetchingError,
-    InvalidBatchOrJobSequence,
     InvalidDeviceTypeSet,
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
     JobSequenceVariablesConflict,
+    MissingAllJobSequence,
+    MissingJobSequence,
     OnlyCompleteOrOpenCanBeSet,
     ProjectFetchingError,
     ProjectNotFoundError,
@@ -243,12 +244,23 @@ class SDK:
         jobs: List[CreateJob],
         batch_serialized_sequence: Optional[str] = None,
     ) -> None:
-        all_jobs_need_seq = batch_serialized_sequence is None
+        # batch has its own sequence: no need for jobs to define their own
+        if batch_serialized_sequence is not None:
+            return
 
-        if all_jobs_need_seq and any(
-            job.get("serialized_sequence") is None for job in jobs
-        ):
-            raise InvalidBatchOrJobSequence
+        missing_seq_jobs_indexes = [
+            index
+            for index, job in enumerate(jobs)
+            if job.get("serialized_sequence") is None
+        ]
+
+        if not missing_seq_jobs_indexes:
+            return
+
+        if len(missing_seq_jobs_indexes) == len(jobs):
+            raise MissingAllJobSequence
+
+        raise MissingJobSequence(missing_seq_jobs_indexes)
 
     def _validate_jobs_variables(
         self,

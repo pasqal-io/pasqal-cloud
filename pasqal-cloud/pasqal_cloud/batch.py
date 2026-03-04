@@ -33,7 +33,7 @@ class Batch(BaseModel):
         or both (jobs with their own sequence override the batch-level
         one). When a batch is assigned to a QPU, all its
         jobs are run sequentially and no other batch can be assigned to
-        the device until all its jobs are done and declared complete.
+        the device until all its jobs are done and the batch is closed.
 
     Attributes:
         open: Whether the batch accepts more jobs or not.

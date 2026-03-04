@@ -80,7 +80,7 @@ serialized_sequence = sequence.to_abstract_repr()
 
 #### Batch-level sequence
 
-You can specify a sequence at the batch level that will be used as default for jobs that don't define their own.
+You can specify a sequence at the batch level that will be used as default for all jobs.
 If the batch-level sequence defines variables, each job using it must set their values:
 
 ```python
@@ -149,7 +149,7 @@ job2 = {"runs": 50, "serialized_sequence": serialized_sequence2}
 batch = sdk.create_batch(None, [job1, job2], device_type=DeviceTypeName.FRESNEL, wait=True)
 ```
 
-**Important**: When using job-level sequences, you cannot specify variables for those jobs. Either use a batch-level
+**Important**: When using job-level sequences, make sure to use non-parametrized sequences. Either use a batch-level
 sequence with variables, or use job-level sequences without variables. Additionally, when creating a batch without a
 sequence, all jobs must have their own sequences specified.
 

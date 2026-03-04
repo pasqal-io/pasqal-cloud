@@ -30,10 +30,11 @@ from pasqal_cloud.errors import (
     BatchClosingError,
     BatchCreationError,
     BatchFetchingError,
-    InvalidBatchOrJobSequence,
     JobCreationError,
     JobRetryError,
     JobSequenceVariablesConflict,
+    MissingAllJobSequence,
+    MissingJobSequence,
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
@@ -1238,23 +1239,23 @@ class TestBatch:
 
     def test_create_batch_no_batch_sequence_partial_job_sequences_raises_error(self):
         """
-        Test that InvalidBatchOrJobSequence is raised when the batch has no
+        Test that MissingJobSequence is raised when the batch has no
         sequence and some jobs don't define their own.
         """
         jobs = [
             {"runs": 20, "serialized_sequence": "sequence_1"},
             {"runs": 50},
         ]
-        with pytest.raises(InvalidBatchOrJobSequence):
+        with pytest.raises(MissingJobSequence):
             self.sdk.create_batch(None, jobs=jobs)
 
     def test_create_batch_no_sequence_anywhere_raises_error(self):
         """
-        Test that InvalidBatchOrJobSequence is raised when neither the batch
+        Test that MissingJobSequence is raised when neither the batch
         nor any job defines a sequence.
         """
         jobs = [{"runs": 20}, {"runs": 50}]
-        with pytest.raises(InvalidBatchOrJobSequence):
+        with pytest.raises(MissingAllJobSequence):
             self.sdk.create_batch(None, jobs=jobs)
 
     @pytest.mark.filterwarnings("ignore:The batch sequence will not be used")
