@@ -272,7 +272,7 @@ class SDK:
         ):
             raise JobSequenceVariablesConflict
 
-    def _validate_open_batch_sequences(
+    def _warn_if_batch_sequence_unused(
         self,
         open: bool,
         jobs: List[CreateJob],
@@ -337,7 +337,7 @@ class SDK:
         """
         device_type = self._validate_device_type(emulator, device_type)
         open = self._validate_open(complete, open)
-        self._validate_open_batch_sequences(open, jobs, serialized_sequence)
+        self._warn_if_batch_sequence_unused(open, jobs, serialized_sequence)
         self._validate_device_type_choice(device_type)
         self._validate_required_sequences(jobs, serialized_sequence)
         self._validate_jobs_variables(jobs)
