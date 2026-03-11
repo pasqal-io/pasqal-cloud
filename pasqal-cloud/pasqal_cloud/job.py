@@ -30,6 +30,9 @@ class Job(BaseModel):
         result: Bitstring counter result. Should be equal to `full_results["counter"]`
         variables: Dictionary of variables of the job.
             None if the associated batch is non-parametrized.
+        _sequence: Pulser sequence of the job.
+        _sequence_fetched: Used to track if sequence has been retrieved from the API
+            to differentiate a None sequence and a non-retrieved sequence
     """
 
     runs: int

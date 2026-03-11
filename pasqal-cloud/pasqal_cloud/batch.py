@@ -64,6 +64,9 @@ class Batch(BaseModel):
         tags: Keyword used to refine the batch search.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
+        _sequence_builder_fetched: Used to track if sequence_builder has been retrieved
+            from the API to differentiate a None sequence_builder and a non-retrieved
+            sequence_builder.
     """
 
     open: bool
@@ -86,9 +89,9 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
+    tags: Optional[list[str]] = None
     _sequence_builder: Optional[str] = None
     _sequence_builder_fetched: bool = PrivateAttr(default=False)
-    tags: Optional[list[str]] = None
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
