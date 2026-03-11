@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## Next release
+
+### pasqal-cloud
+
+* Replace backoff as unmaintained anymore by tenacity
+
 ## [0.22.0]
 
 ### pasqal-cloud
