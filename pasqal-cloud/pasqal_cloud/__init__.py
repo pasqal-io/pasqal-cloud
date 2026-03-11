@@ -44,6 +44,9 @@ from pasqal_cloud.errors import (
     JobCancellingError,
     JobCreationError,
     JobFetchingError,
+    JobSequenceVariablesConflict,
+    MissingAllJobSequence,
+    MissingJobSequence,
     OnlyCompleteOrOpenCanBeSet,
     ProjectFetchingError,
     ProjectNotFoundError,
@@ -52,7 +55,7 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import (  # noqa: F401
     BatchStatus,
@@ -242,9 +245,59 @@ class SDK:
             return False
         return open
 
+    def _validate_required_sequences(
+        self,
+        jobs: List[CreateJob],
+        batch_serialized_sequence: Optional[str] = None,
+    ) -> None:
+        # batch has its own sequence: no need for jobs to define their own
+        if batch_serialized_sequence is not None:
+            return
+
+        missing_seq_jobs_indexes = [
+            index
+            for index, job in enumerate(jobs)
+            if job.get("serialized_sequence") is None
+        ]
+
+        if not missing_seq_jobs_indexes:
+            return
+
+        if len(missing_seq_jobs_indexes) == len(jobs):
+            raise MissingAllJobSequence
+
+        raise MissingJobSequence(missing_seq_jobs_indexes)
+
+    def _validate_jobs_variables(
+        self,
+        jobs: List[CreateJob],
+    ) -> None:
+        if any(
+            job.get("serialized_sequence") is not None and job.get("variables")
+            for job in jobs
+        ):
+            raise JobSequenceVariablesConflict
+
+    def _warn_if_batch_sequence_unused(
+        self,
+        open: bool,
+        jobs: List[CreateJob],
+        batch_serialized_sequence: Optional[str] = None,
+    ) -> None:
+        if open:
+            return
+
+        if batch_serialized_sequence and all(
+            job.get("serialized_sequence") is not None for job in jobs
+        ):
+            warn(
+                "The batch sequence will not be used because all jobs in this closed "
+                + "batch define their own sequences."
+            )
+
     def create_batch(
         self,
-        serialized_sequence: str,
+        serialized_sequence: Optional[str],
         jobs: List[CreateJob],
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
@@ -260,8 +313,11 @@ class SDK:
 
         Args:
             serialized_sequence: Serialized pulser sequence.
-            complete: Opposite of open, deprecated.
+                If specified, jobs without their own sequence defined will inherit from
+                batch's sequence.
+                If None, all jobs must have their own sequence defined.
             jobs: List of jobs to be added to the batch at creation.
+            complete: Opposite of open, deprecated.
             open: If all jobs are sent at creation.
                 If set to True, jobs can be added using the `Batch.add_jobs` method.
                 Once all the jobs are sent, use the `Batch.close` method.
@@ -287,8 +343,10 @@ class SDK:
         """
         device_type = self._validate_device_type(emulator, device_type)
         open = self._validate_open(complete, open)
-
+        self._warn_if_batch_sequence_unused(open, jobs, serialized_sequence)
         self._validate_device_type_choice(device_type)
+        self._validate_required_sequences(jobs, serialized_sequence)
+        self._validate_jobs_variables(jobs)
 
         if fetch_results:
             warn(
@@ -302,7 +360,7 @@ class SDK:
         req = {
             "sequence_builder": serialized_sequence,
             "webhook": self.webhook,
-            "jobs": jobs,
+            "jobs": create_jobs_to_api_payload(jobs),
             "open": open,
             "device_type": device_type,
         }
@@ -622,8 +680,9 @@ class SDK:
         Raises:
             JobCreationError: spawns from a HTTPError.
         """
+        self._validate_jobs_variables(jobs)
         try:
-            resp = self._client.add_jobs(batch_id, jobs)
+            resp = self._client.add_jobs(batch_id, create_jobs_to_api_payload(jobs))
         except HTTPError as e:
             raise JobCreationError(e)
         return Batch(**resp, _client=self._client)

@@ -10,6 +10,7 @@
       "Error 3: Matrix glitch"
     ],
     "id": "00000000-0000-0000-0000-000000022010",
+    "sequence": "pulser_test_sequence",
     "runs": 50,
     "status": "DONE",
     "updated_at": "2021-11-10T15:27:06.698066",

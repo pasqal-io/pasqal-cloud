@@ -64,8 +64,8 @@ See `Auth0TokenProvider` implementation for an example.
 
 The package main component is a python object called `SDK` which can be used to create a `Batch`.
 
-A `Batch` is a group of jobs with the same sequence that will run on the same QPU. For each job of a given batch, you
-must set a value for each variable, if any, defined in your sequence.
+A `Batch` is a group of jobs that will run on the same QPU. Sequences can be specified at the batch level,
+at the job level, or both (jobs with their own sequence override the batch-level one).
 Once the QPU starts running a batch, only the jobs from that batch will be executed until they all end up in a
 termination status (`DONE`, `ERROR`, `CANCELED`).
 The batch sequence can be generated using [Pulser](https://github.com/pasqal-io/Pulser). See
@@ -78,7 +78,10 @@ The sequence should be a pulser sequence object. Once it's created, you can seri
 serialized_sequence = sequence.to_abstract_repr()
 ```
 
-When creating a job, select a number of runs and set the desired values for the variables defined in the sequence:
+#### Batch-level sequence
+
+You can specify a sequence at the batch level that will be used as default for all jobs.
+If the batch-level sequence defines variables, each job using it must set their values:
 
 ```python
 job1 = {"runs": 20, "variables": {"omega_max": 6}}
@@ -131,6 +134,24 @@ Once the API has returned the results, you can access them with the following:
 for job in batch.ordered_jobs:
     print(f"job-id: {job.id}, status: {job.status}, result: {job.result}")
 ```
+
+#### Job-level sequence
+
+Jobs can define their own `serialized_sequence`, which overrides the batch-level sequence.
+This is useful when you want to run different quantum programs in the same batch.
+
+```python
+# Create jobs with their own sequences
+job1 = {"runs": 20, "serialized_sequence": serialized_sequence1}
+job2 = {"runs": 50, "serialized_sequence": serialized_sequence2}
+
+# Create a batch without a batch-level sequence
+batch = sdk.create_batch(None, [job1, job2], device_type=DeviceTypeName.FRESNEL, wait=True)
+```
+
+**Important**: When using job-level sequences, make sure to use non-parametrized sequences. Either use a batch-level
+sequence with variables, or use job-level sequences without variables. Additionally, when creating a batch without a
+sequence, all jobs must have their own sequences specified.
 
 ### Get a list of jobs
 
