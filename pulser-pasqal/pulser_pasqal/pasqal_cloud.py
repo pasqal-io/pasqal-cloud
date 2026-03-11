@@ -19,8 +19,8 @@ import logging
 from dataclasses import fields
 from typing import Any, Mapping, Type, cast
 
-import backoff
 import pasqal_cloud
+import tenacity
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.job import CreateJob
 from pulser import Sequence
@@ -45,8 +45,11 @@ EMU_TYPE_TO_CONFIG: dict[pasqal_cloud.EmulatorType, Type[BaseConfig]] = {
 
 MAX_CLOUD_ATTEMPTS = 5
 
-backoff_decorator = backoff.on_exception(
-    backoff.fibo, Exception, max_tries=MAX_CLOUD_ATTEMPTS, max_value=60
+
+backoff_decorator = tenacity.retry(
+    wait=tenacity.wait_exponential(multiplier=1, max=60),
+    stop=tenacity.stop_after_attempt(MAX_CLOUD_ATTEMPTS),
+    reraise=True,
 )
 
 
