@@ -46,7 +46,7 @@ EMU_TYPE_TO_CONFIG: dict[pasqal_cloud.EmulatorType, Type[BaseConfig]] = {
 MAX_CLOUD_ATTEMPTS = 5
 
 
-backoff_decorator = tenacity.retry(
+retry = tenacity.retry(
     wait=tenacity.wait_exponential(multiplier=1, max=60),
     stop=tenacity.stop_after_attempt(MAX_CLOUD_ATTEMPTS),
     reraise=True,
@@ -119,7 +119,7 @@ class PasqalCloud(RemoteConnection):
         # batch we just created otherwise, create a new one with
         #  _sdk_connection.create_batch()
         if batch_id:
-            submit_jobs_fn = backoff_decorator(self._sdk_connection.add_jobs)
+            submit_jobs_fn = retry(self._sdk_connection.add_jobs)
             old_job_ids = self._get_job_ids(batch_id)
             batch = submit_jobs_fn(
                 batch_id,
@@ -131,7 +131,7 @@ class PasqalCloud(RemoteConnection):
                 if job_id not in old_job_ids
             ]
         else:
-            create_batch_fn = backoff_decorator(self._sdk_connection.create_batch)
+            create_batch_fn = retry(self._sdk_connection.create_batch)
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
                 jobs=job_params,
@@ -145,7 +145,7 @@ class PasqalCloud(RemoteConnection):
             new_job_ids = self._get_job_ids(batch.id)
         return self.get_results(batch_id=batch.id, job_ids=new_job_ids)
 
-    @backoff_decorator
+    @retry
     def fetch_available_devices(self) -> dict[str, Device]:
         """Fetches the devices available through this connection."""
         abstract_devices = self._sdk_connection.get_device_specs_dict()
@@ -199,7 +199,7 @@ class PasqalCloud(RemoteConnection):
     def _query_job_progress(
         self, batch_id: str
     ) -> Mapping[str, tuple[JobStatus, Results | None]]:
-        get_batch_fn = backoff_decorator(self._sdk_connection.get_batch)
+        get_batch_fn = retry(self._sdk_connection.get_batch)
         batch = get_batch_fn(id=batch_id)
 
         assert isinstance(batch.sequence_builder, str)
@@ -241,13 +241,13 @@ class PasqalCloud(RemoteConnection):
             results[job.id] = (JobStatus[job.status], None)
         return results
 
-    @backoff_decorator
+    @retry
     def _get_batch_status(self, batch_id: str) -> BatchStatus:
         """Gets the status of a batch from its ID."""
         batch = self._sdk_connection.get_batch(id=batch_id)
         return BatchStatus[batch.status]
 
-    @backoff_decorator
+    @retry
     def _get_job_ids(self, batch_id: str) -> list[str]:
         """Gets all the job IDs within a batch."""
         batch = self._sdk_connection.get_batch(id=batch_id)
