@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * Replace backoff as unmaintained anymore by tenacity
+* Unclutter root `__init__.py` by extracting SDK to its own module
 
 ## [0.22.0]
 
