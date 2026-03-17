@@ -348,15 +348,17 @@ class TestSDKRetry:
         assert len(mock_request.request_history) == 6
 
     # re-enable gzip compression
-    @patch.dict("os.environ", {"PASQAL_SKIP_GZIP_REQUEST_BODY": ""})
     @patch(
         "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
     )
-    def test_sdk_gzip_requests(self, mock_request: requests_mock.mocker.Mocker):
+    def test_sdk_gzip_requests(
+        self, mock_request: requests_mock.mocker.Mocker, monkeypatch: pytest.MonkeyPatch
+    ):
         """
         When gziped parameter is passed to _authenticated_request, the outgoing
         request's payload is gziped.
         """
+        monkeypatch.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "")
         # Reinitialize SDK with the env var set
         sdk = SDK(
             username="me@test.com",

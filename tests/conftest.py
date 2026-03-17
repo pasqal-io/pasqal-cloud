@@ -93,7 +93,8 @@ def mock_response(request, _) -> Dict[str, Any]:
 @pytest.fixture(scope="session", autouse=True)
 def _skip_gzip_request_body():
     """Disable gzip compression globally for all tests."""
-    with patch.dict(os.environ, {"PASQAL_SKIP_GZIP_REQUEST_BODY": "1"}):
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "1")
         yield
 
 
