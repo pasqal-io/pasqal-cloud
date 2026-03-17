@@ -90,6 +90,14 @@ def mock_response(request, _) -> Dict[str, Any]:
     return None
 
 
+@pytest.fixture(scope="session", autouse=True)
+def _skip_gzip_request_body():
+    """Disable gzip compression globally for all tests."""
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "1")
+        yield
+
+
 @pytest.fixture(scope="session")
 @requests_mock.Mocker(kw="mock")
 def request_mock(mock=None) -> Optional[Any]:

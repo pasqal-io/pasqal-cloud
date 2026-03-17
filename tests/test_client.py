@@ -347,16 +347,29 @@ class TestSDKRetry:
             self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 6
 
-    def test_sdk_gzip_requests(self, mock_request: requests_mock.mocker.Mocker):
+    # re-enable gzip compression
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
+    def test_sdk_gzip_requests(
+        self, mock_request: requests_mock.mocker.Mocker, monkeypatch: pytest.MonkeyPatch
+    ):
         """
         When gziped parameter is passed to _authenticated_request, the outgoing
         request's payload is gziped.
         """
+        monkeypatch.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "")
+        # Reinitialize SDK with the env var set
+        sdk = SDK(
+            username="me@test.com",
+            password="password",
+            project_id=str(uuid4()),
+        )
         mock_request.reset_mock()
         mock_request.register_uri(
             "POST", "http://test-domain", json={}, status_code=200
         )
-        self.sdk._client._authenticated_request(
+        sdk._client._authenticated_request(
             "POST", "http://test-domain", payload={}, gziped=True
         )
         assert len(mock_request.request_history) == 1
@@ -370,27 +383,16 @@ class TestSDKRetry:
         # Check that the decompressed content equals the sent payload
         assert payload_from_request == {}
 
-    @patch.dict("os.environ", {"PASQAL_SKIP_GZIP_REQUEST_BODY": "1"})
-    @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
-    )
     def test_sdk_skip_gzip_requests(self, mock_request: requests_mock.mocker.Mocker):
         """
         We can override the gziped param of _authenticated_request with an env var:
         PASQAL_SKIP_GZIP_REQUEST_BODY
         """
-        # Reinitialize SDK with the env var set
-        sdk = SDK(
-            username="me@test.com",
-            password="password",
-            project_id=str(uuid4()),
-        )
-
         mock_request.reset_mock()
         mock_request.register_uri(
             "POST", "http://test-domain", json={}, status_code=200
         )
-        sdk._client._authenticated_request(
+        self.sdk._client._authenticated_request(
             "POST", "http://test-domain", payload={}, gziped=True
         )
         assert len(mock_request.request_history) == 1
