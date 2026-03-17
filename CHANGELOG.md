@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.0]
+
+### pasqal-cloud
+
+* Add gzip compression for big payloads on `SDK.create_batch` and `SDK.add_jobs` methods
+  - Can be disabled by setting the `PASQAL_SKIP_GZIP_REQUEST_BODY` environment variable
+* Allow defining a sequence at job level when creating a batch
+  - `serialized_sequence` is now optional in `SDK.create_batch`. If not specified, all jobs must define their own sequence
+
 ## [0.21.0]
 
 ### pasqal-cloud
