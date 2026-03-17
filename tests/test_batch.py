@@ -32,6 +32,9 @@ from pasqal_cloud.errors import (
     BatchFetchingError,
     JobCreationError,
     JobRetryError,
+    JobSequenceVariablesConflict,
+    MissingAllJobSequence,
+    MissingJobSequence,
     OnlyCompleteOrOpenCanBeSet,
     RebatchError,
 )
@@ -110,7 +113,9 @@ class TestBatch:
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
         assert batch.tags == self.tags
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
@@ -132,7 +137,9 @@ class TestBatch:
         assert not batch.open
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
 
     @pytest.mark.parametrize("device_type", DeviceTypeName.list())
     def test_create_batch_open_and_complete_raises_error(
@@ -169,7 +176,9 @@ class TestBatch:
         assert batch.id == self.batch_id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
         assert not batch.open
 
     def test_create_batch_with_emu_tn_raises_warning(
@@ -189,7 +198,9 @@ class TestBatch:
         assert batch.id == self.batch_id
         assert mock_request.last_request.method == "POST"
         assert batch.sequence_builder == self.pulser_sequence
-        assert mock_request.last_request.method == "GET"
+        # sequence_builder is not fetched from the API as it's already stored when
+        # create_batch is called
+        assert mock_request.last_request.method == "POST"
 
     def test_batch_create_exception(
         self, mock_request_exception: requests_mock.mocker.Mocker
@@ -252,6 +263,44 @@ class TestBatch:
         """
         batch_requested = self.sdk.get_batch(batch.id)
         assert isinstance(batch_requested, BatchModel)
+
+    def test_sequence_builder_fetched_from_api_when_not_provided(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        When a batch is fetched from the list endpoint (which does not include
+        sequence_builder), accessing sequence_builder should trigger an API
+        call to fetch it from the single batch endpoint.
+        """
+        response = self.sdk.get_batches()
+        batch = response.results[0]
+
+        mock_request.reset_mock()
+
+        # Accessing sequence_builder should trigger a GET request
+        result = batch.sequence_builder
+        assert result == "pulser_test_sequence"
+        assert mock_request.last_request.method == "GET"
+        assert batch.id in mock_request.last_request.url
+
+    def test_job_sequence_fetched_from_api_when_not_provided(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        When a job comes from a batch response (which does not include
+        the job sequence), accessing job.sequence should trigger an API
+        call to fetch it from the single job endpoint.
+        """
+        batch = self.sdk.get_batch(self.batch_id)
+        job = batch.ordered_jobs[0]
+
+        mock_request.reset_mock()
+
+        # Accessing sequence should trigger a GET request
+        result = job.sequence
+        assert result == "pulser_test_sequence"
+        assert mock_request.last_request.method == "GET"
+        assert job.id in mock_request.last_request.url
 
     def test_batch_add_jobs(self, mock_request: requests_mock.mocker.Mocker):
         """
@@ -1165,3 +1214,129 @@ class TestBatch:
             == f"/core-fast/api/v1/batches/{self.batch_id}/tags"
         )
         assert mock_request.last_request.matcher.call_count == 1
+
+    def test_create_batch_with_job_level_sequences(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        """
+        Test that a batch can be created without a batch-level sequence
+        when all jobs define their own sequences.
+        The job 'serialized_sequence' key should be mapped to 'sequence'
+        in the request body.
+        """
+        jobs = [
+            {"runs": 20, "serialized_sequence": "sequence_1"},
+            {"runs": 50, "serialized_sequence": "sequence_2"},
+        ]
+        batch = self.sdk.create_batch(None, jobs=jobs)
+        assert batch.id == self.batch_id
+        assert mock_request.last_request.method == "POST"
+        request_body = mock_request.last_request.json()
+        assert request_body["sequence_builder"] is None
+        assert request_body["jobs"][0]["sequence"] == "sequence_1"
+        assert request_body["jobs"][1]["sequence"] == "sequence_2"
+        assert all("serialized_sequence" not in job for job in request_body["jobs"])
+
+    def test_create_batch_no_batch_sequence_partial_job_sequences_raises_error(self):
+        """
+        Test that MissingJobSequence is raised when the batch has no
+        sequence and some jobs don't define their own.
+        """
+        jobs = [
+            {"runs": 20, "serialized_sequence": "sequence_1"},
+            {"runs": 50},
+        ]
+        with pytest.raises(MissingJobSequence):
+            self.sdk.create_batch(None, jobs=jobs)
+
+    def test_create_batch_no_sequence_anywhere_raises_error(self):
+        """
+        Test that MissingJobSequence is raised when neither the batch
+        nor any job defines a sequence.
+        """
+        jobs = [{"runs": 20}, {"runs": 50}]
+        with pytest.raises(MissingAllJobSequence):
+            self.sdk.create_batch(None, jobs=jobs)
+
+    @pytest.mark.filterwarnings("ignore:The batch sequence will not be used")
+    def test_create_batch_job_with_sequence_and_variables_raises_error(self):
+        """
+        Test that JobSequenceVariablesConflict is raised when a job defines
+        both a serialized_sequence and variables.
+        """
+        jobs = [
+            {
+                "runs": 20,
+                "serialized_sequence": "sequence_1",
+                "variables": {"omega": 1.0},
+            },
+        ]
+        with pytest.raises(JobSequenceVariablesConflict):
+            self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=jobs,
+            )
+
+    @pytest.mark.usefixtures("mock_request")
+    def test_add_jobs_with_sequence_and_variables_raises_error(self):
+        """
+        Test that JobSequenceVariablesConflict is raised when adding jobs
+        with both a serialized_sequence and variables via SDK.add_jobs.
+        """
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[self.simple_job_args],
+        )
+        with pytest.raises(JobSequenceVariablesConflict):
+            self.sdk.add_jobs(
+                batch.id,
+                [
+                    {
+                        "runs": 20,
+                        "serialized_sequence": "sequence_1",
+                        "variables": {"omega": 1.0},
+                    },
+                ],
+            )
+
+    @pytest.mark.usefixtures("mock_request")
+    def test_create_closed_batch_unused_batch_sequence_warns(self):
+        """
+        Test that a UserWarning is raised when creating a closed batch with
+        a batch-level sequence while all jobs define their own sequences,
+        making the batch sequence unused.
+        """
+        jobs = [
+            {"runs": 20, "serialized_sequence": "sequence_1"},
+            {"runs": 50, "serialized_sequence": "sequence_2"},
+        ]
+        with pytest.warns(
+            UserWarning,
+            match="The batch sequence will not be used because all jobs in this closed "
+            + "batch define their own sequences.",
+        ):
+            batch = self.sdk.create_batch(
+                serialized_sequence=self.pulser_sequence,
+                jobs=jobs,
+            )
+        assert batch.id == self.batch_id
+
+    @pytest.mark.filterwarnings("error::UserWarning")
+    @pytest.mark.usefixtures("mock_request")
+    def test_create_open_batch_all_jobs_have_sequence_no_warning(
+        self,
+    ):
+        """
+        Test that no UserWarning is raised when creating an open batch
+        with a batch-level sequence and all jobs having their own sequences,
+        since more jobs without sequences could be added later.
+        """
+        batch = self.sdk.create_batch(
+            serialized_sequence=self.pulser_sequence,
+            jobs=[
+                {"runs": 20, "serialized_sequence": "sequence_1"},
+                {"runs": 50, "serialized_sequence": "sequence_2"},
+            ],
+            open=True,
+        )
+        assert batch.id == self.batch_id

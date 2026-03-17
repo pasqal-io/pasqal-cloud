@@ -30,6 +30,9 @@ class Job(BaseModel):
         result: Bitstring counter result. Should be equal to `full_results["counter"]`
         variables: Dictionary of variables of the job.
             None if the associated batch is non-parametrized.
+        _sequence: Pulser sequence of the job.
+        _sequence_fetched: Used to track if sequence has been retrieved from the API
+            to differentiate a None sequence and a non-retrieved sequence
     """
 
     runs: int
@@ -46,6 +49,8 @@ class Job(BaseModel):
     _full_result: Optional[JobResult] = PrivateAttr(default=None)
     variables: Optional[Dict[str, Any]] = None
     parent_id: Optional[str] = None
+    _sequence: Optional[str] = PrivateAttr(default=None)
+    _sequence_fetched: bool = PrivateAttr(default=False)
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -54,7 +59,19 @@ class Job(BaseModel):
         # like we need with Pydantic V2, more information on
         # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         super().__init__(**data)
+        if "sequence" in data:
+            self._sequence = data["sequence"]
+            self._sequence_fetched = True
         self._client = data["_client"]
+
+    @property
+    def sequence(self) -> Optional[str]:
+        if not self._sequence_fetched:
+            job_response = self._client.get_job(self.id)
+            self._sequence = job_response["sequence"]
+            self._sequence_fetched = True
+
+        return self._sequence
 
     @property
     def full_result(self) -> Optional[JobResult]:
@@ -82,3 +99,17 @@ class Job(BaseModel):
 class CreateJob(TypedDict, total=False):
     runs: int
     variables: Union[Dict[str, Any], None]
+    serialized_sequence: Optional[str]
+
+
+def create_jobs_to_api_payload(
+    jobs: List["CreateJob"],
+) -> List[Dict[str, Any]]:
+    """Convert CreateJob dicts to API payload format.
+
+    Renames the 'serialized_sequence' key to 'sequence' as expected by the API.
+    """
+    return [
+        {"sequence" if k == "serialized_sequence" else k: v for k, v in job.items()}
+        for job in jobs
+    ]

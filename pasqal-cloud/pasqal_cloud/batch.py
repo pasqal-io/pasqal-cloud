@@ -20,7 +20,7 @@ from pasqal_cloud.errors import (
     JobCreationError,
     JobRetryError,
 )
-from pasqal_cloud.job import CreateJob, Job
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -28,10 +28,12 @@ RESULT_POLLING_INTERVAL = 2  # seconds
 class Batch(BaseModel):
     """Class to load batch data return by the API.
 
-        A batch groups up several jobs with the same sequence. When
-        a batch is assigned to a QPU, all its jobs are run sequentially
-        and no other batch can be assigned to the device until all its
-        jobs are done and declared complete.
+        A batch groups up several jobs that will run on the same QPU.
+        Sequences can be specified at the batch level, at the job level,
+        or both (jobs with their own sequence override the batch-level
+        one). When a batch is assigned to a QPU, all its
+        jobs are run sequentially and no other batch can be assigned to
+        the device until all its jobs are done and the batch is closed.
 
     Attributes:
         open: Whether the batch accepts more jobs or not.
@@ -62,6 +64,9 @@ class Batch(BaseModel):
         tags: Keyword used to refine the batch search.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
+        _sequence_builder_fetched: Used to track if sequence_builder has been retrieved
+            from the API to differentiate a None sequence_builder and a non-retrieved
+            sequence_builder.
     """
 
     open: bool
@@ -84,8 +89,9 @@ class Batch(BaseModel):
     parent_id: Optional[str] = None
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
-    _sequence_builder: Optional[str] = None
     tags: Optional[list[str]] = None
+    _sequence_builder: Optional[str] = None
+    _sequence_builder_fetched: bool = PrivateAttr(default=False)
 
     model_config = ConfigDict(extra="allow", arbitrary_types_allowed=True)
 
@@ -95,6 +101,11 @@ class Batch(BaseModel):
         # https://docs.pydantic.dev/latest/concepts/models/#private-model-attributes
         super().__init__(**data)
         self._client = data["_client"]
+
+        if "sequence_builder" in data:
+            self._sequence_builder = data["sequence_builder"]
+            self._sequence_builder_fetched = True
+
         if data.get("jobs"):
             self._ordered_jobs = [
                 Job(**raw_job, _client=self._client) for raw_job in data["jobs"]
@@ -102,9 +113,11 @@ class Batch(BaseModel):
 
     @property
     def sequence_builder(self) -> Optional[str]:
-        if self._sequence_builder is None:
+        if not self._sequence_builder_fetched:
             batch_response = self._client.get_batch(self.id)
             self._sequence_builder = batch_response["sequence_builder"]
+            self._sequence_builder_fetched = True
+
         return self._sequence_builder
 
     @property
@@ -175,7 +188,7 @@ class Batch(BaseModel):
 
         """
         try:
-            batch_rsp = self._client.add_jobs(self.id, jobs)
+            batch_rsp = self._client.add_jobs(self.id, create_jobs_to_api_payload(jobs))
         except HTTPError as e:
             raise JobCreationError(e) from e
         self._update_from_api_response(batch_rsp)
@@ -200,7 +213,9 @@ class Batch(BaseModel):
         Raises:
             JobRetryError: if there was an error adding the job to the batch.
         """
-        retried_job = CreateJob(runs=job.runs, variables=job.variables)
+        retried_job = CreateJob(
+            runs=job.runs, variables=job.variables, serialized_sequence=job._sequence
+        )
         try:
             self.add_jobs([retried_job], wait=wait)
         except JobCreationError as e:
