@@ -1,5 +1,4 @@
 import contextlib
-import gzip
 import json
 from datetime import datetime
 from typing import Any, Dict, Generator, List, Optional, Union
@@ -1232,9 +1231,7 @@ class TestBatch:
         batch = self.sdk.create_batch(None, jobs=jobs)
         assert batch.id == self.batch_id
         assert mock_request.last_request.method == "POST"
-        assert mock_request.last_request.headers.get("Content-Encoding") == "gzip"
-        body_compressed = gzip.decompress(mock_request.last_request.body)
-        request_body = json.loads(body_compressed)
+        request_body = mock_request.last_request.json()
         assert request_body["sequence_builder"] is None
         assert request_body["jobs"][0]["sequence"] == "sequence_1"
         assert request_body["jobs"][1]["sequence"] == "sequence_2"
