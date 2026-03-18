@@ -1,3 +1,4 @@
+import gzip
 import json
 import os
 from typing import Any, Dict, Generator, Optional
@@ -26,7 +27,11 @@ def mock_service_response(request, service_name: str):
     path = request.url.split(f"{version}/")[1].split("?")[0]
     data = None
     if request.method == "POST" and request.body:
-        data = request.json()
+        if request.headers.get("Content-Encoding") == "gzip":
+            body = gzip.decompress(request.body)
+            data = json.loads(body)
+        else:
+            data = request.json()
 
     service_path = f"tests/fixtures/{service_name}/api/"
 
@@ -83,6 +88,14 @@ def mock_response(request, _) -> Dict[str, Any]:
     if request.url.startswith(RESULT_LINK_ENDPOINT):
         return mock_result_link_response()
     return None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _skip_gzip_request_body():
+    """Disable gzip compression globally for all tests."""
+    with pytest.MonkeyPatch.context() as mp:
+        mp.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "1")
+        yield
 
 
 @pytest.fixture(scope="session")

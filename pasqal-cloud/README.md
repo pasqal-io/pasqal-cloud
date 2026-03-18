@@ -331,6 +331,16 @@ The pasqal-cloud SDK uses the [`requests` library](https://requests.readthedocs.
 
 Please refer to the [requests documentation](https://requests.readthedocs.io/en/latest/user/advanced/#proxies) to use the SDK behind a proxy. Be sure to set the HTTP_PROXY, HTTPS_PROXY, or ALL_PROXY environment variables to route traffic through your proxy. If your proxy uses a self-signed certificate, the certificate authority must be included in your CA bundle. One way to do it is to set the environment variable REQUESTS_CA_BUNDLE to the path of the file containing the certificate authority.
 
+### Disable request body compression
+
+By default, the SDK compresses request bodies using gzip for routes that can send heavy payloads (such as batch creation and adding jobs). This reduces bandwidth usage and improves performance.
+
+To disable this compression for debugging or network compatibility reasons, set the `PASQAL_SKIP_GZIP_REQUEST_BODY` environment variable:
+
+```bash
+export PASQAL_SKIP_GZIP_REQUEST_BODY=1
+```
+
 ### Target different API endpoints
 
 This is intended for the package developers or users which were given access to non-prod

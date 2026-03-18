@@ -1,4 +1,6 @@
 import contextlib
+import gzip
+import json
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -344,6 +346,66 @@ class TestSDKRetry:
         with contextlib.suppress(requests.HTTPError):
             self.sdk._client._authenticated_request("GET", "http://test-domain")
         assert len(mock_request.request_history) == 6
+
+    # re-enable gzip compression
+    @patch(
+        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+    )
+    def test_sdk_gzip_requests(
+        self, mock_request: requests_mock.mocker.Mocker, monkeypatch: pytest.MonkeyPatch
+    ):
+        """
+        When gziped parameter is passed to _authenticated_request, the outgoing
+        request's payload is gziped.
+        """
+        monkeypatch.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "")
+        # Reinitialize SDK with the env var set
+        sdk = SDK(
+            username="me@test.com",
+            password="password",
+            project_id=str(uuid4()),
+        )
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "POST", "http://test-domain", json={}, status_code=200
+        )
+        sdk._client._authenticated_request(
+            "POST", "http://test-domain", payload={}, gziped=True
+        )
+        assert len(mock_request.request_history) == 1
+        assert mock_request.last_request.headers["Content-Encoding"] == "gzip"
+        assert mock_request.last_request.body
+
+        # Verify the body was gzipped and decompress it
+        decompressed_body = gzip.decompress(mock_request.last_request.body)
+        payload_from_request = json.loads(decompressed_body)
+
+        # Check that the decompressed content equals the sent payload
+        assert payload_from_request == {}
+
+    def test_sdk_skip_gzip_requests(self, mock_request: requests_mock.mocker.Mocker):
+        """
+        We can override the gziped param of _authenticated_request with an env var:
+        PASQAL_SKIP_GZIP_REQUEST_BODY
+        """
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "POST", "http://test-domain", json={}, status_code=200
+        )
+        self.sdk._client._authenticated_request(
+            "POST", "http://test-domain", payload={}, gziped=True
+        )
+        assert len(mock_request.request_history) == 1
+
+        # Verify that Content-Encoding header is NOT set to gzip
+        assert mock_request.last_request.headers.get("Content-Encoding") != "gzip"
+        assert mock_request.last_request.body
+
+        # Verify the body was NOT gzipped - it should be plain JSON
+        payload_from_request = json.loads(mock_request.last_request.body)
+
+        # Check that the content equals the sent payload
+        assert payload_from_request == {}
 
     def test_sdk_doesnt_retry_on_exceptions(
         self, mock_request: requests_mock.mocker.Mocker
