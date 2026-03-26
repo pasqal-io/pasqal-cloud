@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
 import numpy as np
 import pulser
@@ -98,7 +99,7 @@ class _MockJob:
     ) -> None:
         self.runs = runs
         self.variables = variables
-        self.id = str(np.random.randint(10000))
+        self.id = str(uuid4())
         self.status = status
         self.full_result = full_result
         self.result = self.full_result.get("counter", {}) if full_result else None
