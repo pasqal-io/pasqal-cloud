@@ -11,7 +11,7 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 class TestDeprecation:
     # set deprecation to 10 day after today (in warning window)
     @patch(
-        "pasqal_cloud.deprecation_date",
+        "pasqal_cloud.sdk.deprecation_date",
         (datetime.now() + timedelta(days=10)).strftime("%Y-%m-%d"),
     )
     @patch(
@@ -29,7 +29,7 @@ class TestDeprecation:
 
     # set deprecation to 1 day before today
     @patch(
-        "pasqal_cloud.deprecation_date",
+        "pasqal_cloud.sdk.deprecation_date",
         (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
     )
     @patch(
