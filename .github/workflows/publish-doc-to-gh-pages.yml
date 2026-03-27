@@ -1,8 +1,8 @@
 name: Publish MkDocs documentation to gh-pages
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "*"
 permissions:
   contents: write
 jobs:
@@ -10,6 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Verify tag matches VERSION.txt
+        run: |
+          # strips refs/tags/ prefix from GITHUB_REF
+          tag="${GITHUB_REF#refs/tags/}"
+          version=$(cat VERSION.txt)
+          if [ "$tag" != "$version" ]; then
+            echo "Tag '$tag' does not match VERSION.txt '$version'"
+            exit 1
+          fi
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
