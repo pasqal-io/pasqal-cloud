@@ -15,6 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+      - name: Verify tag matches VERSION.txt
+        run: |
+          # strips refs/tags/ prefix from GITHUB_REF
+          tag="${GITHUB_REF#refs/tags/}"
+          version=$(cat VERSION.txt)
+          if [ "$tag" != "$version" ]; then
+            echo "Tag '$tag' does not match VERSION.txt '$version'"
+            exit 1
+          fi
+
       - name: Set up Python 3.9
         uses: actions/setup-python@v5
         with:
