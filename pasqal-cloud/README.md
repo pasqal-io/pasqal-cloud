@@ -1,17 +1,63 @@
-# PASQAL Cloud
+# Pasqal Cloud
 
-SDK to access Pasqal Cloud Services.
+[Pulser](https://pypi.org/project/pulser/) is a framework for composing, simulating and executing **pulse** sequences
+for neutral-atom quantum devices.
+
+This is the `pasqal-cloud` extension, which provides the functionalities needed to execute `pulser` sequences
+on [Pasqal](https://portal.pasqal.cloud/)'s backends.
 
 ## Installation
-
-To install the latest release of the `pasqal-cloud` (formerly pasqal-sdk), have Python 3.8.0 or higher installed, then
-use pip:
 
 ```bash
 pip install pasqal-cloud
 ```
 
-## Basic usage
+## Quickstart
+
+pasqal-cloud provides two ways to connect to Pasqal Cloud services:
+
+1. **Direct connection** using `PasqalCloud` with username/password authentication
+2. **OVH integration** using `OVHConnection` with token authentication for OVH customers
+
+### Using PasqalCloud
+
+```python
+from pasqal_cloud import PasqalCloud
+from pulser import QPUBackend
+
+# Authenticate with Pasqal Cloud
+connection = PasqalCloud(username="YOUR_USERNAME", password="YOUR_PASSWORD", project_id="YOUR_PROJECT")
+
+# Build a pulser sequence
+...
+
+# Submit and retrieve results
+backend = QPUBackend(sequence, connection)
+job = backend.run(wait=True)
+results = job.results
+print(results)
+```
+
+### OVH Integration
+
+```python
+from pasqal_cloud import OVHConnection
+from pulser import QPUBackend
+
+# Initiate the appropriate OVH connection
+connection = OVHConnection()
+
+# Build a pulser sequence
+...
+
+# Submit and retrieve results
+backend = QPUBackend(sequence, connection)
+job = backend.run(wait=True)
+results = job.results
+print(results)
+```
+
+# Using the SDK (Deprecated)
 
 ### Authentication
 
