@@ -47,13 +47,13 @@ root = Path(__file__).parent.parent
 @dataclasses.dataclass
 class OVHFixture:
     ovh_connection: OVHConnection
-    mock_cloud_sdk: Any
+    mock_cloud_client: Any
 
 
 @dataclasses.dataclass
 class CloudFixture:
     pasqal_cloud: PasqalCloud
-    mock_cloud_sdk: Any
+    mock_cloud_client: Any
 
 
 test_device = dataclasses.replace(
@@ -139,23 +139,27 @@ def mock_batch():
 
 def mock_pasqal_cloud_ovh_sdk(mock_batch):
     os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
-    with patch("pasqal_cloud.SDK", autospec=True) as mock_cloud_sdk_class:
+    with patch(
+        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient", autospec=True
+    ) as mock_cloud_client:
         ovh = OVHConnection()
-        mock_cloud_sdk = mock_cloud_sdk_class.return_value
-        mock_cloud_sdk_class.reset_mock()
-        mock_cloud_sdk.create_batch = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk.get_batch = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk.add_jobs = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk._close_batch = MagicMock(return_value=None)
-        mock_cloud_sdk.get_device_specs_dict = MagicMock(
+        mock_cloud_client = mock_cloud_client.return_value
+        mock_cloud_client.reset_mock()
+        mock_cloud_client.create_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.get_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.add_jobs = MagicMock(return_value=mock_batch)
+        mock_cloud_client._close_batch = MagicMock(return_value=None)
+        mock_cloud_client.get_device_specs_dict = MagicMock(
             return_value={test_device.name: test_device.to_abstract_repr()}
         )
 
-        return OVHFixture(ovh_connection=ovh, mock_cloud_sdk=mock_cloud_sdk)
+        return OVHFixture(ovh_connection=ovh, mock_cloud_client=mock_cloud_client)
 
 
 def mock_pasqal_cloud_sdk(mock_batch):
-    with patch("pasqal_cloud.SDK", autospec=True) as mock_cloud_sdk_class:
+    with patch(
+        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient", autospec=True
+    ) as mock_cloud_client:
         pasqal_cloud_kwargs = {
             "username": "abc",
             "password": "def",
@@ -167,21 +171,23 @@ def mock_pasqal_cloud_sdk(mock_batch):
 
         pasqal_cloud = PasqalCloud(**pasqal_cloud_kwargs)
 
-        mock_cloud_sdk_class.assert_called_once_with(**pasqal_cloud_kwargs)
+        mock_cloud_client.assert_called_once_with(**pasqal_cloud_kwargs)
 
-        mock_cloud_sdk = mock_cloud_sdk_class.return_value
+        mock_cloud_client = mock_cloud_client.return_value
 
-        mock_cloud_sdk_class.reset_mock()
+        mock_cloud_client.reset_mock()
 
-        mock_cloud_sdk.create_batch = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk.get_batch = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk.add_jobs = MagicMock(return_value=mock_batch)
-        mock_cloud_sdk._close_batch = MagicMock(return_value=None)
-        mock_cloud_sdk.get_device_specs_dict = MagicMock(
+        mock_cloud_client.create_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.get_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.add_jobs = MagicMock(return_value=mock_batch)
+        mock_cloud_client._close_batch = MagicMock(return_value=None)
+        mock_cloud_client.get_device_specs_dict = MagicMock(
             return_value={test_device.name: test_device.to_abstract_repr()}
         )
 
-        return CloudFixture(pasqal_cloud=pasqal_cloud, mock_cloud_sdk=mock_cloud_sdk)
+        return CloudFixture(
+            pasqal_cloud=pasqal_cloud, mock_cloud_client=mock_cloud_client
+        )
 
 
 @pytest.fixture
@@ -202,7 +208,7 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
         RemoteResults(
             mock_batch.id, fixt_pasqal_cloud.pasqal_cloud, job_ids=["badjobid"]
         )
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
 
     select_jobs = (
         mock_batch.ordered_jobs[::-1][:2] if with_job_id else mock_batch.ordered_jobs
@@ -217,28 +223,28 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
 
     assert remote_results.batch_id == mock_batch.id
     assert remote_results.job_ids == select_job_ids
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_once_with(
         id=remote_results.batch_id
     )
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
 
     assert remote_results.get_batch_status() == BatchStatus.DONE
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_once_with(
         id=remote_results.batch_id
     )
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
     results = remote_results.results
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_with(
         id=remote_results.batch_id
     )
     assert results == tuple(
         get_pulser_result_from_job_result(job.full_result) for job in select_jobs
     )
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
     available_results = remote_results.get_available_results()
     assert available_results == {
         job.id: get_pulser_result_from_job_result(job.full_result)
@@ -262,7 +268,7 @@ def test_partial_results():
         fixt.pasqal_cloud,
     )
 
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt.mock_cloud_client.get_batch.reset_mock()
     with pytest.raises(
         RemoteResultsError,
         match=(
@@ -271,8 +277,8 @@ def test_partial_results():
         ),
     ):
         remote_results.results
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt.mock_cloud_client.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt.mock_cloud_client.get_batch.reset_mock()
 
     available_results = remote_results.get_available_results()
     assert available_results == {
@@ -284,8 +290,8 @@ def test_partial_results():
         for job in batch.ordered_jobs
         if job.result is not None
     }
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt.mock_cloud_client.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt.mock_cloud_client.get_batch.reset_mock()
 
     batch = MockBatch(
         status="DONE",
@@ -309,8 +315,8 @@ def test_partial_results():
         ),
     ):
         remote_results.results
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt.mock_cloud_client.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt.mock_cloud_client.get_batch.reset_mock()
 
     available_results = remote_results.get_available_results()
     assert available_results == {
@@ -322,8 +328,8 @@ def test_partial_results():
         for job in batch.ordered_jobs
         if job.result is not None
     }
-    fixt.mock_cloud_sdk.get_batch.assert_called_once_with(id=remote_results.batch_id)
-    fixt.mock_cloud_sdk.get_batch.reset_mock()
+    fixt.mock_cloud_client.get_batch.assert_called_once_with(id=remote_results.batch_id)
+    fixt.mock_cloud_client.get_batch.reset_mock()
 
 
 @pytest.mark.parametrize("mimic_qpu", [False, True])
@@ -369,8 +375,8 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
         _job.id: get_pulser_result_from_job_result(_job.full_result)
         for _job in mock_batch.ordered_jobs
     }
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_any_call(id="open_batch")
-    fixt_pasqal_cloud.mock_cloud_sdk.add_jobs.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_any_call(id="open_batch")
+    fixt_pasqal_cloud.mock_cloud_client.add_jobs.assert_called_once_with(
         "open_batch",
         jobs=job_params,
     )
@@ -380,7 +386,9 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
 
     assert fixt_pasqal_cloud.pasqal_cloud.supports_open_batch() is True
     fixt_pasqal_cloud.pasqal_cloud._close_batch("open_batch")
-    fixt_pasqal_cloud.mock_cloud_sdk.close_batch.assert_called_once_with("open_batch")
+    fixt_pasqal_cloud.mock_cloud_client.close_batch.assert_called_once_with(
+        "open_batch"
+    )
 
     remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq,
@@ -397,7 +405,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
     assert not seq.is_measured()
     seq.measure(basis="ground-rydberg")
 
-    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_client.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
         device_type=None,
@@ -418,13 +426,13 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
     assert isinstance(remote_results, RemoteResults)
     assert remote_results.get_batch_status() == BatchStatus.DONE
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_with(
         id=remote_results.batch_id
     )
 
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
     results = remote_results.results
-    fixt_pasqal_cloud.mock_cloud_sdk.get_batch.assert_called_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_with(
         id=remote_results.batch_id
     )
     assert results == tuple(
@@ -440,10 +448,12 @@ def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
     by "OvhClient".
     """
     os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
-    with patch("pasqal_cloud.SDK") as mock_sdk_class:
+    with patch(
+        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient"
+    ) as mock_cloud_client:
         ovh.OVHConnection()
-        mock_sdk_class.assert_called_once()
-        called_kwargs = mock_sdk_class.call_args.kwargs
+        mock_cloud_client.assert_called_once()
+        called_kwargs = mock_cloud_client.call_args.kwargs
 
         # Verify token_provider returns the correct token
         token_provider = called_kwargs["token_provider"]
@@ -479,7 +489,7 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
     the expected arguments
     """
     # Replace pasqal-cloud create_batch method with mock
-    fixt_ovh_connection.mock_cloud_sdk.create_batch = MagicMock()
+    fixt_ovh_connection.mock_cloud_client.create_batch = MagicMock()
 
     # Create a dummy sequence
     reg = SquareLatticeLayout(2, 2, 4).make_mappable_register(2)
@@ -498,7 +508,7 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
         device_type=DeviceTypeName.FRESNEL,
     )
 
-    fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once_with(
+    fixt_ovh_connection.mock_cloud_client.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
         device_type=DeviceTypeName.FRESNEL,

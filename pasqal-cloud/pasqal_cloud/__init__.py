@@ -11,53 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Any
+
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.ovh import OVHConnection
+from pasqal_cloud.backends import EmuMPSBackend, EmuSVBackend, EmuFreeBackend
+
+# Public API — only these two are the intended top-level exports.
 __all__ = [
-    "AUTH0_CONFIG",
-    "Auth0Conf",
-    "BaseConfig",
-    "Batch",
-    "BatchCancellationResponse",
-    "BatchCancellingError",
-    "BatchClosingError",
-    "BatchCreationError",
-    "BatchFetchingError",
-    "BatchFilters",
-    "BatchSetTagsError",
-    "BatchStatus",
-    "CancelJobFilters",
-    "Client",
-    "CreateJob",
-    "DeviceSpecsFetchingError",
-    "DeviceTypeName",
-    "EmulatorType",
-    "Endpoints",
-    "InvalidDeviceTypeSet",
-    "Job",
-    "JobCancellationResponse",
-    "JobCancellingError",
-    "JobCreationError",
-    "JobFetchingError",
-    "JobFilters",
-    "JobStatus",
-    "OnlyCompleteOrOpenCanBeSet",
-    "PASQAL_ENDPOINTS",
-    "PaginatedResponse",
-    "PaginationParams",
-    "Project",
-    "ProjectFetchingError",
-    "ProjectNotFoundError",
-    "QueuePriority",
-    "RESULT_POLLING_INTERVAL",
-    "RebatchError",
-    "RebatchFilters",
-    "Region",
-    "SDK",
-    "TokenProvider",
-    "TokenProviderConf",
-    "Workload",
-    "WorkloadCancellingError",
-    "WorkloadCreationError",
-    "WorkloadFetchingError",
     "PasqalCloud",
     "OVHConnection",
     "EmuMPSBackend",
@@ -65,49 +26,16 @@ __all__ = [
     "EmuFreeBackend",
 ]
 
-from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.batch import RESULT_POLLING_INTERVAL, Batch
-from pasqal_cloud.client import Client
-from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
-from pasqal_cloud.endpoints import AUTH0_CONFIG, PASQAL_ENDPOINTS, Auth0Conf
-from pasqal_cloud.endpoints import Endpoints as Endpoints
-from pasqal_cloud.endpoints import Region, TokenProviderConf
-from pasqal_cloud.errors import (
-    BatchCancellingError,
-    BatchClosingError,
-    BatchCreationError,
-    BatchFetchingError,
-    BatchSetTagsError,
-    DeviceSpecsFetchingError,
-    InvalidDeviceTypeSet,
-    JobCancellingError,
-    JobCreationError,
-    JobFetchingError,
-    OnlyCompleteOrOpenCanBeSet,
-    ProjectFetchingError,
-    ProjectNotFoundError,
-    RebatchError,
-    WorkloadCancellingError,
-    WorkloadCreationError,
-    WorkloadFetchingError,
-)
-from pasqal_cloud.job import CreateJob, Job
-from pasqal_cloud.project import Project
-from pasqal_cloud.sdk import SDK
-from pasqal_cloud.utils.constants import BatchStatus, JobStatus, QueuePriority
-from pasqal_cloud.utils.filters import (
-    BatchFilters,
-    CancelJobFilters,
-    JobFilters,
-    PaginationParams,
-    RebatchFilters,
-)
-from pasqal_cloud.utils.responses import (
-    BatchCancellationResponse,
-    JobCancellationResponse,
-    PaginatedResponse,
-)
-from pasqal_cloud.workload import Workload
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
-from pasqal_cloud.ovh import OVHConnection
-from pasqal_cloud.backends import EmuMPSBackend, EmuSVBackend, EmuFreeBackend
+
+def __getattr__(name: str) -> Any:
+    """Lazily re-export deprecated names via ``_deprecations``.
+
+    Any symbol that used to live in ``pasqal_cloud.*`` and was re-exported here
+    is still accessible (``from pasqal_cloud import Batch``, etc.) but will
+    emit a ``DeprecationWarning`` telling users where to import it from.
+
+    These re-exports **will be removed in a future release**.
+    """
+    from pasqal_cloud._deprecations import __getattr__ as _dep_getattr
+
+    return _dep_getattr(name)

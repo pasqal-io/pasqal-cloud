@@ -11,11 +11,11 @@ from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
-    Client,
     Endpoints,
     PASQAL_ENDPOINTS,
-    SDK,
 )
+from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.endpoints import TokenProviderConf
@@ -36,25 +36,30 @@ class TestSDKCommonAttributes:
     no_password = ""
 
 
-@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
+@patch(
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+    FakeAuth0AuthenticationSuccess,
+)
 class TestAuthSuccess(TestSDKCommonAttributes):
-    @patch("pasqal_cloud.client.getpass")
+    @patch("pasqal_cloud.http_client.getpass")
     def test_module_getpass_success(self, getpass):
         getpass.return_value = self.password
-        SDK(project_id=self.project_id, username=self.username)
+        PasqalCloudClient(project_id=self.project_id, username=self.username)
         getpass.assert_called_once()
 
     def test_authentication_success(self):
-        SDK(project_id=self.project_id, username=self.username, password=self.password)
+        PasqalCloudClient(
+            project_id=self.project_id, username=self.username, password=self.password
+        )
 
     def test_good_token_provider(self):
-        SDK(
+        PasqalCloudClient(
             project_id=self.project_id,
             token_provider=FakeAuth0AuthenticationSuccess("username", "password", None),
         )
 
     def test_get_token_good_token_provider(self):
-        sdk = SDK(
+        sdk = PasqalCloudClient(
             project_id=self.project_id,
             token_provider=FakeAuth0AuthenticationSuccess("username", "password", None),
         )
@@ -67,7 +72,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             def get_token(self):
                 return "your-token"  # Replace this value with your token
 
-        SDK(token_provider=CustomTokenProvider(), project_id="project_id")
+        PasqalCloudClient(token_provider=CustomTokenProvider(), project_id="project_id")
 
     def test_get_token_custom_token_provider(self):
         """Test that the custom provider suggested in the readme is working"""
@@ -78,7 +83,9 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             def get_token(self):
                 return CUSTOM_TOKEN
 
-        sdk = SDK(token_provider=CustomTokenProvider(), project_id="project_id")
+        sdk = PasqalCloudClient(
+            token_provider=CustomTokenProvider(), project_id="project_id"
+        )
         assert sdk.user_token() == CUSTOM_TOKEN
 
     @pytest.mark.filterwarnings(
@@ -86,7 +93,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         " 'env' instead"
     )
     def test_correct_endpoints(self):
-        sdk = SDK(
+        sdk = PasqalCloudClient(
             project_id=self.project_id,
             username=self.username,
             password=self.password,
@@ -100,7 +107,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
     )
     def test_correct_new_auth0(self):
         new_auth0 = Auth0Conf(domain="new_domain")
-        SDK(
+        PasqalCloudClient(
             project_id=self.project_id,
             username=self.username,
             password=self.password,
@@ -108,7 +115,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         )
 
     def test_module_no_project_id(self):
-        sdk = SDK(username=self.username, password=self.password)
+        sdk = PasqalCloudClient(username=self.username, password=self.password)
         with pytest.raises(
             ValueError,
             match="You need to set a project_id",
@@ -116,20 +123,23 @@ class TestAuthSuccess(TestSDKCommonAttributes):
             sdk.create_batch("", [])
 
 
-@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
+@patch(
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+    FakeAuth0AuthenticationFailure,
+)
 class TestAuthFailure(TestSDKCommonAttributes):
-    @patch("pasqal_cloud.client.getpass")
+    @patch("pasqal_cloud.http_client.getpass")
     def test_module_getpass_bad_password(self, getpass):
         getpass.return_value = self.password
 
         with pytest.raises(Auth0Error):
-            SDK(project_id=self.project_id, username=self.username)
+            PasqalCloudClient(project_id=self.project_id, username=self.username)
 
         getpass.assert_called_once()
 
     def test_module_bad_password(self):
         with pytest.raises(Auth0Error):
-            SDK(
+            PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
                 password=self.password,
@@ -154,7 +164,7 @@ class TestInvalidAuthConfig(TestSDKCommonAttributes):
             ValueError,
             match="The auth0 and auth_config parameters cannot be used simultaneously.",
         ):
-            _ = SDK(
+            _ = PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
                 password=self.password,
@@ -163,10 +173,13 @@ class TestInvalidAuthConfig(TestSDKCommonAttributes):
             )
 
 
-@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationFailure)
+@patch(
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+    FakeAuth0AuthenticationFailure,
+)
 class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_module_no_user_with_password(self):
-        sdk = SDK(
+        sdk = PasqalCloudClient(
             project_id=self.project_id,
             username=self.no_username,
             password=self.password,
@@ -178,36 +191,36 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         ):
             sdk.get_batch("fake-id")
 
-    @patch("pasqal_cloud.client.getpass")
+    @patch("pasqal_cloud.http_client.getpass")
     def test_module_no_password(self, getpass):
         getpass.return_value = ""
         with pytest.raises(
             ValueError, match="The prompted password should not be empty"
         ):
-            SDK(
+            PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
                 password=self.no_password,
             )
 
-    @patch("pasqal_cloud.client.getpass")
+    @patch("pasqal_cloud.http_client.getpass")
     def test_module_getpass_no_password(self, getpass):
         getpass.return_value = self.no_password
 
         with pytest.raises(
             ValueError, match="The prompted password should not be empty"
         ):
-            SDK(project_id=self.project_id, username=self.username)
+            PasqalCloudClient(project_id=self.project_id, username=self.username)
 
         getpass.assert_called_once()
 
     def test_bad_token_provider(self):
         with pytest.raises(TypeError):
-            SDK(project_id=self.project_id, token_provider="token")
+            PasqalCloudClient(project_id=self.project_id, token_provider="token")
 
     def test_bad_auth0(self):
         with pytest.raises(TypeError):
-            SDK(
+            PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
                 password=self.password,
@@ -215,7 +228,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             )
 
     def test_authentication_no_credentials_provided(self):
-        sdk = SDK(project_id=self.project_id)
+        sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
             ValueError,
             match="Authentication required. Please provide your credentials when "
@@ -229,7 +242,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
     )
     def test_bad_endpoints(self):
         with pytest.raises(TypeError):
-            SDK(
+            PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
                 password=self.password,
@@ -240,7 +253,10 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             )
 
 
-@patch("pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess)
+@patch(
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+    FakeAuth0AuthenticationSuccess,
+)
 class TestEnvSDK(TestSDKCommonAttributes):
     @pytest.mark.parametrize(
         ("env", "core_endpoint_expected"),
@@ -251,7 +267,7 @@ class TestEnvSDK(TestSDKCommonAttributes):
         ],
     )
     def test_select_env(self, env: str, core_endpoint_expected: str):
-        sdk = SDK(
+        sdk = PasqalCloudClient(
             project_id=self.project_id,
             username=self.username,
             password=self.password,
@@ -270,10 +286,11 @@ class TestSDKRetry:
 
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),
@@ -349,7 +366,8 @@ class TestSDKRetry:
 
     # re-enable gzip compression
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def test_sdk_gzip_requests(
         self, mock_request: requests_mock.mocker.Mocker, monkeypatch: pytest.MonkeyPatch
@@ -360,7 +378,7 @@ class TestSDKRetry:
         """
         monkeypatch.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "")
         # Reinitialize SDK with the env var set
-        sdk = SDK(
+        sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),
@@ -440,10 +458,11 @@ class TestSDKRetry:
 class TestRequestAllPages:
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),
@@ -572,10 +591,11 @@ class TestRequestAllPages:
 class TestHeaders:
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),
@@ -600,7 +620,7 @@ class TestHeaders:
         )
 
     def test_client_endpoint_does_not_exist(self):
-        client = Client()
+        client = HTTPClient()
         # 'add_job' does not exist in Client urls
         with pytest.raises(
             ValueError,

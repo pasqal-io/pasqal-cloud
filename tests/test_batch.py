@@ -15,8 +15,8 @@ from pasqal_cloud import (
     PaginatedResponse,
     PaginationParams,
     RebatchFilters,
-    SDK,
 )
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud.batch import Batch as BatchModel
 from pasqal_cloud.device import (
     BaseConfig,
@@ -63,11 +63,11 @@ class TestBatch:
 
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider",
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
         FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),

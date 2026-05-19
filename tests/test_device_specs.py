@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 import requests_mock
-from pasqal_cloud import SDK
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud.errors import DeviceSpecsFetchingError
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -14,10 +14,11 @@ from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 class TestDeviceSpecs:
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com", password="password", project_id=str(uuid4())
         )
 
@@ -56,7 +57,7 @@ class TestDeviceSpecs:
         private endpoint.
         """
 
-        sdk_without_auth = SDK()
+        sdk_without_auth = PasqalCloudClient()
         public_device_specs_dict = sdk_without_auth.get_device_specs_dict()
 
         assert (

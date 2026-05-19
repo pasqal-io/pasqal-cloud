@@ -8,7 +8,7 @@ from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.batch import RESULT_POLLING_INTERVAL, Batch
-from pasqal_cloud.client import Client
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
 from pasqal_cloud.errors import (
@@ -83,8 +83,8 @@ def _check_sdk_version() -> None:
         )
 
 
-class SDK:
-    _client: Client
+class PasqalCloudClient:
+    _client: HTTPClient
 
     def __init__(
         self,
@@ -95,7 +95,7 @@ class SDK:
         auth0: Optional[Auth0Conf] = None,
         webhook: Optional[str] = None,
         project_id: Optional[str] = None,
-        client_class: Type[Client] = Client,
+        client_class: Type[HTTPClient] = HTTPClient,
         region: Optional[Region] = None,
         auth_config: Optional[TokenProviderConf] = None,
     ):

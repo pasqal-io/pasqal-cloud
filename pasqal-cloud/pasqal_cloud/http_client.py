@@ -54,7 +54,7 @@ def _skip_gzip_request_body() -> bool:
     return bool(os.getenv("PASQAL_SKIP_GZIP_REQUEST_BODY", False))
 
 
-class Client:
+class HTTPClient:
     authenticator: AuthBase | None
 
     def __init__(
@@ -111,8 +111,7 @@ class Client:
             "get_batch": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}",
             "close_batch": f"{self.endpoints.core}/api/v2/"
             f"batches/{{batch_id}}/complete",
-            "cancel_batch": f"{self.endpoints.core}/api/v2/"
-            f"batches/{{batch_id}}/cancel",
+            "cancel_batch": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}/cancel",
             "cancel_batches": f"{self.endpoints.core}/api/v1/batches/cancel",
             "rebatch": f"{self.endpoints.core}/api/v1/batches/{{batch_id}}/rebatch",
             "get_batches": f"{self.endpoints.core}/api/v1/batches",

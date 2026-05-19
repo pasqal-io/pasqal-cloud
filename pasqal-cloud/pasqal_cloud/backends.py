@@ -18,7 +18,6 @@ from __future__ import annotations
 import warnings
 from typing import Any, ClassVar
 
-import pasqal_cloud
 import pulser
 from pasqal_cloud.device.device_types import DeviceTypeName
 from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend
@@ -133,7 +132,7 @@ class EmuMPSBackend(RemoteEmulatorBackend):
         autosave_dt=float("inf"),
         optimize_qubit_ordering=True,
     )
-    _device_type = pasqal_cloud.DeviceTypeName.EMU_MPS
+    _device_type = DeviceTypeName.EMU_MPS
 
 
 class EmuSVBackend(RemoteEmulatorBackend):
@@ -156,7 +155,7 @@ class EmuSVBackend(RemoteEmulatorBackend):
     default_config = EmulationConfig(
         observables=[BitStrings()],
     )
-    _device_type = pasqal_cloud.DeviceTypeName.EMU_SV
+    _device_type = DeviceTypeName.EMU_SV
 
 
 class EmuFreeBackend(RemoteEmulatorBackend):
@@ -177,4 +176,4 @@ class EmuFreeBackend(RemoteEmulatorBackend):
     """
 
     default_config = EmulationConfig(observables=[BitStrings()])
-    _device_type = pasqal_cloud.DeviceTypeName.EMU_FREE
+    _device_type = DeviceTypeName.EMU_FREE
