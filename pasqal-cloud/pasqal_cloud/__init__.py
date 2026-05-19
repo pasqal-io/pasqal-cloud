@@ -13,13 +13,13 @@
 # limitations under the License.
 from typing import Any
 
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 from pasqal_cloud.ovh import OVHConnection
 from pasqal_cloud.backends import EmuMPSBackend, EmuSVBackend, EmuFreeBackend
 
 # Public API — only these two are the intended top-level exports.
 __all__ = [
-    "PasqalCloud",
+    "PasqalCloudConnection",
     "OVHConnection",
     "EmuMPSBackend",
     "EmuSVBackend",

@@ -38,7 +38,7 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pasqal_cloud import Endpoints, ovh, OVHConnection, PasqalCloud
+from pasqal_cloud import Endpoints, ovh, OVHConnection, PasqalCloudConnection
 from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
@@ -52,7 +52,7 @@ class OVHFixture:
 
 @dataclasses.dataclass
 class CloudFixture:
-    pasqal_cloud: PasqalCloud
+    pasqal_cloud: PasqalCloudConnection
     mock_cloud_client: Any
 
 
@@ -169,7 +169,7 @@ def mock_pasqal_cloud_sdk(mock_batch):
             "region": "fr",
         }
 
-        pasqal_cloud = PasqalCloud(**pasqal_cloud_kwargs)
+        pasqal_cloud = PasqalCloudConnection(**pasqal_cloud_kwargs)
 
         mock_cloud_client.assert_called_once_with(**pasqal_cloud_kwargs)
 

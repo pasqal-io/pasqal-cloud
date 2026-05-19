@@ -7,7 +7,7 @@ from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.http_client import HTTPClient
 
 from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 
 class OvhClient(HTTPClient):
@@ -58,7 +58,7 @@ class MissingEnvironmentVariableError(RuntimeError):
     pass
 
 
-class OVHConnection(PasqalCloud):
+class OVHConnection(PasqalCloudConnection):
     """PasqalCloud connection designed for OVH users.
 
     This connection class enables OVH users to access Pasqal Cloud services.

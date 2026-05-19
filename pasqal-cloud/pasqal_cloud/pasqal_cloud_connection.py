@@ -48,7 +48,7 @@ retry = tenacity.retry(
 )
 
 
-class PasqalCloud(RemoteConnection):
+class PasqalCloudConnection(RemoteConnection):
     """Manager of the connection to PASQAL's cloud platform.
 
     The cloud connection enables to run sequences on simulators or on real
