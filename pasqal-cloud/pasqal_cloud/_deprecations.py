@@ -87,7 +87,7 @@ def __getattr__(name: str) -> Any:
         module_path, attr = _DEPRECATED_EXPORTS[name]
         warnings.warn(
             f"Importing '{name}' from 'pasqal_cloud' is deprecated and will be "
-            f"removed in a future release. "
+            "removed in a future release. "
             f"Please use 'from {module_path} import {attr}' instead.",
             DeprecationWarning,
             stacklevel=2,
