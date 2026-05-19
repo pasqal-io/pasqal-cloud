@@ -40,9 +40,9 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pulser_pasqal import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
-from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
-from pulser_pasqal.ovh import MissingEnvironmentVariableError, OvhClient
+from pasqal_cloud import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
+from pasqal_cloud.backends import EmuFreeBackend, EmuTNBackend
+from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
 

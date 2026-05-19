@@ -9,8 +9,8 @@ import requests_mock
 from pulser import AnalogDevice, DigitalAnalogDevice, Register, Sequence
 from pulser.backend import BitStrings, EmulationConfig
 from pulser.backend.remote import JobParams
-from pulser_pasqal.backends import EmuMPSBackend
-from pulser_pasqal.pasqal_cloud import PasqalCloud
+from pasqal_cloud.backends import EmuMPSBackend
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
