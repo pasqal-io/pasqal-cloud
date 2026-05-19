@@ -140,7 +140,7 @@ def mock_batch():
 def mock_pasqal_cloud_ovh_sdk(mock_batch):
     os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
     with patch(
-        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient", autospec=True
+        "pasqal_cloud.ovh.PasqalCloudClient", autospec=True
     ) as mock_cloud_client:
         ovh = OVHConnection()
         mock_cloud_client = mock_cloud_client.return_value
@@ -158,7 +158,7 @@ def mock_pasqal_cloud_ovh_sdk(mock_batch):
 
 def mock_pasqal_cloud_sdk(mock_batch):
     with patch(
-        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient", autospec=True
+        "pasqal_cloud.pasqal_cloud_connection.PasqalCloudClient", autospec=True
     ) as mock_cloud_client:
         pasqal_cloud_kwargs = {
             "username": "abc",
@@ -448,9 +448,7 @@ def test_init_reads_token_and_use_ovh_client(_clear_ovh_test_env):
     by "OvhClient".
     """
     os.environ["PASQAL_PULSER_ACCESS_TOKEN"] = "fake-ovh-token"
-    with patch(
-        "pasqal_cloud.pasqal_cloud_client.PasqalCloudClient"
-    ) as mock_cloud_client:
+    with patch("pasqal_cloud.ovh.PasqalCloudClient") as mock_cloud_client:
         ovh.OVHConnection()
         mock_cloud_client.assert_called_once()
         called_kwargs = mock_cloud_client.call_args.kwargs
