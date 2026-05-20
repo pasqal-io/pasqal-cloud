@@ -1,14 +1,38 @@
 # Pasqal Cloud
 
-SDK to be used to access Pasqal Cloud Services.
+**Pasqal Cloud** is a Python package to run quantum sequences on
+[Pasqal](https://www.pasqal.com/) neutral atom quantum computers.
 
-## Getting started
- - [Installation](usage/installation.md)
- - [Authentication](usage/authentication.md)
+It implements the Pulser
+[`RemoteConnection`](https://docs.pasqal.com/pulser/) interface so any sequence
+written with Pulser can be submitted to
+Pasqal QPUs and emulators.
 
-## Usage
- - [Batches & Jobs](usage/batches_jobs.md)
- - [Workloads](usage/workloads.md)
- - [Advanced usage](usage/advanced_usage.md)
+## Installation
 
-## [API Reference](api/sdk.md)
+```bash
+pip install pasqal-cloud
+```
+
+## At a glance
+
+```python
+from pasqal_cloud import PasqalCloudConnection
+
+connection = PasqalCloudConnection(
+    username="your_username",
+    password="your_password",
+    project_id="your_project_id",
+)
+
+devices = connection.fetch_available_devices()
+```
+
+## Where to next?
+
+- [Getting started](getting-started.md) — full end-to-end example
+- [API reference](reference/index.md) — auto-generated from the source
+
+## License
+
+Apache 2.0 — see [LICENSE](https://github.com/pasqal-io/pasqal-cloud/blob/main/LICENSE).

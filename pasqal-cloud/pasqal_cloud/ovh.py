@@ -63,11 +63,11 @@ class OVHConnection(PasqalCloudConnection):
 
     This connection class enables OVH users to access Pasqal Cloud services.
     Authentication is handled via a token that must be provided
-    through the PASQAL_PULSER_ACCESS_TOKEN environment variable.
+    through the `PASQAL_PULSER_ACCESS_TOKEN` environment variable.
 
     Raises:
-       MissingEnvironmentVariableError: If PASQAL_PULSER_ACCESS_TOKEN
-       environment variable is not set.
+       MissingEnvironmentVariableError: If `PASQAL_PULSER_ACCESS_TOKEN`
+           environment variable is not set.
     """
 
     def __init__(self, **kwargs: Any) -> None:
