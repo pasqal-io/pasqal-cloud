@@ -16,7 +16,7 @@ cloud_client = PasqalCloudClient(username="username", password="password", proje
 
 ## Batch
 
-A batch is a group of jobs that will run on the same QPU. Sequences can be specified at the batch level,
+A batch is a group of jobs that will run on the same QPU or emulator. Sequences can be specified at the batch level,
 at the job level, or both (jobs with their own sequence override the batch-level one).
 
 ### Submit Batch-level sequence
@@ -34,7 +34,7 @@ job1 = {"runs": 20, "serialized_sequence": serialized_sequence1}
 job2 = {"runs": 50, "serialized_sequence": serialized_sequence2}
 
 # Create a batch without a batch-level sequence
-batch = cloud_client.create_batch(serialized_sequence=None, [job1, job2], device_type=DeviceTypeName.FRESNEL, wait=True)
+batch = cloud_client.create_batch(serialized_sequence=None, jobs=[job1, job2], device_type=DeviceTypeName.FRESNEL, wait=True)
 ```
 
 **Important**: When using job-level sequences, make sure to use non-parametrized sequences. Either use a batch-level
@@ -197,7 +197,7 @@ cloud_client.cancel_batches(batch_ids=[...])
 
 ## Cancel a list of jobs
 
-It is possible to cancel a selection of jobs with the `cancel_jobs` method, using the CancelJobFilters class.
+It is possible to cancel a selection of jobs with the `cancel_jobs` method, using the `CancelJobFilters` class.
 
 Here are few examples of how to use it:
 
