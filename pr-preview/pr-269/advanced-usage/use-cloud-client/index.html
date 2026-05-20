@@ -919,7 +919,7 @@
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">&quot;project_id&quot;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="batch">Batch</h2>
-<p>A batch is a group of jobs that will run on the same QPU. Sequences can be specified at the batch level,
+<p>A batch is a group of jobs that will run on the same QPU or emulator. Sequences can be specified at the batch level,
 at the job level, or both (jobs with their own sequence override the batch-level one).</p>
 <h3 id="submit-batch-level-sequence">Submit Batch-level sequence</h3>
 <p>See <a href="../../getting-started/#running-a-sequence-on-a-qpu">Running a sequence on a QPU</a></p>
@@ -931,7 +931,7 @@ This is useful when you want to run different quantum programs in the same batch
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">job2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;serialized_sequence&quot;</span><span class="p">:</span> <span class="n">serialized_sequence2</span><span class="p">}</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># Create a batch without a batch-level sequence</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">cloud_client</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span><span class="n">serialized_sequence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span> <span class="n">device_type</span><span class="o">=</span><span class="n">DeviceTypeName</span><span class="o">.</span><span class="n">FRESNEL</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">cloud_client</span><span class="o">.</span><span class="n">create_batch</span><span class="p">(</span><span class="n">serialized_sequence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">job1</span><span class="p">,</span> <span class="n">job2</span><span class="p">],</span> <span class="n">device_type</span><span class="o">=</span><span class="n">DeviceTypeName</span><span class="o">.</span><span class="n">FRESNEL</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Important</strong>: When using job-level sequences, make sure to use non-parametrized sequences. Either use a batch-level
 sequence with variables, or use job-level sequences without variables. Additionally, when creating a batch without a
@@ -1064,7 +1064,7 @@ providing a list of batch ids.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">cloud_client</span><span class="o">.</span><span class="n">cancel_batches</span><span class="p">(</span><span class="n">batch_ids</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">])</span>
 </code></pre></div>
 <h2 id="cancel-a-list-of-jobs">Cancel a list of jobs</h2>
-<p>It is possible to cancel a selection of jobs with the <code>cancel_jobs</code> method, using the CancelJobFilters class.</p>
+<p>It is possible to cancel a selection of jobs with the <code>cancel_jobs</code> method, using the <code>CancelJobFilters</code> class.</p>
 <p>Here are few examples of how to use it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.utils.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CancelJobFilters</span>
