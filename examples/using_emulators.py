@@ -1,16 +1,9 @@
-# Pasqal Cloud
+from pasqal_cloud import PasqalCloudConnection, EmuMPSBackend
+from pulser.pulse import Pulse
+from pulser import Sequence, Register
 
-**Pasqal Cloud** is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud/ infrastructure/
+connection = PasqalCloudConnection(...)
 
-## Installation
-
-```bash
-pip install pasqal-cloud
-```
-
-## Quickstart
-
-```python
 # Retrieve all QPU devices
 devices = connection.fetch_available_devices()
 device = devices["FRESNEL_CAN1"]
@@ -28,7 +21,7 @@ generic_pulse = Pulse.ConstantPulse(100, omega_max, 2, 0.0)
 sequence.add(generic_pulse, "rydberg")
 
 # Declare a backend based on the sequence and remote connection
-backend = QPUBackend(sequence=sequence, connection=connection)
+backend = EmuMPSBackend(sequence=sequence, connection=connection)
 
 # Run jobs with different arguments over the same sequence and register
 results = backend.run(
@@ -39,8 +32,3 @@ results = backend.run(
     wait=True,
 )
 print(results.results)
-```
-
-## Documentation
-
-For full usage guides, authentication options, emulator configuration, and API reference, visit the **[documentation site](https://pasqal-io.github.io/pasqal-cloud/)**.

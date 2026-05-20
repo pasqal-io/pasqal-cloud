@@ -1,16 +1,9 @@
-# Pasqal Cloud
+from pasqal_cloud import PasqalCloudConnection
+from pulser.pulse import Pulse
+from pulser import QPUBackend, Sequence, Register
 
-**Pasqal Cloud** is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud/ infrastructure/
+connection = PasqalCloudConnection(...)
 
-## Installation
-
-```bash
-pip install pasqal-cloud
-```
-
-## Quickstart
-
-```python
 # Retrieve all QPU devices
 devices = connection.fetch_available_devices()
 device = devices["FRESNEL_CAN1"]
@@ -30,17 +23,28 @@ sequence.add(generic_pulse, "rydberg")
 # Declare a backend based on the sequence and remote connection
 backend = QPUBackend(sequence=sequence, connection=connection)
 
-# Run jobs with different arguments over the same sequence and register
-results = backend.run(
-    job_params=[
-        {"runs": 5, "variables": {"omega_max": 12}},
-        {"runs": 10, "variables": {"omega_max": 6}},
-    ],
-    wait=True,
-)
-print(results.results)
-```
+results = []
 
-## Documentation
+# Run jobs in the same batch
+with backend.open_batch() as op:
+    results.append(
+        backend.run(
+            job_params=[
+                {"runs": 1, "variables": {"omega_max": 12}},
+                {"runs": 1, "variables": {"omega_max": 6}},
+            ],
+            wait=True,
+        )
+    )
+    results.append(
+        backend.run(
+            job_params=[
+                {"runs": 1, "variables": {"omega_max": 5}},
+            ],
+            wait=True,
+        )
+    )
 
-For full usage guides, authentication options, emulator configuration, and API reference, visit the **[documentation site](https://pasqal-io.github.io/pasqal-cloud/)**.
+
+for result in results:
+    print(result.results)

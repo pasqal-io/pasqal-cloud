@@ -148,8 +148,6 @@ class PasqalCloudConnection(RemoteConnection):
 
         Args:
             batch_id: The ID that identifies the batch linked to the results.
-            connection: The remote connection over which to get the batch's
-                status and fetch the results.
             job_ids: If given, specifies which jobs within the batch should
                 be included in the results and in what order. If left undefined,
                 all jobs are included and ordered by date of creation.
