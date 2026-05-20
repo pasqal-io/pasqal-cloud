@@ -8,7 +8,7 @@ from pulser import AnalogDevice, Register, Sequence
 from pulser.backend import BitStrings, CorrelationMatrix
 from pulser.backend.config import EmulationConfig
 from pulser.backend.remote import JobParams
-from pasqal_cloud.backends import EmuFreeBackendV2
+from pasqal_cloud.backends import EmuFreeBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -30,7 +30,7 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params)
     sequence.declare_channel("rydberg_global", "rydberg_global")
     sequence.measure()
 
-    backend = EmuFreeBackendV2(sequence=sequence, connection=connection)
+    backend = EmuFreeBackend(sequence=sequence, connection=connection)
     context_manager = (
         pytest.warns(UserWarning, match="'runs' parameter is ignored")
         if job_params
@@ -48,7 +48,7 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params)
     assert post_batch_body["sequence_builder"] == sequence.to_abstract_repr()
     assert (
         post_batch_body["backend_configuration"]
-        == EmuFreeBackendV2.default_config.to_abstract_repr()
+        == EmuFreeBackend.default_config.to_abstract_repr()
     )
     assert "emulator" not in post_batch_body
     assert post_batch_body["jobs"] == job_params or {"runs": 1}
@@ -67,7 +67,7 @@ def test_emu_free_backend_with_custom_config(mock_request: requests_mock.mocker.
     sequence.measure()
 
     config = EmulationConfig(observables=[BitStrings(), CorrelationMatrix()])
-    backend = EmuFreeBackendV2(sequence=sequence, connection=connection, config=config)
+    backend = EmuFreeBackend(sequence=sequence, connection=connection, config=config)
     _ = backend.run()
     assert (
         mock_request.request_history[0].url
