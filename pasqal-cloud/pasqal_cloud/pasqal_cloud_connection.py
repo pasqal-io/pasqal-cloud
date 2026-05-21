@@ -22,6 +22,7 @@ from typing import Any, Mapping, Type, cast
 import pasqal_cloud
 import tenacity
 from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
+from pasqal_cloud.endpoints import Region
 from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
@@ -71,6 +72,7 @@ class PasqalCloud(RemoteConnection):
         username: str = "",
         password: str = "",
         project_id: str = "",
+        region: Region = "fr",
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""
@@ -78,6 +80,7 @@ class PasqalCloud(RemoteConnection):
             username=username,
             password=password,
             project_id=project_id,
+            region=region,
             **kwargs,
         )
 
