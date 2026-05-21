@@ -63,7 +63,7 @@ Here are few examples of how to use it:
 
 ```python
 from datetime import datetime
-from pasqal_cloud.utils.filters import BatchFilters, PaginationParams, QueuePriority
+from pasqal_cloud.utils.filters import BatchFilters, PaginationParams
 from pasqal_cloud.utils.constants import BatchStatus, QueuePriority
 from pasqal_cloud.device import EmulatorType
 
@@ -178,7 +178,7 @@ It is possible to retry a single job in a same open batch as an original job usi
 The batch must be open in order for this method to work.
 
 ```python
-batch = cloud_client.retrieve_batch(batch_id)
+batch = cloud_client.get_batch(batch_id)
 
 batch.retry(batch.ordered_jobs[0])
 

@@ -14,7 +14,7 @@ from pasqal_cloud.endpoints import PASQAL_ENDPOINTS, AUTH_CONFIG
 connection = PasqalCloudConnection(
   ...,
   endpoints=PASQAL_ENDPOINTS["preprod"],
-  auth_config=AUTH_CONFIG['preprod']
+  auth_config=AUTH_CONFIG["preprod"]
 )
 ```
 
@@ -27,6 +27,6 @@ By default, the targeted environment is `prod`.
 connection = PasqalCloudConnection(
   ...,
   endpoints=PASQAL_ENDPOINTS["sa-preprod"],
-  auth_config=AUTH_CONFIG['sa-preprod']
+  auth_config=AUTH_CONFIG["sa-preprod"]
 )
 ```
