@@ -26,7 +26,7 @@ backend = QPUBackend(sequence=sequence, connection=connection)
 results = []
 
 # Run jobs in the same batch
-with backend.open_batch() as op:
+with backend.open_batch():
     results.append(
         backend.run(
             job_params=[

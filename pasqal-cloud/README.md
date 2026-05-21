@@ -1,6 +1,6 @@
 # Pasqal Cloud
 
-**Pasqal Cloud** is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud/ infrastructure/
+**Pasqal Cloud** is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud) infrastructure.
 
 ## Installation
 
@@ -43,4 +43,6 @@ print(results.results)
 
 ## Documentation
 
-For full usage guides, authentication options, emulator configuration, and API reference, visit the **[documentation site](https://pasqal-io.github.io/pasqal-cloud/)**.
+For full usage guides, authentication options, emulator configuration, and API reference,
+visit the [Github Pages documentation](https://pasqal-io.github.io/pasqal-cloud/)
+or the **[Pasqal documentation](https://docs.pasqal.com/cloud/pasqal-cloud/)**.

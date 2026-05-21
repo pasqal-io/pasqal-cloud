@@ -5,8 +5,9 @@ This guide will help you install `pasqal-cloud`, authenticate, and submit your f
 ## Prerequisites
 
 - **Python 3.9** or higher
-- A **Pasqal Cloud account** with valid credentials (username & password)
-- A **project ID** you are a member of (found on the [Pasqal user portal](https://portal.pasqal.cloud), in the _Project_ section)
+- A **Pasqal Cloud account** with valid credentials (username & password), see the [documentation](https://docs.pasqal.com/cloud/set-up/).
+- A **project ID** you are a member of, see the [documentation](https://docs.pasqal.com/cloud/set-up/#find-your-project-id).
+
 
 ## Installation
 
@@ -64,6 +65,10 @@ real QPU time:
 ```
 
 ## Using open batch feature
+
+Open batches let you submit jobs whose variables depend on the results of
+previous jobs, all while retaining control of the backend until the batch is
+closed. See the [documentation](https://docs.pasqal.com/cloud/batches/#open-batches-for-variational-algorithms).
 
 ```python
 --8<-- "examples/using_open_batch.py"
