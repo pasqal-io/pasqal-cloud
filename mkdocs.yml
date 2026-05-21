@@ -17,7 +17,7 @@ nav:
   - Getting started: getting-started.md
   - Advanced Usage:
       - advanced-usage/authentication.md
-      - Target different environments: advanced-usage/target-different-environments.md
+      - Target different regions and environments: advanced-usage/target-different-regions-and-environments.md
       - Use PasqalCloudClient: advanced-usage/use-cloud-client.md
 
   - API reference:
