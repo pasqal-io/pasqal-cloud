@@ -21,13 +21,10 @@ from typing import Any, ClassVar
 import pasqal_cloud
 import pulser
 from pasqal_cloud.device.device_types import DeviceTypeName
-from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend, EmulatorConfig
+from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend
 from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
-
-DEFAULT_CONFIG_EMU_TN = EmulatorConfig(evaluation_times="Final", sampling_rate=0.1)
-DEFAULT_CONFIG_EMU_FREE = EmulatorConfig(evaluation_times="Final", sampling_rate=0.25)
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
