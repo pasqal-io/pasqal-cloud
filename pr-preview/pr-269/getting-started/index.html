@@ -790,8 +790,8 @@
 <h2 id="prerequisites">Prerequisites</h2>
 <ul>
 <li><strong>Python 3.9</strong> or higher</li>
-<li>A <strong>Pasqal Cloud account</strong> with valid credentials (username &amp; password)</li>
-<li>A <strong>project ID</strong> you are a member of (found on the <a href="https://portal.pasqal.cloud">Pasqal user portal</a>, in the <em>Project</em> section)</li>
+<li>A <strong>Pasqal Cloud account</strong> with valid credentials (username &amp; password), see the <a href="https://docs.pasqal.com/cloud/set-up/">documentation</a>.</li>
+<li>A <strong>project ID</strong> you are a member of, see the <a href="https://docs.pasqal.com/cloud/set-up/#find-your-project-id">documentation</a>.</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>Install the latest release from PyPI:</p>
@@ -897,6 +897,9 @@ real QPU time:</p>
 <a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="nb">print</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="using-open-batch-feature">Using open batch feature</h2>
+<p>Open batches let you submit jobs whose variables depend on the results of
+previous jobs, all while retaining control of the backend until the batch is
+closed. See the <a href="https://docs.pasqal.com/cloud/batches/#open-batches-for-variational-algorithms">documentation</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pulser.pulse</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pulse</span>
 <a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pulser</span><span class="w"> </span><span class="kn">import</span> <span class="n">QPUBackend</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Register</span>
@@ -925,7 +928,7 @@ real QPU time:</p>
 <a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
 <a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>
 <a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="c1"># Run jobs in the same batch</span>
-<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">open_batch</span><span class="p">()</span> <span class="k">as</span> <span class="n">op</span><span class="p">:</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="k">with</span> <span class="n">backend</span><span class="o">.</span><span class="n">open_batch</span><span class="p">():</span>
 <a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
 <a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>        <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
 <a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>            <span class="n">job_params</span><span class="o">=</span><span class="p">[</span>

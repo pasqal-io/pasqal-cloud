@@ -950,7 +950,7 @@ The method returns by default a page of the 100 most recent batches but can be
 configured using the <code>pagination_params</code> argument.</p>
 <p>Here are few examples of how to use it:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.utils.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchFilters</span><span class="p">,</span> <span class="n">PaginationParams</span><span class="p">,</span> <span class="n">QueuePriority</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.utils.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchFilters</span><span class="p">,</span> <span class="n">PaginationParams</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchStatus</span><span class="p">,</span> <span class="n">QueuePriority</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmulatorType</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
@@ -1051,7 +1051,7 @@ configured using the <code>pagination_params</code> argument.</p>
 <h2 id="retry-a-job-in-an-open-batch">Retry a job in an open batch</h2>
 <p>It is possible to retry a single job in a same open batch as an original job using <code>batch.retry</code>.
 The batch must be open in order for this method to work.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">cloud_client</span><span class="o">.</span><span class="n">retrieve_batch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">batch</span> <span class="o">=</span> <span class="n">cloud_client</span><span class="o">.</span><span class="n">get_batch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">)</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">batch</span><span class="o">.</span><span class="n">retry</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">ordered_jobs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
