@@ -7,7 +7,7 @@ from warnings import simplefilter, warn
 from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.batch import RESULT_POLLING_INTERVAL, Batch
+from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.client import Client
 from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
@@ -33,7 +33,7 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import CreateJob, Job, create_jobs_to_api_payload
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 from pasqal_cloud.project import Project
 from pasqal_cloud.utils.filters import (
     BatchFilters,
