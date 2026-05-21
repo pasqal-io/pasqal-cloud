@@ -6,7 +6,7 @@ You can get a [`PasqalCloudClient`][pasqal_cloud.pasqal_cloud_client.PasqalCloud
 from pasqal_cloud import PasqalCloudConnection
 
 connection = PasqalCloudConnection(username="username", password="password", project_id="project_id")
-cloud_client = connection._sdk_connection
+cloud_client = connection.cloud_client
 
 # Instantiate it directly
 from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient

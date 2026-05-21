@@ -86,7 +86,7 @@ class OVHConnection(PasqalCloudConnection):
             def get_token(self) -> str:
                 return token
 
-        self._sdk_connection = PasqalCloudClient(
+        self.cloud_client = PasqalCloudClient(
             token_provider=OvhTokenProvider(), client_class=OvhClient, **kwargs
         )
 
