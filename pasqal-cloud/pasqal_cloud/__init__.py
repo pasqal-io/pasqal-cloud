@@ -38,4 +38,10 @@ def __getattr__(name: str) -> Any:
     """
     from pasqal_cloud._deprecations import __getattr__ as _dep_getattr
 
-    return _dep_getattr(name)
+    result = _dep_getattr(name)
+
+    # Cache the result on the module so subsequent lookups don't
+    # re-enter __getattr__ (avoids the double-call on `from X import Y`).
+    globals()[name] = result
+
+    return result

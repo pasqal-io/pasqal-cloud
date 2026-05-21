@@ -16,8 +16,8 @@ _DEPRECATED_EXPORTS: dict[str, tuple[str, str]] = {
     # batch
     "RESULT_POLLING_INTERVAL": ("pasqal_cloud.batch", "RESULT_POLLING_INTERVAL"),
     "Batch": ("pasqal_cloud.batch", "Batch"),
-    # http_client (was re-exported as "Client")
-    "Client": ("pasqal_cloud.http_client", "HTTPClient"),
+    # client
+    "Client": ("pasqal_cloud.client", "Client"),
     # device
     "BaseConfig": ("pasqal_cloud.device", "BaseConfig"),
     "DeviceTypeName": ("pasqal_cloud.device", "DeviceTypeName"),
