@@ -381,11 +381,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../../advanced-usage/target-different-environments/" class="md-nav__link">
+      <a href="../../advanced-usage/target-different-regions-and-environments/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Target different environments
+    Target different regions and environments
   </span>
   
 
@@ -834,7 +834,10 @@
 
                   <details class="quote">
                     <summary>Source code in <code>pasqal_cloud/backends.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
@@ -850,29 +853,26 @@
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="p">)</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -1007,7 +1007,10 @@ desired 'num_shots' via this backend's 'config' instead."</p>
 
             <details class="quote">
               <summary>Source code in <code>pasqal_cloud/backends.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-56"> 56</a></span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-53"> 53</a></span>
+<span class="normal"><a href="#__codelineno-0-54"> 54</a></span>
+<span class="normal"><a href="#__codelineno-0-55"> 55</a></span>
+<span class="normal"><a href="#__codelineno-0-56"> 56</a></span>
 <span class="normal"><a href="#__codelineno-0-57"> 57</a></span>
 <span class="normal"><a href="#__codelineno-0-58"> 58</a></span>
 <span class="normal"><a href="#__codelineno-0-59"> 59</a></span>
@@ -1052,58 +1055,55 @@ desired 'num_shots' via this backend's 'config' instead."</p>
 <span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
 <span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
 <span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
-<span class="normal"><a href="#__codelineno-0-102">102</a></span>
-<span class="normal"><a href="#__codelineno-0-103">103</a></span>
-<span class="normal"><a href="#__codelineno-0-104">104</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a>    <span class="bp">self</span><span class="p">,</span> <span class="n">job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">JobParams</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteResults</span><span class="p">:</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs the sequence on this remote emulator and returns the result.</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">        job_params: A list of parameters for each job to execute. If the</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">            sequence is parametrized, the values for all the variables</span>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">            necessary to build the sequence must be given for</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">            each job, under the &#39;variables&#39; field. If not given, a single</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">            job is executed.</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">        wait: Whether to wait until the results of the jobs become</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="sd">            available.  If set to False, the call is non-blocking and the</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">            obtained results&#39; status can be checked using their `status`</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">            property.</span>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">    Warning:</span>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">        Unlike a &#39;QPUBackend&#39;, this backend does not expect a value for</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        &quot;runs&quot; in each entry of &#39;job_params&#39;. If provided, this value is</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="sd">        ignored. If you wish to set the total number of bitstring counts</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">        in the Results, please provide a &#39;BitStrings&#39; observable with the</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        desired &#39;num_shots&#39; via this backend&#39;s &#39;config&#39; instead.&quot;</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">    Returns:</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        The results, which can be accessed once all sequences have been</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">        successfully executed.</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a>    <span class="n">_job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">JobParams</span><span class="p">]</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="k">if</span> <span class="n">job_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="c1"># Assume a single job</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a>        <span class="n">_job_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">else</span><span class="p">:</span>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a>            <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;runs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">job_params</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a>        <span class="p">):</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>            <span class="c1"># Warns whenever runs is defined and not None</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>                <span class="s2">&quot;The &#39;runs&#39; parameter is ignored on jobs executed on &quot;</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">. If you wish to set a &quot;</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>                <span class="s2">&quot;custom number of bitstring counts in the Results, please &quot;</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>                <span class="s2">&quot;provide a &#39;BitStrings&#39; observable with the desired &quot;</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a>                <span class="s2">&quot;&#39;num_shots&#39; via this backend&#39;s &#39;config&#39; instead.&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a>                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a>            <span class="p">)</span>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="c1"># TODO: Stop defaulting runs=1 once it is optional on pasqal-cloud</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a>        <span class="n">_job_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">j</span><span class="p">}</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">job_params</span><span class="p">]</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">job_params</span><span class="o">=</span><span class="n">_job_params</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="bp">self</span><span class="p">,</span> <span class="n">job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">JobParams</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteResults</span><span class="p">:</span>
+<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Runs the sequence on this remote emulator and returns the result.</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57"></a>
+<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        job_params: A list of parameters for each job to execute. If the</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">            sequence is parametrized, the values for all the variables</span>
+<a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="sd">            necessary to build the sequence must be given for</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="sd">            each job, under the &#39;variables&#39; field. If not given, a single</span>
+<a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="sd">            job is executed.</span>
+<a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="sd">        wait: Whether to wait until the results of the jobs become</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="sd">            available.  If set to False, the call is non-blocking and the</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="sd">            obtained results&#39; status can be checked using their `status`</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="sd">            property.</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="sd">    Warning:</span>
+<a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="sd">        Unlike a &#39;QPUBackend&#39;, this backend does not expect a value for</span>
+<a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="sd">        &quot;runs&quot; in each entry of &#39;job_params&#39;. If provided, this value is</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="sd">        ignored. If you wish to set the total number of bitstring counts</span>
+<a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="sd">        in the Results, please provide a &#39;BitStrings&#39; observable with the</span>
+<a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="sd">        desired &#39;num_shots&#39; via this backend&#39;s &#39;config&#39; instead.&quot;</span>
+<a id="__codelineno-0-75" name="__codelineno-0-75"></a>
+<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="sd">    Returns:</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        The results, which can be accessed once all sequences have been</span>
+<a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="sd">        successfully executed.</span>
+<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="n">_job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">JobParams</span><span class="p">]</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>    <span class="k">if</span> <span class="n">job_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-82" name="__codelineno-0-82"></a>        <span class="c1"># Assume a single job</span>
+<a id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="n">_job_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="k">else</span><span class="p">:</span>
+<a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+<a id="__codelineno-0-86" name="__codelineno-0-86"></a>            <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;runs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<a id="__codelineno-0-87" name="__codelineno-0-87"></a>            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">job_params</span>
+<a id="__codelineno-0-88" name="__codelineno-0-88"></a>            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+<a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="p">):</span>
+<a id="__codelineno-0-90" name="__codelineno-0-90"></a>            <span class="c1"># Warns whenever runs is defined and not None</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a>            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+<a id="__codelineno-0-92" name="__codelineno-0-92"></a>                <span class="s2">&quot;The &#39;runs&#39; parameter is ignored on jobs executed on &quot;</span>
+<a id="__codelineno-0-93" name="__codelineno-0-93"></a>                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2">. If you wish to set a &quot;</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>                <span class="s2">&quot;custom number of bitstring counts in the Results, please &quot;</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a>                <span class="s2">&quot;provide a &#39;BitStrings&#39; observable with the desired &quot;</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a>                <span class="s2">&quot;&#39;num_shots&#39; via this backend&#39;s &#39;config&#39; instead.&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-97" name="__codelineno-0-97"></a>                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="p">)</span>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a>        <span class="c1"># TODO: Stop defaulting runs=1 once it is optional on pasqal-cloud</span>
+<a id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="n">_job_params</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;runs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">j</span><span class="p">}</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">job_params</span><span class="p">]</span>
+<a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">job_params</span><span class="o">=</span><span class="n">_job_params</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="n">wait</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1231,7 +1231,10 @@ execution on a QPU.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>pasqal_cloud/backends.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
@@ -1247,29 +1250,26 @@ execution on a QPU.</p>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="p">)</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -1406,7 +1406,10 @@ execution on a QPU.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>pasqal_cloud/backends.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
@@ -1422,29 +1425,26 @@ execution on a QPU.</p>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="p">)</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 
@@ -1581,7 +1581,10 @@ execution on a QPU.</p>
 
                   <details class="quote">
                     <summary>Source code in <code>pasqal_cloud/backends.py</code></summary>
-                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-35">35</a></span>
+                    <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
 <span class="normal"><a href="#__codelineno-0-36">36</a></span>
 <span class="normal"><a href="#__codelineno-0-37">37</a></span>
 <span class="normal"><a href="#__codelineno-0-38">38</a></span>
@@ -1597,29 +1600,26 @@ execution on a QPU.</p>
 <span class="normal"><a href="#__codelineno-0-48">48</a></span>
 <span class="normal"><a href="#__codelineno-0-49">49</a></span>
 <span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="o">*</span><span class="p">,</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="p">)</span>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a>        <span class="n">sequence</span><span class="p">,</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-51">51</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="n">sequence</span><span class="p">:</span> <span class="n">pulser</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">connection</span><span class="p">:</span> <span class="n">PasqalCloudConnection</span><span class="p">,</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="n">mimic_qpu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">RemoteBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="n">sequence</span><span class="o">=</span><span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>        <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="p">)</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">EmulatorBackend</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>        <span class="n">sequence</span><span class="p">,</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49"></a>        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50"></a>        <span class="n">mimic_qpu</span><span class="o">=</span><span class="n">mimic_qpu</span><span class="p">,</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
                   </details>
 

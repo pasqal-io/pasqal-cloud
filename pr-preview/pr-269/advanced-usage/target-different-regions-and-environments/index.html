@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://pasqal-io.github.io/pasqal-cloud/advanced-usage/target-different-environments/">
+        <link rel="canonical" href="https://pasqal-io.github.io/pasqal-cloud/advanced-usage/target-different-regions-and-environments/">
       
       
         <link rel="prev" href="../authentication/">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Target different environments - Pasqal Cloud</title>
+        <title>Target different regions and environments - Pasqal Cloud</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#access-saudi-arabia-platform" class="md-skip">
+        <a href="#target-different-regions-and-environments" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Target different environments
+              Target different regions and environments
             
           </span>
         </div>
@@ -392,12 +392,14 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
   
   <span class="md-ellipsis">
-    Target different environments
+    Target different regions and environments
   </span>
   
 
@@ -408,7 +410,7 @@
         
   
   <span class="md-ellipsis">
-    Target different environments
+    Target different regions and environments
   </span>
   
 
@@ -420,6 +422,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -428,9 +432,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#access-saudi-arabia-platform" class="md-nav__link">
+  <a href="#access-a-different-region" class="md-nav__link">
     <span class="md-ellipsis">
-      Access Saudi-Arabia platform
+      Access a different region
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-a-non-production-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target a non-production environment
     </span>
   </a>
   
@@ -660,6 +673,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -668,9 +683,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#access-saudi-arabia-platform" class="md-nav__link">
+  <a href="#access-a-different-region" class="md-nav__link">
     <span class="md-ellipsis">
-      Access Saudi-Arabia platform
+      Access a different region
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-a-non-production-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target a non-production environment
     </span>
   </a>
   
@@ -694,30 +718,41 @@
   
 
 
-  <h1>Target different environments</h1>
-
-<p>This is intended for the package developers or users which were given access to non-prod
+<h1 id="target-different-regions-and-environments">Target different regions and environments</h1>
+<h2 id="access-a-different-region">Access a different region</h2>
+<p>By default, the connection targets the European (<code>fr</code>) platform. To access the
+Saudi-Arabia (<code>sa</code>) platform, pass the <code>region</code> parameter:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">&quot;sa&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Available regions are <code>"fr"</code> (default) and <code>"sa"</code>.</p>
+<h2 id="target-a-non-production-environment">Target a non-production environment</h2>
+<p>This is intended for package developers or users who have been given access to non-prod
 environments of the Pasqal cloud platform.</p>
-<p>To target a specific environment (<code>prod</code>, <code>preprod</code> or <code>dev</code>), instantiate the connection
+<p>To target a specific environment (<code>preprod</code> or <code>dev</code>), instantiate the connection
 by passing <code>endpoints</code> with a value from <code>pasqal_cloud.endpoints.PASQAL_ENDPOINTS</code>
 and <code>auth_config</code> with a value from <code>pasqal_cloud.endpoints.AUTH_CONFIG</code>.</p>
-<p>Example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">PASQAL_ENDPOINTS</span><span class="p">,</span> <span class="n">AUTH_CONFIG</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  <span class="o">...</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  <span class="n">endpoints</span><span class="o">=</span><span class="n">PASQAL_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;preprod&quot;</span><span class="p">],</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  <span class="n">auth_config</span><span class="o">=</span><span class="n">AUTH_CONFIG</span><span class="p">[</span><span class="s2">&quot;preprod&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
+<p>The keys follow the format <code>&lt;region&gt;-&lt;env&gt;</code> (e.g. <code>fr-preprod</code>, <code>fr-dev</code>, <code>sa-preprod</code>).</p>
+<p>Example targeting the European preprod environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">PASQAL_ENDPOINTS</span><span class="p">,</span> <span class="n">AUTH_CONFIG</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  <span class="n">endpoints</span><span class="o">=</span><span class="n">PASQAL_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;fr-preprod&quot;</span><span class="p">],</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  <span class="n">auth_config</span><span class="o">=</span><span class="n">AUTH_CONFIG</span><span class="p">[</span><span class="s2">&quot;fr-preprod&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
 </code></pre></div>
-<p>By default, the targeted environment is <code>prod</code>.</p>
-<h2 id="access-saudi-arabia-platform">Access Saudi-Arabia platform</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  <span class="o">...</span><span class="p">,</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  <span class="n">endpoints</span><span class="o">=</span><span class="n">PASQAL_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;sa-preprod&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  <span class="n">auth_config</span><span class="o">=</span><span class="n">AUTH_CONFIG</span><span class="p">[</span><span class="s2">&quot;sa-preprod&quot;</span><span class="p">]</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">)</span>
+<p>Example targeting the Saudi-Arabia preprod environment:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">PASQAL_ENDPOINTS</span><span class="p">,</span> <span class="n">AUTH_CONFIG</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  <span class="n">endpoints</span><span class="o">=</span><span class="n">PASQAL_ENDPOINTS</span><span class="p">[</span><span class="s2">&quot;sa-preprod&quot;</span><span class="p">],</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  <span class="n">auth_config</span><span class="o">=</span><span class="n">AUTH_CONFIG</span><span class="p">[</span><span class="s2">&quot;sa-preprod&quot;</span><span class="p">]</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="p">)</span>
 </code></pre></div>
 
 
