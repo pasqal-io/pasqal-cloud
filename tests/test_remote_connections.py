@@ -163,6 +163,7 @@ def mock_pasqal_cloud_sdk(mock_batch):
             "project_id": "ghi",
             "endpoints": Endpoints(core="core_url"),
             "webhook": "xyz",
+            "region": "fr",
         }
 
         pasqal_cloud = PasqalCloud(**pasqal_cloud_kwargs)
