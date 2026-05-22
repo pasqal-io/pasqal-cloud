@@ -27,7 +27,6 @@ import numpy as np
 import pulser
 import pytest
 from pasqal_cloud import DeviceTypeName
-from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
@@ -39,7 +38,7 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pasqal_cloud import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
+from pasqal_cloud import Endpoints, ovh, OVHConnection, PasqalCloud
 from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
@@ -328,9 +327,8 @@ def test_partial_results():
 
 
 @pytest.mark.parametrize("mimic_qpu", [False, True])
-@pytest.mark.parametrize("emulator", [None, EmulatorType.EMU_TN, EmulatorType.EMU_FREE])
 @pytest.mark.parametrize("parametrized", [True, False])
-def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_batch):
+def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
     with pytest.raises(
         ValueError,
         match="The measurement basis can't be implicitly determined for a "
@@ -353,24 +351,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
 
     assert not seq.is_measured()
     config = EmulatorConfig(sampling_rate=0.5, backend_options={"with_noise": False})
-
-    if emulator is None:
-        sdk_config = None
-    elif emulator == EmulatorType.EMU_FREE:
-        sdk_config = EmuFreeConfig(with_noise=False, strict_validation=mimic_qpu)
-    else:
-        sdk_config = EmuTNConfig(
-            dt=2,
-            extra_config={"with_noise": False},
-            strict_validation=mimic_qpu,
-        )
-
-    assert (
-        fixt_pasqal_cloud.pasqal_cloud._convert_configuration(
-            config, emulator, strict_validation=mimic_qpu
-        )
-        == sdk_config
-    )
 
     job_params = [
         {
@@ -405,7 +385,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq,
         job_params=job_params,
-        emulator=emulator,
         config=config,
         mimic_qpu=mimic_qpu,
     )
@@ -421,10 +400,8 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
-        emulator=emulator,
         device_type=None,
         backend_configuration=None,
-        configuration=sdk_config,
         wait=False,
         open=False,
     )
@@ -435,7 +412,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         fixt_pasqal_cloud.pasqal_cloud.submit(
             seq,
             job_params=job_params,
-            emulator=emulator,
             config=config,
         )
 
@@ -525,8 +501,6 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
     fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
-        emulator=None,
-        configuration=None,
         device_type=DeviceTypeName.FRESNEL,
         backend_configuration=None,
         wait=True,
