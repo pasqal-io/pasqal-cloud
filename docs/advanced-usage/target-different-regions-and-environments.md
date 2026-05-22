@@ -33,7 +33,7 @@ from pasqal_cloud.endpoints import PASQAL_ENDPOINTS, AUTH_CONFIG
 
 connection = PasqalCloudConnection(
   ...,
-  endpoints=PASQAL_ENDPOINTS["fr-preprod"],
+  endpoints=PASQAL_ENDPOINTS["preprod"],
   auth_config=AUTH_CONFIG["fr-preprod"]
 )
 ```
