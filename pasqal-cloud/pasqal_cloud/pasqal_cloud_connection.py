@@ -15,18 +15,15 @@
 
 from __future__ import annotations
 
-import logging
-from dataclasses import fields
-from typing import Any, Mapping, Type, cast
+from typing import Any, Mapping, cast
 
 import pasqal_cloud
 import tenacity
-from pasqal_cloud.device import BaseConfig, EmuFreeConfig, EmuTNConfig
 from pasqal_cloud.endpoints import Region
 from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
-from pulser.backend.config import EmulationConfig, EmulatorConfig
+from pulser.backend.config import EmulationConfig
 from pulser.backend.remote import (
     BatchStatus,
     JobStatus,
@@ -39,10 +36,6 @@ from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
-EMU_TYPE_TO_CONFIG: dict[pasqal_cloud.EmulatorType, Type[BaseConfig]] = {
-    pasqal_cloud.EmulatorType.EMU_FREE: EmuFreeConfig,
-    pasqal_cloud.EmulatorType.EMU_TN: EmuTNConfig,
-}
 
 MAX_CLOUD_ATTEMPTS = 5
 
@@ -97,12 +90,6 @@ class PasqalCloud(RemoteConnection):
         """Submits the sequence for execution on a remote Pasqal backend."""
         sequence = self._add_measurement_to_sequence(sequence)
 
-        emulator = kwargs.get("emulator", None)
-        if emulator:
-            logging.warning("emulator is deprecated. Please use device_type instead")
-            if device_type:
-                raise ValueError("Can't use emulator and device_type at the same time.")
-
         job_params: list[CreateJob] = make_json_compatible(kwargs.get("job_params", []))
 
         if sequence.is_parametrized() or sequence.is_register_mappable():
@@ -110,11 +97,6 @@ class PasqalCloud(RemoteConnection):
                 vars = params.get("variables", {}) or {}
                 sequence.build(**vars)
 
-        configuration = self._convert_configuration(
-            config=kwargs.get("config", None),
-            emulator=emulator,
-            strict_validation=kwargs.get("mimic_qpu", False),
-        )
         backend_configuration_str = (
             backend_configuration.to_abstract_repr() if backend_configuration else None
         )
@@ -138,9 +120,7 @@ class PasqalCloud(RemoteConnection):
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
                 jobs=job_params,
-                emulator=emulator,
                 device_type=device_type,
-                configuration=configuration,
                 backend_configuration=backend_configuration_str,
                 wait=wait,
                 open=open,
@@ -255,31 +235,6 @@ class PasqalCloud(RemoteConnection):
         """Gets all the job IDs within a batch."""
         batch = self._sdk_connection.get_batch(id=batch_id)
         return [job.id for job in batch.ordered_jobs]
-
-    def _convert_configuration(
-        self,
-        config: EmulatorConfig | None,
-        emulator: pasqal_cloud.EmulatorType | None,
-        strict_validation: bool = False,
-    ) -> pasqal_cloud.BaseConfig | None:
-        """Converts a backend configuration into a pasqal_cloud.BaseConfig."""
-        if emulator is None or config is None:
-            return None
-        emu_cls = EMU_TYPE_TO_CONFIG[emulator]
-        backend_options = config.backend_options.copy()
-        pasqal_config_kwargs = {}
-        for field in fields(emu_cls):
-            pasqal_config_kwargs[field.name] = backend_options.pop(
-                field.name, field.default
-            )
-        # We pass the remaining backend options to "extra_config"
-        if backend_options:
-            pasqal_config_kwargs["extra_config"] = backend_options
-        if emulator == pasqal_cloud.EmulatorType.EMU_TN:
-            pasqal_config_kwargs["dt"] = 1.0 / config.sampling_rate
-
-        pasqal_config_kwargs["strict_validation"] = strict_validation
-        return emu_cls(**pasqal_config_kwargs)
 
     def supports_open_batch(self) -> bool:
         """Flag to confirm this class can support creating an open batch."""
