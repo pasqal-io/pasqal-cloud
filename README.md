@@ -1,4 +1,4 @@
-# Pasqal Cloud
+# pasqal-cloud
 
 Interfaces for the Pasqal Cloud Services, including the `pasqal-cloud` SDK and the `pulser-pasqal` extension.
 

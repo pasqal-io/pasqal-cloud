@@ -1,6 +1,6 @@
-# Pasqal Cloud
+# pasqal-cloud
 
-**Pasqal Cloud** is a Python package to run quantum sequences on
+`pasqal-cloud` is a Python package to run quantum sequences on
 [Pasqal](https://www.pasqal.com/) neutral atom quantum computers.
 
 It implements the Pulser
