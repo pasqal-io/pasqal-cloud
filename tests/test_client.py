@@ -19,7 +19,7 @@ from pasqal_cloud import (
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.endpoints import TokenProviderConf
-from pulser_pasqal.ovh import OvhClient
+from pasqal_cloud.ovh import OvhClient
 
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,

@@ -58,6 +58,11 @@ __all__ = [
     "WorkloadCancellingError",
     "WorkloadCreationError",
     "WorkloadFetchingError",
+    "PasqalCloud",
+    "OVHConnection",
+    "EmuMPSBackend",
+    "EmuSVBackend",
+    "EmuFreeBackend",
 ]
 
 from pasqal_cloud.authentication import TokenProvider
@@ -103,3 +108,6 @@ from pasqal_cloud.utils.responses import (
     PaginatedResponse,
 )
 from pasqal_cloud.workload import Workload
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.ovh import OVHConnection
+from pasqal_cloud.backends import EmuMPSBackend, EmuSVBackend, EmuFreeBackend

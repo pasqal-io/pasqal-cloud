@@ -57,7 +57,7 @@ setup(
     ],
     url="https://github.com/pasqal-io/pasqal-cloud",
     install_requires=[
-        f"pasqal-cloud == {__version__}",
+        "pasqal-cloud == 0.22.0",
         "pulser-core >= 1.6",
         "tenacity ~= 8.5",
     ],

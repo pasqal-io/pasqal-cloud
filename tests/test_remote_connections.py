@@ -27,12 +27,10 @@ import numpy as np
 import pulser
 import pytest
 from pasqal_cloud import DeviceTypeName
-from pasqal_cloud.device.configuration import EmuFreeConfig, EmuTNConfig
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
     JobStatus,
-    RemoteConnection,
     RemoteResults,
     RemoteResultsError,
 )
@@ -40,16 +38,10 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pulser_pasqal import EmulatorType, Endpoints, ovh, OVHConnection, PasqalCloud
-from pulser_pasqal.backends import EmuFreeBackend, EmuTNBackend
-from pulser_pasqal.ovh import MissingEnvironmentVariableError, OvhClient
+from pasqal_cloud import Endpoints, ovh, OVHConnection, PasqalCloud
+from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
-
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:EmuFreeBackend is deprecated:DeprecationWarning",
-    "ignore:EmuTNBackend is deprecated:DeprecationWarning",
-)
 
 
 @dataclasses.dataclass
@@ -170,6 +162,7 @@ def mock_pasqal_cloud_sdk(mock_batch):
             "project_id": "ghi",
             "endpoints": Endpoints(core="core_url"),
             "webhook": "xyz",
+            "region": "fr",
         }
 
         pasqal_cloud = PasqalCloud(**pasqal_cloud_kwargs)
@@ -334,9 +327,8 @@ def test_partial_results():
 
 
 @pytest.mark.parametrize("mimic_qpu", [False, True])
-@pytest.mark.parametrize("emulator", [None, EmulatorType.EMU_TN, EmulatorType.EMU_FREE])
 @pytest.mark.parametrize("parametrized", [True, False])
-def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_batch):
+def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
     with pytest.raises(
         ValueError,
         match="The measurement basis can't be implicitly determined for a "
@@ -359,24 +351,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
 
     assert not seq.is_measured()
     config = EmulatorConfig(sampling_rate=0.5, backend_options={"with_noise": False})
-
-    if emulator is None:
-        sdk_config = None
-    elif emulator == EmulatorType.EMU_FREE:
-        sdk_config = EmuFreeConfig(with_noise=False, strict_validation=mimic_qpu)
-    else:
-        sdk_config = EmuTNConfig(
-            dt=2,
-            extra_config={"with_noise": False},
-            strict_validation=mimic_qpu,
-        )
-
-    assert (
-        fixt_pasqal_cloud.pasqal_cloud._convert_configuration(
-            config, emulator, strict_validation=mimic_qpu
-        )
-        == sdk_config
-    )
 
     job_params = [
         {
@@ -411,7 +385,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     remote_results = fixt_pasqal_cloud.pasqal_cloud.submit(
         seq,
         job_params=job_params,
-        emulator=emulator,
         config=config,
         mimic_qpu=mimic_qpu,
     )
@@ -427,10 +400,8 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
-        emulator=emulator,
         device_type=None,
         backend_configuration=None,
-        configuration=sdk_config,
         wait=False,
         open=False,
     )
@@ -441,7 +412,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
         fixt_pasqal_cloud.pasqal_cloud.submit(
             seq,
             job_params=job_params,
-            emulator=emulator,
             config=config,
         )
 
@@ -460,118 +430,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, emulator, mimic_qpu, seq, mock_
     assert results == tuple(
         get_pulser_result_from_job_result(_job.full_result)
         for _job in mock_batch.ordered_jobs
-    )
-
-
-@pytest.mark.parametrize("emu_cls", [EmuTNBackend, EmuFreeBackend])
-def test_emulators_init(fixt_pasqal_cloud, seq, emu_cls, monkeypatch):
-    with pytest.raises(
-        TypeError,
-        match="'connection' must be a valid RemoteConnection instance.",
-    ):
-        emu_cls(seq, "connection")
-    with pytest.raises(TypeError, match="'config' must be of type 'EmulatorConfig'"):
-        emu_cls(seq, fixt_pasqal_cloud.pasqal_cloud, {"with_noise": True})
-
-    with pytest.raises(
-        NotImplementedError,
-        match="'EmulatorConfig.with_modulation' is not configurable in this "
-        "backend. It should not be changed from its default value of 'False'.",
-    ):
-        emu_cls(
-            seq,
-            fixt_pasqal_cloud.pasqal_cloud,
-            EmulatorConfig(
-                sampling_rate=0.25,
-                evaluation_times="Final",
-                with_modulation=True,
-            ),
-        )
-
-    monkeypatch.setattr(RemoteConnection, "__abstractmethods__", set())
-    with pytest.raises(
-        TypeError,
-        match="connection to the remote backend must be done"
-        " through a 'PasqalCloud' instance.",
-    ):
-        emu_cls(seq, RemoteConnection())
-
-    # With mimic_qpu=True
-    with pytest.raises(ValueError, match="'sequence' should not be empty"):
-        emu_cls(
-            seq.with_new_device(virtual_device),
-            fixt_pasqal_cloud.pasqal_cloud,
-            mimic_qpu=True,
-        )
-
-    # Add a delay so that it's no longer empty
-    seq.declare_channel("rydberg_global", "rydberg_global")
-    seq.delay(100, "rydberg_global")
-
-    with pytest.raises(TypeError, match="must be a real device"):
-        emu_cls(
-            seq.with_new_device(virtual_device),
-            fixt_pasqal_cloud.pasqal_cloud,
-            mimic_qpu=True,
-        )
-
-
-@pytest.mark.parametrize("mimic_qpu", [True, False])
-@pytest.mark.parametrize("parametrized", [True, False])
-@pytest.mark.parametrize("emu_cls", [EmuTNBackend, EmuFreeBackend])
-def test_emulators_run(fixt_pasqal_cloud, seq, emu_cls, parametrized: bool, mimic_qpu):
-    seq.declare_channel("rydberg_global", "rydberg_global")
-    t = seq.declare_variable("t", dtype=int)
-    seq.delay(t if parametrized else 100, "rydberg_global")
-    assert seq.is_parametrized() == parametrized
-    seq.measure(basis="ground-rydberg")
-
-    emu = emu_cls(seq, fixt_pasqal_cloud.pasqal_cloud, mimic_qpu=mimic_qpu)
-
-    with pytest.raises(ValueError, match="'job_params' must be specified"):
-        emu.run()
-
-    with pytest.raises(TypeError, match="'job_params' must be a list"):
-        emu.run(job_params={"runs": 100})
-    with pytest.raises(
-        TypeError, match="All elements of 'job_params' must be dictionaries"
-    ):
-        emu.run(job_params=[{"runs": 100}, "foo"])
-
-    with pytest.raises(ValueError, match="must specify 'runs'"):
-        emu.run(job_params=[{}])
-
-    good_kwargs = {
-        "job_params": [
-            {
-                "runs": 10,
-                "variables": {
-                    "t": 100,
-                    "qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3},
-                },
-            }
-        ]
-    }
-    remote_results = emu.run(**good_kwargs)
-    assert isinstance(remote_results, RemoteResults)
-
-    sdk_config: EmuTNConfig | EmuFreeConfig
-    if isinstance(emu, EmuTNBackend):
-        emulator_type = EmulatorType.EMU_TN
-        sdk_config = EmuTNConfig(dt=10, strict_validation=mimic_qpu)
-    else:
-        emulator_type = EmulatorType.EMU_FREE
-        sdk_config = EmuFreeConfig(strict_validation=mimic_qpu)
-    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once()
-    fixt_pasqal_cloud.mock_cloud_sdk.create_batch.assert_called_once_with(
-        serialized_sequence=seq.to_abstract_repr(),
-        jobs=good_kwargs.get("job_params", []),
-        emulator=emulator_type,
-        device_type=None,
-        backend_configuration=None,
-        configuration=sdk_config,
-        wait=False,
-        open=False,
     )
 
 
@@ -643,8 +501,6 @@ def test_create_ovh_batch(fixt_ovh_connection, _clear_ovh_test_env):
     fixt_ovh_connection.mock_cloud_sdk.create_batch.assert_called_once_with(
         serialized_sequence=seq.to_abstract_repr(),
         jobs=job_params,
-        emulator=None,
-        configuration=None,
         device_type=DeviceTypeName.FRESNEL,
         backend_configuration=None,
         wait=True,
