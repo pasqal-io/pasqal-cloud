@@ -5,7 +5,7 @@ from warnings import warn
 from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr, ValidationInfo
 from requests import HTTPError
 
-from pasqal_cloud.client import Client
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.device import DeviceTypeName
 from pasqal_cloud.device.configuration import (
     BaseConfig,
@@ -46,7 +46,7 @@ class Batch(BaseModel):
         user_id: Unique identifier of the user that created the batch.
         status: Status of the batch. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        _client: A Client instance to connect to PCS.
+        _client: A HTTPClient instance to connect to PCS.
         ordered_jobs: List of all the jobs added to the batch,
             ordered by creation time.
         jobs_count: Number of jobs added to the batch.
@@ -78,7 +78,7 @@ class Batch(BaseModel):
     id: str
     user_id: str
     status: str
-    _client: Client = PrivateAttr()
+    _client: HTTPClient = PrivateAttr()
     _ordered_jobs: Optional[List[Job]] = PrivateAttr(default=None)
     jobs_count: int = 0
     jobs_count_per_status: Dict[str, int] = {}

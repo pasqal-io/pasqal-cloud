@@ -3,14 +3,14 @@ from __future__ import annotations
 import os
 from typing import Any, Dict
 
-import pasqal_cloud
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.client import Client
+from pasqal_cloud.http_client import HTTPClient
 
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 
-class OvhClient(Client):
+class OvhClient(HTTPClient):
     """OVH specific client that uses different API endpoints."""
 
     @property
@@ -58,7 +58,7 @@ class MissingEnvironmentVariableError(RuntimeError):
     pass
 
 
-class OVHConnection(PasqalCloud):
+class OVHConnection(PasqalCloudConnection):
     """PasqalCloud connection designed for OVH users.
 
     This connection class enables OVH users to access Pasqal Cloud services.
@@ -82,7 +82,7 @@ class OVHConnection(PasqalCloud):
             def get_token(self) -> str:
                 return token
 
-        self._sdk_connection = pasqal_cloud.SDK(
+        self._sdk_connection = PasqalCloudClient(
             token_provider=OvhTokenProvider(), client_class=OvhClient, **kwargs
         )
 

@@ -7,7 +7,7 @@ from pulser import AnalogDevice, DigitalAnalogDevice, Register, Sequence
 from pulser.backend.config import EmulationConfig
 from pulser.backend.remote import JobParams
 from pasqal_cloud.backends import EmuSVBackend
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloud
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 
@@ -22,12 +22,14 @@ test_device = dataclasses.replace(
 
 
 @patch(
-    "pasqal_cloud.client.PasswordGrantTokenProvider",
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
 def test_emu_sv_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
-    connection = PasqalCloud(username="test", password="test", project_id=str(uuid4()))
+    connection = PasqalCloudConnection(
+        username="test", password="test", project_id=str(uuid4())
+    )
 
     device = AnalogDevice
     register = Register.from_coordinates([(0, 0)], prefix="q")

@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, TypedDict, Union
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from requests import HTTPError
 
-from pasqal_cloud.client import Client
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.errors import JobCancellingError
 from pasqal_cloud.utils.jsend import JobResult
 
@@ -18,7 +18,7 @@ class Job(BaseModel):
         project_id: ID of the project which the users scheduling the job belong to.
         status: Status of the job. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        _client: A Client instance to connect to PCS.
+        _client: A HTTPClient instance to connect to PCS.
         created_at: Timestamp of the creation of the job.
         updated_at: Timestamp of the last update of the job.
         errors: Error messages that occurred while processing job.
@@ -40,7 +40,7 @@ class Job(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client = PrivateAttr()
+    _client: HTTPClient = PrivateAttr()
     created_at: str
     updated_at: str
     errors: Optional[List[str]] = None

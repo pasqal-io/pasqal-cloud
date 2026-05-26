@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from pasqal_cloud import Batch, Client, Job, Workload
+from pasqal_cloud import Batch, Job, Workload
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.endpoints import Endpoints
 from requests import HTTPError, Request
 
@@ -157,11 +158,11 @@ def mock_request_exception(request_mock_exception) -> Generator[Any, Any, None]:
 
 @pytest.fixture
 @patch(
-    "pasqal_cloud.client.PasswordGrantTokenProvider",
+    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
 def pasqal_client_mock():
-    return Client(
+    return HTTPClient(
         project_id="00000000-0000-0000-0000-000000000002",
         username="00000000-0000-0000-0000-000000000001",
         password="password",

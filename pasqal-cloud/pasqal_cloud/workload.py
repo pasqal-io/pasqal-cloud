@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr
 from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
-from pasqal_cloud.client import _skip_ssl_verify, Client
+from pasqal_cloud.http_client import _skip_ssl_verify, HTTPClient
 from pasqal_cloud.errors import (
     InvalidWorkloadResultsFormatError,
     WorkloadCancellingError,
@@ -26,7 +26,7 @@ class Workload(BaseModel):
             belong to.
         status: Status of the workload. Possible values are:
             PENDING, RUNNING, DONE, CANCELED, TIMED_OUT, ERROR, PAUSED.
-        _client: A Client instance to connect to PCS.
+        _client: A HTTPClient instance to connect to PCS.
         backend: The backend used for the workload.
         workload_type: The type of the workload.
         config: The config containing all the necessary information for
@@ -42,7 +42,7 @@ class Workload(BaseModel):
     id: str
     project_id: str
     status: str
-    _client: Client = PrivateAttr()
+    _client: HTTPClient = PrivateAttr()
     backend: str
     workload_type: str
     config: Dict[str, Any]

@@ -17,7 +17,8 @@ from __future__ import annotations
 
 from typing import Any, Mapping, cast
 
-import pasqal_cloud
+from pasqal_cloud.device.device_types import DeviceTypeName
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 import tenacity
 from pasqal_cloud.endpoints import Region
 from pasqal_cloud.job import CreateJob
@@ -47,7 +48,7 @@ retry = tenacity.retry(
 )
 
 
-class PasqalCloud(RemoteConnection):
+class PasqalCloudConnection(RemoteConnection):
     """Manager of the connection to PASQAL's cloud platform.
 
     The cloud connection enables to run sequences on simulators or on real
@@ -57,7 +58,7 @@ class PasqalCloud(RemoteConnection):
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
-        kwargs: Additional arguments to provide to the pasqal_cloud.SDK()
+        kwargs: Additional arguments to provide to the PasqalCloudClient()
     """
 
     def __init__(
@@ -69,7 +70,7 @@ class PasqalCloud(RemoteConnection):
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""
-        self._sdk_connection = pasqal_cloud.SDK(
+        self._sdk_connection = PasqalCloudClient(
             username=username,
             password=password,
             project_id=project_id,
@@ -83,7 +84,7 @@ class PasqalCloud(RemoteConnection):
         wait: bool = False,
         open: bool = False,
         batch_id: str | None = None,
-        device_type: pasqal_cloud.DeviceTypeName | None = None,
+        device_type: DeviceTypeName | None = None,
         backend_configuration: EmulationConfig | None = None,
         **kwargs: Any,
     ) -> RemoteResults:

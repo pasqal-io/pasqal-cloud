@@ -15,8 +15,8 @@ from pasqal_cloud import (
     JobFilters,
     PaginatedResponse,
     PaginationParams,
-    SDK,
 )
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud.utils.constants import JobStatus
 from pasqal_cloud.utils.responses import JobCancellationResponse
 
@@ -36,10 +36,11 @@ class TestJob:
 
     @pytest.fixture(autouse=True)
     @patch(
-        "pasqal_cloud.client.PasswordGrantTokenProvider", FakeAuth0AuthenticationSuccess
+        "pasqal_cloud.http_client.PasswordGrantTokenProvider",
+        FakeAuth0AuthenticationSuccess,
     )
     def _init_sdk(self):
-        self.sdk = SDK(
+        self.sdk = PasqalCloudClient(
             username="me@test.com",
             password="password",
             project_id=str(uuid4()),
