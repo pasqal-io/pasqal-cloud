@@ -1,6 +1,6 @@
-# Pasqal Cloud
+# pasqal-cloud
 
-**Pasqal Cloud** is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud) infrastructure.
+`pasqal-cloud` is a Python package to execute [Pulser](https://pypi.org/project/pulser/) sequences on [Pasqal](https://portal.pasqal.cloud) infrastructure.
 
 ## Installation
 
