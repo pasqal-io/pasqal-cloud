@@ -56,7 +56,7 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Pasqal Cloud Services",
     maintainer_email="pcs@pasqal.io",
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     license="Apache 2.0",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -68,9 +68,8 @@ setup(
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
-        "requests-mock==1.12.1",
-        "pulser-core >= 1.6",
-        "tenacity ~= 8.5",
+        "pulser-core >= 1.8",
+        "tenacity >= 9.1",
     ],
     extras_require={
         "dev": {
@@ -78,6 +77,7 @@ setup(
             "mypy==1.10.0",
             "pytest==8.1.1",
             "pytest-cov==5.0.0",
+            "requests-mock==1.12.1",
             "types-requests==2.31.0.1",
         },
         "docs": {

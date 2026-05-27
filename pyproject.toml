@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 
-# Assume Python 3.9
-target-version = "py39"
+# Assume Python 3.10
+target-version = "py310"
 
 [tool.ruff.lint]
 # Rules applied by ruff, more information on https://docs.astral.sh/ruff/rules/
@@ -31,7 +31,17 @@ select = [
     "PERF",
     "RUF",
 ]
-ignore = ["W191", "E111", "E114", "E117", "Q000", "Q001", "Q002", "Q003", "SIM115"]
+ignore = [
+    "W191",
+    "E111",
+    "E114",
+    "E117",
+    "Q000",
+    "Q001",
+    "Q002",
+    "Q003",
+    "SIM115",
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
