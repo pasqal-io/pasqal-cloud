@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+import logging
 import warnings
 from typing import Any, ClassVar
 
@@ -24,6 +25,8 @@ from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend
 from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
+
+logger = logging.getLogger(__name__)
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[misc]
@@ -66,12 +69,17 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
                 obtained results' status can be checked using their `status`
                 property.
 
-        Warning:
-            Unlike a 'QPUBackend', this backend does not expect a value for
-            "runs" in each entry of 'job_params'. If provided, this value is
-            ignored. If you wish to set the total number of bitstring counts
-            in the Results, please provide a 'BitStrings' observable with the
-            desired 'num_shots' via this backend's 'config' instead."
+        Note on 'runs':
+            Unlike a QPU backend, emulator backends do not use 'runs'
+            directly. Within an open_batch, 'runs' is ignored and a
+            warning is emitted. Outside an open_batch, the highest
+            'runs' value across all jobs is used to set
+            'default_num_shots' on this backend's config (unless a
+            'BitStrings' observable with a custom 'num_shots' is
+            already configured, in which case 'runs' has no effect).
+            To control the number of bitstring samples explicitly,
+            provide a 'BitStrings' observable with the desired
+            'num_shots' via this backend's 'config'.
 
         Returns:
             The results, which can be accessed once all sequences have been
@@ -82,23 +90,70 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
             # Assume a single job
             _job_params = [{"runs": 1}]
         else:
-            if any(
-                j.get("runs", None) is not None
-                for j in job_params
-                if isinstance(j, dict)
-            ):
-                # Warns whenever runs is defined and not None
+            runs_values: list[int] = [
+                j["runs"] for j in job_params if j.get("runs") is not None
+            ]
+
+            # Inside an open_batch: runs has no effect on emulators.
+            # Reset runs to 1 and warn the user.
+            if self._batch_id and runs_values:
                 warnings.warn(
                     "The 'runs' parameter is ignored on jobs executed on "
-                    f"{self.__class__.__name__!r}. If you wish to set a "
-                    "custom number of bitstring counts in the Results, please "
-                    "provide a 'BitStrings' observable with the desired "
-                    "'num_shots' via this backend's 'config' instead.",
+                    f"{self.__class__.__name__!r} within an open_batch "
+                    "for now. It uses BitStrings observable 'num_shots' "
+                    f"or 'default_num_shots' of {self.__class__.__name__!r}'s config.",
                     stacklevel=2,
                 )
+            elif runs_values:
+                max_runs = max(runs_values)
+                if not self._apply_default_num_shots(max_runs):
+                    warnings.warn(
+                        "The 'runs' parameter has no effect on "
+                        f"{self.__class__.__name__!r} because a "
+                        "'BitStrings' observable with a custom "
+                        "'num_shots' is already configured. The "
+                        "existing 'num_shots' value will be used.",
+                        stacklevel=2,
+                    )
+                elif len(runs_values) > 1:
+                    warnings.warn(
+                        "Passing multiple jobs with 'runs' is not "
+                        "supported on emulator backends for now. "
+                        f"'default_num_shots' has been set to "
+                        f"{max_runs} (the highest 'runs' value) on "
+                        f"{self.__class__.__name__!r}'s config.",
+                        stacklevel=2,
+                    )
+
             # TODO: Stop defaulting runs=1 once it is optional on pasqal-cloud
             _job_params = [{"runs": 1, **j} for j in job_params]
+
         return super().run(job_params=_job_params, wait=wait)
+
+    def _apply_default_num_shots(self, max_runs: int) -> bool:
+        """Set config.default_num_shots from the highest 'runs' value.
+
+        Returns True if default_num_shots was updated, False if a
+        BitStrings observable already has a custom num_shots (in which
+        case runs has no effect).
+        """
+        has_custom_num_shots = any(
+            isinstance(obs, BitStrings) and obs.num_shots is not None
+            for obs in self._config.observables
+        )
+        if has_custom_num_shots:
+            return False
+
+        self._config = self._config.with_changes(
+            default_num_shots=max_runs,
+        )
+        logger.info(
+            "Setting 'default_num_shots' to %d on %s's config "
+            "(derived from the highest 'runs' value).",
+            max_runs,
+            self.__class__.__name__,
+        )
+        return True
 
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""

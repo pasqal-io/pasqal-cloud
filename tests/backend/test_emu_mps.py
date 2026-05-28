@@ -1,6 +1,6 @@
-import contextlib
 import dataclasses
 import json
+import logging
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -27,12 +27,24 @@ test_device = dataclasses.replace(
 @pytest.mark.parametrize(
     "config", [None, EmulationConfig(observables=[BitStrings(tag_suffix="custom")])]
 )
-@pytest.mark.parametrize("job_params", [None, [JobParams(runs=10)]])
+@pytest.mark.parametrize(
+    ("job_params", "expected_default_num_shots"),
+    [
+        pytest.param(None, None, id="no_job_params"),
+        pytest.param([JobParams(runs=10)], 10, id="runs_10"),
+    ],
+)
 @patch(
     "pasqal_cloud.http_client.PasswordGrantTokenProvider",
     FakeAuth0AuthenticationSuccess,
 )
-def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, config):
+def test_emu_mps_backend(
+    mock_request: requests_mock.mocker.Mocker,
+    caplog,
+    job_params,
+    expected_default_num_shots,
+    config,
+):
     mock_request.reset_mock()
     connection = PasqalCloudConnection(
         username="test", password="test", project_id=str(uuid4())
@@ -47,12 +59,7 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
 
     backend = EmuMPSBackend(sequence=sequence, connection=connection, config=config)
 
-    context_manager = (
-        pytest.warns(UserWarning, match="'runs' parameter is ignored")
-        if job_params
-        else contextlib.nullcontext()
-    )
-    with context_manager:
+    with caplog.at_level(logging.INFO, logger="pasqal_cloud.backends"):
         _ = backend.run(job_params=job_params)
     assert (
         mock_request.request_history[0].url
@@ -69,7 +76,12 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
         (EmuMPSBackend.default_config).to_abstract_repr()
     )
     custom_config_params = json.loads(config.to_abstract_repr()) if config else {}
-    assert (
-        json.loads(post_batch_body["backend_configuration"])
-        == default_config_params | custom_config_params
-    )
+    expected_config = default_config_params | custom_config_params
+    if expected_default_num_shots is not None:
+        expected_config["default_num_shots"] = expected_default_num_shots
+        assert any(
+            "Setting 'default_num_shots'" in r.message
+            and str(expected_default_num_shots) in r.message
+            for r in caplog.records
+        ), f"Expected INFO log with default_num_shots={expected_default_num_shots}"
+    assert json.loads(post_batch_body["backend_configuration"]) == expected_config
