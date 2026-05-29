@@ -21,9 +21,12 @@ from typing import Any, ClassVar
 import pulser
 from pasqal_cloud.device.device_types import DeviceTypeName
 from pulser.backend import BitStrings, EmulationConfig, EmulatorBackend
-from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
-
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
+from pulser.backend.remote import (
+    JobParams,
+    RemoteBackend,
+    RemoteConnection,
+    RemoteResults,
+)
 
 
 class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[misc]
@@ -32,7 +35,7 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
     def __init__(
         self,
         sequence: pulser.Sequence,
-        connection: PasqalCloudConnection,
+        connection: RemoteConnection,
         *,
         config: EmulationConfig | None = None,
         mimic_qpu: bool = False,
