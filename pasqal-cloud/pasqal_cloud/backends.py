@@ -26,7 +26,7 @@ from pulser.backend.remote import JobParams, RemoteBackend, RemoteResults
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 
-class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):
+class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[misc]
     _device_type: ClassVar[DeviceTypeName]
 
     def __init__(
