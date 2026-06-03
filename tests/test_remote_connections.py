@@ -379,6 +379,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
     fixt_pasqal_cloud.mock_cloud_client.add_jobs.assert_called_once_with(
         "open_batch",
         jobs=job_params,
+        wait=False,
     )
     # The MockBatch returned before and after submission is the same
     # so no new job ids are found

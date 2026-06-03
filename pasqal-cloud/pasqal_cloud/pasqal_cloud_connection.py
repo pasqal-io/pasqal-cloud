@@ -110,6 +110,7 @@ class PasqalCloudConnection(RemoteConnection):
             batch = submit_jobs_fn(
                 batch_id,
                 jobs=job_params,
+                wait=wait,
             )
             new_job_ids = [
                 job_id

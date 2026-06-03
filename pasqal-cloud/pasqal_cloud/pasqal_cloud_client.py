@@ -638,7 +638,9 @@ class PasqalCloudClient:
                 job_rsp = self._get_job(id)
         return Job(**job_rsp, _client=self._client)
 
-    def add_jobs(self, batch_id: str, jobs: List[CreateJob]) -> Batch:
+    def add_jobs(
+        self, batch_id: str, jobs: List[CreateJob], wait: bool = False
+    ) -> Batch:
         """
         Add jobs to an already existing batch.
 
@@ -657,7 +659,16 @@ class PasqalCloudClient:
             resp = self._client.add_jobs(batch_id, create_jobs_to_api_payload(jobs))
         except HTTPError as e:
             raise JobCreationError(e)
-        return Batch(**resp, _client=self._client)
+
+        batch = Batch(**resp, _client=self._client)
+
+        if wait:
+            while any(
+                job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs
+            ):
+                time.sleep(RESULT_POLLING_INTERVAL)
+                batch.refresh()
+        return batch
 
     def complete_batch(self, batch_id: str) -> Batch:
         """
