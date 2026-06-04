@@ -15,15 +15,15 @@ from typing import Any
 
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 from pasqal_cloud.ovh import OVHConnection
-from pasqal_cloud.backends import EmuMPSBackend, EmuSVBackend, EmuFreeBackend
+from pasqal_cloud.backends import RemoteMPSBackend, RemoteSVBackend, RemoteFreeBackend
 
 # Public API — only these two are the intended top-level exports.
 __all__ = [
     "PasqalCloudConnection",
     "OVHConnection",
-    "EmuMPSBackend",
-    "EmuSVBackend",
-    "EmuFreeBackend",
+    "RemoteMPSBackend",
+    "RemoteSVBackend",
+    "RemoteFreeBackend",
 ]
 
 
