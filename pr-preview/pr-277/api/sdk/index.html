@@ -576,18 +576,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pasqal_cloud.RemoteFreeBackend" class="md-nav__link">
+  <a href="#pasqal_cloud.RemoteMPSBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      RemoteFreeBackend
+      RemoteMPSBackend
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#pasqal_cloud.RemoteMPSBackend" class="md-nav__link">
+  <a href="#pasqal_cloud.RemoteQutipBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      RemoteMPSBackend
+      RemoteQutipBackend
     </span>
   </a>
   
@@ -811,18 +811,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#pasqal_cloud.RemoteFreeBackend" class="md-nav__link">
+  <a href="#pasqal_cloud.RemoteMPSBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      RemoteFreeBackend
+      RemoteMPSBackend
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#pasqal_cloud.RemoteMPSBackend" class="md-nav__link">
+  <a href="#pasqal_cloud.RemoteQutipBackend" class="md-nav__link">
     <span class="md-ellipsis">
-      RemoteMPSBackend
+      RemoteQutipBackend
     </span>
   </a>
   
@@ -1529,8 +1529,8 @@ all jobs are included and ordered by date of creation.</p>
 
 
 
-<h3 id="pasqal_cloud.RemoteFreeBackend" class="doc doc-heading">
-              <code class="highlight language-python"><span class="n">RemoteFreeBackend</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mimic_qpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h3 id="pasqal_cloud.RemoteMPSBackend" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">RemoteMPSBackend</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mimic_qpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1540,10 +1540,10 @@ all jobs are included and ordered by date of creation.</p>
               Bases: <code><span title="pasqal_cloud.backends.RemoteEmulatorBackend">RemoteEmulatorBackend</span></code></p>
 
 
-        <p>Backend for executing quantum programs using pulser-simulation (QuTiP).</p>
+        <p>Backend for executing quantum programs using the EMU-MPS emulator.</p>
 <p>The config supports various fields. For a complete list of accepted
-parameters (passed as <code>**kwargs</code>), refer to the official documentation:
-https://pulser.readthedocs.io/en/stable/apidoc/_autosummary/pulser_simulation.QutipConfig.html#pulser_simulation.QutipConfig</p>
+parameters (passed as <code>**kwargs</code>), refer to the official EMU-MPS documentation:
+https://pasqal-io.github.io/emulators/latest/emu_mps/api/#mpsconfig</p>
 
 
 <table>
@@ -1704,8 +1704,8 @@ execution on a QPU.</p>
 
 
 
-<h3 id="pasqal_cloud.RemoteMPSBackend" class="doc doc-heading">
-              <code class="highlight language-python"><span class="n">RemoteMPSBackend</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mimic_qpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h3 id="pasqal_cloud.RemoteQutipBackend" class="doc doc-heading">
+              <code class="highlight language-python"><span class="n">RemoteQutipBackend</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">connection</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mimic_qpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1715,10 +1715,10 @@ execution on a QPU.</p>
               Bases: <code><span title="pasqal_cloud.backends.RemoteEmulatorBackend">RemoteEmulatorBackend</span></code></p>
 
 
-        <p>Backend for executing quantum programs using the EMU-MPS emulator.</p>
+        <p>Backend for executing quantum programs using pulser-simulation (QuTiP).</p>
 <p>The config supports various fields. For a complete list of accepted
-parameters (passed as <code>**kwargs</code>), refer to the official EMU-MPS documentation:
-https://pasqal-io.github.io/emulators/latest/emu_mps/api/#mpsconfig</p>
+parameters (passed as <code>**kwargs</code>), refer to the official documentation:
+https://pulser.readthedocs.io/en/stable/apidoc/_autosummary/pulser_simulation.QutipConfig.html#pulser_simulation.QutipConfig</p>
 
 
 <table>
