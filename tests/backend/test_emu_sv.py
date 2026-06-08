@@ -6,7 +6,7 @@ import requests_mock
 from pulser import AnalogDevice, DigitalAnalogDevice, Register, Sequence
 from pulser.backend.config import EmulationConfig
 from pulser.backend.remote import JobParams
-from pasqal_cloud.backends import EmuSVBackend
+from pasqal_cloud.backends import RemoteSVBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -37,7 +37,7 @@ def test_emu_sv_backend(mock_request: requests_mock.mocker.Mocker):
     sequence.measure()
 
     config = EmulationConfig()
-    backend = EmuSVBackend(sequence=sequence, connection=connection, config=config)
+    backend = RemoteSVBackend(sequence=sequence, connection=connection, config=config)
     _ = backend.run(job_params=[JobParams(runs=10)])
     assert (
         mock_request.request_history[0].url

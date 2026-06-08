@@ -9,7 +9,7 @@ import requests_mock
 from pulser import AnalogDevice, DigitalAnalogDevice, Register, Sequence
 from pulser.backend import BitStrings, EmulationConfig
 from pulser.backend.remote import JobParams
-from pasqal_cloud.backends import EmuMPSBackend
+from pasqal_cloud.backends import RemoteMPSBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -45,7 +45,7 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
     sequence.declare_channel("rydberg_global", "rydberg_global")
     sequence.measure()
 
-    backend = EmuMPSBackend(sequence=sequence, connection=connection, config=config)
+    backend = RemoteMPSBackend(sequence=sequence, connection=connection, config=config)
 
     context_manager = (
         pytest.warns(UserWarning, match="'runs' parameter is ignored")
@@ -66,7 +66,7 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
     assert post_batch_body["jobs"] == job_params or {"runs": 1}
 
     default_config_params = json.loads(
-        (EmuMPSBackend.default_config).to_abstract_repr()
+        (RemoteMPSBackend.default_config).to_abstract_repr()
     )
     custom_config_params = json.loads(config.to_abstract_repr()) if config else {}
     assert (

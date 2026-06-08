@@ -112,7 +112,7 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
         )
 
 
-class EmuMPSBackend(RemoteEmulatorBackend):
+class RemoteMPSBackend(RemoteEmulatorBackend):
     """
     Backend for executing quantum programs using the EMU-MPS emulator.
 
@@ -138,7 +138,7 @@ class EmuMPSBackend(RemoteEmulatorBackend):
     _device_type = DeviceTypeName.EMU_MPS
 
 
-class EmuSVBackend(RemoteEmulatorBackend):
+class RemoteSVBackend(RemoteEmulatorBackend):
     """
     Backend for executing quantum programs using the EMU-SV emulator.
 
@@ -161,7 +161,7 @@ class EmuSVBackend(RemoteEmulatorBackend):
     _device_type = DeviceTypeName.EMU_SV
 
 
-class EmuFreeBackend(RemoteEmulatorBackend):
+class RemoteQutipBackend(RemoteEmulatorBackend):
     """
     Backend for executing quantum programs using pulser-simulation (QuTiP).
 
