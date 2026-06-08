@@ -53,56 +53,6 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
             mimic_qpu=mimic_qpu,
         )
 
-    def run(
-        self, job_params: list[JobParams] | None = None, wait: bool = False
-    ) -> RemoteResults:
-        """Runs the sequence on this remote emulator and returns the result.
-
-        Args:
-            job_params: A list of parameters for each job to execute. If the
-                sequence is parametrized, the values for all the variables
-                necessary to build the sequence must be given for
-                each job, under the 'variables' field. If not given, a single
-                job is executed.
-            wait: Whether to wait until the results of the jobs become
-                available.  If set to False, the call is non-blocking and the
-                obtained results' status can be checked using their `status`
-                property.
-
-        Warning:
-            Unlike a 'QPUBackend', this backend does not expect a value for
-            "runs" in each entry of 'job_params'. If provided, this value is
-            ignored. If you wish to set the total number of bitstring counts
-            in the Results, please provide a 'BitStrings' observable with the
-            desired 'num_shots' via this backend's 'config' instead."
-
-        Returns:
-            The results, which can be accessed once all sequences have been
-            successfully executed.
-        """
-        _job_params: list[JobParams]
-        if job_params is None:
-            # Assume a single job
-            _job_params = [{"runs": 1}]
-        else:
-            if any(
-                j.get("runs", None) is not None
-                for j in job_params
-                if isinstance(j, dict)
-            ):
-                # Warns whenever runs is defined and not None
-                warnings.warn(
-                    "The 'runs' parameter is ignored on jobs executed on "
-                    f"{self.__class__.__name__!r}. If you wish to set a "
-                    "custom number of bitstring counts in the Results, please "
-                    "provide a 'BitStrings' observable with the desired "
-                    "'num_shots' via this backend's 'config' instead.",
-                    stacklevel=2,
-                )
-            # TODO: Stop defaulting runs=1 once it is optional on pasqal-cloud
-            _job_params = [{"runs": 1, **j} for j in job_params]
-        return super().run(job_params=_job_params, wait=wait)
-
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""
         return dict(
