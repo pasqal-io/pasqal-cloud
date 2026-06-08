@@ -161,7 +161,7 @@ class RemoteSVBackend(RemoteEmulatorBackend):
     _device_type = DeviceTypeName.EMU_SV
 
 
-class RemoteFreeBackend(RemoteEmulatorBackend):
+class RemoteQutipBackend(RemoteEmulatorBackend):
     """
     Backend for executing quantum programs using pulser-simulation (QuTiP).
 
