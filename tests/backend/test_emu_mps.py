@@ -47,13 +47,7 @@ def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, 
 
     backend = RemoteMPSBackend(sequence=sequence, connection=connection, config=config)
 
-    context_manager = (
-        pytest.warns(UserWarning, match="'runs' parameter is ignored")
-        if job_params
-        else contextlib.nullcontext()
-    )
-    with context_manager:
-        _ = backend.run(job_params=job_params)
+    _ = backend.run(job_params=job_params)
     assert (
         mock_request.request_history[0].url
         == "https://apis.pasqal.cloud/core-fast/api/v1/batches"

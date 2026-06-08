@@ -53,6 +53,15 @@ class RemoteEmulatorBackend(RemoteBackend, EmulatorBackend):  # type: ignore[mis
             mimic_qpu=mimic_qpu,
         )
 
+    def run(
+        self, job_params: list[JobParams] | None = None, wait: bool = False
+    ) -> RemoteResults:
+        if job_params is None:
+            # Assume a single job
+            job_params = [{}]
+
+        return super().run(job_params=job_params, wait=wait)
+
     def _submit_kwargs(self) -> dict[str, Any]:
         """Keyword arguments given to any call to RemoteConnection.submit()."""
         return dict(
