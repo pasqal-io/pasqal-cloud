@@ -70,7 +70,7 @@ class PasqalCloudConnection(RemoteConnection):
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""
-        self._sdk_connection = PasqalCloudClient(
+        self.cloud_client = PasqalCloudClient(
             username=username,
             password=password,
             project_id=project_id,
@@ -103,9 +103,9 @@ class PasqalCloudConnection(RemoteConnection):
         )
         # If batch_id is not empty, then we can submit new jobs to a
         # batch we just created otherwise, create a new one with
-        #  _sdk_connection.create_batch()
+        #  cloud_client.create_batch()
         if batch_id:
-            submit_jobs_fn = retry(self._sdk_connection.add_jobs)
+            submit_jobs_fn = retry(self.cloud_client.add_jobs)
             old_job_ids = self._get_job_ids(batch_id)
             batch = submit_jobs_fn(
                 batch_id,
@@ -118,7 +118,7 @@ class PasqalCloudConnection(RemoteConnection):
                 if job_id not in old_job_ids
             ]
         else:
-            create_batch_fn = retry(self._sdk_connection.create_batch)
+            create_batch_fn = retry(self.cloud_client.create_batch)
             batch = create_batch_fn(
                 serialized_sequence=sequence.to_abstract_repr(),
                 jobs=job_params,
@@ -133,7 +133,7 @@ class PasqalCloudConnection(RemoteConnection):
     @retry
     def fetch_available_devices(self) -> dict[str, Device]:
         """Fetches the devices available through this connection."""
-        abstract_devices = self._sdk_connection.get_device_specs_dict()
+        abstract_devices = self.cloud_client.get_device_specs_dict()
         return {
             name: cast(Device, deserialize_device(dev_str))
             for name, dev_str in abstract_devices.items()
@@ -148,8 +148,6 @@ class PasqalCloudConnection(RemoteConnection):
 
         Args:
             batch_id: The ID that identifies the batch linked to the results.
-            connection: The remote connection over which to get the batch's
-                status and fetch the results.
             job_ids: If given, specifies which jobs within the batch should
                 be included in the results and in what order. If left undefined,
                 all jobs are included and ordered by date of creation.
@@ -184,7 +182,7 @@ class PasqalCloudConnection(RemoteConnection):
     def _query_job_progress(
         self, batch_id: str
     ) -> Mapping[str, tuple[JobStatus, Results | None]]:
-        get_batch_fn = retry(self._sdk_connection.get_batch)
+        get_batch_fn = retry(self.cloud_client.get_batch)
         batch = get_batch_fn(id=batch_id)
 
         assert isinstance(batch.sequence_builder, str)
@@ -229,13 +227,13 @@ class PasqalCloudConnection(RemoteConnection):
     @retry
     def _get_batch_status(self, batch_id: str) -> BatchStatus:
         """Gets the status of a batch from its ID."""
-        batch = self._sdk_connection.get_batch(id=batch_id)
+        batch = self.cloud_client.get_batch(id=batch_id)
         return BatchStatus[batch.status]
 
     @retry
     def _get_job_ids(self, batch_id: str) -> list[str]:
         """Gets all the job IDs within a batch."""
-        batch = self._sdk_connection.get_batch(id=batch_id)
+        batch = self.cloud_client.get_batch(id=batch_id)
         return [job.id for job in batch.ordered_jobs]
 
     def supports_open_batch(self) -> bool:
@@ -244,4 +242,4 @@ class PasqalCloudConnection(RemoteConnection):
 
     def _close_batch(self, batch_id: str) -> None:
         """Closes the batch on pasqal cloud associated with the batch ID."""
-        self._sdk_connection.close_batch(batch_id)
+        self.cloud_client.close_batch(batch_id)

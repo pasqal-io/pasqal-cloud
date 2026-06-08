@@ -917,7 +917,7 @@ class PasqalCloudClient:
 
         Raises:
             ProjectNotFoundError: If the specified project ID doesn't
-            exist or isn't accessible to the current user.
+                exist or isn't accessible to the current user.
         """
         user_projects = self.get_all_projects()
 

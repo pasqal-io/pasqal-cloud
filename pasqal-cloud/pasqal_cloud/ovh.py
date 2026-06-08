@@ -61,13 +61,17 @@ class MissingEnvironmentVariableError(RuntimeError):
 class OVHConnection(PasqalCloudConnection):
     """PasqalCloud connection designed for OVH users.
 
-    This connection class enables OVH users to access Pasqal Cloud services.
+    This connection class enables OVH users to access Pasqal Cloud services
+    through pre-configured OVH quantum notebooks.
+    See the [OVH product page](https://www.ovhcloud.com/fr/public-cloud/qpu/)
+    for more information.
+
     Authentication is handled via a token that must be provided
-    through the PASQAL_PULSER_ACCESS_TOKEN environment variable.
+    through the `PASQAL_PULSER_ACCESS_TOKEN` environment variable.
 
     Raises:
-       MissingEnvironmentVariableError: If PASQAL_PULSER_ACCESS_TOKEN
-       environment variable is not set.
+       MissingEnvironmentVariableError: If `PASQAL_PULSER_ACCESS_TOKEN`
+           environment variable is not set.
     """
 
     def __init__(self, **kwargs: Any) -> None:
@@ -82,7 +86,7 @@ class OVHConnection(PasqalCloudConnection):
             def get_token(self) -> str:
                 return token
 
-        self._sdk_connection = PasqalCloudClient(
+        self.cloud_client = PasqalCloudClient(
             token_provider=OvhTokenProvider(), client_class=OvhClient, **kwargs
         )
 
