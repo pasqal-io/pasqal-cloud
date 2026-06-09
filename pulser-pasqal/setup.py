@@ -59,7 +59,7 @@ setup(
     install_requires=[
         "pasqal-cloud == 0.22.0",
         "pulser-core >= 1.6",
-        "tenacity ~= 8.5",
+        "tenacity >= 9.1",
     ],
 )
 
