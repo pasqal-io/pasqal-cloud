@@ -1,12 +1,12 @@
-Replace your `pulser_pasqal` imports with `pasqal_cloud`:
+Replace your `pulser_pasqal` imports with `pasqal_cloud` and use the new classes names:
 
 | `pulser_pasqal` (old) | `pasqal_cloud` (new) |
 |---|---|
 | `PasqalCloud` | `PasqalCloudConnection` |
 | `OVHConnection` | `OVHConnection` |
-| `EmuMPSBackend` | `EmuMPSBackend` |
-| `EmuSVBackend` | `EmuSVBackend` |
-| `EmuFreeBackendV2` | `EmuFreeBackend` |
+| `EmuMPSBackend` | `RemoteMPSBackend` |
+| `EmuSVBackend` | `RemoteSVBackend` |
+| `EmuFreeBackendV2` | `RemoteQutipBackend` |
 
 For example:
 
@@ -19,4 +19,4 @@ from pasqal_cloud import PasqalCloudConnection
 ```
 
 !!! note
-    Most class names are unchanged. The exceptions are `PasqalCloud` → `PasqalCloudConnection` and `EmuFreeBackendV2` → `EmuFreeBackend`.
+    Deprecated classes in `pulser-pasqal` were not migrated in `pasqal-cloud`, eg: `EmuFreeBackend` and `EmuTNBackend` aren't available anymore.
