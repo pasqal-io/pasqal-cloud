@@ -35,7 +35,7 @@ class Job(BaseModel):
             to differentiate a None sequence and a non-retrieved sequence
     """
 
-    runs: int
+    runs: int | None
     batch_id: str
     id: str
     project_id: str
@@ -97,7 +97,7 @@ class Job(BaseModel):
 
 
 class CreateJob(TypedDict, total=False):
-    runs: int
+    runs: int | None
     variables: Union[Dict[str, Any], None]
     serialized_sequence: Optional[str]
 
