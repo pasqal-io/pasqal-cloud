@@ -1,4 +1,4 @@
-from pasqal_cloud import PasqalCloudConnection, EmuMPSBackend
+from pasqal_cloud import PasqalCloudConnection, RemoteMPSBackend
 from pulser.pulse import Pulse
 from pulser import Sequence, Register
 
@@ -21,7 +21,7 @@ generic_pulse = Pulse.ConstantPulse(100, omega_max, 2, 0.0)
 sequence.add(generic_pulse, "rydberg")
 
 # Declare a backend based on the sequence and remote connection
-backend = EmuMPSBackend(sequence=sequence, connection=connection)
+backend = RemoteMPSBackend(sequence=sequence, connection=connection)
 
 # Run jobs with different arguments over the same sequence and register
 results = backend.run(

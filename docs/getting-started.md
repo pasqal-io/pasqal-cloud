@@ -53,9 +53,9 @@ for the full sequence-writing reference.
 
 The package exposes several remote emulator backends:
 
-- [`EmuSVBackend`][pasqal_cloud.EmuSVBackend] — state vector emulator
-- [`EmuMPSBackend`][pasqal_cloud.EmuMPSBackend] — matrix product states emulator
-- [`EmuFreeBackend`][pasqal_cloud.EmuFreeBackend] — free-tier emulator
+- [`RemoteSVBackend`][pasqal_cloud.RemoteSVBackend] — state vector emulator
+- [`RemoteMPSBackend`][pasqal_cloud.RemoteMPSBackend] — matrix product states emulator
+- [`RemoteQutipBackend`][pasqal_cloud.RemoteQutipBackend] — qutip emulator
 
 Use them in place of `QPUBackend` to run the same sequences without consuming
 real QPU time:
