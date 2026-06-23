@@ -4,10 +4,26 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+
+## [0.23.0]
+
+### pulser-pasqal
+
+* Pin pasqal-cloud to 0.22.0
+* Add deprecation notices regarding pasqal-cloud merge
+
 ### pasqal-cloud
 
 * Replace backoff as unmaintained anymore by tenacity
-* Unclutter root `__init__.py` by extracting SDK to its own module
+* Merge pulser-pasqal into this package
+    - classes were renamed and deprecated ones removed
+
+* Changes
+    - runs from job_params is now honored for emulator backends
+
+* Fixes
+    - correctly wait for jobs to finish within open_batch context manager
+
 
 ## [0.22.0]
 
