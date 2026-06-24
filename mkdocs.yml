@@ -1,29 +1,33 @@
-site_name: Pasqal Cloud SDK
-repo_url: "https://github.com/pasqal-io/pasqal-cloud/"
-repo_name: "pasqal-cloud"
+site_name: pasqal-cloud
+site_url: https://pasqal-io.github.io/pasqal-cloud/
+repo_url: https://github.com/pasqal-io/pasqal-cloud
+repo_name: pasqal-io/pasqal-cloud
+edit_uri: edit/main/docs/
 
 theme:
   name: "material"
   features:
     - navigation.tabs
     - content.code.copy
+    - search.suggest
+    - search.highlight
 
 nav:
   - Home: index.md
+  - Getting started: getting-started.md
+  - Advanced Usage:
+      - advanced-usage/authentication.md
+      - Target different regions and environments: advanced-usage/target-different-regions-and-environments.md
+      - Use PasqalCloudClient: advanced-usage/use-cloud-client.md
 
-  - Usage:
-      - usage/installation.md
-      - usage/authentication.md
-      - Batches & Jobs: usage/batches_jobs.md
-      - usage/workloads.md
-      - usage/advanced_usage.md
+  - API reference:
+      - Overview: reference/index.md
+      - PasqalCloudConnection: reference/pasqal_cloud_connection.md
+      - OVHConnection: reference/ovh_connection.md
+      - Backends: reference/backends.md
+      - PasqalCloudClient: reference/pasqal_cloud_client.md
 
-  - API:
-      - SDK: api/sdk.md
-      - api/job.md
-      - api/batch.md
-      - api/workload.md
-      - api/errors.md
+  - Migrating from pulser-pasqal: migrating-from-pulser-pasqal.md
 
 plugins:
   - mkdocstrings:
@@ -31,16 +35,17 @@ plugins:
       default_handler: python
       handlers:
         python:
-          selection:
-            filters:
-              - "!^_" # exlude all members starting with _
-              - "^__init__$" # but always include __init__ modules and methods
-              - "^__new__$" # but always include __init__ modules and methods
+          path: [pasqal-cloud]
           options:
             show_root_toc_entry: false
             heading_level: 3
             merge_init_into_class: true
             docstring_section_style: spacy
+            members_order: source
+            filters:
+              - "!^_" # exlude all members starting with _
+              - "^__init__$" # but always include __init__ modules and methods
+              - "^__new__$" # but always include __new__ methods
 
 markdown_extensions:
   - admonition
@@ -53,6 +58,9 @@ markdown_extensions:
           class: python
           validator: "!!python/name:markdown_exec.validator"
           format: "!!python/name:markdown_exec.formatter"
+  - pymdownx.snippets:
+      base_path: ["."]
+      check_paths: true
 
 extra_css:
   # from Qadence, to get paddings on blocks
