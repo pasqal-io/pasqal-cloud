@@ -4,7 +4,7 @@ This guide will help you install `pasqal-cloud`, authenticate, and submit your f
 
 ## Prerequisites
 
-- **Python 3.9** or higher
+- **Python 3.10** or higher
 - A **Pasqal Cloud account** with valid credentials (username & password), see the [documentation](https://docs.pasqal.com/cloud/set-up/).
 - A **project ID** you are a member of, see the [documentation](https://docs.pasqal.com/cloud/set-up/#find-your-project-id).
 
