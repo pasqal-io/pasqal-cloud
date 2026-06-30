@@ -6,7 +6,7 @@ Replace your `pulser_pasqal` imports with `pasqal_cloud` and use the new classes
 | `OVHConnection` | `OVHConnection` |
 | `EmuMPSBackend` | `RemoteMPSBackend` |
 | `EmuSVBackend` | `RemoteSVBackend` |
-| `EmuFreeBackendV2` | `RemoteFreeBackend` |
+| `EmuFreeBackendV2` | `RemoteEmuFreeBackend` |
 
 For example:
 

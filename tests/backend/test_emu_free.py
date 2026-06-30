@@ -7,7 +7,7 @@ from pulser import AnalogDevice, Register, Sequence
 from pulser.backend import BitStrings, CorrelationMatrix
 from pulser.backend.config import EmulationConfig
 from pulser.backend.remote import JobParams
-from pasqal_cloud.backends import RemoteFreeBackend
+from pasqal_cloud.backends import RemoteEmuFreeBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -31,7 +31,7 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params)
     sequence.declare_channel("rydberg_global", "rydberg_global")
     sequence.measure()
 
-    backend = RemoteFreeBackend(sequence=sequence, connection=connection)
+    backend = RemoteEmuFreeBackend(sequence=sequence, connection=connection)
     _ = backend.run(job_params=job_params)
     assert (
         mock_request.request_history[0].url
@@ -43,7 +43,7 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params)
     assert post_batch_body["sequence_builder"] == sequence.to_abstract_repr()
     assert (
         post_batch_body["backend_configuration"]
-        == RemoteFreeBackend.default_config.to_abstract_repr()
+        == RemoteEmuFreeBackend.default_config.to_abstract_repr()
     )
     assert "emulator" not in post_batch_body
     assert post_batch_body["jobs"] == job_params or {"runs": 1}
@@ -67,7 +67,9 @@ def test_emu_free_backend_with_custom_config(mock_request: requests_mock.mocker.
     sequence.measure()
 
     config = EmulationConfig(observables=[BitStrings(), CorrelationMatrix()])
-    backend = RemoteFreeBackend(sequence=sequence, connection=connection, config=config)
+    backend = RemoteEmuFreeBackend(
+        sequence=sequence, connection=connection, config=config
+    )
     _ = backend.run()
     assert (
         mock_request.request_history[0].url

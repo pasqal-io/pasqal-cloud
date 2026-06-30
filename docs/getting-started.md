@@ -55,7 +55,7 @@ The package exposes several remote emulator backends:
 
 - [`RemoteSVBackend`][pasqal_cloud.RemoteSVBackend] — state vector emulator
 - [`RemoteMPSBackend`][pasqal_cloud.RemoteMPSBackend] — matrix product states emulator
-- [`RemoteFreeBackend`][pasqal_cloud.RemoteFreeBackend] — qutip emulator
+- [`RemoteEmuFreeBackend`][pasqal_cloud.RemoteEmuFreeBackend] — qutip emulator
 
 Use them in place of `QPUBackend` to run the same sequences without consuming
 real QPU time:
