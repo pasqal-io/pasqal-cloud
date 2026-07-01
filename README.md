@@ -15,6 +15,7 @@ It implements the Pulser [`RemoteConnection`](https://docs.pasqal.com/pulser/) i
 | 0.20.8  | 2026-01-30   | 2027-01-30     |
 | 0.21.0  | 2026-02-25   | 2027-02-25     |
 | 0.22.0  | 2026-03-17   | 2027-03-17     |
+| 0.23.0  | 2026-06-30   | 2027-03-30     |
 
 ## Getting started
 
@@ -42,7 +43,7 @@ your installation will change accordingly.
 To run the tutorials or the test suite locally, run the following to install the development requirements:
 
 ```bash
-pip install -e pasqal-cloud[dev] --config-settings editable_mode=compat
+pip install -e "pasqal-cloud[dev]" --config-settings editable_mode=compat
 ```
 
 We use pre-commit hooks to enforce some code linting, you can install pre-commit with Python pip:
