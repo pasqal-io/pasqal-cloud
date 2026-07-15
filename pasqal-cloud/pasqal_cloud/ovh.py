@@ -32,9 +32,11 @@ class OvhClient(HTTPClient):
             # Batch endpoints
             "send_batch": f"{base_url}/batches",
             "get_batch": f"{base_url}/batches/{{batch_id}}",
+            "get_batch_status": f"{base_url}/batches/{{batch_id}}/status",
             # Job endpoints
             "get_jobs": f"{base_url}/jobs",
             "get_job_results_link": f"{base_url}/jobs/{{job_id}}/results_link",
+            "get_job_status": f"{base_url}/jobs/{{job_id}}/status",
             # Device endpoints
             "get_public_devices_specs": f"{self.endpoints.core}"
             f"/api/v1/devices/public-specs",

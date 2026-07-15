@@ -39,6 +39,11 @@ class BaseMockServer(abc.ABC):
             ("GET", "/api/v2/batches/{batch_id}", self.endpoint_get_batch),
             (
                 "GET",
+                "/api/v1/batches/{batch_id}/status",
+                self.endpoint_get_batch_status,
+            ),
+            (
+                "GET",
                 "/api/v1/jobs/{job_id}/results_link",
                 self.endpoint_get_job_results,
             ),
@@ -55,6 +60,11 @@ class BaseMockServer(abc.ABC):
             ("PATCH", "/api/v2/batches/cancel", self.endpoint_patch_cancel_batches),
             ("POST", "/api/v1/batches/{batch_id}/rebatch", self.endpoint_post_rebatch),
             ("GET", "/api/v2/jobs", self.endpoint_get_jobs),
+            (
+                "GET",
+                "/api/v1/jobs/{job_id}/status",
+                self.endpoint_get_job_status,
+            ),
             ("PATCH", "/api/v2/jobs/{job_id}/cancel", self.endpoint_cancel_job),
             (
                 "PATCH",
@@ -133,6 +143,26 @@ class BaseMockServer(abc.ABC):
         Mock for GET /api/v1/batches/{batch_id}
 
         See https://docs.pasqal.com/cloud/api/core/operations/get_batch_api_v2_batches__batch_id__get/ .
+        """  # noqa: E501
+        raise NotImplementedError
+
+    def endpoint_get_batch_status(
+        self, request: Any, context: Any, matches: list[str]
+    ) -> Any:
+        """
+        Mock for GET /api/v1/batches/{batch_id}/status
+
+        See https://docs.pasqal.com/cloud/api/core/operations/get_batch_status_api_v1_batches__batch_id__status_get/ .
+        """  # noqa: E501
+        raise NotImplementedError
+
+    def endpoint_get_job_status(
+        self, request: Any, context: Any, matches: list[str]
+    ) -> Any:
+        """
+        Mock for GET /api/v1/jobs/{job_id}/status
+
+        See https://docs.pasqal.com/cloud/api/core/operations/get_job_status_api_v1_jobs__job_id__status_get/ .
         """  # noqa: E501
         raise NotImplementedError
 

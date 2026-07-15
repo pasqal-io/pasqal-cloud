@@ -35,12 +35,18 @@ from pasqal_cloud.errors import (
 )
 from pasqal_cloud.job import CreateJob, Job, create_jobs_to_api_payload
 from pasqal_cloud.project import Project
+from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
     JobFilters,
     PaginationParams,
     RebatchFilters,
+)
+from pasqal_cloud.utils.polling import (
+    batch_still_running,
+    job_still_running,
+    poll_status,
 )
 from pasqal_cloud.utils.responses import (
     BatchCancellationResponse,
@@ -166,6 +172,33 @@ class PasqalCloudClient:
             return self._client.get_batch(id)
         except HTTPError as e:
             raise BatchFetchingError(e) from e
+
+    def _get_batch_status(self, id: str) -> Dict[str, Any]:
+        try:
+            return self._client.get_batch_status(id)
+        except HTTPError as e:
+            raise BatchFetchingError(e) from e
+
+    def _wait_for_batch_terminal(self, id: str) -> None:
+        """Poll the batch-status endpoint until no PENDING/RUNNING jobs remain."""
+        poll_status(
+            fetcher=lambda: self._get_batch_status(id),
+            should_continue=batch_still_running,
+        )
+
+    def get_batch_status(self, id: str) -> BatchStatus:
+        """Retrieve the current status of a batch.
+
+        Args:
+            id: ID of the batch.
+
+        Returns:
+            BatchStatus: The current status of the batch.
+
+        Raises:
+            BatchFetchingError: If fetching the status failed.
+        """
+        return BatchStatus[self._get_batch_status(id)["status"]]
 
     def _validate_device_type(
         self,
@@ -357,11 +390,8 @@ class PasqalCloudClient:
         batch = Batch(**batch_rsp, _client=self._client)
 
         if wait:
-            while any(
-                job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs
-            ):
-                time.sleep(RESULT_POLLING_INTERVAL)
-                batch.refresh()
+            self._wait_for_batch_terminal(batch.id)
+            batch.refresh()
 
         self.batches[batch.id] = batch
         return batch
@@ -618,6 +648,33 @@ class PasqalCloudClient:
         except HTTPError as e:
             raise JobFetchingError(e) from e
 
+    def _get_job_status(self, id: str) -> Dict[str, Any]:
+        try:
+            return self._client.get_job_status(id)
+        except HTTPError as e:
+            raise JobFetchingError(e) from e
+
+    def _wait_for_job_terminal(self, id: str) -> None:
+        """Poll the job-status endpoint until the job status is terminal."""
+        poll_status(
+            fetcher=lambda: self._get_job_status(id),
+            should_continue=job_still_running,
+        )
+
+    def get_job_status(self, id: str) -> JobStatus:
+        """Retrieve the current status of a job.
+
+        Args:
+            id: ID of the job.
+
+        Returns:
+            JobStatus: The current status of the job.
+
+        Raises:
+            JobFetchingError: If fetching the status failed.
+        """
+        return JobStatus[self._get_job_status(id)["status"]]
+
     def get_job(self, id: str, wait: bool = False) -> Job:
         """Retrieve a job's data.
 
@@ -631,11 +688,9 @@ class PasqalCloudClient:
         Raises:
             JobFetchingError: If fetching failed.
         """
-        job_rsp = self._get_job(id)
         if wait:
-            while job_rsp["status"] in ["PENDING", "RUNNING"]:
-                time.sleep(RESULT_POLLING_INTERVAL)
-                job_rsp = self._get_job(id)
+            self._wait_for_job_terminal(id)
+        job_rsp = self._get_job(id)
         return Job(**job_rsp, _client=self._client)
 
     def add_jobs(
@@ -663,11 +718,8 @@ class PasqalCloudClient:
         batch = Batch(**resp, _client=self._client)
 
         if wait:
-            while any(
-                job.status in {"PENDING", "RUNNING"} for job in batch.ordered_jobs
-            ):
-                time.sleep(RESULT_POLLING_INTERVAL)
-                batch.refresh()
+            self._wait_for_batch_terminal(batch.id)
+            batch.refresh()
         return batch
 
     def complete_batch(self, batch_id: str) -> Batch:

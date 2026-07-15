@@ -1,0 +1,12 @@
+{
+  "code": 200,
+  "data": {
+    "id": "00000000-0000-0000-0000-000000000002",
+    "status": "DONE",
+    "jobs_count_per_status": {
+      "DONE": 1
+    }
+  },
+  "message": "OK.",
+  "status": "success"
+}

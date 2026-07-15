@@ -227,8 +227,8 @@ class PasqalCloudConnection(RemoteConnection):
     @retry
     def _get_batch_status(self, batch_id: str) -> BatchStatus:
         """Gets the status of a batch from its ID."""
-        batch = self.cloud_client.get_batch(id=batch_id)
-        return BatchStatus[batch.status]
+        batch_status = self.cloud_client.get_batch_status(id=batch_id)
+        return BatchStatus[batch_status.value]
 
     @retry
     def _get_job_ids(self, batch_id: str) -> list[str]:

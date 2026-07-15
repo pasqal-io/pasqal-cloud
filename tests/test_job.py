@@ -475,9 +475,66 @@ class TestJob:
         with contextlib.suppress(expected_exception):
             self.sdk.get_job(self.job_id, True)
 
-        # Assertions to verify retry behavior
-        # there are 6 calls to get the job, 5 of which are retries
-        assert mock_request.call_count == 6
+        # Assertions to verify retry behavior. In the new wait flow:
+        # 1 GET /jobs/{id}/status (poll returns DONE from fixture)
+        # + 6 GET /jobs/{id} (final fetch, 5 retries).
+        assert mock_request.call_count == 7
         assert mock_request.last_request.method == "GET"
         assert mock_request.last_request.path == f"/core-fast/api/v2/jobs/{self.job_id}"
         assert mock_request.last_request.matcher.call_count == 6
+
+    def test_get_job_status_returns_enum(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v1/jobs/{self.job_id}/status",
+            json={
+                "code": 200,
+                "data": {"id": self.job_id, "status": "RUNNING"},
+                "message": "OK.",
+                "status": "success",
+            },
+            status_code=200,
+        )
+
+        assert self.sdk.get_job_status(self.job_id) == JobStatus.RUNNING
+
+    @pytest.mark.parametrize(
+        "status_name",
+        ["PENDING", "RUNNING", "DONE", "ERROR", "CANCELED"],
+    )
+    def test_get_job_status_maps_all_enum_variants(
+        self, mock_request: requests_mock.mocker.Mocker, status_name: str
+    ):
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v1/jobs/{self.job_id}/status",
+            json={
+                "code": 200,
+                "data": {"id": self.job_id, "status": status_name},
+                "message": "OK.",
+                "status": "success",
+            },
+            status_code=200,
+        )
+
+        assert self.sdk.get_job_status(self.job_id) == JobStatus[status_name]
+
+    def test_get_job_status_wraps_http_error(
+        self, mock_request_exception: requests_mock.mocker.Mocker
+    ):
+        with pytest.raises(JobFetchingError):
+            self.sdk.get_job_status(self.job_id)
+
+    def test_get_job_status_does_not_fetch_full_job(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        mock_request.reset_mock()
+        self.sdk.get_job_status(self.job_id)
+
+        called_paths = [r.path for r in mock_request.request_history]
+        assert f"/core-fast/api/v1/jobs/{self.job_id}/status" in called_paths
+        assert f"/core-fast/api/v2/jobs/{self.job_id}" not in called_paths

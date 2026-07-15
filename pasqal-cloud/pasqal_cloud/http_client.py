@@ -109,6 +109,8 @@ class HTTPClient:
             # Batch endpoints
             "send_batch": f"{self.endpoints.core}/api/v1/batches",
             "get_batch": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}",
+            "get_batch_status": f"{self.endpoints.core}/api/v1/"
+            f"batches/{{batch_id}}/status",
             "close_batch": f"{self.endpoints.core}/api/v2/"
             f"batches/{{batch_id}}/complete",
             "cancel_batch": f"{self.endpoints.core}/api/v2/batches/{{batch_id}}/cancel",
@@ -122,6 +124,7 @@ class HTTPClient:
             # Job endpoints
             "get_jobs": f"{self.endpoints.core}/api/v2/jobs",
             "get_job": f"{self.endpoints.core}/api/v2/jobs/{{job_id}}",
+            "get_job_status": f"{self.endpoints.core}/api/v1/jobs/{{job_id}}/status",
             "cancel_job": f"{self.endpoints.core}/api/v2/jobs/{{job_id}}/cancel",
             "get_job_results_link": f"{self.endpoints.core}/api/v1/"
             f"jobs/{{job_id}}/results_link",
@@ -333,6 +336,12 @@ class HTTPClient:
         )["data"]
         return response
 
+    def get_batch_status(self, batch_id: str) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "GET", self._get_url("get_batch_status", batch_id=batch_id)
+        )["data"]
+        return response
+
     def get_batch_jobs(self, batch_id: str) -> list[Dict[str, Any]]:
         return self._request_all_pages(
             "GET",
@@ -437,6 +446,12 @@ class HTTPClient:
     def get_job(self, job_id: str) -> Dict[str, Any]:
         response: Dict[str, Any] = self._authenticated_request(
             "GET", self._get_url("get_job", job_id=job_id)
+        )["data"]
+        return response
+
+    def get_job_status(self, job_id: str) -> Dict[str, Any]:
+        response: Dict[str, Any] = self._authenticated_request(
+            "GET", self._get_url("get_job_status", job_id=job_id)
         )["data"]
         return response
 
