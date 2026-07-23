@@ -1,4 +1,3 @@
-import time
 from typing import Any, Dict, List, Optional, Type, Union
 from warnings import warn
 
@@ -21,6 +20,7 @@ from pasqal_cloud.errors import (
     JobRetryError,
 )
 from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
+from pasqal_cloud.utils.polling import batch_still_running, poll_status
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -194,11 +194,8 @@ class Batch(BaseModel):
         self._update_from_api_response(batch_rsp)
 
         if wait:
-            while any(
-                job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs
-            ):
-                time.sleep(RESULT_POLLING_INTERVAL)
-                self.refresh()
+            self._wait_for_terminal()
+            self.refresh()
 
     def retry(self, job: Job, wait: bool = False) -> None:
         """
@@ -251,11 +248,8 @@ class Batch(BaseModel):
             raise BatchClosingError(e) from e
         self._update_from_api_response(batch_rsp)
         if wait or fetch_results:
-            while any(
-                job.status in {"PENDING", "RUNNING"} for job in self.ordered_jobs
-            ):
-                time.sleep(RESULT_POLLING_INTERVAL)
-                self.refresh()
+            self._wait_for_terminal()
+            self.refresh()
 
     def cancel(self) -> None:
         """Cancel the current batch on the PCS."""
@@ -272,6 +266,17 @@ class Batch(BaseModel):
         except HTTPError as e:
             raise BatchFetchingError(e) from e
         self._update_from_api_response(batch_rsp)
+
+    def _wait_for_terminal(self) -> None:
+        """Poll the batch-status endpoint until no PENDING/RUNNING jobs remain."""
+
+        def fetch_status() -> Dict[str, Any]:
+            try:
+                return self._client.get_batch_status(self.id)
+            except HTTPError as e:
+                raise BatchFetchingError(e) from e
+
+        poll_status(fetcher=fetch_status, should_continue=batch_still_running)
 
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""

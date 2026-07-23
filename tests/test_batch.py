@@ -430,9 +430,15 @@ class TestBatch:
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.url
-            == f"{self.sdk._client.endpoints.core}/api/v2/jobs?batch_id={batch.id}"
-            "&order_by=creation_order&order_by_direction=ASC"
+            == f"{self.sdk._client.endpoints.core}/api/v2/batches/{batch.id}"
         )
+        status_requests = [
+            r
+            for r in mock_request.request_history
+            if r.method == "GET"
+            and r.path == f"/core-fast/api/v1/batches/{batch.id}/status"
+        ]
+        assert len(status_requests) >= 1
         assert batch.ordered_jobs[0].batch_id == batch.id
         assert batch.ordered_jobs[0].result == self.job_result
         assert batch.ordered_jobs[0].full_result == self.job_full_result
@@ -1074,10 +1080,10 @@ class TestBatch:
                 wait=True,
             )
 
-        # Assertions to verify retry behavior
-        # There is one call to create the batch, then 6 calls
-        # to get the batch, 5 of which are retries
-        assert mock_request.call_count == 7
+        # Assertions to verify retry behavior. In the new wait flow:
+        # 1 POST /batches (create) + 1 GET /batches/{id}/status (poll returns
+        # DONE from fixture) + 6 GET /batches/{id} (final refresh, 5 retries).
+        assert mock_request.call_count == 8
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.path
@@ -1125,10 +1131,11 @@ class TestBatch:
         with contextlib.suppress(expected_exception):
             batch.add_jobs(jobs=[self.simple_job_args], wait=True)
 
-        # Assertions to verify retry behavior
-        # There is one call to create the batch, one call to add a job,
-        # then 6 calls to add the job, 5 of which are retries
-        assert mock_request.call_count == 8
+        # Assertions to verify retry behavior. In the new wait flow:
+        # 1 POST /batches (create) + 1 POST /batches/{id}/jobs (add jobs)
+        # + 1 GET /batches/{id}/status (poll returns DONE from fixture)
+        # + 6 GET /batches/{id} (final refresh, 5 retries).
+        assert mock_request.call_count == 9
         assert mock_request.last_request.method == "GET"
         assert (
             mock_request.last_request.path
@@ -1340,3 +1347,67 @@ class TestBatch:
             open=True,
         )
         assert batch.id == self.batch_id
+
+    def test_get_batch_status_returns_enum(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v1/batches/{self.batch_id}/status",
+            json={
+                "code": 200,
+                "data": {
+                    "id": self.batch_id,
+                    "status": "RUNNING",
+                    "jobs_count_per_status": {"RUNNING": 3},
+                },
+                "message": "OK.",
+                "status": "success",
+            },
+            status_code=200,
+        )
+
+        assert self.sdk.get_batch_status(self.batch_id) == BatchStatus.RUNNING
+
+    @pytest.mark.parametrize(
+        "status_name",
+        ["PENDING", "RUNNING", "DONE", "ERROR", "CANCELED", "TIMED_OUT"],
+    )
+    def test_get_batch_status_maps_all_enum_variants(
+        self, mock_request: requests_mock.mocker.Mocker, status_name: str
+    ):
+        mock_request.reset_mock()
+        mock_request.register_uri(
+            "GET",
+            f"https://apis.pasqal.cloud/core-fast/api/v1/batches/{self.batch_id}/status",
+            json={
+                "code": 200,
+                "data": {
+                    "id": self.batch_id,
+                    "status": status_name,
+                    "jobs_count_per_status": {},
+                },
+                "message": "OK.",
+                "status": "success",
+            },
+            status_code=200,
+        )
+
+        assert self.sdk.get_batch_status(self.batch_id) == BatchStatus[status_name]
+
+    def test_get_batch_status_wraps_http_error(
+        self, mock_request_exception: requests_mock.mocker.Mocker
+    ):
+        with pytest.raises(BatchFetchingError):
+            self.sdk.get_batch_status(self.batch_id)
+
+    def test_get_batch_status_does_not_fetch_full_batch(
+        self, mock_request: requests_mock.mocker.Mocker
+    ):
+        mock_request.reset_mock()
+        self.sdk.get_batch_status(self.batch_id)
+
+        called_paths = [r.path for r in mock_request.request_history]
+        assert f"/core-fast/api/v1/batches/{self.batch_id}/status" in called_paths
+        assert f"/core-fast/api/v2/batches/{self.batch_id}" not in called_paths

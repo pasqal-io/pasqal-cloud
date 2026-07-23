@@ -27,6 +27,7 @@ import numpy as np
 import pulser
 import pytest
 from pasqal_cloud import DeviceTypeName
+from pasqal_cloud.utils.constants import BatchStatus as SDKBatchStatus
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
     BatchStatus,
@@ -147,6 +148,9 @@ def mock_pasqal_cloud_ovh_sdk(mock_batch):
         mock_cloud_client.reset_mock()
         mock_cloud_client.create_batch = MagicMock(return_value=mock_batch)
         mock_cloud_client.get_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.get_batch_status = MagicMock(
+            return_value=SDKBatchStatus[mock_batch.status]
+        )
         mock_cloud_client.add_jobs = MagicMock(return_value=mock_batch)
         mock_cloud_client._close_batch = MagicMock(return_value=None)
         mock_cloud_client.get_device_specs_dict = MagicMock(
@@ -179,6 +183,9 @@ def mock_pasqal_cloud_sdk(mock_batch):
 
         mock_cloud_client.create_batch = MagicMock(return_value=mock_batch)
         mock_cloud_client.get_batch = MagicMock(return_value=mock_batch)
+        mock_cloud_client.get_batch_status = MagicMock(
+            return_value=SDKBatchStatus[mock_batch.status]
+        )
         mock_cloud_client.add_jobs = MagicMock(return_value=mock_batch)
         mock_cloud_client._close_batch = MagicMock(return_value=None)
         mock_cloud_client.get_device_specs_dict = MagicMock(
@@ -231,11 +238,13 @@ def test_remote_results(fixt_pasqal_cloud, mock_batch, with_job_id):
 
     assert remote_results.get_batch_status() == BatchStatus.DONE
 
-    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_once_with(
+    fixt_pasqal_cloud.mock_cloud_client.get_batch_status.assert_called_once_with(
         id=remote_results.batch_id
     )
+    fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_not_called()
 
     fixt_pasqal_cloud.mock_cloud_client.get_batch.reset_mock()
+    fixt_pasqal_cloud.mock_cloud_client.get_batch_status.reset_mock()
     results = remote_results.results
     fixt_pasqal_cloud.mock_cloud_client.get_batch.assert_called_with(
         id=remote_results.batch_id

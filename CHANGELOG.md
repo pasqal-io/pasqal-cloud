@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+### pasqal-cloud
+
+* Result polling on batches and jobs use new status endpoints
+
 
 ## [0.23.0]
 
