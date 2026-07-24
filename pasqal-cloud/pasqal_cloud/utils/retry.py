@@ -1,12 +1,41 @@
 import functools
+import math
 import time
-from typing import Callable, Iterable, Optional, Tuple, Type, TypeVar
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+from typing import TYPE_CHECKING, Callable, Iterable, Optional, Tuple, Type, TypeVar
 
 from requests import HTTPError
 from typing_extensions import ParamSpec
 
+if TYPE_CHECKING:
+    from requests import Response
+
 Param = ParamSpec("Param")
 RT = TypeVar("RT")  # return type
+
+
+def _retry_after_seconds(response: Response) -> int | None:
+    """Parse Retry-After header (seconds or HTTP-date). None if absent/invalid."""
+    value = response.headers.get("Retry-After")
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        pass
+    try:
+        # RFC 9110 Retry-After allows an HTTP-date (RFC 1123 format, e.g.
+        # "Sun, 06 Nov 1994 08:49:37 GMT"). parsedate_to_datetime parses that
+        # format (plus obsolete RFC 850/asctime variants) locale-independently,
+        # unlike strptime which depends on locale for day/month names.
+        target = parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    now = datetime.now(timezone.utc)
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=timezone.utc)
+    return max(math.ceil((target - now).total_seconds()), 0)
 
 
 def retry_http_error(
@@ -44,6 +73,10 @@ def retry_http_error(
                         or iteration == max_retries
                     ):
                         raise e
+                    if e.response.status_code == 429:
+                        retry_after = _retry_after_seconds(e.response)
+                        if retry_after is not None:
+                            delay = retry_after
                     time.sleep(delay)
                 except Exception as e:
                     if (
