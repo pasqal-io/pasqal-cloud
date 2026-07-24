@@ -15,7 +15,7 @@ Param = ParamSpec("Param")
 RT = TypeVar("RT")  # return type
 
 
-def _retry_after_seconds(response: Response) -> int | None:
+def _retry_after_seconds(response: "Response") -> int | None:
     """Parse Retry-After header (seconds or HTTP-date). None if absent/invalid."""
     value = response.headers.get("Retry-After")
     if value is None:
