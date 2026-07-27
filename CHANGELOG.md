@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * Result polling on batches and jobs use new status endpoints
+* HTTP retries on 429 now honor the `Retry-After` header when present,
+  instead of always using exponential backoff
 
 
 ## [0.23.0]
