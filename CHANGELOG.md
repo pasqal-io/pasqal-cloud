@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+### pasqal-cloud
+
+* Fixes
+    - Extend the read timeout to 5 minutes for batch creation, which can take
+      longer than the default 30s
+
 ## [0.24.0]
 
 ### pasqal-cloud
