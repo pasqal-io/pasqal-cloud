@@ -262,7 +262,7 @@ class HTTPClient:
         resp = request_with_retry(
             method,
             url,
-            timeout=TIMEOUT,
+            timeout=(TIMEOUT, None),
             headers=headers,
             auth=self.authenticator,
             params=params,
