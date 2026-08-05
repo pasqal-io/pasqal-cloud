@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * Result polling on batches and jobs use new status endpoints
+* Support `auth0-python` 4.x (pin moved from `>= 3.23.1, <4.0.0` to `>= 4.7.2, <5.0.0`)
 
 
 ## [0.23.0]
