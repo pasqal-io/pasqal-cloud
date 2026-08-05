@@ -7,7 +7,7 @@ from uuid import uuid4
 import pytest
 import requests
 import requests_mock
-from auth0.v3.exceptions import Auth0Error
+from auth0.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
