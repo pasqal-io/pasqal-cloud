@@ -5,8 +5,10 @@ from pulser import Sequence, Register
 connection = PasqalCloudConnection(...)
 
 # Retrieve all QPU devices
-devices = connection.fetch_available_devices()
-device = devices["FRESNEL_CAN1"]
+while True:
+    devices = connection.fetch_available_devices()
+    device = devices["FRESNEL_CAN1"]
+    print(device)
 
 # Create a register of trapped atoms before performing operation on them
 register = Register.square(5, 5).with_automatic_layout(device)
