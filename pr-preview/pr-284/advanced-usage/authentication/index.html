@@ -786,12 +786,12 @@ of your account as well as a project ID you are a member of. The jobs created th
 to this project.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">project_id</span> <span class="o">=</span> <span class="s2">&quot;your_project_id&quot;</span>  <span class="c1"># Replace this value with your project_id on the Pasqal platform. It can be found on the user-portal, in the &#39;project&#39; section.</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">username</span> <span class="o">=</span> <span class="s2">&quot;your_username&quot;</span>  <span class="c1"># Replace this value with your username or email on the Pasqal platform.</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">project_id</span> <span class="o">=</span> <span class="s2">"your_project_id"</span>  <span class="c1"># Replace this value with your project_id on the Pasqal platform. It can be found on the user-portal, in the 'project' section.</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">username</span> <span class="o">=</span> <span class="s2">"your_username"</span>  <span class="c1"># Replace this value with your username or email on the Pasqal platform.</span>
 </code></pre></div>
 <h3 id="method-1-username-password">Method 1: Username + Password</h3>
 <p>Authenticate with your email and password directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;your_password&quot;</span>  <span class="c1"># Replace this value with your password on the Pasqal platform.</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">password</span> <span class="o">=</span> <span class="s2">"your_password"</span>  <span class="c1"># Replace this value with your password on the Pasqal platform.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>
 </code></pre></div>
 <div class="admonition warning">
@@ -812,7 +812,7 @@ For example, if you have a token, you can use it to authenticate with our APIs:<
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="k">return</span> <span class="s2">&quot;your-token&quot;</span>  <span class="c1"># Replace this value with your token</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="k">return</span> <span class="s2">"your-token"</span>  <span class="c1"># Replace this value with your token</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">token_provider</span><span class="o">=</span><span class="n">CustomTokenProvider</span><span class="p">(),</span> <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>
@@ -823,7 +823,7 @@ See <code>Auth0TokenProvider</code> implementation for an example.</p>
 <h2 id="ovhconnection">OVHConnection</h2>
 <p>For OVH users, authentication is handled via the <code>PASQAL_PULSER_ACCESS_TOKEN</code> environment variable.
 No username or password is required.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">&quot;your-access-token&quot;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"your-access-token"</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVHConnection</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>

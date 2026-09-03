@@ -918,7 +918,7 @@
 
 
 <h3 id="pasqal_cloud.PasqalCloudConnection" class="doc doc-heading">
-              <code class="highlight language-python"><span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s1">&#39;fr&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
+              <code class="highlight language-python"><span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s1">''</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s1">'fr'</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1050,13 +1050,13 @@ QPUs.</p>
 <span class="normal"><a href="#__codelineno-0-78">78</a></span>
 <span class="normal"><a href="#__codelineno-0-79">79</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 <a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="bp">self</span><span class="p">,</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">region</span><span class="p">:</span> <span class="n">Region</span> <span class="o">=</span> <span class="s2">&quot;fr&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a>    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">region</span><span class="p">:</span> <span class="n">Region</span> <span class="o">=</span> <span class="s2">"fr"</span><span class="p">,</span>
 <a id="__codelineno-0-70" name="__codelineno-0-70"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="p">):</span>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initializes a connection to the Pasqal cloud platform.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="w">    </span><span class="sd">"""Initializes a connection to the Pasqal cloud platform."""</span>
 <a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span>
 <a id="__codelineno-0-74" name="__codelineno-0-74"></a>        <span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
 <a id="__codelineno-0-75" name="__codelineno-0-75"></a>        <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span>
@@ -1154,14 +1154,14 @@ QPUs.</p>
 <a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="n">backend_configuration</span><span class="p">:</span> <span class="n">EmulationConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteResults</span><span class="p">:</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Submits the sequence for execution on a remote Pasqal backend.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="w">    </span><span class="sd">"""Submits the sequence for execution on a remote Pasqal backend."""</span>
 <a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="n">sequence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_measurement_to_sequence</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
 <a id="__codelineno-0-93" name="__codelineno-0-93"></a>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CreateJob</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_json_compatible</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;job_params&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">job_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CreateJob</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_json_compatible</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"job_params"</span><span class="p">,</span> <span class="p">[]))</span>
 <a id="__codelineno-0-95" name="__codelineno-0-95"></a>
 <a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="k">if</span> <span class="n">sequence</span><span class="o">.</span><span class="n">is_parametrized</span><span class="p">()</span> <span class="ow">or</span> <span class="n">sequence</span><span class="o">.</span><span class="n">is_register_mappable</span><span class="p">():</span>
 <a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">job_params</span><span class="p">:</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="nb">vars</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;variables&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+<a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="nb">vars</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"variables"</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
 <a id="__codelineno-0-99" name="__codelineno-0-99"></a>            <span class="n">sequence</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="o">**</span><span class="nb">vars</span><span class="p">)</span>
 <a id="__codelineno-0-100" name="__codelineno-0-100"></a>
 <a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="n">backend_configuration_str</span> <span class="o">=</span> <span class="p">(</span>
@@ -1225,7 +1225,7 @@ QPUs.</p>
 <span class="normal"><a href="#__codelineno-0-139">139</a></span>
 <span class="normal"><a href="#__codelineno-0-140">140</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="nd">@retry</span>
 <a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_available_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Device</span><span class="p">]:</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetches the devices available through this connection.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="w">    </span><span class="sd">"""Fetches the devices available through this connection."""</span>
 <a id="__codelineno-0-136" name="__codelineno-0-136"></a>    <span class="n">abstract_devices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cloud_client</span><span class="o">.</span><span class="n">get_device_specs_dict</span><span class="p">()</span>
 <a id="__codelineno-0-137" name="__codelineno-0-137"></a>    <span class="k">return</span> <span class="p">{</span>
 <a id="__codelineno-0-138" name="__codelineno-0-138"></a>        <span class="n">name</span><span class="p">:</span> <span class="n">cast</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="n">deserialize_device</span><span class="p">(</span><span class="n">dev_str</span><span class="p">))</span>
@@ -1351,7 +1351,7 @@ all jobs are included and ordered by date of creation.</p>
 <a id="__codelineno-0-144" name="__codelineno-0-144"></a>    <span class="n">batch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-0-145" name="__codelineno-0-145"></a>    <span class="n">job_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RemoteResults</span><span class="p">:</span>
-<a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets the results for a specific batch.</span>
+<a id="__codelineno-0-147" name="__codelineno-0-147"></a><span class="w">    </span><span class="sd">"""Gets the results for a specific batch.</span>
 <a id="__codelineno-0-148" name="__codelineno-0-148"></a>
 <a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="sd">        batch_id: The ID that identifies the batch linked to the results.</span>
@@ -1361,7 +1361,7 @@ all jobs are included and ordered by date of creation.</p>
 <a id="__codelineno-0-154" name="__codelineno-0-154"></a>
 <a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    Returns:</span>
 <a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">        RemoteResults: The requested results.</span>
-<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">    """</span>
 <a id="__codelineno-0-158" name="__codelineno-0-158"></a>    <span class="k">return</span> <span class="n">RemoteResults</span><span class="p">(</span><span class="n">batch_id</span><span class="o">=</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">connection</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_ids</span><span class="o">=</span><span class="n">job_ids</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1387,7 +1387,7 @@ all jobs are included and ordered by date of creation.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-239">239</a></span>
 <span class="normal"><a href="#__codelineno-0-240">240</a></span>
 <span class="normal"><a href="#__codelineno-0-241">241</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="k">def</span><span class="w"> </span><span class="nf">supports_open_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag to confirm this class can support creating an open batch.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="w">    </span><span class="sd">"""Flag to confirm this class can support creating an open batch."""</span>
 <a id="__codelineno-0-241" name="__codelineno-0-241"></a>    <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1474,10 +1474,10 @@ through the <code>PASQAL_PULSER_ACCESS_TOKEN</code> environment variable.</p>
 <span class="normal"><a href="#__codelineno-0-92">92</a></span>
 <span class="normal"><a href="#__codelineno-0-93">93</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-80" name="__codelineno-0-80"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a>        <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PASQAL_PULSER_ACCESS_TOKEN&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-81" name="__codelineno-0-81"></a>        <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"PASQAL_PULSER_ACCESS_TOKEN"</span><span class="p">]</span>
 <a id="__codelineno-0-82" name="__codelineno-0-82"></a>    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
 <a id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="k">raise</span> <span class="n">MissingEnvironmentVariableError</span><span class="p">(</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a>            <span class="s2">&quot;Missing PASQAL_PULSER_ACCESS_TOKEN environment variable&quot;</span>
+<a id="__codelineno-0-84" name="__codelineno-0-84"></a>            <span class="s2">"Missing PASQAL_PULSER_ACCESS_TOKEN environment variable"</span>
 <a id="__codelineno-0-85" name="__codelineno-0-85"></a>        <span class="p">)</span>
 <a id="__codelineno-0-86" name="__codelineno-0-86"></a>
 <a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">class</span><span class="w"> </span><span class="nc">OvhTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
@@ -1520,7 +1520,7 @@ through the <code>PASQAL_PULSER_ACCESS_TOKEN</code> environment variable.</p>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-95">95</a></span>
 <span class="normal"><a href="#__codelineno-0-96">96</a></span>
 <span class="normal"><a href="#__codelineno-0-97">97</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">def</span><span class="w"> </span><span class="nf">supports_open_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag to confirm this class cannot support creating an open batch.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">    </span><span class="sd">"""Flag to confirm this class cannot support creating an open batch."""</span>
 <a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>

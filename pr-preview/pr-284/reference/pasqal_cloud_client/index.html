@@ -1456,7 +1456,7 @@ You may omit the password, you will then be prompted to enter one.</p>
 <a id="__codelineno-0-105" name="__codelineno-0-105"></a>    <span class="n">region</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Region</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="n">auth_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TokenProviderConf</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="p">):</span>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="sd">    This class provides helper methods to call the Pasqal Cloud endpoints.</span>
 <a id="__codelineno-0-110" name="__codelineno-0-110"></a>
 <a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="sd">    To authenticate to Pasqal Cloud, you have to provide either an</span>
@@ -1486,7 +1486,7 @@ You may omit the password, you will then be prompted to enter one.</p>
 <a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="sd">        and endpoints targeted by the SDK</span>
 <a id="__codelineno-0-136" name="__codelineno-0-136"></a><span class="sd">        region: specifies the region to target</span>
 <a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="sd">        auth_config: configuration object for the authentication provider</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="sd">    """</span>
 <a id="__codelineno-0-139" name="__codelineno-0-139"></a>    <span class="n">_check_sdk_version</span><span class="p">()</span>
 <a id="__codelineno-0-140" name="__codelineno-0-140"></a>
 <a id="__codelineno-0-141" name="__codelineno-0-141"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">client_class</span><span class="p">(</span>
@@ -1626,7 +1626,7 @@ You may omit the password, you will then be prompted to enter one.</p>
 <span class="normal"><a href="#__codelineno-0-199">199</a></span>
 <span class="normal"><a href="#__codelineno-0-200">200</a></span>
 <span class="normal"><a href="#__codelineno-0-201">201</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_batch_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BatchStatus</span><span class="p">:</span>
-<a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the current status of a batch.</span>
+<a id="__codelineno-0-190" name="__codelineno-0-190"></a><span class="w">    </span><span class="sd">"""Retrieve the current status of a batch.</span>
 <a id="__codelineno-0-191" name="__codelineno-0-191"></a>
 <a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="sd">        id: ID of the batch.</span>
@@ -1636,8 +1636,8 @@ You may omit the password, you will then be prompted to enter one.</p>
 <a id="__codelineno-0-197" name="__codelineno-0-197"></a>
 <a id="__codelineno-0-198" name="__codelineno-0-198"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="sd">        BatchFetchingError: If fetching the status failed.</span>
-<a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="k">return</span> <span class="n">BatchStatus</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_batch_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)[</span><span class="s2">&quot;status&quot;</span><span class="p">]]</span>
+<a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="sd">    """</span>
+<a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="k">return</span> <span class="n">BatchStatus</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_batch_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2027,12 +2027,12 @@ be done and fetch results</p>
 <a id="__codelineno-0-314" name="__codelineno-0-314"></a>    <span class="n">fetch_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <a id="__codelineno-0-315" name="__codelineno-0-315"></a>    <span class="n">tags</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-317" name="__codelineno-0-317"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new batch and send it to the API.</span>
+<a id="__codelineno-0-317" name="__codelineno-0-317"></a><span class="w">    </span><span class="sd">"""Create a new batch and send it to the API.</span>
 <a id="__codelineno-0-318" name="__codelineno-0-318"></a>
 <a id="__codelineno-0-319" name="__codelineno-0-319"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-320" name="__codelineno-0-320"></a><span class="sd">        serialized_sequence: Serialized pulser sequence.</span>
 <a id="__codelineno-0-321" name="__codelineno-0-321"></a><span class="sd">            If specified, jobs without their own sequence defined will inherit from</span>
-<a id="__codelineno-0-322" name="__codelineno-0-322"></a><span class="sd">            batch&#39;s sequence.</span>
+<a id="__codelineno-0-322" name="__codelineno-0-322"></a><span class="sd">            batch's sequence.</span>
 <a id="__codelineno-0-323" name="__codelineno-0-323"></a><span class="sd">            If None, all jobs must have their own sequence defined.</span>
 <a id="__codelineno-0-324" name="__codelineno-0-324"></a><span class="sd">        jobs: List of jobs to be added to the batch at creation.</span>
 <a id="__codelineno-0-325" name="__codelineno-0-325"></a><span class="sd">        complete: Opposite of open, deprecated.</span>
@@ -2058,7 +2058,7 @@ be done and fetch results</p>
 <a id="__codelineno-0-345" name="__codelineno-0-345"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="sd">        BatchCreationError: If batch creation failed</span>
 <a id="__codelineno-0-347" name="__codelineno-0-347"></a><span class="sd">        BatchFetchingError: If batch fetching failed</span>
-<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-348" name="__codelineno-0-348"></a><span class="sd">    """</span>
 <a id="__codelineno-0-349" name="__codelineno-0-349"></a>    <span class="n">device_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_device_type</span><span class="p">(</span><span class="n">emulator</span><span class="p">,</span> <span class="n">device_type</span><span class="p">)</span>
 <a id="__codelineno-0-350" name="__codelineno-0-350"></a>    <span class="nb">open</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_open</span><span class="p">(</span><span class="n">complete</span><span class="p">,</span> <span class="nb">open</span><span class="p">)</span>
 <a id="__codelineno-0-351" name="__codelineno-0-351"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_warn_if_batch_sequence_unused</span><span class="p">(</span><span class="nb">open</span><span class="p">,</span> <span class="n">jobs</span><span class="p">,</span> <span class="n">serialized_sequence</span><span class="p">)</span>
@@ -2068,32 +2068,32 @@ be done and fetch results</p>
 <a id="__codelineno-0-355" name="__codelineno-0-355"></a>
 <a id="__codelineno-0-356" name="__codelineno-0-356"></a>    <span class="k">if</span> <span class="n">fetch_results</span><span class="p">:</span>
 <a id="__codelineno-0-357" name="__codelineno-0-357"></a>        <span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-358" name="__codelineno-0-358"></a>            <span class="s2">&quot;Argument `fetch_results` is deprecated and will be removed in a&quot;</span>
-<a id="__codelineno-0-359" name="__codelineno-0-359"></a>            <span class="s2">&quot; future version. Please use argument `wait` instead.&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-358" name="__codelineno-0-358"></a>            <span class="s2">"Argument `fetch_results` is deprecated and will be removed in a"</span>
+<a id="__codelineno-0-359" name="__codelineno-0-359"></a>            <span class="s2">" future version. Please use argument `wait` instead."</span><span class="p">,</span>
 <a id="__codelineno-0-360" name="__codelineno-0-360"></a>            <span class="ne">DeprecationWarning</span><span class="p">,</span>
 <a id="__codelineno-0-361" name="__codelineno-0-361"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <a id="__codelineno-0-362" name="__codelineno-0-362"></a>        <span class="p">)</span>
 <a id="__codelineno-0-363" name="__codelineno-0-363"></a>        <span class="n">wait</span> <span class="o">=</span> <span class="n">wait</span> <span class="ow">or</span> <span class="n">fetch_results</span>
 <a id="__codelineno-0-364" name="__codelineno-0-364"></a>
 <a id="__codelineno-0-365" name="__codelineno-0-365"></a>    <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-0-366" name="__codelineno-0-366"></a>        <span class="s2">&quot;sequence_builder&quot;</span><span class="p">:</span> <span class="n">serialized_sequence</span><span class="p">,</span>
-<a id="__codelineno-0-367" name="__codelineno-0-367"></a>        <span class="s2">&quot;webhook&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">webhook</span><span class="p">,</span>
-<a id="__codelineno-0-368" name="__codelineno-0-368"></a>        <span class="s2">&quot;jobs&quot;</span><span class="p">:</span> <span class="n">create_jobs_to_api_payload</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
-<a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="s2">&quot;open&quot;</span><span class="p">:</span> <span class="nb">open</span><span class="p">,</span>
-<a id="__codelineno-0-370" name="__codelineno-0-370"></a>        <span class="s2">&quot;device_type&quot;</span><span class="p">:</span> <span class="n">device_type</span><span class="p">,</span>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a>        <span class="s2">"sequence_builder"</span><span class="p">:</span> <span class="n">serialized_sequence</span><span class="p">,</span>
+<a id="__codelineno-0-367" name="__codelineno-0-367"></a>        <span class="s2">"webhook"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">webhook</span><span class="p">,</span>
+<a id="__codelineno-0-368" name="__codelineno-0-368"></a>        <span class="s2">"jobs"</span><span class="p">:</span> <span class="n">create_jobs_to_api_payload</span><span class="p">(</span><span class="n">jobs</span><span class="p">),</span>
+<a id="__codelineno-0-369" name="__codelineno-0-369"></a>        <span class="s2">"open"</span><span class="p">:</span> <span class="nb">open</span><span class="p">,</span>
+<a id="__codelineno-0-370" name="__codelineno-0-370"></a>        <span class="s2">"device_type"</span><span class="p">:</span> <span class="n">device_type</span><span class="p">,</span>
 <a id="__codelineno-0-371" name="__codelineno-0-371"></a>    <span class="p">}</span>
 <a id="__codelineno-0-372" name="__codelineno-0-372"></a>    <span class="c1"># The configuration field is only added in the case</span>
-<a id="__codelineno-0-373" name="__codelineno-0-373"></a>    <span class="c1"># it&#39;s requested</span>
+<a id="__codelineno-0-373" name="__codelineno-0-373"></a>    <span class="c1"># it's requested</span>
 <a id="__codelineno-0-374" name="__codelineno-0-374"></a>    <span class="k">if</span> <span class="n">configuration</span><span class="p">:</span>
-<a id="__codelineno-0-375" name="__codelineno-0-375"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;configuration&quot;</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()})</span>  <span class="c1"># type: ignore[dict-item]</span>
+<a id="__codelineno-0-375" name="__codelineno-0-375"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"configuration"</span><span class="p">:</span> <span class="n">configuration</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()})</span>  <span class="c1"># type: ignore[dict-item]</span>
 <a id="__codelineno-0-376" name="__codelineno-0-376"></a>
 <a id="__codelineno-0-377" name="__codelineno-0-377"></a>    <span class="k">if</span> <span class="n">tags</span><span class="p">:</span>
-<a id="__codelineno-0-378" name="__codelineno-0-378"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="n">tags</span><span class="p">})</span>  <span class="c1"># type: ignore[dict-item]</span>
+<a id="__codelineno-0-378" name="__codelineno-0-378"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"tags"</span><span class="p">:</span> <span class="n">tags</span><span class="p">})</span>  <span class="c1"># type: ignore[dict-item]</span>
 <a id="__codelineno-0-379" name="__codelineno-0-379"></a>
 <a id="__codelineno-0-380" name="__codelineno-0-380"></a>    <span class="c1"># The backend_configuration is only added if</span>
 <a id="__codelineno-0-381" name="__codelineno-0-381"></a>    <span class="c1"># a value is provided</span>
 <a id="__codelineno-0-382" name="__codelineno-0-382"></a>    <span class="k">if</span> <span class="n">backend_configuration</span><span class="p">:</span>
-<a id="__codelineno-0-383" name="__codelineno-0-383"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;backend_configuration&quot;</span><span class="p">:</span> <span class="n">backend_configuration</span><span class="p">})</span>
+<a id="__codelineno-0-383" name="__codelineno-0-383"></a>        <span class="n">req</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"backend_configuration"</span><span class="p">:</span> <span class="n">backend_configuration</span><span class="p">})</span>
 <a id="__codelineno-0-384" name="__codelineno-0-384"></a>
 <a id="__codelineno-0-385" name="__codelineno-0-385"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-386" name="__codelineno-0-386"></a>        <span class="n">batch_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">send_batch</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
@@ -2255,7 +2255,7 @@ done and fetch results</p>
 <span class="normal"><a href="#__codelineno-0-421">421</a></span>
 <span class="normal"><a href="#__codelineno-0-422">422</a></span>
 <span class="normal"><a href="#__codelineno-0-423">423</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fetch_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-400" name="__codelineno-0-400"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve a batch&#39;s data and all its jobs.</span>
+<a id="__codelineno-0-400" name="__codelineno-0-400"></a><span class="w">    </span><span class="sd">"""Retrieve a batch's data and all its jobs.</span>
 <a id="__codelineno-0-401" name="__codelineno-0-401"></a>
 <a id="__codelineno-0-402" name="__codelineno-0-402"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-403" name="__codelineno-0-403"></a><span class="sd">        fetch_results (deprecated): Whether to wait for the batch to be</span>
@@ -2267,11 +2267,11 @@ done and fetch results</p>
 <a id="__codelineno-0-409" name="__codelineno-0-409"></a>
 <a id="__codelineno-0-410" name="__codelineno-0-410"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-411" name="__codelineno-0-411"></a><span class="sd">        BatchFetchingError: in case fetching failed</span>
-<a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-412" name="__codelineno-0-412"></a><span class="sd">    """</span>
 <a id="__codelineno-0-413" name="__codelineno-0-413"></a>    <span class="k">if</span> <span class="n">fetch_results</span><span class="p">:</span>
 <a id="__codelineno-0-414" name="__codelineno-0-414"></a>        <span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-415" name="__codelineno-0-415"></a>            <span class="s2">&quot;Argument `fetch_results` is deprecated and will be removed in a&quot;</span>
-<a id="__codelineno-0-416" name="__codelineno-0-416"></a>            <span class="s2">&quot; future version. Results are fetched anyway with this function.&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-415" name="__codelineno-0-415"></a>            <span class="s2">"Argument `fetch_results` is deprecated and will be removed in a"</span>
+<a id="__codelineno-0-416" name="__codelineno-0-416"></a>            <span class="s2">" future version. Results are fetched anyway with this function."</span><span class="p">,</span>
 <a id="__codelineno-0-417" name="__codelineno-0-417"></a>            <span class="ne">DeprecationWarning</span><span class="p">,</span>
 <a id="__codelineno-0-418" name="__codelineno-0-418"></a>            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <a id="__codelineno-0-419" name="__codelineno-0-419"></a>        <span class="p">)</span>
@@ -2511,12 +2511,12 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-427" name="__codelineno-0-427"></a>    <span class="n">filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BatchFilters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-428" name="__codelineno-0-428"></a>    <span class="n">pagination_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PaginationParams</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-429" name="__codelineno-0-429"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">:</span>
-<a id="__codelineno-0-430" name="__codelineno-0-430"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-430" name="__codelineno-0-430"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-431" name="__codelineno-0-431"></a><span class="sd">    Retrieve a list of batches matching filters using a pagination system.</span>
 <a id="__codelineno-0-432" name="__codelineno-0-432"></a>
 <a id="__codelineno-0-433" name="__codelineno-0-433"></a><span class="sd">    Batches are sorted by their creation date in descending order.</span>
 <a id="__codelineno-0-434" name="__codelineno-0-434"></a>
-<a id="__codelineno-0-435" name="__codelineno-0-435"></a><span class="sd">    If no &#39;pagination_params&#39; are provided, the first 100 batches</span>
+<a id="__codelineno-0-435" name="__codelineno-0-435"></a><span class="sd">    If no 'pagination_params' are provided, the first 100 batches</span>
 <a id="__codelineno-0-436" name="__codelineno-0-436"></a><span class="sd">    matching the query will be returned by default.</span>
 <a id="__codelineno-0-437" name="__codelineno-0-437"></a>
 <a id="__codelineno-0-438" name="__codelineno-0-438"></a><span class="sd">    Args:</span>
@@ -2543,32 +2543,32 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-459" name="__codelineno-0-459"></a><span class="sd">        BatchFetchingError: If fetching batches call failed.</span>
 <a id="__codelineno-0-460" name="__codelineno-0-460"></a><span class="sd">        TypeError: If `filters` is not an instance of BatchFilters,</span>
 <a id="__codelineno-0-461" name="__codelineno-0-461"></a><span class="sd">            or if `pagination_params` is not an instance of PaginationParams.</span>
-<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-462" name="__codelineno-0-462"></a><span class="sd">    """</span>
 <a id="__codelineno-0-463" name="__codelineno-0-463"></a>
 <a id="__codelineno-0-464" name="__codelineno-0-464"></a>    <span class="k">if</span> <span class="n">pagination_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-465" name="__codelineno-0-465"></a>        <span class="n">pagination_params</span> <span class="o">=</span> <span class="n">PaginationParams</span><span class="p">()</span>
 <a id="__codelineno-0-466" name="__codelineno-0-466"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">,</span> <span class="n">PaginationParams</span><span class="p">):</span>
 <a id="__codelineno-0-467" name="__codelineno-0-467"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a>            <span class="sa">f</span><span class="s2">&quot;Pagination parameters needs to be a PaginationParams instance, &quot;</span>
-<a id="__codelineno-0-469" name="__codelineno-0-469"></a>            <span class="sa">f</span><span class="s2">&quot;not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a>            <span class="sa">f</span><span class="s2">"Pagination parameters needs to be a PaginationParams instance, "</span>
+<a id="__codelineno-0-469" name="__codelineno-0-469"></a>            <span class="sa">f</span><span class="s2">"not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-470" name="__codelineno-0-470"></a>        <span class="p">)</span>
 <a id="__codelineno-0-471" name="__codelineno-0-471"></a>
 <a id="__codelineno-0-472" name="__codelineno-0-472"></a>    <span class="k">if</span> <span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-473" name="__codelineno-0-473"></a>        <span class="n">filters</span> <span class="o">=</span> <span class="n">BatchFilters</span><span class="p">()</span>
 <a id="__codelineno-0-474" name="__codelineno-0-474"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">BatchFilters</span><span class="p">):</span>
 <a id="__codelineno-0-475" name="__codelineno-0-475"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-476" name="__codelineno-0-476"></a>            <span class="sa">f</span><span class="s2">&quot;Filters needs to be a BatchFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-476" name="__codelineno-0-476"></a>            <span class="sa">f</span><span class="s2">"Filters needs to be a BatchFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-477" name="__codelineno-0-477"></a>        <span class="p">)</span>
 <a id="__codelineno-0-478" name="__codelineno-0-478"></a>
 <a id="__codelineno-0-479" name="__codelineno-0-479"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-480" name="__codelineno-0-480"></a>        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_batches</span><span class="p">(</span>
 <a id="__codelineno-0-481" name="__codelineno-0-481"></a>            <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">pagination_params</span><span class="o">=</span><span class="n">pagination_params</span>
 <a id="__codelineno-0-482" name="__codelineno-0-482"></a>        <span class="p">)</span>
-<a id="__codelineno-0-483" name="__codelineno-0-483"></a>        <span class="n">batches</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-484" name="__codelineno-0-484"></a>        <span class="n">pagination_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pagination&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-483" name="__codelineno-0-483"></a>        <span class="n">batches</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span>
+<a id="__codelineno-0-484" name="__codelineno-0-484"></a>        <span class="n">pagination_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pagination"</span><span class="p">)</span>
 <a id="__codelineno-0-485" name="__codelineno-0-485"></a>        <span class="c1"># It should return a pagination all the time</span>
 <a id="__codelineno-0-486" name="__codelineno-0-486"></a>        <span class="n">total_nb_batches</span> <span class="o">=</span> <span class="p">(</span>
-<a id="__codelineno-0-487" name="__codelineno-0-487"></a>            <span class="n">pagination_response</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">pagination_response</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-0-487" name="__codelineno-0-487"></a>            <span class="n">pagination_response</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]</span> <span class="k">if</span> <span class="n">pagination_response</span> <span class="k">else</span> <span class="mi">0</span>
 <a id="__codelineno-0-488" name="__codelineno-0-488"></a>        <span class="p">)</span>
 <a id="__codelineno-0-489" name="__codelineno-0-489"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-0-490" name="__codelineno-0-490"></a>        <span class="k">raise</span> <span class="n">BatchFetchingError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
@@ -2637,11 +2637,11 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <span class="normal"><a href="#__codelineno-0-505">505</a></span>
 <span class="normal"><a href="#__codelineno-0-506">506</a></span>
 <span class="normal"><a href="#__codelineno-0-507">507</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-497" name="__codelineno-0-497"></a><span class="k">def</span><span class="w"> </span><span class="nf">cancel_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-498" name="__codelineno-0-498"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Cancel the given batch on the PCS</span>
+<a id="__codelineno-0-498" name="__codelineno-0-498"></a><span class="w">    </span><span class="sd">"""Cancel the given batch on the PCS</span>
 <a id="__codelineno-0-499" name="__codelineno-0-499"></a>
 <a id="__codelineno-0-500" name="__codelineno-0-500"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-501" name="__codelineno-0-501"></a><span class="sd">        id: ID of the batch.</span>
-<a id="__codelineno-0-502" name="__codelineno-0-502"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-502" name="__codelineno-0-502"></a><span class="sd">    """</span>
 <a id="__codelineno-0-503" name="__codelineno-0-503"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-504" name="__codelineno-0-504"></a>        <span class="n">batch_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cancel_batch</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 <a id="__codelineno-0-505" name="__codelineno-0-505"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -2801,7 +2801,7 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <span class="normal"><a href="#__codelineno-0-535">535</a></span>
 <span class="normal"><a href="#__codelineno-0-536">536</a></span>
 <span class="normal"><a href="#__codelineno-0-537">537</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-509" name="__codelineno-0-509"></a><span class="k">def</span><span class="w"> </span><span class="nf">cancel_batches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">BatchCancellationResponse</span><span class="p">:</span>
-<a id="__codelineno-0-510" name="__codelineno-0-510"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-510" name="__codelineno-0-510"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-511" name="__codelineno-0-511"></a><span class="sd">    Cancel a group of batches by their ids.</span>
 <a id="__codelineno-0-512" name="__codelineno-0-512"></a>
 <a id="__codelineno-0-513" name="__codelineno-0-513"></a><span class="sd">    Args:</span>
@@ -2815,7 +2815,7 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-521" name="__codelineno-0-521"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-522" name="__codelineno-0-522"></a><span class="sd">        BatchCancellingError: spawns from a HTTPError</span>
 <a id="__codelineno-0-523" name="__codelineno-0-523"></a>
-<a id="__codelineno-0-524" name="__codelineno-0-524"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-524" name="__codelineno-0-524"></a><span class="sd">    """</span>
 <a id="__codelineno-0-525" name="__codelineno-0-525"></a>
 <a id="__codelineno-0-526" name="__codelineno-0-526"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-527" name="__codelineno-0-527"></a>        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cancel_batches</span><span class="p">(</span>
@@ -2825,9 +2825,9 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-531" name="__codelineno-0-531"></a>        <span class="k">raise</span> <span class="n">BatchCancellingError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 <a id="__codelineno-0-532" name="__codelineno-0-532"></a>    <span class="k">return</span> <span class="n">BatchCancellationResponse</span><span class="p">(</span>
 <a id="__codelineno-0-533" name="__codelineno-0-533"></a>        <span class="n">batches</span><span class="o">=</span><span class="p">[</span>
-<a id="__codelineno-0-534" name="__codelineno-0-534"></a>            <span class="n">Batch</span><span class="p">(</span><span class="o">**</span><span class="n">batch</span><span class="p">,</span> <span class="n">_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;batches&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-534" name="__codelineno-0-534"></a>            <span class="n">Batch</span><span class="p">(</span><span class="o">**</span><span class="n">batch</span><span class="p">,</span> <span class="n">_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span> <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">"batches"</span><span class="p">]</span>
 <a id="__codelineno-0-535" name="__codelineno-0-535"></a>        <span class="p">],</span>
-<a id="__codelineno-0-536" name="__codelineno-0-536"></a>        <span class="n">errors</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-536" name="__codelineno-0-536"></a>        <span class="n">errors</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s2">"errors"</span><span class="p">],</span>
 <a id="__codelineno-0-537" name="__codelineno-0-537"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -3009,7 +3009,7 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-541" name="__codelineno-0-541"></a>    <span class="nb">id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <a id="__codelineno-0-542" name="__codelineno-0-542"></a>    <span class="n">filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RebatchFilters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-543" name="__codelineno-0-543"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-544" name="__codelineno-0-544"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-544" name="__codelineno-0-544"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-545" name="__codelineno-0-545"></a><span class="sd">    Retry a group of jobs matching filters in a new batch.</span>
 <a id="__codelineno-0-546" name="__codelineno-0-546"></a>
 <a id="__codelineno-0-547" name="__codelineno-0-547"></a><span class="sd">    Args:</span>
@@ -3023,12 +3023,12 @@ or if <code>pagination_params</code> is not an instance of PaginationParams.</p>
 <a id="__codelineno-0-555" name="__codelineno-0-555"></a>
 <a id="__codelineno-0-556" name="__codelineno-0-556"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-557" name="__codelineno-0-557"></a><span class="sd">        RebatchError: if rebatch call failed.</span>
-<a id="__codelineno-0-558" name="__codelineno-0-558"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-558" name="__codelineno-0-558"></a><span class="sd">    """</span>
 <a id="__codelineno-0-559" name="__codelineno-0-559"></a>    <span class="k">if</span> <span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-560" name="__codelineno-0-560"></a>        <span class="n">filters</span> <span class="o">=</span> <span class="n">RebatchFilters</span><span class="p">()</span>
 <a id="__codelineno-0-561" name="__codelineno-0-561"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">RebatchFilters</span><span class="p">):</span>
 <a id="__codelineno-0-562" name="__codelineno-0-562"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-563" name="__codelineno-0-563"></a>            <span class="sa">f</span><span class="s2">&quot;Filters needs to be a RebatchFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-563" name="__codelineno-0-563"></a>            <span class="sa">f</span><span class="s2">"Filters needs to be a RebatchFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-564" name="__codelineno-0-564"></a>        <span class="p">)</span>
 <a id="__codelineno-0-565" name="__codelineno-0-565"></a>
 <a id="__codelineno-0-566" name="__codelineno-0-566"></a>    <span class="k">try</span><span class="p">:</span>
@@ -3269,12 +3269,12 @@ pagination information.</p>
 <a id="__codelineno-0-577" name="__codelineno-0-577"></a>    <span class="n">filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">JobFilters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-578" name="__codelineno-0-578"></a>    <span class="n">pagination_params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PaginationParams</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-579" name="__codelineno-0-579"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaginatedResponse</span><span class="p">:</span>
-<a id="__codelineno-0-580" name="__codelineno-0-580"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-580" name="__codelineno-0-580"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-581" name="__codelineno-0-581"></a><span class="sd">    Retrieve a list of jobs matching filters using a pagination system.</span>
 <a id="__codelineno-0-582" name="__codelineno-0-582"></a>
 <a id="__codelineno-0-583" name="__codelineno-0-583"></a><span class="sd">    Jobs are sorted by their creation date in descending order.</span>
 <a id="__codelineno-0-584" name="__codelineno-0-584"></a>
-<a id="__codelineno-0-585" name="__codelineno-0-585"></a><span class="sd">    If no &#39;pagination_params&#39; are provided, the first 100 jobs</span>
+<a id="__codelineno-0-585" name="__codelineno-0-585"></a><span class="sd">    If no 'pagination_params' are provided, the first 100 jobs</span>
 <a id="__codelineno-0-586" name="__codelineno-0-586"></a><span class="sd">    matching the query will be returned by default.</span>
 <a id="__codelineno-0-587" name="__codelineno-0-587"></a>
 <a id="__codelineno-0-588" name="__codelineno-0-588"></a><span class="sd">    Args:</span>
@@ -3301,31 +3301,31 @@ pagination information.</p>
 <a id="__codelineno-0-609" name="__codelineno-0-609"></a><span class="sd">        JobFetchingError: If fetching jobs call failed.</span>
 <a id="__codelineno-0-610" name="__codelineno-0-610"></a><span class="sd">        TypeError: If `filters` is not an instance of JobFilters</span>
 <a id="__codelineno-0-611" name="__codelineno-0-611"></a><span class="sd">                or if `pagination_params` is not an instance of PaginationParams.</span>
-<a id="__codelineno-0-612" name="__codelineno-0-612"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-612" name="__codelineno-0-612"></a><span class="sd">    """</span>
 <a id="__codelineno-0-613" name="__codelineno-0-613"></a>
 <a id="__codelineno-0-614" name="__codelineno-0-614"></a>    <span class="k">if</span> <span class="n">pagination_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-615" name="__codelineno-0-615"></a>        <span class="n">pagination_params</span> <span class="o">=</span> <span class="n">PaginationParams</span><span class="p">()</span>
 <a id="__codelineno-0-616" name="__codelineno-0-616"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">,</span> <span class="n">PaginationParams</span><span class="p">):</span>
 <a id="__codelineno-0-617" name="__codelineno-0-617"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-618" name="__codelineno-0-618"></a>            <span class="s2">&quot;Pagination parameters needs to be a PaginationParams instance, &quot;</span>
-<a id="__codelineno-0-619" name="__codelineno-0-619"></a>            <span class="sa">f</span><span class="s2">&quot;not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-618" name="__codelineno-0-618"></a>            <span class="s2">"Pagination parameters needs to be a PaginationParams instance, "</span>
+<a id="__codelineno-0-619" name="__codelineno-0-619"></a>            <span class="sa">f</span><span class="s2">"not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">pagination_params</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-620" name="__codelineno-0-620"></a>        <span class="p">)</span>
 <a id="__codelineno-0-621" name="__codelineno-0-621"></a>
 <a id="__codelineno-0-622" name="__codelineno-0-622"></a>    <span class="k">if</span> <span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-623" name="__codelineno-0-623"></a>        <span class="n">filters</span> <span class="o">=</span> <span class="n">JobFilters</span><span class="p">()</span>
 <a id="__codelineno-0-624" name="__codelineno-0-624"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">JobFilters</span><span class="p">):</span>
 <a id="__codelineno-0-625" name="__codelineno-0-625"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-626" name="__codelineno-0-626"></a>            <span class="sa">f</span><span class="s2">&quot;Filters needs to be a JobFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-626" name="__codelineno-0-626"></a>            <span class="sa">f</span><span class="s2">"Filters needs to be a JobFilters instance, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-627" name="__codelineno-0-627"></a>        <span class="p">)</span>
 <a id="__codelineno-0-628" name="__codelineno-0-628"></a>
 <a id="__codelineno-0-629" name="__codelineno-0-629"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-630" name="__codelineno-0-630"></a>        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_jobs</span><span class="p">(</span>
 <a id="__codelineno-0-631" name="__codelineno-0-631"></a>            <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span> <span class="n">pagination_params</span><span class="o">=</span><span class="n">pagination_params</span>
 <a id="__codelineno-0-632" name="__codelineno-0-632"></a>        <span class="p">)</span>
-<a id="__codelineno-0-633" name="__codelineno-0-633"></a>        <span class="n">jobs</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
-<a id="__codelineno-0-634" name="__codelineno-0-634"></a>        <span class="n">pagination_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pagination&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-633" name="__codelineno-0-633"></a>        <span class="n">jobs</span> <span class="o">=</span> <span class="n">response</span><span class="p">[</span><span class="s2">"data"</span><span class="p">]</span>
+<a id="__codelineno-0-634" name="__codelineno-0-634"></a>        <span class="n">pagination_response</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pagination"</span><span class="p">)</span>
 <a id="__codelineno-0-635" name="__codelineno-0-635"></a>        <span class="c1"># It should return a pagination all the time</span>
-<a id="__codelineno-0-636" name="__codelineno-0-636"></a>        <span class="n">total_nb_jobs</span> <span class="o">=</span> <span class="n">pagination_response</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">pagination_response</span> <span class="k">else</span> <span class="mi">0</span>
+<a id="__codelineno-0-636" name="__codelineno-0-636"></a>        <span class="n">total_nb_jobs</span> <span class="o">=</span> <span class="n">pagination_response</span><span class="p">[</span><span class="s2">"total"</span><span class="p">]</span> <span class="k">if</span> <span class="n">pagination_response</span> <span class="k">else</span> <span class="mi">0</span>
 <a id="__codelineno-0-637" name="__codelineno-0-637"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-0-638" name="__codelineno-0-638"></a>        <span class="k">raise</span> <span class="n">JobFetchingError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 <a id="__codelineno-0-639" name="__codelineno-0-639"></a>    <span class="k">return</span> <span class="n">PaginatedResponse</span><span class="p">(</span>
@@ -3447,7 +3447,7 @@ pagination information.</p>
 <span class="normal"><a href="#__codelineno-0-674">674</a></span>
 <span class="normal"><a href="#__codelineno-0-675">675</a></span>
 <span class="normal"><a href="#__codelineno-0-676">676</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-664" name="__codelineno-0-664"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_job_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
-<a id="__codelineno-0-665" name="__codelineno-0-665"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the current status of a job.</span>
+<a id="__codelineno-0-665" name="__codelineno-0-665"></a><span class="w">    </span><span class="sd">"""Retrieve the current status of a job.</span>
 <a id="__codelineno-0-666" name="__codelineno-0-666"></a>
 <a id="__codelineno-0-667" name="__codelineno-0-667"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-668" name="__codelineno-0-668"></a><span class="sd">        id: ID of the job.</span>
@@ -3457,8 +3457,8 @@ pagination information.</p>
 <a id="__codelineno-0-672" name="__codelineno-0-672"></a>
 <a id="__codelineno-0-673" name="__codelineno-0-673"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-674" name="__codelineno-0-674"></a><span class="sd">        JobFetchingError: If fetching the status failed.</span>
-<a id="__codelineno-0-675" name="__codelineno-0-675"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-676" name="__codelineno-0-676"></a>    <span class="k">return</span> <span class="n">JobStatus</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_job_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)[</span><span class="s2">&quot;status&quot;</span><span class="p">]]</span>
+<a id="__codelineno-0-675" name="__codelineno-0-675"></a><span class="sd">    """</span>
+<a id="__codelineno-0-676" name="__codelineno-0-676"></a>    <span class="k">return</span> <span class="n">JobStatus</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_job_status</span><span class="p">(</span><span class="nb">id</span><span class="p">)[</span><span class="s2">"status"</span><span class="p">]]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3597,7 +3597,7 @@ pagination information.</p>
 <span class="normal"><a href="#__codelineno-0-692">692</a></span>
 <span class="normal"><a href="#__codelineno-0-693">693</a></span>
 <span class="normal"><a href="#__codelineno-0-694">694</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-678" name="__codelineno-0-678"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Job</span><span class="p">:</span>
-<a id="__codelineno-0-679" name="__codelineno-0-679"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve a job&#39;s data.</span>
+<a id="__codelineno-0-679" name="__codelineno-0-679"></a><span class="w">    </span><span class="sd">"""Retrieve a job's data.</span>
 <a id="__codelineno-0-680" name="__codelineno-0-680"></a>
 <a id="__codelineno-0-681" name="__codelineno-0-681"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-682" name="__codelineno-0-682"></a><span class="sd">        id: ID of the job.</span>
@@ -3608,7 +3608,7 @@ pagination information.</p>
 <a id="__codelineno-0-687" name="__codelineno-0-687"></a>
 <a id="__codelineno-0-688" name="__codelineno-0-688"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-689" name="__codelineno-0-689"></a><span class="sd">        JobFetchingError: If fetching failed.</span>
-<a id="__codelineno-0-690" name="__codelineno-0-690"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-690" name="__codelineno-0-690"></a><span class="sd">    """</span>
 <a id="__codelineno-0-691" name="__codelineno-0-691"></a>    <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
 <a id="__codelineno-0-692" name="__codelineno-0-692"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_job_terminal</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 <a id="__codelineno-0-693" name="__codelineno-0-693"></a>    <span class="n">job_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_job</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
@@ -3756,7 +3756,7 @@ pagination information.</p>
 <span class="normal"><a href="#__codelineno-0-723">723</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-696" name="__codelineno-0-696"></a><span class="k">def</span><span class="w"> </span><span class="nf">add_jobs</span><span class="p">(</span>
 <a id="__codelineno-0-697" name="__codelineno-0-697"></a>    <span class="bp">self</span><span class="p">,</span> <span class="n">batch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">jobs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CreateJob</span><span class="p">],</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <a id="__codelineno-0-698" name="__codelineno-0-698"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-699" name="__codelineno-0-699"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-699" name="__codelineno-0-699"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-700" name="__codelineno-0-700"></a><span class="sd">    Add jobs to an already existing batch.</span>
 <a id="__codelineno-0-701" name="__codelineno-0-701"></a>
 <a id="__codelineno-0-702" name="__codelineno-0-702"></a><span class="sd">    Args:</span>
@@ -3768,7 +3768,7 @@ pagination information.</p>
 <a id="__codelineno-0-708" name="__codelineno-0-708"></a>
 <a id="__codelineno-0-709" name="__codelineno-0-709"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-710" name="__codelineno-0-710"></a><span class="sd">        JobCreationError: spawns from a HTTPError.</span>
-<a id="__codelineno-0-711" name="__codelineno-0-711"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-711" name="__codelineno-0-711"></a><span class="sd">    """</span>
 <a id="__codelineno-0-712" name="__codelineno-0-712"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_validate_jobs_variables</span><span class="p">(</span><span class="n">jobs</span><span class="p">)</span>
 <a id="__codelineno-0-713" name="__codelineno-0-713"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-714" name="__codelineno-0-714"></a>        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">add_jobs</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">create_jobs_to_api_payload</span><span class="p">(</span><span class="n">jobs</span><span class="p">))</span>
@@ -3812,11 +3812,11 @@ pagination information.</p>
 <span class="normal"><a href="#__codelineno-0-732">732</a></span>
 <span class="normal"><a href="#__codelineno-0-733">733</a></span>
 <span class="normal"><a href="#__codelineno-0-734">734</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-725" name="__codelineno-0-725"></a><span class="k">def</span><span class="w"> </span><span class="nf">complete_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-726" name="__codelineno-0-726"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-726" name="__codelineno-0-726"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-727" name="__codelineno-0-727"></a><span class="sd">    Deprecated, use close_batch instead.</span>
-<a id="__codelineno-0-728" name="__codelineno-0-728"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-728" name="__codelineno-0-728"></a><span class="sd">    """</span>
 <a id="__codelineno-0-729" name="__codelineno-0-729"></a>    <span class="n">warn</span><span class="p">(</span>
-<a id="__codelineno-0-730" name="__codelineno-0-730"></a>        <span class="s2">&quot;This method is deprecated, use close_batch instead.&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-730" name="__codelineno-0-730"></a>        <span class="s2">"This method is deprecated, use close_batch instead."</span><span class="p">,</span>
 <a id="__codelineno-0-731" name="__codelineno-0-731"></a>        <span class="ne">DeprecationWarning</span><span class="p">,</span>
 <a id="__codelineno-0-732" name="__codelineno-0-732"></a>        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
 <a id="__codelineno-0-733" name="__codelineno-0-733"></a>    <span class="p">)</span>
@@ -3939,8 +3939,8 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-753">753</a></span>
 <span class="normal"><a href="#__codelineno-0-754">754</a></span>
 <span class="normal"><a href="#__codelineno-0-755">755</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-736" name="__codelineno-0-736"></a><span class="k">def</span><span class="w"> </span><span class="nf">close_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-737" name="__codelineno-0-737"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-738" name="__codelineno-0-738"></a><span class="sd">    Set a batch &#39;open&#39; field as False, indicating no more Jobs</span>
+<a id="__codelineno-0-737" name="__codelineno-0-737"></a><span class="w">    </span><span class="sd">"""</span>
+<a id="__codelineno-0-738" name="__codelineno-0-738"></a><span class="sd">    Set a batch 'open' field as False, indicating no more Jobs</span>
 <a id="__codelineno-0-739" name="__codelineno-0-739"></a><span class="sd">    can be submitted.</span>
 <a id="__codelineno-0-740" name="__codelineno-0-740"></a>
 <a id="__codelineno-0-741" name="__codelineno-0-741"></a><span class="sd">    Args:</span>
@@ -3951,7 +3951,7 @@ can be submitted.</p>
 <a id="__codelineno-0-746" name="__codelineno-0-746"></a>
 <a id="__codelineno-0-747" name="__codelineno-0-747"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-748" name="__codelineno-0-748"></a><span class="sd">        BatchClosingError: spawns from a HTTPError</span>
-<a id="__codelineno-0-749" name="__codelineno-0-749"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-749" name="__codelineno-0-749"></a><span class="sd">    """</span>
 <a id="__codelineno-0-750" name="__codelineno-0-750"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-751" name="__codelineno-0-751"></a>        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">close_batch</span><span class="p">(</span><span class="n">batch_id</span><span class="p">)</span>
 <a id="__codelineno-0-752" name="__codelineno-0-752"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -4050,14 +4050,14 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-769">769</a></span>
 <span class="normal"><a href="#__codelineno-0-770">770</a></span>
 <span class="normal"><a href="#__codelineno-0-771">771</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-757" name="__codelineno-0-757"></a><span class="k">def</span><span class="w"> </span><span class="nf">cancel_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Job</span><span class="p">:</span>
-<a id="__codelineno-0-758" name="__codelineno-0-758"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Cancel the given job on the PCS</span>
+<a id="__codelineno-0-758" name="__codelineno-0-758"></a><span class="w">    </span><span class="sd">"""Cancel the given job on the PCS</span>
 <a id="__codelineno-0-759" name="__codelineno-0-759"></a>
 <a id="__codelineno-0-760" name="__codelineno-0-760"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-761" name="__codelineno-0-761"></a><span class="sd">        id: ID of the job.</span>
 <a id="__codelineno-0-762" name="__codelineno-0-762"></a>
 <a id="__codelineno-0-763" name="__codelineno-0-763"></a><span class="sd">    Returns:</span>
 <a id="__codelineno-0-764" name="__codelineno-0-764"></a><span class="sd">        Job: The job stored in the PCS database.</span>
-<a id="__codelineno-0-765" name="__codelineno-0-765"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-765" name="__codelineno-0-765"></a><span class="sd">    """</span>
 <a id="__codelineno-0-766" name="__codelineno-0-766"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-767" name="__codelineno-0-767"></a>        <span class="n">job_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cancel_job</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 <a id="__codelineno-0-768" name="__codelineno-0-768"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -4253,7 +4253,7 @@ can be submitted.</p>
 <a id="__codelineno-0-775" name="__codelineno-0-775"></a>    <span class="n">batch_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <a id="__codelineno-0-776" name="__codelineno-0-776"></a>    <span class="n">filters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CancelJobFilters</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <a id="__codelineno-0-777" name="__codelineno-0-777"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobCancellationResponse</span><span class="p">:</span>
-<a id="__codelineno-0-778" name="__codelineno-0-778"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-0-778" name="__codelineno-0-778"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-779" name="__codelineno-0-779"></a><span class="sd">    Cancel a group of jobs matching the filters in a selected batch.</span>
 <a id="__codelineno-0-780" name="__codelineno-0-780"></a>
 <a id="__codelineno-0-781" name="__codelineno-0-781"></a><span class="sd">    Args:</span>
@@ -4268,13 +4268,13 @@ can be submitted.</p>
 <a id="__codelineno-0-790" name="__codelineno-0-790"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-791" name="__codelineno-0-791"></a><span class="sd">        JobCancellingError: spawns from a HTTPError</span>
 <a id="__codelineno-0-792" name="__codelineno-0-792"></a>
-<a id="__codelineno-0-793" name="__codelineno-0-793"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-793" name="__codelineno-0-793"></a><span class="sd">    """</span>
 <a id="__codelineno-0-794" name="__codelineno-0-794"></a>    <span class="k">if</span> <span class="n">filters</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 <a id="__codelineno-0-795" name="__codelineno-0-795"></a>        <span class="n">filters</span> <span class="o">=</span> <span class="n">CancelJobFilters</span><span class="p">()</span>
 <a id="__codelineno-0-796" name="__codelineno-0-796"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">CancelJobFilters</span><span class="p">):</span>
 <a id="__codelineno-0-797" name="__codelineno-0-797"></a>        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-<a id="__codelineno-0-798" name="__codelineno-0-798"></a>            <span class="s2">&quot;Filters needs to be a CancelJobFilters instance, &quot;</span>
-<a id="__codelineno-0-799" name="__codelineno-0-799"></a>            <span class="sa">f</span><span class="s2">&quot;not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-0-798" name="__codelineno-0-798"></a>            <span class="s2">"Filters needs to be a CancelJobFilters instance, "</span>
+<a id="__codelineno-0-799" name="__codelineno-0-799"></a>            <span class="sa">f</span><span class="s2">"not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">filters</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 <a id="__codelineno-0-800" name="__codelineno-0-800"></a>        <span class="p">)</span>
 <a id="__codelineno-0-801" name="__codelineno-0-801"></a>
 <a id="__codelineno-0-802" name="__codelineno-0-802"></a>    <span class="k">try</span><span class="p">:</span>
@@ -4285,8 +4285,8 @@ can be submitted.</p>
 <a id="__codelineno-0-807" name="__codelineno-0-807"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-0-808" name="__codelineno-0-808"></a>        <span class="k">raise</span> <span class="n">JobCancellingError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 <a id="__codelineno-0-809" name="__codelineno-0-809"></a>    <span class="k">return</span> <span class="n">JobCancellationResponse</span><span class="p">(</span>
-<a id="__codelineno-0-810" name="__codelineno-0-810"></a>        <span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">Job</span><span class="p">(</span><span class="o">**</span><span class="n">job</span><span class="p">,</span> <span class="n">_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]],</span>
-<a id="__codelineno-0-811" name="__codelineno-0-811"></a>        <span class="n">errors</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-810" name="__codelineno-0-810"></a>        <span class="n">jobs</span><span class="o">=</span><span class="p">[</span><span class="n">Job</span><span class="p">(</span><span class="o">**</span><span class="n">job</span><span class="p">,</span> <span class="n">_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">response</span><span class="p">[</span><span class="s2">"jobs"</span><span class="p">]],</span>
+<a id="__codelineno-0-811" name="__codelineno-0-811"></a>        <span class="n">errors</span><span class="o">=</span><span class="n">response</span><span class="p">[</span><span class="s2">"errors"</span><span class="p">],</span>
 <a id="__codelineno-0-812" name="__codelineno-0-812"></a>    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -4484,7 +4484,7 @@ can be submitted.</p>
 <a id="__codelineno-0-832" name="__codelineno-0-832"></a>    <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
 <a id="__codelineno-0-833" name="__codelineno-0-833"></a>    <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <a id="__codelineno-0-834" name="__codelineno-0-834"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Workload</span><span class="p">:</span>
-<a id="__codelineno-0-835" name="__codelineno-0-835"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a workload to be scheduled for execution.</span>
+<a id="__codelineno-0-835" name="__codelineno-0-835"></a><span class="w">    </span><span class="sd">"""Create a workload to be scheduled for execution.</span>
 <a id="__codelineno-0-836" name="__codelineno-0-836"></a>
 <a id="__codelineno-0-837" name="__codelineno-0-837"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-838" name="__codelineno-0-838"></a><span class="sd">        workload_type: The type of workload to create.</span>
@@ -4498,18 +4498,18 @@ can be submitted.</p>
 <a id="__codelineno-0-846" name="__codelineno-0-846"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-847" name="__codelineno-0-847"></a><span class="sd">        WorkloadCreationError: If creation failed.</span>
 <a id="__codelineno-0-848" name="__codelineno-0-848"></a>
-<a id="__codelineno-0-849" name="__codelineno-0-849"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-849" name="__codelineno-0-849"></a><span class="sd">    """</span>
 <a id="__codelineno-0-850" name="__codelineno-0-850"></a>    <span class="n">req</span> <span class="o">=</span> <span class="p">{</span>
-<a id="__codelineno-0-851" name="__codelineno-0-851"></a>        <span class="s2">&quot;workload_type&quot;</span><span class="p">:</span> <span class="n">workload_type</span><span class="p">,</span>
-<a id="__codelineno-0-852" name="__codelineno-0-852"></a>        <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="n">backend</span><span class="p">,</span>
-<a id="__codelineno-0-853" name="__codelineno-0-853"></a>        <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span>
+<a id="__codelineno-0-851" name="__codelineno-0-851"></a>        <span class="s2">"workload_type"</span><span class="p">:</span> <span class="n">workload_type</span><span class="p">,</span>
+<a id="__codelineno-0-852" name="__codelineno-0-852"></a>        <span class="s2">"backend"</span><span class="p">:</span> <span class="n">backend</span><span class="p">,</span>
+<a id="__codelineno-0-853" name="__codelineno-0-853"></a>        <span class="s2">"config"</span><span class="p">:</span> <span class="n">config</span><span class="p">,</span>
 <a id="__codelineno-0-854" name="__codelineno-0-854"></a>    <span class="p">}</span>
 <a id="__codelineno-0-855" name="__codelineno-0-855"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-856" name="__codelineno-0-856"></a>        <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">send_workload</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 <a id="__codelineno-0-857" name="__codelineno-0-857"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 <a id="__codelineno-0-858" name="__codelineno-0-858"></a>        <span class="k">raise</span> <span class="n">WorkloadCreationError</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 <a id="__codelineno-0-859" name="__codelineno-0-859"></a>    <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
-<a id="__codelineno-0-860" name="__codelineno-0-860"></a>        <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_workload</span><span class="p">(</span><span class="n">workload_rsp</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">workload_rsp</span><span class="p">)</span>
+<a id="__codelineno-0-860" name="__codelineno-0-860"></a>        <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_workload</span><span class="p">(</span><span class="n">workload_rsp</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">workload_rsp</span><span class="p">)</span>
 <a id="__codelineno-0-861" name="__codelineno-0-861"></a>    <span class="n">workload</span> <span class="o">=</span> <span class="n">Workload</span><span class="p">(</span><span class="o">**</span><span class="n">workload_rsp</span><span class="p">,</span> <span class="n">_client</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="p">)</span>
 <a id="__codelineno-0-862" name="__codelineno-0-862"></a>
 <a id="__codelineno-0-863" name="__codelineno-0-863"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">workloads</span><span class="p">[</span><span class="n">workload</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">workload</span>
@@ -4652,7 +4652,7 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-880">880</a></span>
 <span class="normal"><a href="#__codelineno-0-881">881</a></span>
 <span class="normal"><a href="#__codelineno-0-882">882</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-866" name="__codelineno-0-866"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_workload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Workload</span><span class="p">:</span>
-<a id="__codelineno-0-867" name="__codelineno-0-867"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve a workload&#39;s data.</span>
+<a id="__codelineno-0-867" name="__codelineno-0-867"></a><span class="w">    </span><span class="sd">"""Retrieve a workload's data.</span>
 <a id="__codelineno-0-868" name="__codelineno-0-868"></a>
 <a id="__codelineno-0-869" name="__codelineno-0-869"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-870" name="__codelineno-0-870"></a><span class="sd">        id: ID of the workload.</span>
@@ -4663,7 +4663,7 @@ can be submitted.</p>
 <a id="__codelineno-0-875" name="__codelineno-0-875"></a>
 <a id="__codelineno-0-876" name="__codelineno-0-876"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-877" name="__codelineno-0-877"></a><span class="sd">        WorkloadFetchingError: If fetching failed.</span>
-<a id="__codelineno-0-878" name="__codelineno-0-878"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-878" name="__codelineno-0-878"></a><span class="sd">    """</span>
 <a id="__codelineno-0-879" name="__codelineno-0-879"></a>    <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_workload</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 <a id="__codelineno-0-880" name="__codelineno-0-880"></a>    <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
 <a id="__codelineno-0-881" name="__codelineno-0-881"></a>        <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_workload</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">workload_rsp</span><span class="p">)</span>
@@ -4786,7 +4786,7 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-898">898</a></span>
 <span class="normal"><a href="#__codelineno-0-899">899</a></span>
 <span class="normal"><a href="#__codelineno-0-900">900</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-884" name="__codelineno-0-884"></a><span class="k">def</span><span class="w"> </span><span class="nf">cancel_workload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Workload</span><span class="p">:</span>
-<a id="__codelineno-0-885" name="__codelineno-0-885"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Cancel the given workload on the PCS.</span>
+<a id="__codelineno-0-885" name="__codelineno-0-885"></a><span class="w">    </span><span class="sd">"""Cancel the given workload on the PCS.</span>
 <a id="__codelineno-0-886" name="__codelineno-0-886"></a>
 <a id="__codelineno-0-887" name="__codelineno-0-887"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-888" name="__codelineno-0-888"></a><span class="sd">        id: Workload id.</span>
@@ -4796,7 +4796,7 @@ can be submitted.</p>
 <a id="__codelineno-0-892" name="__codelineno-0-892"></a>
 <a id="__codelineno-0-893" name="__codelineno-0-893"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-894" name="__codelineno-0-894"></a><span class="sd">        WorkloadCancelingError: If cancelation failed.</span>
-<a id="__codelineno-0-895" name="__codelineno-0-895"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-895" name="__codelineno-0-895"></a><span class="sd">    """</span>
 <a id="__codelineno-0-896" name="__codelineno-0-896"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-897" name="__codelineno-0-897"></a>        <span class="n">workload_rsp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">cancel_workload</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 <a id="__codelineno-0-898" name="__codelineno-0-898"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -4889,14 +4889,14 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-913">913</a></span>
 <span class="normal"><a href="#__codelineno-0-914">914</a></span>
 <span class="normal"><a href="#__codelineno-0-915">915</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-902" name="__codelineno-0-902"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_device_specs_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<a id="__codelineno-0-903" name="__codelineno-0-903"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the list of available device specifications.</span>
+<a id="__codelineno-0-903" name="__codelineno-0-903"></a><span class="w">    </span><span class="sd">"""Retrieve the list of available device specifications.</span>
 <a id="__codelineno-0-904" name="__codelineno-0-904"></a>
 <a id="__codelineno-0-905" name="__codelineno-0-905"></a><span class="sd">    Returns:</span>
 <a id="__codelineno-0-906" name="__codelineno-0-906"></a><span class="sd">        DeviceSpecs: The list of available device specifications.</span>
 <a id="__codelineno-0-907" name="__codelineno-0-907"></a>
 <a id="__codelineno-0-908" name="__codelineno-0-908"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-909" name="__codelineno-0-909"></a><span class="sd">        DeviceSpecsFetchingError: If fetching of specs failed.</span>
-<a id="__codelineno-0-910" name="__codelineno-0-910"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-910" name="__codelineno-0-910"></a><span class="sd">    """</span>
 <a id="__codelineno-0-911" name="__codelineno-0-911"></a>
 <a id="__codelineno-0-912" name="__codelineno-0-912"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-913" name="__codelineno-0-913"></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_device_specs_dict</span><span class="p">()</span>
@@ -5047,7 +5047,7 @@ can be submitted.</p>
 <a id="__codelineno-0-919" name="__codelineno-0-919"></a>    <span class="n">batch_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-0-920" name="__codelineno-0-920"></a>    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <a id="__codelineno-0-921" name="__codelineno-0-921"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Batch</span><span class="p">:</span>
-<a id="__codelineno-0-922" name="__codelineno-0-922"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Set tags to an existing batch, overwriting previous ones already set.</span>
+<a id="__codelineno-0-922" name="__codelineno-0-922"></a><span class="w">    </span><span class="sd">"""Set tags to an existing batch, overwriting previous ones already set.</span>
 <a id="__codelineno-0-923" name="__codelineno-0-923"></a>
 <a id="__codelineno-0-924" name="__codelineno-0-924"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-925" name="__codelineno-0-925"></a><span class="sd">        batch_id: Batch id.</span>
@@ -5058,7 +5058,7 @@ can be submitted.</p>
 <a id="__codelineno-0-930" name="__codelineno-0-930"></a>
 <a id="__codelineno-0-931" name="__codelineno-0-931"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-932" name="__codelineno-0-932"></a><span class="sd">        BatchSetTagsError: If setting tags to a batch failed.</span>
-<a id="__codelineno-0-933" name="__codelineno-0-933"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-933" name="__codelineno-0-933"></a><span class="sd">    """</span>
 <a id="__codelineno-0-934" name="__codelineno-0-934"></a>
 <a id="__codelineno-0-935" name="__codelineno-0-935"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-936" name="__codelineno-0-936"></a>        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">set_batch_tags</span><span class="p">(</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">tags</span><span class="p">)</span>
@@ -5167,7 +5167,7 @@ can be submitted.</p>
 <span class="normal"><a href="#__codelineno-0-959">959</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-942" name="__codelineno-0-942"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_all_projects</span><span class="p">(</span>
 <a id="__codelineno-0-943" name="__codelineno-0-943"></a>    <span class="bp">self</span><span class="p">,</span>
 <a id="__codelineno-0-944" name="__codelineno-0-944"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Project</span><span class="p">]:</span>
-<a id="__codelineno-0-945" name="__codelineno-0-945"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve all active projects the user is a member of.</span>
+<a id="__codelineno-0-945" name="__codelineno-0-945"></a><span class="w">    </span><span class="sd">"""Retrieve all active projects the user is a member of.</span>
 <a id="__codelineno-0-946" name="__codelineno-0-946"></a>
 <a id="__codelineno-0-947" name="__codelineno-0-947"></a><span class="sd">    Returns:</span>
 <a id="__codelineno-0-948" name="__codelineno-0-948"></a><span class="sd">        list[Project]: A list of all active projects that</span>
@@ -5175,7 +5175,7 @@ can be submitted.</p>
 <a id="__codelineno-0-950" name="__codelineno-0-950"></a>
 <a id="__codelineno-0-951" name="__codelineno-0-951"></a><span class="sd">    Raises:</span>
 <a id="__codelineno-0-952" name="__codelineno-0-952"></a><span class="sd">        ProjectFetchingError: If fetching projects failed.</span>
-<a id="__codelineno-0-953" name="__codelineno-0-953"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-953" name="__codelineno-0-953"></a><span class="sd">    """</span>
 <a id="__codelineno-0-954" name="__codelineno-0-954"></a>    <span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-0-955" name="__codelineno-0-955"></a>        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_all_active_projects</span><span class="p">()</span>
 <a id="__codelineno-0-956" name="__codelineno-0-956"></a>    <span class="k">except</span> <span class="n">HTTPError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -5305,7 +5305,7 @@ exist or isn't accessible to the current user.</p>
 <span class="normal"><a href="#__codelineno-0-979">979</a></span>
 <span class="normal"><a href="#__codelineno-0-980">980</a></span>
 <span class="normal"><a href="#__codelineno-0-981">981</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-961" name="__codelineno-0-961"></a><span class="k">def</span><span class="w"> </span><span class="nf">switch_to_project</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">project_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<a id="__codelineno-0-962" name="__codelineno-0-962"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Switch the SDK context to a different project.</span>
+<a id="__codelineno-0-962" name="__codelineno-0-962"></a><span class="w">    </span><span class="sd">"""Switch the SDK context to a different project.</span>
 <a id="__codelineno-0-963" name="__codelineno-0-963"></a>
 <a id="__codelineno-0-964" name="__codelineno-0-964"></a><span class="sd">    Args:</span>
 <a id="__codelineno-0-965" name="__codelineno-0-965"></a><span class="sd">        project_id: The ID of the project to switch to.</span>
@@ -5314,9 +5314,9 @@ exist or isn't accessible to the current user.</p>
 <a id="__codelineno-0-968" name="__codelineno-0-968"></a><span class="sd">        str: The ID of the newly chosen project.</span>
 <a id="__codelineno-0-969" name="__codelineno-0-969"></a>
 <a id="__codelineno-0-970" name="__codelineno-0-970"></a><span class="sd">    Raises:</span>
-<a id="__codelineno-0-971" name="__codelineno-0-971"></a><span class="sd">        ProjectNotFoundError: If the specified project ID doesn&#39;t</span>
-<a id="__codelineno-0-972" name="__codelineno-0-972"></a><span class="sd">            exist or isn&#39;t accessible to the current user.</span>
-<a id="__codelineno-0-973" name="__codelineno-0-973"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-971" name="__codelineno-0-971"></a><span class="sd">        ProjectNotFoundError: If the specified project ID doesn't</span>
+<a id="__codelineno-0-972" name="__codelineno-0-972"></a><span class="sd">            exist or isn't accessible to the current user.</span>
+<a id="__codelineno-0-973" name="__codelineno-0-973"></a><span class="sd">    """</span>
 <a id="__codelineno-0-974" name="__codelineno-0-974"></a>    <span class="n">user_projects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_all_projects</span><span class="p">()</span>
 <a id="__codelineno-0-975" name="__codelineno-0-975"></a>
 <a id="__codelineno-0-976" name="__codelineno-0-976"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">project_id</span> <span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">user_projects</span><span class="p">):</span>
