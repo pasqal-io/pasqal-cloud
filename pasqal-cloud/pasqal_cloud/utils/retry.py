@@ -59,14 +59,11 @@ def retry_http_error(
         @functools.wraps(func)
         def wrapper(*args: Param.args, **kwargs: Param.kwargs) -> RT:
             for iteration in range(max_retries + 1):
-                print("trying")
                 # 2 seconds, 4 seconds, 8 seconds, 16 seconds, 32 seconds
                 delay = 2**iteration
                 try:
                     response = func(*args, **kwargs)
                 except HTTPError as e:
-                    print("error")
-                    # 2 seconds, 4 seconds, 8 seconds, 16 seconds, 32 seconds
                     if (
                         e.response is None
                         or (
@@ -76,16 +73,11 @@ def retry_http_error(
                         or iteration == max_retries
                     ):
                         raise e
-                    print(f"{e.response.status_code=}")
                     if e.response.status_code == 429:
-                        print(e.response.headers)
                         retry_after = _retry_after_seconds(e.response)
-                        print(f"{retry_after=}")
                         if retry_after is not None:
                             delay = retry_after
-                    print(f"sleeping for: {delay}s")
                     time.sleep(delay)
-                    print(f"slept for: {delay}s")
                 except Exception as e:
                     if (
                         retry_exceptions

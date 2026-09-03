@@ -71,7 +71,6 @@ class HTTPClient:
         self.endpoints = self._make_endpoints(endpoints, region)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
-        self.user_agent = f"PasqalCloudSDKTest/handle-rate-limit"
 
         if token_provider is not None:
             self._check_token_provider(token_provider)
@@ -494,11 +493,11 @@ class HTTPClient:
         return response
 
     def get_device_specs_dict(self) -> Dict[str, str]:
-        # if self.authenticator is not None:
-        #     response: Dict[str, str] = self._authenticated_request(
-        #         "GET", self._get_url("get_devices_specs")
-        #     )["data"]
-        #     return response
+        if self.authenticator is not None:
+            response: Dict[str, str] = self._authenticated_request(
+                "GET", self._get_url("get_devices_specs")
+            )["data"]
+            return response
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
