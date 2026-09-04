@@ -6,45 +6,41 @@ All notable changes to this project will be documented in this file.
 
 ### pasqal-cloud
 
-* Result polling on batches and jobs use new status endpoints
-* Publish versioned documentation per release tag on GitHub Pages
-
-
+- Result polling on batches and jobs use new status endpoints
 
 ## [0.23.0]
 
 ### pulser-pasqal
 
-* Pin pasqal-cloud to 0.22.0
-* Add deprecation notices regarding pasqal-cloud merge
+- Pin pasqal-cloud to 0.22.0
+- Add deprecation notices regarding pasqal-cloud merge
 
 ### pasqal-cloud
 
-* Replace backoff as unmaintained anymore by tenacity
-* Merge pulser-pasqal into this package
-    - classes were renamed and deprecated ones removed
+- Replace backoff as unmaintained anymore by tenacity
+- Merge pulser-pasqal into this package
+  - classes were renamed and deprecated ones removed
 
-* Changes
-    - runs from job_params is now honored for emulator backends
+- Changes
+  - runs from job_params is now honored for emulator backends
 
-* Fixes
-    - correctly wait for jobs to finish within open_batch context manager
-
+- Fixes
+  - correctly wait for jobs to finish within open_batch context manager
 
 ## [0.22.0]
 
 ### pasqal-cloud
 
-* Add gzip compression for big payloads on `SDK.create_batch` and `SDK.add_jobs` methods
+- Add gzip compression for big payloads on `SDK.create_batch` and `SDK.add_jobs` methods
   - Can be disabled by setting the `PASQAL_SKIP_GZIP_REQUEST_BODY` environment variable
-* Allow defining a sequence at job level when creating a batch
+- Allow defining a sequence at job level when creating a batch
   - `serialized_sequence` is now optional in `SDK.create_batch`. If not specified, all jobs must define their own sequence
 
 ## [0.21.0]
 
 ### pasqal-cloud
 
-* Add region support
+- Add region support
   - `sa`: Saudi-Arabia platform
   - `fr`: European platform
 
@@ -52,49 +48,49 @@ All notable changes to this project will be documented in this file.
 
 ### pulser-pasqal
 
-* Make 'job_params' optional in RemoteEmulatorBackend
-* Add PasqalCloud.get_results()
+- Make 'job_params' optional in RemoteEmulatorBackend
+- Add PasqalCloud.get_results()
 
 ## [0.20.7]
 
 ### pulser-pasqal
 
-* Introduce a new Backend for EMU SV on `pulser-pasqal` (
+- Introduce a new Backend for EMU SV on `pulser-pasqal` (
   see [documentation](https://docs.pasqal.com/cloud/emulators-integration/))
 
 ## [0.20.6]
 
 ### pulser-pasqal
 
-* Fixes:
-    - Fix retrieval of results for batches using parametrized sequence
-    - Deserialize all results returned by the emulator instead of solely the bitstrings counter
-* Bump pulser-core minimum version to >=1.6
+- Fixes:
+  - Fix retrieval of results for batches using parametrized sequence
+  - Deserialize all results returned by the emulator instead of solely the bitstrings counter
+- Bump pulser-core minimum version to >=1.6
 
 ## [0.20.5]
 
 ### pasqal-cloud
 
-* Added warning on use of EMU_TN as `device_type` on batch creation
-* Fixed pydantic warning for use of `model_fields` on instance instead of class
-* Enable multi-qpu support by removing hard-coded reference to Fresnel
+- Added warning on use of EMU_TN as `device_type` on batch creation
+- Fixed pydantic warning for use of `model_fields` on instance instead of class
+- Enable multi-qpu support by removing hard-coded reference to Fresnel
 
 ### pulser-pasqal
 
-* Bump pulser-core minimum version to >1.4
+- Bump pulser-core minimum version to >1.4
 
 ## [0.20.4]
 
 ### pulser-pasqal
 
-* Introduce a new Backend for EMU FREE on `pulser-pasqal`
-* Introduce a new Backend for EMU MPS on `pulser-pasqal`
-* New MockSDK, used for testing code that uses this SDK
+- Introduce a new Backend for EMU FREE on `pulser-pasqal`
+- Introduce a new Backend for EMU MPS on `pulser-pasqal`
+- New MockSDK, used for testing code that uses this SDK
 
 ### pasqal-cloud
 
-* Added `switch_to_project("project_id")` method to change the project linked to your SDK
-* Added `get_all_projects()` method to get the list of all active projects the user is a member
+- Added `switch_to_project("project_id")` method to change the project linked to your SDK
+- Added `get_all_projects()` method to get the list of all active projects the user is a member
 
 ## [0.20.4dev0]
 
@@ -178,11 +174,11 @@ _released `2024-10-02`_
 ### Changed
 
 - Now these methods are using V2 endpoints:
-    - Cancel a batch
-    - Cancel a job
-    - Cancel a group of jobs
-    - Add jobs to a batch
-    - Close a batch
+  - Cancel a batch
+  - Cancel a job
+  - Cancel a group of jobs
+  - Add jobs to a batch
+  - Close a batch
 
 ## [0.12.1] - 2024-09-11
 
@@ -298,8 +294,8 @@ A Batch that does not accept new jobs is now called "closed" instead of "complet
 ### Added
 
 - Added feature to create an "open" batch.
-    - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
-    - To add jobs to an open batch, use the `add_jobs` method.
+  - To create an open batch, set the `complete` argument to `True` in the `create_batch` method of the SDK.
+  - To add jobs to an open batch, use the `add_jobs` method.
 - Updated documentation to add examples to create open batches.
 - The `wait` argument now waits for all the jobs to be terminated instead of waiting for the batch to be terminated.
 
