@@ -1,9 +1,8 @@
 name: Publish MkDocs documentation to gh-pages
 on:
-  push:
-    tags:
-      - "*"
-  workflow_dispatch:
+  release:
+    types:
+      - published
 permissions:
   contents: write
 concurrency:
@@ -11,22 +10,17 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
-    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Determine docs version
+      - name: Verify tag matches VERSION.txt
         id: version
         run: |
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            version="${GITHUB_REF#refs/tags/}"
-            expected=$(cat VERSION.txt)
-            if [ "$version" != "$expected" ]; then
-              echo "Tag '$version' does not match VERSION.txt '$expected'"
-              exit 1
-            fi
-          else
-            version=$(cat VERSION.txt)
+          version="${GITHUB_REF_NAME}"
+          expected=$(cat VERSION.txt)
+          if [ "$version" != "$expected" ]; then
+            echo "Tag '$version' does not match VERSION.txt '$expected'"
+            exit 1
           fi
           echo "Publishing docs version '$version'"
           echo "version=$version" >> "$GITHUB_OUTPUT"
