@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * Result polling on batches and jobs use new status endpoints
+* Publish versioned documentation per release tag on GitHub Pages
+
 
 
 ## [0.23.0]

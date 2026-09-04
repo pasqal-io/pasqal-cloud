@@ -3,22 +3,33 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: docs-gh-pages-publish
+  cancel-in-progress: false
 jobs:
   deploy:
+    if: github.event_name != 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify tag matches VERSION.txt
+      - name: Determine docs version
+        id: version
         run: |
-          # strips refs/tags/ prefix from GITHUB_REF
-          tag="${GITHUB_REF#refs/tags/}"
-          version=$(cat VERSION.txt)
-          if [ "$tag" != "$version" ]; then
-            echo "Tag '$tag' does not match VERSION.txt '$version'"
-            exit 1
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF#refs/tags/}"
+            expected=$(cat VERSION.txt)
+            if [ "$version" != "$expected" ]; then
+              echo "Tag '$version' does not match VERSION.txt '$expected'"
+              exit 1
+            fi
+          else
+            version=$(cat VERSION.txt)
           fi
+          echo "Publishing docs version '$version'"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
@@ -35,4 +46,8 @@ jobs:
             doc-publish-
       - run: pip install .[docs]
         working-directory: pasqal-cloud
-      - run: mkdocs gh-deploy --force
+      - name: Deploy versioned docs
+        run: |
+          git fetch origin gh-pages
+          mike deploy --push --update-aliases "${{ steps.version.outputs.version }}" latest
+          mike set-default --push latest
