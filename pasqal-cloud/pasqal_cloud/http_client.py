@@ -501,11 +501,20 @@ class HTTPClient:
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
-        response = self.session.request(
+        request_with_retry = retry_http_error(
+            max_retries=5,
+            retry_status_code={408, 425, 429, 500, 502, 504},
+        )(self._request_with_status_check)
+
+        response = request_with_retry(
             "GET",
             self._get_url("get_public_devices_specs"),
+            headers={
+                "content-type": "application/json",
+                "User-Agent": self.user_agent,
+            },
         )
-        response.raise_for_status()
+
         devices = response.json()["data"]
         return {device["device_type"]: device["specs"] for device in devices}
 
