@@ -37,6 +37,6 @@ jobs:
           pytest -vvv --cov
 
       - name: Mypy checks only for Python 3.10
-        if: ${{ matrix.python-version == 3.10 }}
+        if: ${{ matrix.python-version == '3.10' }}
         run: |
           mypy
