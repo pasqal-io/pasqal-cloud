@@ -8,7 +8,6 @@ It implements the Pulser [`RemoteConnection`](https://docs.pasqal.com/pulser/) i
 
 | Version | Release Date | End of Support |
 |---------|--------------|----------------|
-| 0.20.4  | 2025-08-27   | 2026-08-27     |
 | 0.20.5  | 2025-09-15   | 2026-09-15     |
 | 0.20.6  | 2025-10-21   | 2026-10-21     |
 | 0.20.7  | 2026-01-13   | 2027-01-13     |
@@ -16,6 +15,7 @@ It implements the Pulser [`RemoteConnection`](https://docs.pasqal.com/pulser/) i
 | 0.21.0  | 2026-02-25   | 2027-02-25     |
 | 0.22.0  | 2026-03-17   | 2027-03-17     |
 | 0.23.0  | 2026-06-30   | 2027-03-30     |
+| 0.24.0  | 2026-09-07   | 2027-09-07     |
 
 ## Getting started
 
