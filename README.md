@@ -57,4 +57,4 @@ pre-commit install
 
 For an overview of how to use each library, please refer to
 
-- [The `pasqal-cloud` README](https://pasqal-io.github.io/pasqal-cloud/#getting-started)
+- [The `pasqal-cloud` README](https://pasqal-io.github.io/pasqal-cloud/latest/getting-started/)

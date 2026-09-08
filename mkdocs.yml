@@ -62,6 +62,10 @@ markdown_extensions:
       base_path: ["."]
       check_paths: true
 
+extra:
+  version:
+    provider: mike
+
 extra_css:
   # from Qadence, to get paddings on blocks
   - extras/css/mkdocstrings.css

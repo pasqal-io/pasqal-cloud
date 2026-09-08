@@ -35,4 +35,8 @@ jobs:
             doc-publish-
       - run: pip install .[docs]
         working-directory: pasqal-cloud
-      - run: mkdocs gh-deploy --force
+      - name: Deploy versioned docs
+        run: |
+          git fetch origin gh-pages
+          mike deploy --push --update-aliases "${GITHUB_REF#refs/tags/}" latest
+          mike set-default --push latest

@@ -44,5 +44,5 @@ print(results.results)
 ## Documentation
 
 For full usage guides, authentication options, emulator configuration, and API reference,
-visit the [Github Pages documentation](https://pasqal-io.github.io/pasqal-cloud/)
+visit the [Github Pages documentation](https://pasqal-io.github.io/pasqal-cloud/latest/)
 or the **[Pasqal documentation](https://docs.pasqal.com/cloud/pasqal-cloud/)**.
