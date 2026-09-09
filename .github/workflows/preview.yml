@@ -98,7 +98,7 @@ jobs:
           qr-code: false
 
   portal-preview:
-    name: Deploy portal preview
+    name: Deploy doc-portal preview
     needs: [deploy]
     if: |
       github.event.action != 'closed' &&
@@ -137,6 +137,7 @@ jobs:
           docker run --rm \
             --volume "$PWD/portal-dist:/out" \
             --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
+            --env ASTRO_BASE="/pasqal-cloud/${PORTAL_PREVIEW_PATH}/" \
             --entrypoint sh \
             "$DOC_PORTAL_IMAGE" \
             -c 'sh /app/docker/doc-portal-rebuild-source.sh pasqalCloud && cp -r /app/packages/doc-portal/dist/. /out/'
@@ -157,8 +158,7 @@ jobs:
           message: |
             Doc portal preview: https://pasqal-io.github.io/pasqal-cloud/${{ env.PORTAL_PREVIEW_PATH }}/cloud/pasqal-cloud/
 
-            Built from ${{ github.event.pull_request.head.sha }}. Only this product is included.
-
+            Built from ${{ github.event.pull_request.head.sha }}.
   portal-cleanup:
     name: Cleanup portal preview
     if: |
