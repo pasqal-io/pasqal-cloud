@@ -75,8 +75,8 @@ jobs:
       (github.event.action == 'closed' || needs.build.result == 'success')
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # push the preview to the gh-pages branch
-      pull-requests: write  # leave/update the sticky preview comment
+      contents: write # push the preview to the gh-pages branch
+      pull-requests: write # leave/update the sticky preview comment
     steps:
       - name: Checkout the base commit, never the PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -96,3 +96,104 @@ jobs:
           source-dir: ./site/
           preview-branch: gh-pages
           qr-code: false
+
+  portal-preview:
+    name: Deploy portal preview
+    needs: [deploy]
+    if: |
+      github.event.action != 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # publish under portal-preview/pr-<n>/ on gh-pages
+      pull-requests: write # sticky comment
+    env:
+      PORTAL_PREVIEW_PATH: portal-preview/pr-${{ github.event.pull_request.number }}
+      DOC_PORTAL_IMAGE: ${{ secrets.DOC_PORTAL_IMAGE }}
+    steps:
+      - name: Checkout the base commit, never the PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          host="${DOC_PORTAL_IMAGE%%/*}"
+          gcloud auth configure-docker "$host" --quiet
+
+      - name: Pull the doc portal image
+        run: docker pull "$DOC_PORTAL_IMAGE"
+
+      - name: Wait for GitHub Pages # Maybe later: poll with curl until the mkdocs preview URL responds.
+        run: sleep 60
+
+      - name: Build the portal preview
+        run: |
+          mkdir -p portal-dist
+          docker run --rm \
+            --volume "$PWD/portal-dist:/out" \
+            --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
+            --entrypoint sh \
+            "$DOC_PORTAL_IMAGE" \
+            -c 'sh /app/docker/doc-portal-rebuild-source.sh pasqalCloud && cp -r /app/packages/doc-portal/dist/. /out/'
+
+      - name: Publish to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: portal-dist
+          branch: gh-pages
+          target-folder: ${{ env.PORTAL_PREVIEW_PATH }}
+          force: false
+          commit-message: Doc portal preview for PR ${{ github.event.pull_request.number }}
+
+      - name: Comment the preview link on the PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: doc-portal-preview
+          message: |
+            Doc portal preview: https://pasqal-io.github.io/pasqal-cloud/${{ env.PORTAL_PREVIEW_PATH }}/cloud/pasqal-cloud/
+
+            Built from ${{ github.event.pull_request.head.sha }}. Only this product is included.
+
+  portal-cleanup:
+    name: Cleanup portal preview
+    if: |
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout gh-pages
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: gh-pages
+
+      - name: Remove the preview folder
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git rm -r --ignore-unmatch "portal-preview/pr-${{ github.event.pull_request.number }}"
+          if git diff --cached --quiet; then
+            echo "Nothing to clean."
+            exit 0
+          fi
+          git commit -m "Remove doc portal preview for PR ${{ github.event.pull_request.number }}"
+          git push
+
+      - name: Remove the preview comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: doc-portal-preview
+          delete: true
