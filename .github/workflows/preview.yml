@@ -9,22 +9,40 @@ on:
       - synchronize
       - closed
 
-concurrency: preview-${{ github.ref }}
+# `pull_request` (never `pull_request_target`) is deliberate: the build below
+# executes code from the pull request, so it must not run in a context that has
+# access to repository secrets or a writable token.
+permissions: {}
+
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  # Deploys push to gh-pages; cancelling one midway can leave it inconsistent.
+  cancel-in-progress: false
 
 jobs:
-  deploy-preview:
+  # UNTRUSTED. Builds the pull request's own code: `pip install .[docs]` runs
+  # its packaging code, and mkdocs.yml enables `markdown_exec`, which executes
+  # Python from the docs at build time. This job therefore holds no permissions
+  # and no credentials -- it only produces an artifact.
+  build:
+    name: Build docs
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # checkout only; deliberately nothing else
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: 3.x
 
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - run: echo "cache_id=$(date --utc '+%V')" >> "$GITHUB_ENV"
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           key: doc-publish-${{ env.cache_id }}
           path: .cache
@@ -36,8 +54,44 @@ jobs:
 
       - run: mkdocs build
 
+      - name: Upload built site
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pr-preview-site
+          path: ./site/
+          retention-days: 1
+
+  # TRUSTED. Holds the write token but never runs code from the pull request:
+  # it checks out the base commit and only unpacks the artifact built above.
+  deploy:
+    name: Deploy preview
+    needs: [build]
+    # Forks get a read-only token no matter what `permissions` says, so a
+    # deploy from one cannot succeed. Skip it rather than fail the PR; the
+    # build job above still validates that a fork's docs compile.
+    if: |
+      always() &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action == 'closed' || needs.build.result == 'success')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # push the preview to the gh-pages branch
+      pull-requests: write  # leave/update the sticky preview comment
+    steps:
+      - name: Checkout the base commit, never the PR head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Download built site
+        if: github.event.action != 'closed'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pr-preview-site
+          path: ./site/
+
       - name: Deploy preview
-        uses: rossjrw/pr-preview-action@v1
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           source-dir: ./site/
           preview-branch: gh-pages
