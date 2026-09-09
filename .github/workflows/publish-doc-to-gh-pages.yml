@@ -1,6 +1,8 @@
 name: Publish MkDocs documentation to gh-pages
 on:
   push:
+    branches:
+      - main
     tags:
       - "*"
 permissions:
@@ -11,6 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify tag matches VERSION.txt
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           # strips refs/tags/ prefix from GITHUB_REF
           tag="${GITHUB_REF#refs/tags/}"
@@ -35,8 +38,13 @@ jobs:
             doc-publish-
       - run: pip install .[docs]
         working-directory: pasqal-cloud
+      - name: Fetch gh-pages
+        run: git fetch origin gh-pages --depth=1
+      - name: Deploy dev docs
+        if: github.ref == 'refs/heads/main'
+        run: mike deploy --push --update-aliases dev
       - name: Deploy versioned docs
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
-          git fetch origin gh-pages
           mike deploy --push --update-aliases "${GITHUB_REF#refs/tags/}" latest
           mike set-default --push latest
