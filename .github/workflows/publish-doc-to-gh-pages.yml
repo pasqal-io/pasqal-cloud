@@ -1,15 +1,23 @@
 name: Publish MkDocs documentation to gh-pages
+
 on:
   push:
     tags:
       - "*"
-permissions:
-  contents: write
+
+permissions: {}
+
 jobs:
-  deploy:
+  build:
+    name: Build docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
       - name: Verify tag matches VERSION.txt
         run: |
           # strips refs/tags/ prefix from GITHUB_REF
@@ -19,20 +27,62 @@ jobs:
             echo "Tag '$tag' does not match VERSION.txt '$version'"
             exit 1
           fi
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: 3.x
+
       - run: echo "cache_id=$(date --utc '+%V')" >> "$GITHUB_ENV"
+
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           key: doc-publish-${{ env.cache_id }}
           path: .cache
           restore-keys: |
             doc-publish-
+
       - run: pip install .[docs]
         working-directory: pasqal-cloud
-      - run: mkdocs gh-deploy --force
+
+      - run: mkdocs build
+
+      - name: Upload built site
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: docs-site
+          path: ./site/
+          retention-days: 1
+
+  # Holds the write permission but runs no repository code: it only unpacks the
+  # artifact built above and pushes it.
+  deploy:
+    name: Deploy docs
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the built docs to the gh-pages branch
+    steps:
+      # Checkout is required for JamesIves/github-pages-deploy-action below
+      # https://github.com/JamesIves/github-pages-deploy-action/#getting-started-airplane
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Download built site
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: docs-site
+          path: ./site/
+
+      - name: Publish to gh-pages
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          folder: ./site/
+          branch: gh-pages
+          token: ${{ github.token }}
+          git-config-name: github-actions[bot]
+          git-config-email: 41898282+github-actions[bot]@users.noreply.github.com
+          # preview.yml maintains open pull requests' previews on this same
+          # branch under pr-preview/. Publishing the docs must not wipe them.
+          clean-exclude: |
+            pr-preview/
