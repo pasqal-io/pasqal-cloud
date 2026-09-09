@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+concurrency:
+    group: gh-pages
+    cancel-in-progress: false
     tags:
       - "*"
 permissions:
