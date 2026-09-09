@@ -110,7 +110,7 @@ jobs:
       pull-requests: write # sticky comment
     env:
       PORTAL_PREVIEW_PATH: portal-preview/pr-${{ github.event.pull_request.number }}
-      DOC_PORTAL_IMAGE: ${{ secrets.DOC_PORTAL_IMAGE }}
+      DOC_PORTAL_IMAGE: europe-west9-docker.pkg.dev/pasqal-artifact/frontend/doc-portal:source-runtime
     steps:
       - name: Checkout the base commit, never the PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -118,18 +118,12 @@ jobs:
           ref: ${{ github.event.pull_request.base.sha }}
           persist-credentials: false
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: Login to Artifact Registry
+        uses: docker/login-action@v4
         with:
-          credentials_json: ${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}
-
-      - name: Set up gcloud
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
-        run: |
-          host="${DOC_PORTAL_IMAGE%%/*}"
-          gcloud auth configure-docker "$host" --quiet
+          registry: europe-west9-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}
 
       - name: Pull the doc portal image
         run: docker pull "$DOC_PORTAL_IMAGE"
