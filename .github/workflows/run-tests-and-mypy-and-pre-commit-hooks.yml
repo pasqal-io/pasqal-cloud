@@ -1,24 +1,46 @@
 name: Run tests, mypy and pre-commit hooks
 
-on: push
+on:
+  pull_request:
+    # `ready_for_review` matters: the job below skips drafts, and without this
+    # type a draft -> ready transition would never re-trigger the gate.
+    types: [opened, reopened, synchronize, ready_for_review]
+  push:
+    branches:
+      - main
+      - dev
+
+# This workflow only reads the code it tests. Nothing here needs to write to
+# the repository, and no secret is referenced, so a fork pull request runs it
+# exactly as an internal branch does.
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  # Superseded pull request runs are pointless; runs on main/dev are not.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   unit_tests:
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+    # Draft pull requests are not gated.
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     name: Unit testing
     runs-on: ubuntu-latest
     strategy:
+      # Report every failing interpreter in one run instead of the first only.
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - name: Checkout main code and submodules
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
 
