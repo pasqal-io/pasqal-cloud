@@ -85,6 +85,7 @@ setup(
             "mkdocs-material==9.5.50",
             "mkdocstrings==0.27.0",
             "mkdocstrings-python==1.13.0",
+            "mike==2.2.0",
         },
     },
 )
