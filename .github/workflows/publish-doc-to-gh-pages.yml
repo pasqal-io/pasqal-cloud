@@ -1,8 +1,13 @@
 name: Publish MkDocs documentation to gh-pages
 on:
   push:
+    branches:
+      - main
     tags:
       - "*"
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
 permissions:
   contents: write
 jobs:
@@ -10,7 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-tags: true
       - name: Verify tag matches VERSION.txt
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           # strips refs/tags/ prefix from GITHUB_REF
           tag="${GITHUB_REF#refs/tags/}"
@@ -35,4 +43,18 @@ jobs:
             doc-publish-
       - run: pip install .[docs]
         working-directory: pasqal-cloud
-      - run: mkdocs gh-deploy --force
+      - name: Fetch gh-pages
+        run: git fetch origin gh-pages --depth=1
+      - name: Deploy dev docs
+        if: github.ref == 'refs/heads/main'
+        run: mike deploy --push --update-aliases dev
+      - name: Deploy versioned docs
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          if [ "$tag" = "$(git tag -l '[0-9]*' --sort=-v:refname | head -n1)" ]; then
+            mike deploy --push --update-aliases "$tag" latest
+            mike set-default --push latest
+          else
+            mike deploy --push "$tag"
+          fi
