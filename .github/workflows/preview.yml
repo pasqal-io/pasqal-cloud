@@ -100,10 +100,12 @@ jobs:
   portal-preview:
     name: Deploy doc-portal preview
     needs: [deploy]
+    # Same-repo only (secrets + write token). Runs after deploy so mkdocs and
+    # portal never push to gh-pages in parallel — including on PR close.
     if: |
-      github.event.action != 'closed' &&
+      always() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      needs.deploy.result == 'success'
+      (github.event.action == 'closed' || needs.deploy.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: write # publish under portal-preview/pr-<n>/ on gh-pages
@@ -119,6 +121,7 @@ jobs:
           persist-credentials: false
 
       - name: Login to Artifact Registry
+        if: github.event.action != 'closed'
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: europe-west9-docker.pkg.dev
@@ -126,12 +129,15 @@ jobs:
           password: ${{ secrets.GCP_ARTIFACT_REGISTRY_SA }}
 
       - name: Pull the doc portal image
+        if: github.event.action != 'closed'
         run: docker pull "$DOC_PORTAL_IMAGE"
 
       - name: Wait for GitHub Pages # Maybe later: poll with curl until the mkdocs preview URL responds.
+        if: github.event.action != 'closed'
         run: sleep 60
 
       - name: Build the portal preview
+        if: github.event.action != 'closed'
         run: |
           mkdir -p portal-dist
           docker run --rm \
@@ -142,16 +148,17 @@ jobs:
             "$DOC_PORTAL_IMAGE" \
             -c 'sh /app/docker/doc-portal-rebuild-source.sh pasqalCloud && cp -r /app/packages/doc-portal/dist/. /out/'
 
-      - name: Publish to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+      - name: Deploy portal preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
-          folder: portal-dist
-          branch: gh-pages
-          target-folder: ${{ env.PORTAL_PREVIEW_PATH }}
-          force: false
-          commit-message: Doc portal preview for PR ${{ github.event.pull_request.number }}
+          source-dir: ./portal-dist/
+          preview-branch: gh-pages
+          umbrella-dir: portal-preview
+          qr-code: false
+          comment: false
 
       - name: Comment the preview link on the PR
+        if: github.event.action != 'closed'
         uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
           header: doc-portal-preview
@@ -159,34 +166,9 @@ jobs:
             Doc portal preview: https://pasqal-io.github.io/pasqal-cloud/${{ env.PORTAL_PREVIEW_PATH }}/cloud/pasqal-cloud/
 
             Built from ${{ github.event.pull_request.head.sha }}.
-  portal-cleanup:
-    name: Cleanup portal preview
-    if: |
-      github.event.action == 'closed' &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - name: Checkout gh-pages
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: gh-pages
-
-      - name: Remove the preview folder
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git rm -r --ignore-unmatch "portal-preview/pr-${{ github.event.pull_request.number }}"
-          if git diff --cached --quiet; then
-            echo "Nothing to clean."
-            exit 0
-          fi
-          git commit -m "Remove doc portal preview for PR ${{ github.event.pull_request.number }}"
-          git push
 
       - name: Remove the preview comment
+        if: github.event.action == 'closed'
         uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2.9.4
         with:
           header: doc-portal-preview
