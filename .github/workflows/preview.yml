@@ -132,10 +132,6 @@ jobs:
         if: github.event.action != 'closed'
         run: docker pull "$DOC_PORTAL_IMAGE"
 
-      - name: Wait for GitHub Pages # Maybe later: poll with curl until the mkdocs preview URL responds.
-        if: github.event.action != 'closed'
-        run: sleep 60
-
       - name: Build the portal preview
         if: github.event.action != 'closed'
         run: |
