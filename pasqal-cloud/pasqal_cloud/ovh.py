@@ -81,7 +81,7 @@ class OVHConnection(PasqalCloudConnection):
             token = os.environ["PASQAL_PULSER_ACCESS_TOKEN"]
         except KeyError:
             raise MissingEnvironmentVariableError(
-                "Missing PASQAL_PULSER_ACCESS_TOKEN environment variable"
+                "Missing PASQAL_PULSER_ACCESS_TOKEN environment variable test"
             )
 
         class OvhTokenProvider(TokenProvider):

@@ -1,4 +1,4 @@
-# Getting Started
+# Getting Started DEMO
 
 This guide will help you install `pasqal-cloud`, authenticate, and submit your first job to Pasqal Cloud Services.
 
