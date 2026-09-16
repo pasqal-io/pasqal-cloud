@@ -137,12 +137,12 @@ jobs:
         run: |
           mkdir -p portal-dist
           docker run --rm \
-            --volume "$PWD/portal-dist:/out" \
             --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
             --env ASTRO_BASE="/pasqal-cloud/${PORTAL_PREVIEW_PATH}/" \
             --entrypoint sh \
             "$DOC_PORTAL_IMAGE" \
-            -c 'cd /app && pnpm --filter @pasqal/doc-portal run build:selected && cp -r /app/packages/doc-portal/dist/. /out/'
+            -c 'cd /app && pnpm --filter @pasqal/doc-portal run build:selected && tar -C /app/packages/doc-portal/dist -cf - .' \
+            | tar -C portal-dist -xf -
 
       - name: Deploy portal preview
         uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
