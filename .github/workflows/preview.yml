@@ -136,8 +136,8 @@ jobs:
         if: github.event.action != 'closed'
         run: |
           mkdir -p portal-dist
-          chmod 777 portal-dist
           docker run --rm \
+            --user 0:0 \
             --volume "$PWD/portal-dist:/out" \
             --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
             --env ASTRO_BASE="/pasqal-cloud/${PORTAL_PREVIEW_PATH}/" \
