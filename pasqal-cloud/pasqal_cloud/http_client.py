@@ -18,7 +18,7 @@ import json
 import os
 import warnings
 from getpass import getpass
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 from uuid import UUID
 
 import requests
@@ -42,6 +42,7 @@ from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
+BATCH_CREATION_TIMEOUT = 300  # batch creation can take longer, allow 5min
 
 
 # Env variable to disable SSL verification. Should be used only in testing environement
@@ -226,6 +227,7 @@ class HTTPClient:
         payload: Optional[Union[Mapping, Sequence[Mapping], Sequence[str]]] = None,
         params: Optional[Mapping[str, Any]] = None,
         gziped: bool = False,
+        timeout: Union[float, Tuple[float, Optional[float]]] = TIMEOUT,
     ) -> JSendPayload:
         if self.authenticator is None:
             raise ValueError(
@@ -262,7 +264,7 @@ class HTTPClient:
         resp = request_with_retry(
             method,
             url,
-            timeout=TIMEOUT,
+            timeout=timeout,
             headers=headers,
             auth=self.authenticator,
             params=params,
@@ -326,7 +328,13 @@ class HTTPClient:
     def send_batch(self, batch_data: Dict[str, Any]) -> Dict[str, Any]:
         batch_data.update({"project_id": self.project_id})
         response: Dict[str, Any] = self._authenticated_request(
-            "POST", self._get_url("send_batch"), batch_data, gziped=True
+            "POST",
+            self._get_url("send_batch"),
+            batch_data,
+            gziped=True,
+            # Batch creation can take longer than TIMEOUT server-side
+            # (e.g. large sequences), so it gets an extended read timeout.
+            timeout=(TIMEOUT, BATCH_CREATION_TIMEOUT),
         )["data"]
         return response
 
