@@ -77,6 +77,7 @@ jobs:
     permissions:
       contents: write # push the preview to the gh-pages branch
       pull-requests: write # leave/update the sticky preview comment
+      deployments: read # wait-for-pages-deployment polls the Deployments API
     steps:
       - name: Checkout the base commit, never the PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -96,6 +97,7 @@ jobs:
           source-dir: ./site/
           preview-branch: gh-pages
           qr-code: false
+          wait-for-pages-deployment: true
 
   portal-preview:
     name: Deploy doc-portal preview
@@ -137,12 +139,13 @@ jobs:
         run: |
           mkdir -p portal-dist
           docker run --rm \
+            --user 0:0 \
             --volume "$PWD/portal-dist:/out" \
             --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
             --env ASTRO_BASE="/pasqal-cloud/${PORTAL_PREVIEW_PATH}/" \
             --entrypoint sh \
             "$DOC_PORTAL_IMAGE" \
-            -c 'sh /app/docker/doc-portal-rebuild-source.sh pasqalCloud && cp -r /app/packages/doc-portal/dist/. /out/'
+            -c 'cd /app && pnpm --filter @pasqal/doc-portal run build:selected && cp -r /app/packages/doc-portal/dist/. /out/'
 
       - name: Deploy portal preview
         uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
