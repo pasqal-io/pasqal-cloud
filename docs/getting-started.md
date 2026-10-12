@@ -17,6 +17,11 @@ Install the latest release from PyPI:
 pip install pasqal-cloud
 ```
 
+!!! tip "Check your installation"
+
+    Run `pip show pasqal-cloud` to see which version is installed. Make sure it
+    matches the version of this documentation.
+
 ## Authentication
 
 Create a connection by providing your credentials and project ID:
