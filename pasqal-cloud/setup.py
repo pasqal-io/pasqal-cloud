@@ -51,6 +51,7 @@ setup(
     packages=find_packages(),
     package_data={package_name: ["py.typed"]},
     include_package_data=True,
+    entry_points={"console_scripts": ["pasqal-cloud = pasqal_cloud.cli:main"]},
     description=description,
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
