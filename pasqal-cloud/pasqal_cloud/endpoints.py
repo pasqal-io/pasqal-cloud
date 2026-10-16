@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 from dataclasses import dataclass
 from sys import version_info
-from typing import Literal, Optional
+from typing import cast, get_args, Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -222,3 +223,82 @@ AUTH_CONFIG = {
         grant_type="password",
     ),
 }
+
+
+# ---- Interactive login (pasqal-cloud CLI) ----
+
+Env = Literal["prod", "preprod", "dev"]
+
+REGIONS: tuple[Region, ...] = get_args(Region)
+ENVS: tuple[Env, ...] = get_args(Env)
+
+
+@dataclass(frozen=True)
+class LoginPreset:
+    issuer: str
+    client_id: str
+    audience: str
+
+
+# TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
+# once they are created.
+LOGIN_PRESETS: dict[tuple[Region, Env], LoginPreset] = {
+    ("fr", "prod"): LoginPreset(f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE),
+    ("fr", "preprod"): LoginPreset(
+        f"https://{PREPROD_AUTH0_DOMAIN}/", PREPROD_PUBLIC_CLIENT_ID, PREPROD_AUDIENCE
+    ),
+    ("fr", "dev"): LoginPreset(
+        f"https://{DEV_AUTH0_DOMAIN}/", DEV_PUBLIC_CLIENT_ID, DEV_AUDIENCE
+    ),
+    ("sa", "prod"): LoginPreset(
+        f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
+        KEYCLOAK_SDK_CLIENT_ID,
+        AUDIENCE,
+    ),
+    ("sa", "preprod"): LoginPreset(
+        f"{PREPROD_SA_KEYCLOAK_BASE_URL.rstrip('/')}/realms/{KEYCLOAK_REALM}",
+        KEYCLOAK_SDK_CLIENT_ID,
+        PREPROD_AUDIENCE,
+    ),
+    ("sa", "dev"): LoginPreset(
+        "https://keycloak-127-0-0-1.nip.io/realms/users",
+        KEYCLOAK_SDK_CLIENT_ID,
+        DEV_AUDIENCE,
+    ),
+}
+
+
+@dataclass(frozen=True)
+class LoginTarget:
+    region: Region
+    env: Env
+    preset: LoginPreset
+
+
+def _pick(
+    name: str, explicit: Optional[str], var: str, default: str, valid: tuple[str, ...]
+) -> str:
+    if explicit is not None:
+        value, source = explicit, "flag"
+    elif os.environ.get(var):
+        value, source = os.environ[var], "env var"
+    else:
+        value, source = default, "default"
+    if value not in valid:
+        raise ValueError(
+            f"Invalid {name} {value!r} ({source}), expected one of: {', '.join(valid)}"
+        )
+    return value
+
+
+def resolve_login_target(region: Optional[str] = None) -> LoginTarget:
+    """Resolve region/env from the explicit argument, then env vars, then defaults.
+
+    Raises ValueError on unknown values, never falls back to prod.
+    """
+    # _pick validated the values, so the casts are safe.
+    valid_region = cast(
+        Region, _pick("region", region, "PASQAL_CLOUD_REGION", "fr", REGIONS)
+    )
+    env = cast(Env, _pick("environment", None, "PASQAL_CLOUD_ENV", "prod", ENVS))
+    return LoginTarget(valid_region, env, LOGIN_PRESETS[(valid_region, env)])
