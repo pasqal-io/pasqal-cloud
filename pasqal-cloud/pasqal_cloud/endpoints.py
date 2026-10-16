@@ -100,6 +100,8 @@ PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
 PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
+# Public client for interactive logins (PKCE, device) and ROPG, subject to MFA.
+KEYCLOAK_LOGIN_CLIENT_ID = "pasqal-cloud-python"
 KEYCLOAK_REALM = "pasqal-cloud"
 
 
