@@ -101,6 +101,8 @@ PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud"
 PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
+# Public client for interactive logins (PKCE, device) and ROPG, subject to MFA.
+KEYCLOAK_LOGIN_CLIENT_ID = "pasqal-cloud-python"
 KEYCLOAK_REALM = "pasqal-cloud"
 
 
@@ -240,8 +242,8 @@ class DeploymentConf:
     audience: str
 
 
-# TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
-# once they are created.
+# TODO: replace Auth0 client IDs with the new Native app of each tenant once
+# they are created.
 DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
     ("fr", "prod"): DeploymentConf(
         f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE
@@ -254,17 +256,17 @@ DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
     ),
     ("sa", "prod"): DeploymentConf(
         f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        KEYCLOAK_SDK_CLIENT_ID,
+        KEYCLOAK_LOGIN_CLIENT_ID,
         AUDIENCE,
     ),
     ("sa", "preprod"): DeploymentConf(
         f"{PREPROD_SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        KEYCLOAK_SDK_CLIENT_ID,
+        KEYCLOAK_LOGIN_CLIENT_ID,
         PREPROD_AUDIENCE,
     ),
     ("sa", "dev"): DeploymentConf(
         "https://keycloak-127-0-0-1.nip.io/realms/users",
-        KEYCLOAK_SDK_CLIENT_ID,
+        KEYCLOAK_LOGIN_CLIENT_ID,
         DEV_AUDIENCE,
     ),
 }

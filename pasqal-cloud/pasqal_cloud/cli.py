@@ -6,8 +6,9 @@ import argparse
 import sys
 import time
 from datetime import datetime
+from typing import Any
 
-from pasqal_cloud import token_cache
+from pasqal_cloud import browser_login, oidc, token_cache
 from pasqal_cloud.endpoints import (
     PasqalCloudTarget,
     REGIONS,
@@ -15,10 +16,77 @@ from pasqal_cloud.endpoints import (
 )
 
 
+def _save_login(
+    target: PasqalCloudTarget, config: dict[str, Any], tokens: dict[str, Any]
+) -> token_cache.CacheEntry:
+    """Replace the cache entry for `target`, revoke the previous refresh token."""
+    if "refresh_token" not in tokens:
+        raise oidc.LoginError("The provider returned no refresh token (offline_access)")
+    now = int(time.time())
+    deployment = target.deployment
+    try:
+        entry = token_cache.CacheEntry(
+            region=target.region,
+            env=target.env,
+            issuer=deployment.issuer,
+            client_id=deployment.client_id,
+            refresh_token=str(tokens["refresh_token"]),
+            access_token=str(tokens["access_token"]),
+            expires_at=now + int(tokens["expires_in"]),
+            scope=str(tokens.get("scope", "")),
+            refresh_expires_at=(
+                now + int(tokens["refresh_expires_in"])
+                if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
+                else None
+            ),
+            id_claims=(
+                oidc.id_claims(tokens["id_token"]) if "id_token" in tokens else {}
+            ),
+        )
+    except (KeyError, TypeError, ValueError) as e:
+        raise oidc.LoginError(f"Invalid token response: {e!r}") from e
+    try:
+        entries = token_cache.read_entries()
+    except token_cache.TokenCacheError as e:
+        # Replaced below; its tokens are not reused, so do not revoke them.
+        sys.stderr.write(f"Warning: replacing unusable cache file: {e}\n")
+        entries = {}
+    previous = entries.get(entry.key)
+    if previous is not None and not previous.matches(deployment):
+        previous = None  # issued by another client: cannot be revoked here
+    token_cache.write_entries({**entries, entry.key: entry})
+
+    if previous is None:
+        return entry
+    if previous.id_claims.get("sub") != entry.id_claims.get("sub"):
+        sys.stderr.write(
+            f"Note: replaced the login of {_user(previous)} with {_user(entry)}\n"
+        )
+    try:
+        oidc.revoke(config, previous.client_id, previous.refresh_token)
+    except oidc.OIDCError as e:
+        sys.stderr.write(f"Warning: could not revoke the previous login: {e}\n")
+    return entry
+
+
+def _user(entry: token_cache.CacheEntry) -> str:
+    return str(entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown"))
+
+
 def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
-    flow = "device" if args.device else "pkce"
-    sys.stderr.write(f"login ({flow}, {target.region}/{target.env}): not implemented\n")
-    return 1
+    if args.device:
+        sys.stderr.write("login --device: not implemented\n")
+        return 1
+    try:
+        config = oidc.discover(target.deployment.issuer)
+        entry = _save_login(
+            target, config, browser_login.login(target.deployment, config)
+        )
+    except (oidc.LoginError, oidc.OIDCError, OSError) as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 1
+    sys.stderr.write(f"Logged in to {target.region}/{target.env} as {_user(entry)}\n")
+    return 0
 
 
 def _duration(seconds: float) -> str:
@@ -60,13 +128,12 @@ def auth_status(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     active_found = active is not None and active.matches(target.deployment)
     for key, entry in sorted(entries.items()):
         is_active = active_found and key == active_key
-        user = entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown")
         sys.stdout.write(
             f"\n{'*' if is_active else ' '} {key}"
             f"{' (active)' if is_active else ''}\n"
             f"    Region:         {entry.region}\n"
             f"    Env:            {entry.env}\n"
-            f"    User:           {user}\n"
+            f"    User:           {_user(entry)}\n"
             f"    Client:         {entry.client_id}\n"
             f"    Access token:   {_format_expiry(entry.expires_at)}\n"
             f"    Refresh token:  {_format_expiry(entry.refresh_expires_at)}\n"
