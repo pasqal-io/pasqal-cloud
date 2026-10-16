@@ -64,15 +64,15 @@ setup(
     ],
     url="https://github.com/pasqal-io/pasqal-cloud",
     install_requires=[
-        "auth0-python >= 3.23.1, <4.0.0",
         "requests>=2.25.1, <3.0.0",
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
         "pulser-core >= 1.8",
-        "tenacity >= 9.1",
+        "tenacity >= 9.1, <9.2",
     ],
     extras_require={
         "dev": {
+            "auth0-python >= 3.23.1, <4.0.0",
             "ruff==0.6.9",
             "mypy==1.10.0",
             "pytest==8.1.1",
