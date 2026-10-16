@@ -270,20 +270,27 @@ DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
 }
 
 
+Source = Literal["flag", "env var", "default"]
+
+
 @dataclass(frozen=True)
 class PasqalCloudTarget:
     region: Region
     env: Env
     deployment: DeploymentConf
+    region_source: Source
+    env_source: Source
 
 
-def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
-    value = os.environ.get(var) or default
+def _from_env(var: str, default: str, valid: tuple[str, ...]) -> tuple[str, Source]:
+    value = os.environ.get(var)
+    if not value:
+        return default, "default"
     if value not in valid:
         raise ValueError(
             f"Invalid ${var}={value!r}, expected one of: {', '.join(valid)}"
         )
-    return value
+    return value, "env var"
 
 
 def resolve_pasqal_cloud_target(region: Region | None = None) -> PasqalCloudTarget:
@@ -292,6 +299,12 @@ def resolve_pasqal_cloud_target(region: Region | None = None) -> PasqalCloudTarg
     Raises ValueError on unknown env var values, never falls back to prod.
     """
     # _from_env validated the values, so the casts are safe.
-    region = region or cast(Region, _from_env("PASQAL_CLOUD_REGION", "fr", REGIONS))
-    env = cast(Env, _from_env("PASQAL_CLOUD_ENV", "prod", ENVS))
-    return PasqalCloudTarget(region, env, DEPLOYMENTS[(region, env)])
+    region_source: Source = "flag"
+    if not region:
+        value, region_source = _from_env("PASQAL_CLOUD_REGION", "fr", REGIONS)
+        region = cast(Region, value)
+    value, env_source = _from_env("PASQAL_CLOUD_ENV", "prod", ENVS)
+    env = cast(Env, value)
+    return PasqalCloudTarget(
+        region, env, DEPLOYMENTS[(region, env)], region_source, env_source
+    )
