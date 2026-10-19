@@ -33,13 +33,10 @@ def test_flag_wins_over_env_var(monkeypatch):
 )
 def test_invalid_values_raise(monkeypatch, var, value):
     monkeypatch.setenv(var, value)
-    with pytest.raises(ValueError, match=r"\(env var\), expected one of"):
+    with pytest.raises(
+        ValueError, match=rf"Invalid \${var}={value!r}, expected one of"
+    ):
         resolve_login_target()
-
-
-def test_invalid_explicit_region_raises():
-    with pytest.raises(ValueError, match="fr, sa"):
-        resolve_login_target("us")
 
 
 def test_cli_reports_invalid_env(monkeypatch, capsys):

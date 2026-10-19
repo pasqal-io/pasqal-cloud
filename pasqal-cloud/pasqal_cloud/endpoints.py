@@ -275,30 +275,21 @@ class LoginTarget:
     preset: LoginPreset
 
 
-def _pick(
-    name: str, explicit: Optional[str], var: str, default: str, valid: tuple[str, ...]
-) -> str:
-    if explicit is not None:
-        value, source = explicit, "flag"
-    elif os.environ.get(var):
-        value, source = os.environ[var], "env var"
-    else:
-        value, source = default, "default"
+def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
+    value = os.environ.get(var) or default
     if value not in valid:
         raise ValueError(
-            f"Invalid {name} {value!r} ({source}), expected one of: {', '.join(valid)}"
+            f"Invalid ${var}={value!r}, expected one of: {', '.join(valid)}"
         )
     return value
 
 
-def resolve_login_target(region: Optional[str] = None) -> LoginTarget:
+def resolve_login_target(region: Optional[Region] = None) -> LoginTarget:
     """Resolve region/env from the explicit argument, then env vars, then defaults.
 
-    Raises ValueError on unknown values, never falls back to prod.
+    Raises ValueError on unknown env var values, never falls back to prod.
     """
-    # _pick validated the values, so the casts are safe.
-    valid_region = cast(
-        Region, _pick("region", region, "PASQAL_CLOUD_REGION", "fr", REGIONS)
-    )
-    env = cast(Env, _pick("environment", None, "PASQAL_CLOUD_ENV", "prod", ENVS))
-    return LoginTarget(valid_region, env, LOGIN_PRESETS[(valid_region, env)])
+    # _from_env validated the values, so the casts are safe.
+    region = region or cast(Region, _from_env("PASQAL_CLOUD_REGION", "fr", REGIONS))
+    env = cast(Env, _from_env("PASQAL_CLOUD_ENV", "prod", ENVS))
+    return LoginTarget(region, env, LOGIN_PRESETS[(region, env)])
