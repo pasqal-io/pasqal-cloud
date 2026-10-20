@@ -3,6 +3,9 @@ requests, revocation."""
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import secrets
 from typing import Any
 
 import jwt
@@ -13,7 +16,9 @@ TIMEOUT = 10  # seconds, per HTTP request
 
 
 class OIDCError(Exception):
-    pass
+    def __init__(self, message: str, error: str | None = None):
+        super().__init__(message)
+        self.error = error  # OAuth error code of the response, if any
 
 
 class LoginError(Exception):
@@ -37,23 +42,41 @@ def discover(issuer: str) -> dict[str, Any]:
     return config
 
 
+def pkce_pair() -> tuple[str, str]:
+    """Return a PKCE (RFC 7636) code verifier and its S256 challenge."""
+    verifier = secrets.token_urlsafe(64)
+    digest = hashlib.sha256(verifier.encode()).digest()
+    challenge = base64.urlsafe_b64encode(digest).rstrip(b"=").decode()
+
+    return verifier, challenge
+
+
 def token_request(config: dict[str, Any], data: dict[str, str]) -> dict[str, Any]:
     """POST `data` to the token endpoint, raise OIDCError on any failure."""
+    return post_form(config["token_endpoint"], data, "Token request")
+
+
+def post_form(url: str, data: dict[str, str], what: str) -> dict[str, Any]:
+    """POST `data` to `url`, return the JSON body, raise OIDCError on any failure."""
     try:
-        response = requests.post(config["token_endpoint"], data=data, timeout=TIMEOUT)
+        response = requests.post(url, data=data, timeout=TIMEOUT)
     except requests.RequestException as e:
-        raise OIDCError(f"Token request failed: {e}") from e
+        raise OIDCError(f"{what} failed: {e}") from e
+
     try:
         body: dict[str, Any] = response.json()
     except ValueError:
         body = {}  # e.g. an HTML error page from a proxy: report the HTTP status
+
     if not response.ok or not body or "error" in body:
-        error = body.get("error", f"HTTP {response.status_code}")
+        error = body.get("error")
         description = body.get("error_description")
         raise OIDCError(
-            f"Token request failed: {error}"
-            + (f" ({description})" if description else "")
+            f"{what} failed: {error or f'HTTP {response.status_code}'}"
+            + (f" ({description})" if description else ""),
+            error,
         )
+
     return body
 
 
