@@ -45,9 +45,10 @@ def _save_login(
         )
     except (KeyError, TypeError, ValueError) as e:
         raise oidc.LoginError(f"Invalid token response: {e!r}") from e
-    entries = token_cache.read_entries()
-    previous = entries.get(entry.key)
-    token_cache.write_entries({**entries, entry.key: entry})
+    with token_cache.lock():
+        entries = token_cache.read_entries()
+        previous = entries.get(entry.key)
+        token_cache.write_entries({**entries, entry.key: entry})
     if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
         sys.stderr.write(
             f"Note: replaced the login of {_user(previous)} with {_user(entry)}\n"
@@ -57,6 +58,22 @@ def _save_login(
 
 def _user(entry: token_cache.CacheEntry) -> str:
     return str(entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown"))
+
+
+def _revoke(
+    entry: token_cache.CacheEntry, config: dict[str, Any] | None = None
+) -> None:
+    """Best effort revocation of the entry's refresh token, warn on failure.
+
+    Discovers the entry's issuer when `config` is not given: a discovery
+    failure only skips the revocation.
+    """
+    try:
+        oidc.revoke(
+            config or oidc.discover(entry.issuer), entry.client_id, entry.refresh_token
+        )
+    except oidc.OIDCError as e:
+        sys.stderr.write(f"Warning: could not revoke the login of {entry.key}: {e}\n")
 
 
 def _revoke_previous(target: PasqalCloudTarget, config: dict[str, Any]) -> None:
@@ -71,10 +88,7 @@ def _revoke_previous(target: PasqalCloudTarget, config: dict[str, Any]) -> None:
     )
     if previous is None or not previous.matches(target.deployment):
         return  # issued by another client: cannot be revoked here
-    try:
-        oidc.revoke(config, previous.client_id, previous.refresh_token)
-    except oidc.OIDCError as e:
-        sys.stderr.write(f"Warning: could not revoke the previous login: {e}\n")
+    _revoke(previous, config)
 
 
 def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
@@ -149,9 +163,50 @@ def auth_status(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     return 0 if active_found else 1
 
 
+def _logout_command(entry: token_cache.CacheEntry) -> str:
+    env = "" if entry.env == "prod" else f"PASQAL_CLOUD_ENV={entry.env} "
+    return f"{env}pasqal-cloud auth logout --region {entry.region}"
+
+
 def logout(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
-    sys.stderr.write(f"logout ({target.region}/{target.env}): not implemented\n")
-    return 1
+    """Never interactive: an explicit region/env selects the entry, otherwise
+    the only entry is logged out, and several entries are an error."""
+    explicit = (target.region_source, target.env_source) != ("default", "default")
+    active_key = token_cache.entry_key(target.region, target.env)
+
+    try:
+        with token_cache.lock():
+            entries = token_cache.read_entries()
+
+            if not explicit and len(entries) > 1:
+                sys.stderr.write(
+                    "Error: logged in to several environments, log out of one with:\n"
+                    + "".join(
+                        f"  {_logout_command(entry)}\n"
+                        for _, entry in sorted(entries.items())
+                    )
+                )
+                return 1
+
+            key = active_key if explicit else next(iter(entries), "")
+            entry = entries.pop(key, None)
+            if entry is None:
+                sys.stderr.write(
+                    f"Not logged in{f' to {active_key}' if explicit else ''}\n"
+                )
+                return 0
+
+            # Even an entry for another client than the deployment is revoked,
+            # with the issuer and client it was issued by.
+            _revoke(entry)
+            token_cache.write_entries(entries)
+
+    except (token_cache.TokenCacheError, OSError) as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 1
+
+    sys.stderr.write(f"Logged out of {entry.key} ({_user(entry)})\n")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
