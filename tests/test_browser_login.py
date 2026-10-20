@@ -96,13 +96,15 @@ def test_login(idp, browser, capsys):
 
 
 @pytest.mark.usefixtures("browser")
-def test_login_replaces_entry_and_revokes_previous(idp, capsys):
+def test_login_revokes_previous_before_new_login(idp, capsys):
     assert cli.main(["auth", "login"]) == 0
     idp.post(CONFIG["token_endpoint"], json=tokens("bob@example.com", "REFRESH-2"))
     assert cli.main(["auth", "login"]) == 0
     entry = token_cache.read_entries()["fr/prod"]
     assert entry.refresh_token == "REFRESH-2"
-    assert parse_qs(idp.request_history[-1].text)["token"] == ["REFRESH-1"]
+    posts = [r for r in idp.request_history if r.method == "POST"]
+    assert [r.path for r in posts[-2:]] == ["/oauth/revoke", "/oauth/token"]
+    assert parse_qs(posts[-2].text)["token"] == ["REFRESH-1"]
     assert "replaced the login of alice@example.com with bob@example.com" in (
         capsys.readouterr().err
     )
