@@ -45,9 +45,9 @@ from pasqal_cloud.config import (
 
 
 def _save_login(
-    profile: PasqalCloudProfile, discovery: dict[str, Any], tokens: dict[str, Any]
+    profile: PasqalCloudProfile, tokens: dict[str, Any]
 ) -> token_cache.CacheEntry:
-    """Replace the cache entry for `profile`, revoke the previous refresh token."""
+    """Replace the cache entry for `profile`."""
     if "refresh_token" not in tokens:
         raise oidc.LoginError("The provider returned no refresh token (offline_access)")
     now = int(time.time())
@@ -75,29 +75,38 @@ def _save_login(
     try:
         entries = token_cache.read_entries()
     except token_cache.TokenCacheError as e:
-        # Replaced below; its tokens are not reused, so do not revoke them.
         sys.stderr.write(f"Warning: replacing unusable cache file: {e}\n")
         entries = {}
     previous = entries.get(profile.name)
-    if previous is not None and not previous.matches(profile_config):
-        previous = None  # issued by another client: cannot be revoked here
     token_cache.write_entries({**entries, profile.name: entry})
-
-    if previous is None:
-        return entry
-    if previous.id_claims.get("sub") != entry.id_claims.get("sub"):
+    if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
         sys.stderr.write(
             f"Note: replaced the login of {_user(previous)} with {_user(entry)}\n"
         )
-    try:
-        oidc.revoke(discovery, previous.client_id, previous.refresh_token)
-    except oidc.OIDCError as e:
-        sys.stderr.write(f"Warning: could not revoke the previous login: {e}\n")
     return entry
 
 
 def _user(entry: token_cache.CacheEntry) -> str:
     return str(entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown"))
+
+
+def _revoke_previous(profile: PasqalCloudProfile, discovery: dict[str, Any]) -> None:
+    """Best effort revocation of the cached refresh token, before a new login.
+
+    Must run before the new tokens are issued: with SSO they can share the old
+    token's session (Keycloak) or grant (Auth0), and revoking the old token
+    afterwards could revoke them too.
+    """
+    try:
+        previous = token_cache.read_entries().get(profile.name)
+    except token_cache.TokenCacheError:
+        return  # reported and replaced by _save_login
+    if previous is None or not previous.matches(profile.config):
+        return  # issued by another client: cannot be revoked here
+    try:
+        oidc.revoke(discovery, previous.client_id, previous.refresh_token)
+    except oidc.OIDCError as e:
+        sys.stderr.write(f"Warning: could not revoke the previous login: {e}\n")
 
 
 def login(args: argparse.Namespace, config: Config) -> int:
@@ -107,9 +116,8 @@ def login(args: argparse.Namespace, config: Config) -> int:
         return 1
     try:
         discovery = oidc.discover(profile.config.issuer)
-        entry = _save_login(
-            profile, discovery, browser_login.login(profile.config, discovery)
-        )
+        _revoke_previous(profile, discovery)
+        entry = _save_login(profile, browser_login.login(profile.config, discovery))
     except (oidc.LoginError, oidc.OIDCError, OSError) as e:
         sys.stderr.write(f"Error: {e}\n")
         return 1
