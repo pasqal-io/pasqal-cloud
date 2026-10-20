@@ -125,6 +125,32 @@ def test_missing_offline_access(idp, capsys):
     assert "offline_access" in capsys.readouterr().err
 
 
+def test_missing_token_endpoint(idp, capsys):
+    config = {k: v for k, v in CONFIG.items() if k != "token_endpoint"}
+    idp.get(f"{ISSUER}/.well-known/openid-configuration", json=config)
+    assert cli.main(["auth", "login"]) == 1
+    assert "has no token_endpoint" in capsys.readouterr().err
+
+
+@pytest.mark.usefixtures("browser")
+def test_login_refuses_rejected_cache_file(idp, capsys):
+    assert cli.main(["auth", "login"]) == 0
+    path = token_cache.cache_path()
+    path.chmod(0o644)
+    content = path.read_bytes()
+    assert cli.main(["auth", "login"]) == 1
+    assert "chmod 600" in capsys.readouterr().err
+    assert path.read_bytes() == content  # never overwritten
+    assert not [r for r in idp.request_history if r.path == "/oauth/revoke"]
+
+
+@pytest.mark.usefixtures("browser")
+def test_token_error_without_json(idp, capsys):
+    idp.post(CONFIG["token_endpoint"], status_code=502, text="<html>Bad Gateway")
+    assert cli.main(["auth", "login"]) == 1
+    assert "HTTP 502" in capsys.readouterr().err
+
+
 @pytest.mark.usefixtures("browser")
 def test_token_error(idp, capsys):
     error = {"error": "invalid_grant", "error_description": "bad code"}

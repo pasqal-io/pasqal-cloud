@@ -24,7 +24,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 from pasqal_cloud import config
-from pasqal_cloud.config import ProfileConfig
+from pasqal_cloud.config import PasqalCloudProfile, ProfileConfig
 
 
 class TokenCacheError(Exception):
@@ -68,6 +68,17 @@ def cache_path() -> Path:
     return config.CONFIG_DIR / "cloud-credentials.json"
 
 
+def entry_for(
+    entries: dict[str, CacheEntry], profile: PasqalCloudProfile
+) -> CacheEntry | None:
+    """The login of `profile`, None if missing or made for another issuer or client."""
+    entry = entries.get(profile.name)
+    if entry is None or not entry.matches(profile.config):
+        return None
+
+    return entry
+
+
 def read_entries() -> dict[str, CacheEntry]:
     """Return the cached entries by key, empty if there is no cache file.
 
@@ -99,7 +110,9 @@ def read_entries() -> dict[str, CacheEntry]:
         try:
             entries = _ENTRIES.validate_json(f.read())
         except ValueError as e:  # pydantic's ValidationError is a ValueError
-            raise TokenCacheError(f"{path} is not a valid cache file: {e}") from e
+            raise TokenCacheError(
+                f"{path} is not a valid cache file: {e}. Delete it and log in again"
+            ) from e
 
     return entries
 
