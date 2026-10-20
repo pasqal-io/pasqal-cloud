@@ -45,11 +45,7 @@ def _save_login(
         )
     except (KeyError, TypeError, ValueError) as e:
         raise oidc.LoginError(f"Invalid token response: {e!r}") from e
-    try:
-        entries = token_cache.read_entries()
-    except token_cache.TokenCacheError as e:
-        sys.stderr.write(f"Warning: replacing unusable cache file: {e}\n")
-        entries = {}
+    entries = token_cache.read_entries()
     previous = entries.get(entry.key)
     token_cache.write_entries({**entries, entry.key: entry})
     if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
@@ -70,12 +66,9 @@ def _revoke_previous(target: PasqalCloudTarget, config: dict[str, Any]) -> None:
     token's session (Keycloak) or grant (Auth0), and revoking the old token
     afterwards could revoke them too.
     """
-    try:
-        previous = token_cache.read_entries().get(
-            token_cache.entry_key(target.region, target.env)
-        )
-    except token_cache.TokenCacheError:
-        return  # reported and replaced by _save_login
+    previous = token_cache.read_entries().get(
+        token_cache.entry_key(target.region, target.env)
+    )
     if previous is None or not previous.matches(target.deployment):
         return  # issued by another client: cannot be revoked here
     try:
@@ -92,7 +85,9 @@ def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
         config = oidc.discover(target.deployment.issuer)
         _revoke_previous(target, config)
         entry = _save_login(target, browser_login.login(target.deployment, config))
-    except (oidc.LoginError, oidc.OIDCError, OSError) as e:
+    # A rejected cache file fails the login before the browser opens: it is
+    # never overwritten, it may already have leaked.
+    except (oidc.LoginError, oidc.OIDCError, token_cache.TokenCacheError, OSError) as e:
         sys.stderr.write(f"Error: {e}\n")
         return 1
     sys.stderr.write(f"Logged in to {target.region}/{target.env} as {_user(entry)}\n")

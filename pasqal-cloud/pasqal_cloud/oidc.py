@@ -29,11 +29,11 @@ def discover(issuer: str) -> dict[str, Any]:
         config: dict[str, Any] = response.json()
     except (requests.RequestException, ValueError) as e:
         raise OIDCError(f"OIDC discovery failed ({url}): {e}") from e
-    missing = set(SCOPES) - set(config.get("scopes_supported", []))
+    if "offline_access" not in config.get("scopes_supported", []):
+        raise OIDCError(f"{issuer} does not support the offline_access scope")
+    missing = {"authorization_endpoint", "token_endpoint"} - config.keys()
     if missing:
-        raise OIDCError(
-            f"{issuer} does not support the scopes: {', '.join(sorted(missing))}"
-        )
+        raise OIDCError(f"{url} has no {', '.join(sorted(missing))}")
     return config
 
 
@@ -41,10 +41,13 @@ def token_request(config: dict[str, Any], data: dict[str, str]) -> dict[str, Any
     """POST `data` to the token endpoint, raise OIDCError on any failure."""
     try:
         response = requests.post(config["token_endpoint"], data=data, timeout=TIMEOUT)
-        body: dict[str, Any] = response.json()
-    except (requests.RequestException, ValueError) as e:
+    except requests.RequestException as e:
         raise OIDCError(f"Token request failed: {e}") from e
-    if not response.ok or "error" in body:
+    try:
+        body: dict[str, Any] = response.json()
+    except ValueError:
+        body = {}  # e.g. an HTML error page from a proxy: report the HTTP status
+    if not response.ok or not body or "error" in body:
         error = body.get("error", f"HTTP {response.status_code}")
         description = body.get("error_description")
         raise OIDCError(

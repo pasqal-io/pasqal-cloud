@@ -108,7 +108,9 @@ def read_entries() -> dict[str, CacheEntry]:
             data = json.load(f)
             return {key: _parse_entry(key, value) for key, value in data.items()}
         except (ValueError, TypeError, AttributeError) as e:
-            raise TokenCacheError(f"{path} is not a valid cache file: {e}") from e
+            raise TokenCacheError(
+                f"{path} is not a valid cache file: {e}. Delete it and log in again"
+            ) from e
 
 
 def write_entries(entries: dict[str, CacheEntry]) -> None:
