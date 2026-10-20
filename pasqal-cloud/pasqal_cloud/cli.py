@@ -72,11 +72,7 @@ def _save_login(
         )
     except (KeyError, TypeError, ValueError) as e:
         raise oidc.LoginError(f"Invalid token response: {e!r}") from e
-    try:
-        entries = token_cache.read_entries()
-    except token_cache.TokenCacheError as e:
-        sys.stderr.write(f"Warning: replacing unusable cache file: {e}\n")
-        entries = {}
+    entries = token_cache.read_entries()
     previous = entries.get(profile.name)
     token_cache.write_entries({**entries, profile.name: entry})
     if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
@@ -97,12 +93,9 @@ def _revoke_previous(profile: PasqalCloudProfile, discovery: dict[str, Any]) -> 
     token's session (Keycloak) or grant (Auth0), and revoking the old token
     afterwards could revoke them too.
     """
-    try:
-        previous = token_cache.read_entries().get(profile.name)
-    except token_cache.TokenCacheError:
-        return  # reported and replaced by _save_login
-    if previous is None or not previous.matches(profile.config):
-        return  # issued by another client: cannot be revoked here
+    previous = token_cache.entry_for(token_cache.read_entries(), profile)
+    if previous is None:
+        return  # missing, or issued by another client: cannot be revoked here
     try:
         oidc.revoke(discovery, previous.client_id, previous.refresh_token)
     except oidc.OIDCError as e:
@@ -118,7 +111,9 @@ def login(args: argparse.Namespace, config: Config) -> int:
         discovery = oidc.discover(profile.config.issuer)
         _revoke_previous(profile, discovery)
         entry = _save_login(profile, browser_login.login(profile.config, discovery))
-    except (oidc.LoginError, oidc.OIDCError, OSError) as e:
+    # A rejected cache file fails the login before the browser opens: it is
+    # never overwritten, it may already have leaked.
+    except (oidc.LoginError, oidc.OIDCError, token_cache.TokenCacheError, OSError) as e:
         sys.stderr.write(f"Error: {e}\n")
         return 1
     sys.stderr.write(f"Logged in to {profile.name} as {_user(entry)}\n")
