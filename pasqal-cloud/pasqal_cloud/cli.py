@@ -5,21 +5,25 @@ from __future__ import annotations
 import argparse
 import sys
 
-from pasqal_cloud.endpoints import LoginTarget, REGIONS, resolve_login_target
+from pasqal_cloud.endpoints import (
+    PasqalCloudTarget,
+    REGIONS,
+    resolve_pasqal_cloud_target,
+)
 
 
-def login(args: argparse.Namespace, target: LoginTarget) -> int:
+def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     flow = "device" if args.device else "pkce"
     sys.stderr.write(f"login ({flow}, {target.region}/{target.env}): not implemented\n")
     return 1
 
 
-def auth_status(_args: argparse.Namespace, target: LoginTarget) -> int:
+def auth_status(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     sys.stderr.write(f"auth status ({target.region}/{target.env}): not implemented\n")
     return 1
 
 
-def logout(_args: argparse.Namespace, target: LoginTarget) -> int:
+def logout(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     sys.stderr.write(f"logout ({target.region}/{target.env}): not implemented\n")
     return 1
 
@@ -63,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        target = resolve_login_target(args.region)
+        target = resolve_pasqal_cloud_target(args.region)
     except ValueError as e:
         sys.stderr.write(f"Error: {e}\n")
         return 1

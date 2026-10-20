@@ -1,6 +1,6 @@
 import pytest
 from pasqal_cloud.cli import main
-from pasqal_cloud.endpoints import LOGIN_PRESETS, resolve_login_target
+from pasqal_cloud.endpoints import DEPLOYMENTS, resolve_pasqal_cloud_target
 
 
 @pytest.fixture(autouse=True)
@@ -10,21 +10,21 @@ def _clean_env(monkeypatch):
 
 
 def test_defaults():
-    target = resolve_login_target()
+    target = resolve_pasqal_cloud_target()
     assert (target.region, target.env) == ("fr", "prod")
-    assert target.preset == LOGIN_PRESETS[("fr", "prod")]
+    assert target.deployment == DEPLOYMENTS[("fr", "prod")]
 
 
 def test_env_vars(monkeypatch):
     monkeypatch.setenv("PASQAL_CLOUD_REGION", "sa")
     monkeypatch.setenv("PASQAL_CLOUD_ENV", "preprod")
-    target = resolve_login_target()
+    target = resolve_pasqal_cloud_target()
     assert (target.region, target.env) == ("sa", "preprod")
 
 
 def test_flag_wins_over_env_var(monkeypatch):
     monkeypatch.setenv("PASQAL_CLOUD_REGION", "sa")
-    target = resolve_login_target("fr")
+    target = resolve_pasqal_cloud_target("fr")
     assert target.region == "fr"
 
 
@@ -36,7 +36,7 @@ def test_invalid_values_raise(monkeypatch, var, value):
     with pytest.raises(
         ValueError, match=rf"Invalid \${var}={value!r}, expected one of"
     ):
-        resolve_login_target()
+        resolve_pasqal_cloud_target()
 
 
 def test_cli_reports_invalid_env(monkeypatch, capsys):

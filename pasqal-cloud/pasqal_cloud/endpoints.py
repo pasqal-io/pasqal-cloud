@@ -234,7 +234,7 @@ ENVS: tuple[Env, ...] = get_args(Env)
 
 
 @dataclass(frozen=True)
-class LoginPreset:
+class DeploymentConf:
     issuer: str
     client_id: str
     audience: str
@@ -242,25 +242,27 @@ class LoginPreset:
 
 # TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
 # once they are created.
-LOGIN_PRESETS: dict[tuple[Region, Env], LoginPreset] = {
-    ("fr", "prod"): LoginPreset(f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE),
-    ("fr", "preprod"): LoginPreset(
+DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
+    ("fr", "prod"): DeploymentConf(
+        f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE
+    ),
+    ("fr", "preprod"): DeploymentConf(
         f"https://{PREPROD_AUTH0_DOMAIN}/", PREPROD_PUBLIC_CLIENT_ID, PREPROD_AUDIENCE
     ),
-    ("fr", "dev"): LoginPreset(
+    ("fr", "dev"): DeploymentConf(
         f"https://{DEV_AUTH0_DOMAIN}/", DEV_PUBLIC_CLIENT_ID, DEV_AUDIENCE
     ),
-    ("sa", "prod"): LoginPreset(
+    ("sa", "prod"): DeploymentConf(
         f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         AUDIENCE,
     ),
-    ("sa", "preprod"): LoginPreset(
+    ("sa", "preprod"): DeploymentConf(
         f"{PREPROD_SA_KEYCLOAK_BASE_URL.rstrip('/')}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         PREPROD_AUDIENCE,
     ),
-    ("sa", "dev"): LoginPreset(
+    ("sa", "dev"): DeploymentConf(
         "https://keycloak-127-0-0-1.nip.io/realms/users",
         KEYCLOAK_SDK_CLIENT_ID,
         DEV_AUDIENCE,
@@ -269,10 +271,10 @@ LOGIN_PRESETS: dict[tuple[Region, Env], LoginPreset] = {
 
 
 @dataclass(frozen=True)
-class LoginTarget:
+class PasqalCloudTarget:
     region: Region
     env: Env
-    preset: LoginPreset
+    deployment: DeploymentConf
 
 
 def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
@@ -284,7 +286,7 @@ def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
     return value
 
 
-def resolve_login_target(region: Optional[Region] = None) -> LoginTarget:
+def resolve_pasqal_cloud_target(region: Optional[Region] = None) -> PasqalCloudTarget:
     """Resolve region/env from the explicit argument, then env vars, then defaults.
 
     Raises ValueError on unknown env var values, never falls back to prod.
@@ -292,4 +294,4 @@ def resolve_login_target(region: Optional[Region] = None) -> LoginTarget:
     # _from_env validated the values, so the casts are safe.
     region = region or cast(Region, _from_env("PASQAL_CLOUD_REGION", "fr", REGIONS))
     env = cast(Env, _from_env("PASQAL_CLOUD_ENV", "prod", ENVS))
-    return LoginTarget(region, env, LOGIN_PRESETS[(region, env)])
+    return PasqalCloudTarget(region, env, DEPLOYMENTS[(region, env)])
