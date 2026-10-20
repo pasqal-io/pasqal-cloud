@@ -225,5 +225,5 @@ def test_save_login_writes_entry():
     from pasqal_cloud.config import resolve_profile
 
     tokens = {"refresh_token": "R", "access_token": "A", "expires_in": 60}
-    entry = _save_login(resolve_profile(), {}, tokens)
+    entry = _save_login(resolve_profile(), tokens)
     assert token_cache.read_entries() == {"default-fr": entry}
