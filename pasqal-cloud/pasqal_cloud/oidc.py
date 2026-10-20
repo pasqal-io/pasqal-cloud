@@ -25,8 +25,9 @@ class LoginError(Exception):
     """A login flow failed, the message tells the user what to do."""
 
 
-def discover(issuer: str) -> dict[str, Any]:
-    """Fetch the issuer's OpenID configuration and check the scopes we need."""
+def discover(issuer: str, device: bool = False) -> dict[str, Any]:
+    """Fetch the issuer's OpenID configuration and check the scopes and
+    endpoints we need, including the device flow one if `device`."""
     url = f"{issuer.rstrip('/')}/.well-known/openid-configuration"
     try:
         response = requests.get(url, timeout=TIMEOUT)
@@ -34,11 +35,17 @@ def discover(issuer: str) -> dict[str, Any]:
         config: dict[str, Any] = response.json()
     except (requests.RequestException, ValueError) as e:
         raise OIDCError(f"OIDC discovery failed ({url}): {e}") from e
+
     if "offline_access" not in config.get("scopes_supported", []):
         raise OIDCError(f"{issuer} does not support the offline_access scope")
+
     missing = {"authorization_endpoint", "token_endpoint"} - config.keys()
     if missing:
         raise OIDCError(f"{url} has no {', '.join(sorted(missing))}")
+
+    if device and "device_authorization_endpoint" not in config:
+        raise OIDCError(f"Device flow not enabled for this environment ({issuer})")
+
     return config
 
 

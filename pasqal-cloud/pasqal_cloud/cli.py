@@ -81,10 +81,7 @@ def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
     flow = device_login if args.device else browser_login
 
     try:
-        config = oidc.discover(target.deployment.issuer)
-        if args.device and "device_authorization_endpoint" not in config:
-            raise oidc.LoginError("Device flow not enabled for this environment")
-
+        config = oidc.discover(target.deployment.issuer, device=args.device)
         _revoke_previous(target, config)
         entry = _save_login(target, flow.login(target.deployment, config))
 
