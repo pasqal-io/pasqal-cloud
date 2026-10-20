@@ -107,10 +107,7 @@ def login(args: argparse.Namespace, config: Config) -> int:
     flow = device_login if args.device else browser_login
 
     try:
-        discovery = oidc.discover(profile.config.issuer)
-        if args.device and "device_authorization_endpoint" not in discovery:
-            raise oidc.LoginError("Device flow not enabled for this environment")
-
+        discovery = oidc.discover(profile.config.issuer, device=args.device)
         _revoke_previous(profile, discovery)
         entry = _save_login(profile, flow.login(profile.config, discovery))
 
