@@ -6,6 +6,15 @@ All notable changes to this project will be documented in this file.
 
 ### pasqal-cloud
 
+* New `pasqal-cloud auth login|status|logout` command to manage authentication without a password
+* After `pasqal-cloud auth login`, `PasqalCloudConnection` needs only a `project_id`: no credentials in code
+* New `PASQAL_CLOUD_REGION` and `PASQAL_CLOUD_ENV` environment variables to select the region and environment
+* Deprecated, to be removed in the next major version:
+  * the `endpoints`, `auth_config` and `auth0` arguments: use `region` / `PASQAL_CLOUD_REGION` and `PASQAL_CLOUD_ENV`
+  * `Endpoints.from_region()`, `TokenProviderConf.from_region()` and `TokenProviderConf.from_auth0_config()`
+  * the `PASQAL_ENDPOINTS`, `AUTH_CONFIG` and `AUTH0_CONFIG` presets
+  * `Auth0TokenProvider` and `InsecureAuth0TokenProvider`: pass `username`/`password`, or use `pasqal-cloud auth login`
+  * passing both `token_provider` and `username`/`password`
 * `auth0-python` is no longer a runtime dependency (only used by tests)
 * Pin `tenacity < 9.2` until its new type hints are supported
 
