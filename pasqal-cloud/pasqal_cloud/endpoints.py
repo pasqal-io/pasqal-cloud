@@ -54,6 +54,11 @@ KSA_PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.sa.pasqal.cloud/cor
 
 KSA_PREPROD_ACCOUNT_API_URL: Final[str] = "https://apis.preprod.sa.pasqal.cloud/account"
 
+# -- Dev (local) --
+KSA_DEV_CORE_API_URL: Final[str] = "https://apis-127-0-0-1.nip.io/core-fast"
+
+KSA_DEV_ACCOUNT_API_URL: Final[str] = "https://apis-127-0-0-1.nip.io/account"
+
 
 @dataclass
 class Endpoints:
@@ -225,7 +230,7 @@ AUTH_CONFIG = {
 }
 
 
-# ---- Interactive login (pasqal-cloud CLI) ----
+# ---- Region/env deployments (CLI login, SDK defaults) ----
 
 Env = Literal["prod", "preprod", "dev"]
 
@@ -238,33 +243,47 @@ class DeploymentConf:
     issuer: str
     client_id: str
     audience: str
+    # API URLs used when the SDK `endpoints` argument is not given.
+    api: Endpoints
 
 
 # TODO: replace Auth0 PROD client ID.
 DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
     ("fr", "prod"): DeploymentConf(
-        f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE
+        f"https://{AUTH0_DOMAIN}/",
+        PUBLIC_CLIENT_ID,
+        AUDIENCE,
+        Endpoints(core=CORE_API_URL, account=ACCOUNT_API_URL),
     ),
     ("fr", "preprod"): DeploymentConf(
-        f"https://{PREPROD_AUTH0_DOMAIN}/", PREPROD_PUBLIC_CLIENT_ID, PREPROD_AUDIENCE
+        f"https://{PREPROD_AUTH0_DOMAIN}/",
+        PREPROD_PUBLIC_CLIENT_ID,
+        PREPROD_AUDIENCE,
+        Endpoints(core=PREPROD_CORE_API_URL, account=PREPROD_ACCOUNT_API_URL),
     ),
     ("fr", "dev"): DeploymentConf(
-        f"https://{DEV_AUTH0_DOMAIN}/", DEV_PUBLIC_CLIENT_ID, DEV_AUDIENCE
+        f"https://{DEV_AUTH0_DOMAIN}/",
+        DEV_PUBLIC_CLIENT_ID,
+        DEV_AUDIENCE,
+        Endpoints(core=DEV_CORE_API_URL, account=DEV_ACCOUNT_API_URL),
     ),
     ("sa", "prod"): DeploymentConf(
         f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         AUDIENCE,
+        Endpoints(core=KSA_CORE_API_URL, account=KSA_ACCOUNT_API_URL),
     ),
     ("sa", "preprod"): DeploymentConf(
         f"{PREPROD_SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         PREPROD_AUDIENCE,
+        Endpoints(core=KSA_PREPROD_CORE_API_URL, account=KSA_PREPROD_ACCOUNT_API_URL),
     ),
     ("sa", "dev"): DeploymentConf(
         "https://keycloak-127-0-0-1.nip.io/realms/users",
         KEYCLOAK_SDK_CLIENT_ID,
         DEV_AUDIENCE,
+        Endpoints(core=KSA_DEV_CORE_API_URL, account=KSA_DEV_ACCOUNT_API_URL),
     ),
 }
 

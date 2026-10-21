@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -10,7 +11,15 @@ from requests import PreparedRequest
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
-from pasqal_cloud.endpoints import Auth0Conf, TokenProviderConf
+from pasqal_cloud import oidc
+from pasqal_cloud.endpoints import (
+    AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
+    Auth0Conf,
+    KEYCLOAK_REALM,
+    PasqalCloudTarget,
+    REALM,
+    TokenProviderConf,
+)
 
 
 class HTTPBearerAuthenticator(AuthBase):
@@ -172,6 +181,34 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             if "error_description" in content
             else content.get("error", "")
         )
+
+
+@functools.lru_cache(maxsize=None)
+def _discover(issuer: str) -> dict[str, Any]:
+    """Discover once per process: failures are not cached, so they are retried."""
+    return oidc.discover(issuer)
+
+
+def password_grant_config(target: PasqalCloudTarget) -> TokenProviderConf:
+    """The password login of `target`, with the client of the interactive logins."""
+    deployment = target.deployment
+    try:
+        token_endpoint = _discover(deployment.issuer)["token_endpoint"]
+    except oidc.OIDCError as e:
+        raise TokenProviderError(e) from e
+
+    if target.region == "sa":
+        realm, grant_type = KEYCLOAK_REALM, "password"
+    else:
+        realm, grant_type = REALM, AUTH0_TOKEN_PROVIDER_GRANT_TYPE
+
+    return TokenProviderConf(
+        token_endpoint=token_endpoint,
+        public_client_id=deployment.client_id,
+        audience=deployment.audience,
+        realm=realm,
+        grant_type=grant_type,
+    )
 
 
 class Auth0TokenProvider(PasswordGrantTokenProvider):

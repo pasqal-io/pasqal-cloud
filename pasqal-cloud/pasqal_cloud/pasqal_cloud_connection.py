@@ -15,13 +15,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, cast
+from typing import Any, cast, Mapping
 
-from pasqal_cloud.device.device_types import DeviceTypeName
-from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 import tenacity
-from pasqal_cloud.endpoints import Region
-from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
 from pulser.backend.config import EmulationConfig
@@ -37,6 +33,10 @@ from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
+from pasqal_cloud.device.device_types import DeviceTypeName
+from pasqal_cloud.endpoints import Region
+from pasqal_cloud.job import CreateJob
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
 MAX_CLOUD_ATTEMPTS = 5
 
@@ -58,6 +58,7 @@ class PasqalCloudConnection(RemoteConnection):
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
+        region: The platform region, defaults to $PASQAL_CLOUD_REGION, else fr.
         kwargs: Additional arguments to provide to the PasqalCloudClient()
     """
 
@@ -66,7 +67,7 @@ class PasqalCloudConnection(RemoteConnection):
         username: str = "",
         password: str = "",
         project_id: str = "",
-        region: Region = "fr",
+        region: Region | None = None,
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""
@@ -103,7 +104,7 @@ class PasqalCloudConnection(RemoteConnection):
         )
         # If batch_id is not empty, then we can submit new jobs to a
         # batch we just created otherwise, create a new one with
-        #  cloud_client.create_batch()
+        # the create_batch method of the cloud client.
         if batch_id:
             submit_jobs_fn = retry(self.cloud_client.add_jobs)
             old_job_ids = self._get_job_ids(batch_id)
