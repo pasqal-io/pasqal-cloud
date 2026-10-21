@@ -1155,6 +1155,8 @@
 <p>To authenticate to Pasqal Cloud, you have to provide either an
 email/password combination or a TokenProvider instance.
 You may omit the password, you will then be prompted to enter one.</p>
+<p>The target deployment is selected by <code>region</code> (default: $PASQAL_CLOUD_REGION,
+else fr) and $PASQAL_CLOUD_ENV (prod, preprod or dev, default prod).</p>
 
 
 <details class="the-sdk-can-be-initialized-with-several-authentication-options" open>
@@ -1346,9 +1348,7 @@ You may omit the password, you will then be prompted to enter one.</p>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
-                <p>specifies the region to target, defaults to
-$PASQAL_CLOUD_REGION, else fr. $PASQAL_CLOUD_ENV selects the
-environment (prod by default).</p>
+                <p>Region to target, defaults to $PASQAL_CLOUD_REGION, else fr.</p>
               </div>
               <p>
                   <span class="doc-param-annotation">
@@ -1475,32 +1475,32 @@ environment (prod by default).</p>
 <a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="sd">    email/password combination or a TokenProvider instance.</span>
 <a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="sd">    You may omit the password, you will then be prompted to enter one.</span>
 <a id="__codelineno-0-114" name="__codelineno-0-114"></a>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">    The SDK can be initialized with several authentication options:</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">        - Option 1: No arguments -&gt; Uses the login made with</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">            `pasqal-cloud auth login` for the region and environment, else</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">            allows unauthenticated access to public features. The login is</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">            not used with explicit `endpoints`.</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        - Option 2: `username` and `password` -&gt; Authenticated access using a</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">            username and password.</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">        - Option 3: `username` only -&gt; Prompts for password during initialization.</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="sd">        - Option 4 (for developers): Provide a custom `token_provider` for</span>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">            token-based authentication.</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">    Args:</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="sd">        username: Email of the user to login as.</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">        password: Password of the user to login as.</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="sd">        token_provider: The token provider is an alternative log-in method \</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="sd">          not for human users.</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="sd">        webhook: Webhook where the job results are automatically sent to.</span>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="sd">        endpoints: Endpoints targeted of the public apis.</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="sd">        auth0: Auth0Config object to define the auth0 tenant to target.</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="sd">        project_id: ID of the owner project of the batch.</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a><span class="sd">        client_class: client class used to determine authentication \</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="sd">        and endpoints targeted by the SDK</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="sd">        region: specifies the region to target, defaults to</span>
-<a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="sd">            $PASQAL_CLOUD_REGION, else fr. $PASQAL_CLOUD_ENV selects the</span>
-<a id="__codelineno-0-140" name="__codelineno-0-140"></a><span class="sd">            environment (prod by default).</span>
+<a id="__codelineno-0-115" name="__codelineno-0-115"></a><span class="sd">    The target deployment is selected by `region` (default: $PASQAL_CLOUD_REGION,</span>
+<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">    else fr) and $PASQAL_CLOUD_ENV (prod, preprod or dev, default prod).</span>
+<a id="__codelineno-0-117" name="__codelineno-0-117"></a>
+<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">    The SDK can be initialized with several authentication options:</span>
+<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">        - Option 1: No arguments -&gt; Uses the login made with</span>
+<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">            `pasqal-cloud auth login` for the region and environment, else</span>
+<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">            allows unauthenticated access to public features. The login is</span>
+<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">            not used with explicit `endpoints`.</span>
+<a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">        - Option 2: `username` and `password` -&gt; Authenticated access using a</span>
+<a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="sd">            username and password.</span>
+<a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">        - Option 3: `username` only -&gt; Prompts for password during initialization.</span>
+<a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">        - Option 4 (for developers): Provide a custom `token_provider` for</span>
+<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">            token-based authentication.</span>
+<a id="__codelineno-0-128" name="__codelineno-0-128"></a>
+<a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">    Args:</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="sd">        username: Email of the user to login as.</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="sd">        password: Password of the user to login as.</span>
+<a id="__codelineno-0-132" name="__codelineno-0-132"></a><span class="sd">        token_provider: The token provider is an alternative log-in method \</span>
+<a id="__codelineno-0-133" name="__codelineno-0-133"></a><span class="sd">          not for human users.</span>
+<a id="__codelineno-0-134" name="__codelineno-0-134"></a><span class="sd">        webhook: Webhook where the job results are automatically sent to.</span>
+<a id="__codelineno-0-135" name="__codelineno-0-135"></a><span class="sd">        endpoints: Endpoints targeted of the public apis.</span>
+<a id="__codelineno-0-136" name="__codelineno-0-136"></a><span class="sd">        auth0: Auth0Config object to define the auth0 tenant to target.</span>
+<a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="sd">        project_id: ID of the owner project of the batch.</span>
+<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="sd">        client_class: client class used to determine authentication \</span>
+<a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="sd">        and endpoints targeted by the SDK</span>
+<a id="__codelineno-0-140" name="__codelineno-0-140"></a><span class="sd">        region: Region to target, defaults to $PASQAL_CLOUD_REGION, else fr.</span>
 <a id="__codelineno-0-141" name="__codelineno-0-141"></a><span class="sd">        auth_config: configuration object for the authentication provider</span>
 <a id="__codelineno-0-142" name="__codelineno-0-142"></a><span class="sd">    """</span>
 <a id="__codelineno-0-143" name="__codelineno-0-143"></a>    <span class="n">_check_sdk_version</span><span class="p">()</span>
