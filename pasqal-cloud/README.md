@@ -10,7 +10,18 @@ pip install pasqal-cloud
 
 ## Quickstart
 
+Log in once from a terminal (add `--device` when no browser is available):
+
+```bash
+pasqal-cloud auth login
+```
+
 ```python
+from pasqal_cloud import PasqalCloudConnection
+from pulser import Pulse, QPUBackend, Register, Sequence
+
+connection = PasqalCloudConnection(project_id="your_project_id")
+
 # Retrieve all QPU devices
 devices = connection.fetch_available_devices()
 device = devices["FRESNEL_CAN1"]
