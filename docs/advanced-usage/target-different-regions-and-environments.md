@@ -2,51 +2,67 @@
 
 ## Access a different region
 
-By default, the connection targets the European (`fr`) platform. To access the
-Saudi-Arabia (`sa`) platform, pass the `region` parameter:
+By default, the European (`fr`) platform is targeted. Available regions are `"fr"`
+(default) and `"sa"` (Saudi-Arabia).
+
+Each config profile targets one deployment. The built-in `default-fr` and `default-sa`
+profiles target production. Activate one to select it for both the SDK and the
+`pasqal-cloud` command:
+
+```bash
+pasqal-cloud profile activate default-sa
+pasqal-cloud auth login
+```
 
 ```python
 from pasqal_cloud import PasqalCloudConnection
 
-connection = PasqalCloudConnection(..., region="sa")
+connection = PasqalCloudConnection(project_id="your_project_id")  # targets sa
 ```
 
-Available regions are `"fr"` (default) and `"sa"`.
+In Python, the `region` argument selects the built-in profile of that region, even over
+the active profile:
 
+```python
+connection = PasqalCloudConnection(project_id="your_project_id", region="sa")
+```
+
+Leave `region` out to use the active profile.
 
 ## Target a non-production environment
 
 This is intended for package developers or users who have been given access to non-prod
 environments of the Pasqal cloud platform.
 
-To target a specific environment (`preprod` or `dev`), instantiate the connection
-by passing `endpoints` with a value from `pasqal_cloud.endpoints.PASQAL_ENDPOINTS`
-and `auth_config` with a value from `pasqal_cloud.endpoints.AUTH_CONFIG`.
+Environments are described by config profiles, stored in `~/.pasqal/config.json`.
+Create a profile for another environment, it prompts for its `issuer`,
+`client_id`, `audience`, `core_url` and `account_url`:
 
-The keys follow the format `<region>-<env>` (e.g. `fr-preprod`, `fr-dev`, `sa-preprod`).
+```bash
+pasqal-cloud profile create preprod-sa
+```
 
-Example targeting the European preprod environment:
+Then select it like the built-in profiles, for example:
+
+```bash
+pasqal-cloud profile activate preprod-sa
+pasqal-cloud auth login
+```
 
 ```python
 from pasqal_cloud import PasqalCloudConnection
-from pasqal_cloud.endpoints import PASQAL_ENDPOINTS, AUTH_CONFIG
 
-connection = PasqalCloudConnection(
-  ...,
-  endpoints=PASQAL_ENDPOINTS["preprod"],
-  auth_config=AUTH_CONFIG["fr-preprod"]
-)
+connection = PasqalCloudConnection(project_id="your_project_id")
 ```
 
-Example targeting the Saudi-Arabia preprod environment:
+`pasqal-cloud profile show` shows the values of the active profile,
+`pasqal-cloud profile edit <name>` changes them and
+`pasqal-cloud profile list` lists the profiles.
 
-```python
-from pasqal_cloud import PasqalCloudConnection
-from pasqal_cloud.endpoints import PASQAL_ENDPOINTS, AUTH_CONFIG
+Each profile has its own login. `pasqal-cloud auth status` lists the cached logins and
+marks the one of the selected profile.
 
-connection = PasqalCloudConnection(
-  ...,
-  endpoints=PASQAL_ENDPOINTS["sa-preprod"],
-  auth_config=AUTH_CONFIG["sa-preprod"]
-)
-```
+!!! note "Deprecated arguments"
+
+    The `endpoints`, `auth_config` and `auth0` arguments are deprecated: use `region`
+    and `pasqal-cloud profile` instead.
