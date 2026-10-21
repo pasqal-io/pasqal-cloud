@@ -89,8 +89,13 @@ class HTTPClient:
 
         if token_provider is not None:
             if username or password:
-                raise ValueError(
-                    "Pass either token_provider or username/password, not both."
+                warnings.warn(
+                    "Passing both token_provider and username/password is deprecated"
+                    " and will raise an error in the next major version:"
+                    " username/password is used, pass only one of them.",
+                    FutureWarning,
+                    # The caller of PasqalCloudClient, through HTTPClient.__init__.
+                    stacklevel=3,
                 )
             self._check_token_provider(token_provider)
 

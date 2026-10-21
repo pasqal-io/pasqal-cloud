@@ -1,11 +1,15 @@
 import time
 from dataclasses import replace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from urllib.parse import parse_qs
 
 import pytest
 from pasqal_cloud import authentication, oidc, token_cache
-from pasqal_cloud.authentication import LoginRequiredError, TokenProviderError
+from pasqal_cloud.authentication import (
+    LoginRequiredError,
+    TokenProvider,
+    TokenProviderError,
+)
 from pasqal_cloud.endpoints import DEPLOYMENTS, Endpoints
 from pasqal_cloud.http_client import HTTPClient
 
@@ -194,12 +198,16 @@ def test_explicit_credentials_win(password_provider):
     assert HTTPClient(username="u", password="p").user_token() == "some_token"
 
 
-def test_token_provider_and_password_are_exclusive():
-    with pytest.raises(ValueError, match="not both"):
-        HTTPClient(
-            username="u",
-            token_provider=FakeAuth0AuthenticationSuccess("u", "p", None),
-        )
+@patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
+def test_password_wins_over_token_provider_with_a_warning(password_provider):
+    password_provider.return_value = FakeAuth0AuthenticationSuccess("u", "p", None)
+    token_provider = Mock(spec=TokenProvider)
+
+    with pytest.warns(FutureWarning, match="token_provider and username/password"):
+        client = HTTPClient(username="u", password="p", token_provider=token_provider)
+
+    assert client.user_token() == "some_token"
+    token_provider.get_token.assert_not_called()
 
 
 def test_lock_outlives_the_slowest_refresh():
