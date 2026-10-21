@@ -116,8 +116,10 @@ class PasqalCloudClient:
         else fr) and $PASQAL_CLOUD_ENV (prod, preprod or dev, default prod).
 
         The SDK can be initialized with several authentication options:
-            - Option 1: No arguments -> Allows unauthenticated access to public
-                features.
+            - Option 1: No arguments -> Uses the login made with
+                `pasqal-cloud auth login` for the region and environment, else
+                allows unauthenticated access to public features. The login is
+                not used with explicit `endpoints`.
             - Option 2: `username` and `password` -> Authenticated access using a
                 username and password.
             - Option 3: `username` only -> Prompts for password during initialization.

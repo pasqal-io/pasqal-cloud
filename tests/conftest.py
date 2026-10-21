@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from pasqal_cloud import Batch, Job, Workload
+from pasqal_cloud import Batch, Job, oidc, Workload
 from pasqal_cloud.endpoints import AUTH_CONFIG, Endpoints
 from pasqal_cloud.http_client import HTTPClient
 from requests import HTTPError, Request
@@ -25,6 +25,12 @@ def _home(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.delenv("PASQAL_CLOUD_REGION", raising=False)
     monkeypatch.delenv("PASQAL_CLOUD_ENV", raising=False)
+
+
+# Discovery is cached per process: don't leak one test's IdP config into another.
+@pytest.fixture(autouse=True)
+def _fresh_discovery():
+    oidc.discover.cache_clear()
 
 
 # The password login discovers the token endpoint: keep it off the network.

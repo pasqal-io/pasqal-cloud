@@ -669,7 +669,6 @@ def test_endpoints_follow_region_and_env(monkeypatch):
 def test_password_login_follows_region_and_env(
     password_provider, requests_mock, monkeypatch, region, env, grant_type
 ):
-    authentication._discover.cache_clear()
     monkeypatch.setattr(
         "pasqal_cloud.http_client.password_grant_config",
         authentication.password_grant_config,

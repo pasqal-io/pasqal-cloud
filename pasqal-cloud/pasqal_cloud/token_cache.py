@@ -11,11 +11,12 @@ import tempfile
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass, field, fields
+from dataclasses import asdict, dataclass, field, fields, replace
 from pathlib import Path
 from typing import Any, Optional
 
-from pasqal_cloud.endpoints import DeploymentConf
+from pasqal_cloud import oidc
+from pasqal_cloud.endpoints import DeploymentConf, PasqalCloudTarget
 
 # Seconds after which a lock is considered abandoned and taken over: well
 # above the worst case of the network calls made under it.
@@ -52,6 +53,50 @@ class CacheEntry:
         return (self.issuer, self.client_id) == (
             deployment.issuer,
             deployment.client_id,
+        )
+
+    @classmethod
+    def from_tokens(
+        cls, target: PasqalCloudTarget, tokens: dict[str, Any]
+    ) -> CacheEntry:
+        """A new entry of `target` holding the tokens of a token endpoint response.
+
+        Raises KeyError, TypeError, ValueError or OIDCError on an invalid response.
+        """
+        empty = cls(
+            region=target.region,
+            env=target.env,
+            issuer=target.deployment.issuer,
+            client_id=target.deployment.client_id,
+            refresh_token="",
+            access_token="",
+            expires_at=0,
+        )
+        return empty.updated(tokens)
+
+    def updated(self, tokens: dict[str, Any]) -> CacheEntry:
+        """Return a copy holding the tokens of a token endpoint response.
+
+        The refresh token and id claims are kept when the response has none.
+        Raises KeyError, TypeError, ValueError or OIDCError on an invalid response.
+        """
+        now = int(time.time())
+        return replace(
+            self,
+            access_token=str(tokens["access_token"]),
+            expires_at=now + int(tokens["expires_in"]),
+            refresh_token=str(tokens.get("refresh_token", self.refresh_token)),
+            scope=str(tokens.get("scope", self.scope)),
+            refresh_expires_at=(
+                now + int(tokens["refresh_expires_in"])
+                if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
+                else None
+            ),
+            id_claims=(
+                oidc.id_claims(tokens["id_token"])
+                if "id_token" in tokens
+                else self.id_claims
+            ),
         )
 
 

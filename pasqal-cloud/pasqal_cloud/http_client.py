@@ -24,9 +24,13 @@ from uuid import UUID
 import requests
 from requests.auth import AuthBase
 
+from pasqal_cloud import token_cache
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
+    CachedLoginTokenProvider,
     HTTPBearerAuthenticator,
+    login_command,
+    LoginRequiredError,
     password_grant_config,
     PasswordGrantTokenProvider,
     TokenProvider,
@@ -84,6 +88,10 @@ class HTTPClient:
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
         if token_provider is not None:
+            if username or password:
+                raise ValueError(
+                    "Pass either token_provider or username/password, not both."
+                )
             self._check_token_provider(token_provider)
 
         if username:
@@ -105,6 +113,12 @@ class HTTPClient:
                 auth_config = password_grant_config(self.target)
 
             token_provider = self._credential_login(username, password, auth_config)
+
+        # Explicit credentials win, the cache is never a fallback when they fail.
+        # Explicit endpoints may target another env or host: never send them
+        # the cached token.
+        elif token_provider is None and endpoints is None:
+            token_provider = self._cached_login(self.target)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -206,6 +220,19 @@ class HTTPClient:
         return endpoints
 
     @staticmethod
+    def _cached_login(target: PasqalCloudTarget) -> Optional[TokenProvider]:
+        """The `pasqal-cloud auth login` of the target, if any.
+
+        Raises TokenCacheError if the cache file is too permissive or invalid.
+        """
+        entry = token_cache.read_entries().get(
+            token_cache.entry_key(target.region, target.env)
+        )
+        if entry is None or not entry.matches(target.deployment):
+            return None
+        return CachedLoginTokenProvider(target)
+
+    @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
         if not isinstance(token_provider, TokenProvider):
             raise TypeError("token_provider must be an instance of TokenProvider.")
@@ -239,9 +266,11 @@ class HTTPClient:
         gziped: bool = False,
     ) -> JSendPayload:
         if self.authenticator is None:
+            command = login_command(self.target)
             raise ValueError(
                 "Authentication required. Please provide your credentials when"
-                " initializing the client."
+                f" initializing the client, or log in with: {command}"
+                " (add --device if no browser is available)."
             )
 
         headers = {
@@ -505,10 +534,16 @@ class HTTPClient:
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         if self.authenticator is not None:
-            response: Dict[str, str] = self._authenticated_request(
-                "GET", self._get_url("get_devices_specs")
-            )["data"]
-            return response
+            # The specs are public: an expired CLI login must not block them.
+            try:
+                response: Dict[str, str] = self._authenticated_request(
+                    "GET", self._get_url("get_devices_specs")
+                )["data"]
+                return response
+
+            except LoginRequiredError as e:
+                warnings.warn(f"{e}. Returning the public device specs.", stacklevel=2)
+
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
