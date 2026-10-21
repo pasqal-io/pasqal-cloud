@@ -128,13 +128,15 @@ class PasqalCloudClient:
             token_provider: The token provider is an alternative log-in method \
               not for human users.
             webhook: Webhook where the job results are automatically sent to.
-            endpoints: Endpoints targeted of the public apis.
-            auth0: Auth0Config object to define the auth0 tenant to target.
+            endpoints (deprecated): Endpoints targeted of the public apis.
+            auth0 (deprecated): Auth0Config object to define the auth0 tenant
+                to target.
             project_id: ID of the owner project of the batch.
             client_class: client class used to determine authentication \
             and endpoints targeted by the SDK
             region: Region to target, defaults to $PASQAL_CLOUD_REGION, else fr.
-            auth_config: configuration object for the authentication provider
+            auth_config (deprecated): configuration object for the authentication
+                provider
         """
         _check_sdk_version()
 
