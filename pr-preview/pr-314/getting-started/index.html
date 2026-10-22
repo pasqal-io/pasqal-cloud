@@ -806,14 +806,14 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login<span class="w">            </span><span class="c1"># opens the browser</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--device<span class="w">   </span><span class="c1"># no browser (SSH, notebook): shows a code to enter on a phone or laptop</span>
 </code></pre></div>
-<p>Then create a connection with your project ID, no credentials needed:</p>
+<p>Then create a connection with your project ID:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>  <span class="c1"># Your project ID from the portal</span>
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="p">)</span>
 </code></pre></div>
-<p>For more authentication options (custom token providers, OVH), see <a href="../advanced-usage/authentication/">Authentication</a>.</p>
+<p>For more authentication options (username and password, custom token providers, OVH), see <a href="../advanced-usage/authentication/">Authentication</a>.</p>
 <h2 id="running-a-sequence-on-a-qpu">Running a sequence on a QPU</h2>
 <p>See the <a href="https://docs.pasqal.com/pulser/sequence/">Pulser sequence documentation</a>
 for the full sequence-writing reference.</p>

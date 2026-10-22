@@ -723,8 +723,6 @@
 
 
 <h1 id="target-different-regions-and-environments">Target different regions and environments</h1>
-<p>The SDK and the <code>pasqal-cloud</code> command select the platform from a region and an
-environment, and know their URLs: there is nothing else to configure.</p>
 <h2 id="access-a-different-region">Access a different region</h2>
 <p>By default, the European (<code>fr</code>) platform is targeted. Available regions are <code>"fr"</code>
 (default) and <code>"sa"</code> (Saudi-Arabia).</p>
@@ -757,17 +755,11 @@ Example targeting the Saudi-Arabia preprod environment:</p>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">"sa"</span><span class="p">)</span>
 </code></pre></div>
-<p>Each environment has its own login, kept next to the others: logging in to preprod does
-not log you out of prod. <code>pasqal-cloud auth status</code> lists them all, and shows the region
-and environment currently selected and where they come from.</p>
-<p>Unknown regions or environments raise an error listing the valid ones.</p>
+<p>Each environment has its own login. <code>pasqal-cloud auth status</code> lists your logins.</p>
 <div class="admonition note">
 <p class="admonition-title">Deprecated arguments</p>
-<p>The <code>endpoints</code>, <code>auth_config</code> and <code>auth0</code> arguments, <code>Endpoints.from_region()</code>,
-<code>TokenProviderConf.from_region()</code> and the <code>PASQAL_ENDPOINTS</code>, <code>AUTH_CONFIG</code> and
-<code>AUTH0_CONFIG</code> presets are deprecated and will be removed in the next major version:
-use <code>PASQAL_CLOUD_REGION</code> / <code>region</code> and <code>PASQAL_CLOUD_ENV</code> instead.
-With <code>endpoints</code>, the login of <code>pasqal-cloud auth login</code> is not used.</p>
+<p>The <code>endpoints</code>, <code>auth_config</code> and <code>auth0</code> arguments are deprecated: use <code>region</code> /
+<code>PASQAL_CLOUD_REGION</code> and <code>PASQAL_CLOUD_ENV</code> instead.</p>
 </div>
 
 

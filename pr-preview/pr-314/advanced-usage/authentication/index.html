@@ -421,36 +421,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#where-the-login-is-stored" class="md-nav__link">
-    <span class="md-ellipsis">
-      Where the login is stored
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-long-a-login-lasts" class="md-nav__link">
-    <span class="md-ellipsis">
-      How long a login lasts
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#which-login-to-use-where" class="md-nav__link">
     <span class="md-ellipsis">
       Which login to use where
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#which-credentials-are-used" class="md-nav__link">
-    <span class="md-ellipsis">
-      Which credentials are used
     </span>
   </a>
   
@@ -751,36 +724,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#where-the-login-is-stored" class="md-nav__link">
-    <span class="md-ellipsis">
-      Where the login is stored
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-long-a-login-lasts" class="md-nav__link">
-    <span class="md-ellipsis">
-      How long a login lasts
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#which-login-to-use-where" class="md-nav__link">
     <span class="md-ellipsis">
       Which login to use where
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#which-credentials-are-used" class="md-nav__link">
-    <span class="md-ellipsis">
-      Which credentials are used
     </span>
   </a>
   
@@ -840,7 +786,7 @@
 
 <h2 id="log-in-with-the-pasqal-cloud-command">Log in with the <code>pasqal-cloud</code> command</h2>
 <p>The recommended way to authenticate is to log in once from a terminal, with the usual
-Pasqal Cloud login page (SSO and MFA included):</p>
+Pasqal Cloud login page:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login<span class="w">            </span><span class="c1"># opens the browser</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login<span class="w"> </span>--device<span class="w">   </span><span class="c1"># no browser: shows a code to enter on a phone or laptop</span>
 </code></pre></div>
@@ -852,32 +798,16 @@ jobs created through the connection are billed to this project:</p>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
-<p>Two more commands complete the tool:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>status<span class="w">   </span><span class="c1"># who am I logged in as, and until when?</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span><span class="w">   </span><span class="c1"># revoke the login and delete it from this machine</span>
+<p>To manage your login:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>status<span class="w">   </span><span class="c1"># show who you are logged in as</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span><span class="nb">logout</span><span class="w">   </span><span class="c1"># log out</span>
 </code></pre></div>
 <p><code>pasqal-cloud</code> is also available as <code>python -m pasqal_cloud</code>, e.g. when the scripts
 folder of your Python environment is not on your <code>PATH</code>.</p>
-<h3 id="where-the-login-is-stored">Where the login is stored</h3>
-<p>The login is stored in <code>~/.pasqal/cloud-credentials.json</code>, readable only by you
-(the file is rejected if its permissions are wider than <code>0600</code>, with the <code>chmod</code> command
-to fix it). It holds one login per region and environment, so logging in to one never
-overwrites another (see
-<a href="../target-different-regions-and-environments/">Target different regions and environments</a>).</p>
-<p>The SDK refreshes the login on its own, and the same login can be used by several
-processes at the same time (notebooks, scripts, Slurm job arrays), on any machine sharing
-your home folder.</p>
-<h3 id="how-long-a-login-lasts">How long a login lasts</h3>
-<ul>
-<li>A login expires <strong>30 days</strong> after <code>pasqal-cloud auth login</code>, however often it is used:
-  log in again at least this often.</li>
-<li>It also expires when unused for <strong>14 days</strong>.</li>
-</ul>
-<p>When the login is missing, expired or revoked, the SDK raises
-<code>pasqal_cloud.authentication.LoginRequiredError</code> with the exact command to run, e.g.:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>LoginRequiredError: Not logged in to sa/prod, run: pasqal-cloud auth login --region sa (add --device if no browser is available)
-</code></pre></div>
-<p>The SDK never falls back to asking for a password.</p>
+<p>Your login is stored in <code>~/.pasqal/cloud-credentials.json</code>, readable only by you. Use
+<code>pasqal-cloud auth logout</code> rather than deleting it.</p>
+<p>If you are not logged in, or your login expired or was revoked, the SDK raises an error
+giving the command to run to log in again.</p>
 <h3 id="which-login-to-use-where">Which login to use where</h3>
 <table>
 <thead>
@@ -897,7 +827,7 @@ your home folder.</p>
 </tr>
 <tr>
 <td>HPC / Slurm jobs</td>
-<td><code>pasqal-cloud auth login --device</code> on the login node, before submitting: queued jobs reuse the login</td>
+<td><code>pasqal-cloud auth login --device</code> on the login node, before submitting</td>
 </tr>
 <tr>
 <td>Jupyter notebook</td>
@@ -911,30 +841,19 @@ your home folder.</p>
 </table>
 <div class="admonition tip">
 <p class="admonition-title">Long Slurm jobs</p>
-<p>For a job that may wait in the queue or run for several days, run
-<code>pasqal-cloud auth login --device</code> just before <code>sbatch</code>: the job then gets the full
-30 days of the login, and 14 days before it must first use it.</p>
-<p><code>~/.pasqal/</code> must be readable and writable from the compute nodes running the job.</p>
+<p>To be safe, log in just before submitting your jobs. If the queue is long, keep an eye
+on it and log in again before your jobs start.</p>
 </div>
-<h3 id="which-credentials-are-used">Which credentials are used</h3>
-<p><code>PasqalCloudConnection</code> (and <code>PasqalCloudClient</code>) authenticate with, in order:</p>
-<ol>
-<li><code>username</code>/<code>password</code> or <code>token_provider</code>, when given (pass only one of them: with
-   both, <code>username</code>/<code>password</code> is used, with a deprecation warning). A failure with these
-   credentials is never retried with the stored login.</li>
-<li>The login of <code>pasqal-cloud auth login</code> for the region and environment targeted.</li>
-<li>Otherwise, no authentication.</li>
-</ol>
 <h2 id="log-in-with-a-username-and-password">Log in with a username and password</h2>
 <p>Logging in with a password is still supported, e.g. for automated tests. It does not work
 for accounts enrolled in MFA: use <code>pasqal-cloud auth login</code> instead.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span>  <span class="c1"># Your username or email on the Pasqal platform.</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"your_password"</span><span class="p">,</span>  <span class="c1"># Your password on the Pasqal platform.</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span>  <span class="c1"># Your username or email on the Pasqal platform.</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"your_password"</span><span class="p">,</span>  <span class="c1"># Your password on the Pasqal platform.</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -943,32 +862,29 @@ to avoid leaking passwords by mistake when pushing your code.</p>
 </div>
 <p>The password can be omitted: you are then prompted for it in your terminal when running
 your script.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="use-a-custom-token-provider-developers-only">Use a custom token provider (developers only)</h2>
 <p>You can define a custom class to provide the token.
 For example, if you have a token, you can use it to authenticate with our APIs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.authentication</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenProvider</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="k">return</span> <span class="s2">"your-token"</span>  <span class="c1"># Replace this value with your token</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">token_provider</span><span class="o">=</span><span class="n">CustomTokenProvider</span><span class="p">(),</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.authentication</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenProvider</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="k">return</span> <span class="s2">"your-token"</span>  <span class="c1"># Replace this value with your token</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">token_provider</span><span class="o">=</span><span class="n">CustomTokenProvider</span><span class="p">(),</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
-<p>Alternatively, create a custom <code>TokenProvider</code> that inherits from <code>ExpiringTokenProvider</code>.
-You should define a custom <code>_query_token</code> method which fetches your token.
-See <code>PasswordGrantTokenProvider</code> implementation for an example.</p>
 <h2 id="ovhconnection">OVHConnection</h2>
 <p>For OVH users, authentication is handled via the <code>PASQAL_PULSER_ACCESS_TOKEN</code> environment variable.
 No username or password is required.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"your-access-token"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"your-access-token"</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVHConnection</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">OVHConnection</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVHConnection</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">OVHConnection</span><span class="p">()</span>
 </code></pre></div>
 
 
