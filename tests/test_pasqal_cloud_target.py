@@ -1,6 +1,13 @@
+from itertools import product
+
 import pytest
 from pasqal_cloud.cli import main
-from pasqal_cloud.endpoints import DEPLOYMENTS, resolve_pasqal_cloud_target
+from pasqal_cloud.endpoints import (
+    DEPLOYMENTS,
+    ENVS,
+    REGIONS,
+    resolve_pasqal_cloud_target,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -20,6 +27,15 @@ def test_env_vars(monkeypatch):
     monkeypatch.setenv("PASQAL_CLOUD_ENV", "preprod")
     target = resolve_pasqal_cloud_target()
     assert (target.region, target.env) == ("sa", "preprod")
+
+
+@pytest.mark.parametrize(("region", "env"), product(REGIONS, ENVS))
+def test_every_target_resolves(monkeypatch, region, env):
+    monkeypatch.setenv("PASQAL_CLOUD_ENV", env)
+
+    target = resolve_pasqal_cloud_target(region)
+
+    assert (target.region, target.env) == (region, env)
 
 
 def test_flag_wins_over_env_var(monkeypatch):
