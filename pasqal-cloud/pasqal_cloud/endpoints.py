@@ -286,7 +286,7 @@ def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
     return value
 
 
-def resolve_pasqal_cloud_target(region: Optional[Region] = None) -> PasqalCloudTarget:
+def resolve_pasqal_cloud_target(region: Region | None = None) -> PasqalCloudTarget:
     """Resolve region/env from the explicit argument, then env vars, then defaults.
 
     Raises ValueError on unknown env var values, never falls back to prod.
