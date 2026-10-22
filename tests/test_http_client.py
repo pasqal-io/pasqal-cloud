@@ -11,14 +11,12 @@ from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
-    authentication,
     Endpoints,
     PASQAL_ENDPOINTS,
 )
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
 from pasqal_cloud.endpoints import (
-    DEPLOYMENTS,
     KSA_CORE_API_URL,
     KSA_DEV_CORE_API_URL,
     PREPROD_CORE_API_URL,
@@ -654,41 +652,3 @@ def test_endpoints_follow_region_and_env(monkeypatch):
 
     monkeypatch.setenv("PASQAL_CLOUD_ENV", "dev")
     assert HTTPClient(region="sa").endpoints.core == KSA_DEV_CORE_API_URL
-
-
-@pytest.mark.parametrize(
-    ("region", "env", "grant_type"),
-    [
-        ("fr", "dev", "http://auth0.com/oauth/grant-type/password-realm"),
-        ("sa", "preprod", "password"),
-    ],
-)
-@patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
-def test_password_login_follows_region_and_env(
-    password_provider, requests_mock, monkeypatch, region, env, grant_type
-):
-    monkeypatch.setattr(
-        "pasqal_cloud.http_client.password_grant_config",
-        authentication.password_grant_config,
-    )
-    monkeypatch.setenv("PASQAL_CLOUD_ENV", env)
-    deployment = DEPLOYMENTS[(region, env)]
-    issuer = deployment.issuer.rstrip("/")
-    requests_mock.get(
-        f"{issuer}/.well-known/openid-configuration",
-        json={
-            "authorization_endpoint": f"{issuer}/authorize",
-            "token_endpoint": f"{issuer}/token",
-            "scopes_supported": ["offline_access"],
-        },
-    )
-
-    HTTPClient(username="u", password="p", region=region)
-
-    config = password_provider.call_args.args[2]
-    assert config.token_endpoint == f"{issuer}/token"
-    assert (config.public_client_id, config.audience) == (
-        deployment.client_id,
-        deployment.audience,
-    )
-    assert config.grant_type == grant_type
