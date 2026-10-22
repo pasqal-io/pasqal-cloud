@@ -97,7 +97,7 @@ SA_KEYCLOAK_TOKEN_ENDPOINT = (
     "https://auth.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 )
 
-PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
+PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud"
 PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
@@ -258,7 +258,7 @@ DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
         AUDIENCE,
     ),
     ("sa", "preprod"): DeploymentConf(
-        f"{PREPROD_SA_KEYCLOAK_BASE_URL.rstrip('/')}/realms/{KEYCLOAK_REALM}",
+        f"{PREPROD_SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         PREPROD_AUDIENCE,
     ),
