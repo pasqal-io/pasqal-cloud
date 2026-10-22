@@ -80,8 +80,6 @@ class HTTPClient:
         auth_config: Optional[TokenProviderConf] = None,
         region: Optional[Region] = None,
     ):
-        # The region argument, else $PASQAL_CLOUD_REGION, else fr; and
-        # $PASQAL_CLOUD_ENV, else prod.
         self.target = resolve_pasqal_cloud_target(region)
         self.endpoints = self._make_endpoints(endpoints, self.target)
         self._project_id = project_id
@@ -118,10 +116,6 @@ class HTTPClient:
                 auth_config = password_grant_config(self.target)
 
             token_provider = self._credential_login(username, password, auth_config)
-
-        # Explicit credentials win, the cache is never a fallback when they fail.
-        # Explicit endpoints may target another env or host: never send them
-        # the cached token.
         elif token_provider is None and endpoints is None:
             token_provider = self._cached_login(self.target)
 
@@ -273,9 +267,9 @@ class HTTPClient:
         if self.authenticator is None:
             command = login_command(self.target)
             raise ValueError(
-                "Authentication required. Please provide your credentials when"
-                f" initializing the client, or log in with: {command}"
-                " (add --device if no browser is available)."
+                f"Authentication required. Please log in with: {command}"
+                " (add --device if no browser is available) or provide your"
+                " credentials when initializing the client."
             )
 
         headers = {

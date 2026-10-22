@@ -65,21 +65,30 @@ def test_uses_cached_access_token(requests_mock):
 
 
 def test_refreshes_expired_token_and_rotates_refresh_token(idp):
-    save(expires_at=int(time.time()) + 30)  # within the 1 min window
+    # Still valid, but within the 1 min expiry window: treated as expired.
+    save(expires_at=int(time.time()) + 30)
 
+    # The second call reuses the in-memory token instead of refreshing again.
     client = HTTPClient()
     assert client.user_token() == "NEW-ACCESS"
-    assert client.user_token() == "NEW-ACCESS"  # kept in memory
+    assert client.user_token() == "NEW-ACCESS"
 
-    [request] = [r for r in idp.request_history if r.method == "POST"]
-    assert parse_qs(request.text) == {
+    # A single refresh, exchanging the cached refresh token.
+    token_requests = [r for r in idp.request_history if r.method == "POST"]
+    assert len(token_requests) == 1
+    assert parse_qs(token_requests[0].text) == {
         "grant_type": ["refresh_token"],
         "client_id": [DEPLOYMENTS[("fr", "prod")].client_id],
         "refresh_token": ["SECRET-REFRESH"],
     }
+
+    # Refresh tokens are single-use: the new one must be saved for the next
+    # process. The refresh response has no id token, so the claims are kept.
     entry = cached()
     assert (entry.access_token, entry.refresh_token) == ("NEW-ACCESS", "NEW-REFRESH")
-    assert entry.id_claims["email"] == "alice@example.com"  # kept
+    assert entry.id_claims["email"] == "alice@example.com"
+
+    # A leaked lock would block other processes until it goes stale.
     assert not token_cache.lock_path().exists()
 
 
@@ -99,8 +108,11 @@ def test_discovers_once_per_process(idp):
 
 
 def test_invalid_grant_requires_login(idp, monkeypatch):
+    # On preprod, so the login hint must carry the PASQAL_CLOUD_ENV prefix.
     monkeypatch.setenv("PASQAL_CLOUD_ENV", "preprod")
     deployment = DEPLOYMENTS[("fr", "preprod")]
+
+    # An expired preprod login, so the next token triggers a refresh.
     entry = replace(
         make_entry(),
         env="preprod",
@@ -109,6 +121,9 @@ def test_invalid_grant_requires_login(idp, monkeypatch):
         expires_at=0,
     )
     token_cache.write_entries({entry.key: entry})
+
+    # The idp fixture only serves the prod issuer: serve the preprod one too,
+    # with a token endpoint rejecting the refresh token as expired or revoked.
     issuer = deployment.issuer.rstrip("/")
     idp.get(
         f"{issuer}/.well-known/openid-configuration",
@@ -125,7 +140,9 @@ def test_invalid_grant_requires_login(idp, monkeypatch):
     assert "run: PASQAL_CLOUD_ENV=preprod pasqal-cloud auth login --region fr" in str(
         e.value
     )
-    assert token_cache.read_entries()["fr/preprod"] == entry  # kept for auth status
+
+    # The entry stays so `pasqal-cloud auth status` can still report it.
+    assert token_cache.read_entries()["fr/preprod"] == entry
 
 
 def test_expired_login_falls_back_to_public_device_specs(idp):

@@ -35,9 +35,7 @@ class LoginError(Exception):
 @functools.lru_cache(maxsize=None)
 def discover(issuer: str, device: bool = False) -> dict[str, Any]:
     """Fetch the issuer's OpenID configuration and check the scopes and
-    endpoints we need, including the device flow one if `device`.
-
-    Cached per process: failures are not cached, so they are retried."""
+    endpoints we need, including the device flow one if `device`."""
     url = f"{issuer.rstrip('/')}/.well-known/openid-configuration"
     try:
         response = requests.get(url, timeout=TIMEOUT)
