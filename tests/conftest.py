@@ -18,24 +18,23 @@ JOB_RESULT_LINK_ENDPOINT = "http://jobs-result-link/"
 JSON_FILE = "_.{}.json"
 
 
-# The SDK reads the login cache and config in ~/.pasqal: never use the
-# developer's ones.
 @pytest.fixture(autouse=True)
 def _home(monkeypatch, tmp_path):
+    """The SDK reads the login cache and config in ~/.pasqal: never use the
+    developer's ones."""
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
     monkeypatch.delenv("PASQAL_CLOUD_PROFILE", raising=False)
 
 
-# Discovery is cached per process: don't leak one test's IdP config into another.
 @pytest.fixture(autouse=True)
 def _fresh_discovery():
     oidc.discover.cache_clear()
 
 
-# The password login discovers the token endpoint: keep it off the network.
 @pytest.fixture(autouse=True)
 def _password_grant_config(monkeypatch):
+    """The password login discovers the token endpoint: keep it off the network."""
     monkeypatch.setattr(
         "pasqal_cloud.http_client.password_grant_config",
         lambda _profile: AUTH_CONFIG["fr-prod"],
