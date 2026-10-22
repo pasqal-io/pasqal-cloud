@@ -165,8 +165,6 @@ def mock_pasqal_cloud_sdk(mock_batch):
         "pasqal_cloud.pasqal_cloud_connection.PasqalCloudClient", autospec=True
     ) as mock_cloud_client:
         pasqal_cloud_kwargs = {
-            "username": "abc",
-            "password": "def",
             "project_id": "ghi",
             "endpoints": Endpoints(core="core_url"),
             "webhook": "xyz",

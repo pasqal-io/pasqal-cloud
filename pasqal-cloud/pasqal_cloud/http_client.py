@@ -92,12 +92,19 @@ class HTTPClient:
                     " and will raise an error in the next major version:"
                     " username/password is used, pass only one of them.",
                     FutureWarning,
-                    # The caller of PasqalCloudClient, through HTTPClient.__init__.
                     stacklevel=3,
                 )
             self._check_token_provider(token_provider)
 
         if username:
+            warnings.warn(
+                "Authenticating with username/password is discouraged. Prefer"
+                f" logging in once with: {login_command(self.target)}, then create"
+                " the client without credentials.",
+                UserWarning,
+                stacklevel=3,
+            )
+
             if auth0 is not None and auth_config is not None:
                 raise ValueError(
                     "The auth0 and auth_config parameters cannot be used "

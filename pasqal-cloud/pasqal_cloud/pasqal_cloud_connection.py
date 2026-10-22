@@ -58,8 +58,6 @@ class PasqalCloudConnection(RemoteConnection):
     QPUs.
 
     Args:
-        username: Your username in the PASQAL cloud platform.
-        password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
         region: The platform region, defaults to $PASQAL_CLOUD_REGION, else fr.
         kwargs: Additional arguments to provide to the PasqalCloudClient()
@@ -67,16 +65,12 @@ class PasqalCloudConnection(RemoteConnection):
 
     def __init__(
         self,
-        username: str = "",
-        password: str = "",
         project_id: str = "",
         region: Region | None = None,
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""
         self.cloud_client = PasqalCloudClient(
-            username=username,
-            password=password,
             project_id=project_id,
             region=region,
             **kwargs,
