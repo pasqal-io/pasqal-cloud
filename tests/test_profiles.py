@@ -2,6 +2,7 @@ import json
 import os
 
 import pytest
+from pasqal_cloud.authentication import password_grant_config
 from pasqal_cloud.cli import main
 from pasqal_cloud.config import (
     Config,
@@ -11,6 +12,7 @@ from pasqal_cloud.config import (
     REGIONS,
     resolve_profile,
 )
+from pasqal_cloud.endpoints import TokenProviderConf
 
 
 @pytest.fixture(autouse=True)
@@ -262,3 +264,27 @@ def test_cli_profile_switch(capsys, config_path):
 def test_cli_profile_errors(capsys, argv, error):
     assert main(argv) == 1
     assert error in capsys.readouterr().err
+
+
+def test_password_grant_config(requests_mock):
+    config = Config.model_validate({"profiles": {"dev": profile_config("dev")}})
+    profile = resolve_profile("dev", config)
+    issuer = profile.config.issuer.rstrip("/")
+    requests_mock.get(
+        f"{issuer}/.well-known/openid-configuration",
+        json={
+            "authorization_endpoint": f"{issuer}/authorize",
+            "token_endpoint": f"{issuer}/token",
+            "scopes_supported": ["offline_access"],
+        },
+    )
+
+    config = password_grant_config(profile)
+
+    assert config == TokenProviderConf(
+        token_endpoint=f"{issuer}/token",
+        public_client_id=profile.config.client_id,
+        audience=profile.config.audience,
+        realm=None,
+        grant_type="password",
+    )

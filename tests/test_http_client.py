@@ -12,7 +12,6 @@ from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
-    authentication,
     config,
     Endpoints,
     PASQAL_ENDPOINTS,
@@ -679,34 +678,3 @@ def test_endpoints_follow_region_and_profile():
 
     config.save_config(config.Config(active_profile="default-fr"))
     assert HTTPClient().endpoints == PASQAL_ENDPOINTS["prod"]
-
-
-@pytest.mark.parametrize("region", ["fr", "sa"])
-@patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
-def test_password_login_follows_profile(
-    password_provider, requests_mock, monkeypatch, region
-):
-    monkeypatch.setattr(
-        "pasqal_cloud.http_client.password_grant_config",
-        authentication.password_grant_config,
-    )
-    profile_config = save_dev_profile(region)
-    issuer = profile_config.issuer.rstrip("/")
-    requests_mock.get(
-        f"{issuer}/.well-known/openid-configuration",
-        json={
-            "authorization_endpoint": f"{issuer}/authorize",
-            "token_endpoint": f"{issuer}/token",
-            "scopes_supported": ["offline_access"],
-        },
-    )
-
-    HTTPClient(username="u", password="p")
-
-    config = password_provider.call_args.args[2]
-    assert config.token_endpoint == f"{issuer}/token"
-    assert (config.public_client_id, config.audience) == (
-        profile_config.client_id,
-        profile_config.audience,
-    )
-    assert config.grant_type == "password"
