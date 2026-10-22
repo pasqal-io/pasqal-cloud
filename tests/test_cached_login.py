@@ -171,7 +171,8 @@ def test_retries_transient_errors(idp):
         ],
     )
     assert HTTPClient().user_token() == "NEW-ACCESS"
-    assert cached().refresh_token == "SECRET-REFRESH"  # not rotated
+    # No refresh token in the response: keep the cached one.
+    assert cached().refresh_token == "SECRET-REFRESH"
 
 
 def test_gives_up_after_three_attempts(idp):
