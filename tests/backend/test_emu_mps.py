@@ -1,7 +1,6 @@
 import contextlib
 import dataclasses
 import json
-from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -12,7 +11,7 @@ from pulser.backend.remote import JobParams
 from pasqal_cloud.backends import RemoteMPSBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
-from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from tests.test_doubles.authentication import FakeTokenProvider
 
 test_device = dataclasses.replace(
     DigitalAnalogDevice,
@@ -28,14 +27,10 @@ test_device = dataclasses.replace(
     "config", [None, EmulationConfig(observables=[BitStrings(tag_suffix="custom")])]
 )
 @pytest.mark.parametrize("job_params", [None, [JobParams(runs=10)]])
-@patch(
-    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 def test_emu_mps_backend(mock_request: requests_mock.mocker.Mocker, job_params, config):
     mock_request.reset_mock()
     connection = PasqalCloudConnection(
-        username="test", password="test", project_id=str(uuid4())
+        token_provider=FakeTokenProvider(), project_id=str(uuid4())
     )
 
     device = AnalogDevice

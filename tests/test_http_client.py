@@ -203,8 +203,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         )
         with pytest.raises(
             ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            match="Authentication required. Please log in with:",
         ):
             sdk.get_batch("fake-id")
 
@@ -248,8 +247,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
             ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            match="Authentication required. Please log in with:",
         ):
             sdk.get_batch("fake-id")
 
