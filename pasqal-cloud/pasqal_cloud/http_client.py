@@ -115,10 +115,6 @@ class HTTPClient:
                 auth_config = password_grant_config(self.profile)
 
             token_provider = self._credential_login(username, password, auth_config)
-
-        # Explicit credentials win, the cache is never a fallback when they fail.
-        # Explicit endpoints may target another deployment: never send them
-        # the cached token.
         elif token_provider is None and endpoints is None:
             token_provider = self._cached_login(self.profile)
 
@@ -271,9 +267,9 @@ class HTTPClient:
         if self.authenticator is None:
             command = login_command(self.profile)
             raise ValueError(
-                "Authentication required. Please provide your credentials when"
-                f" initializing the client, or log in with: {command}"
-                " (add --device if no browser is available)."
+                f"Authentication required. Please log in with: {command}"
+                " (add --device if no browser is available) or provide your"
+                " credentials when initializing the client."
             )
 
         headers = {

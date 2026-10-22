@@ -57,9 +57,6 @@ class PasqalCloudConnection(RemoteConnection):
     The cloud connection enables to run sequences on simulators or on real
     QPUs.
 
-    Without username/password, token_provider nor endpoints, the login made with
-    `pasqal-cloud auth login` is used, if any.
-
     Args:
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
