@@ -81,12 +81,12 @@ PREPROD_AUTH0_DOMAIN: Final[str] = "authenticate.preprod.pasqal.cloud"
 PREPROD_AUTH0_TOKEN_ENDPOINT: Final[str] = (
     "https://pasqal-preprod.eu.auth0.com/oauth/token"
 )
-PREPROD_PUBLIC_CLIENT_ID: Final[str] = "2l6A2ldvwJE5sdkghu40BTYLm7sSUAv9"
+PREPROD_PUBLIC_CLIENT_ID: Final[str] = "dnbZLGCXp9TPioeBGCmuiPKjoPJ2ivpb"
 PREPROD_AUDIENCE: Final[str] = "https://apis.preprod.pasqal.cloud/account/api/v1"
 
 DEV_AUTH0_DOMAIN: Final[str] = "authenticate.dev.pasqal.cloud"
 DEV_AUTH0_TOKEN_ENDPOINT: Final[str] = "https://pasqal-dev.eu.auth0.com/oauth/token"
-DEV_PUBLIC_CLIENT_ID: Final[str] = "5QtfSu1UV118Iz6By6IJRSNoDrLbAiOv"
+DEV_PUBLIC_CLIENT_ID: Final[str] = "AvOi3cerijY8jPFVhLbGeUbVIGVcaKMv"
 DEV_AUDIENCE: Final[str] = "https://apis.dev.pasqal.cloud/account/api/v1"
 
 REALM: Final[str] = "pcs-users"
@@ -100,9 +100,7 @@ SA_KEYCLOAK_TOKEN_ENDPOINT = (
 PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud"
 PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
-KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
-# Public client for interactive logins (PKCE, device) and ROPG, subject to MFA.
-KEYCLOAK_LOGIN_CLIENT_ID = "pasqal-cloud-python"
+KEYCLOAK_SDK_CLIENT_ID = "pasqal-cloud-python"
 KEYCLOAK_REALM = "pasqal-cloud"
 
 
@@ -242,8 +240,7 @@ class DeploymentConf:
     audience: str
 
 
-# TODO: replace Auth0 client IDs with the new Native app of each tenant once
-# they are created.
+# TODO: replace Auth0 PROD client ID.
 DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
     ("fr", "prod"): DeploymentConf(
         f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE
@@ -256,17 +253,17 @@ DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
     ),
     ("sa", "prod"): DeploymentConf(
         f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        KEYCLOAK_LOGIN_CLIENT_ID,
+        KEYCLOAK_SDK_CLIENT_ID,
         AUDIENCE,
     ),
     ("sa", "preprod"): DeploymentConf(
         f"{PREPROD_SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        KEYCLOAK_LOGIN_CLIENT_ID,
+        KEYCLOAK_SDK_CLIENT_ID,
         PREPROD_AUDIENCE,
     ),
     ("sa", "dev"): DeploymentConf(
         "https://keycloak-127-0-0-1.nip.io/realms/users",
-        KEYCLOAK_LOGIN_CLIENT_ID,
+        KEYCLOAK_SDK_CLIENT_ID,
         DEV_AUDIENCE,
     ),
 }
