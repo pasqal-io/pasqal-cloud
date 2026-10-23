@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 from typing import Any
 
-from pasqal_cloud import browser_login, oidc, token_cache
+from pasqal_cloud import browser_login, device_login, oidc, token_cache
 from pasqal_cloud.endpoints import (
     PasqalCloudTarget,
     REGIONS,
@@ -78,18 +78,19 @@ def _revoke_previous(target: PasqalCloudTarget, config: dict[str, Any]) -> None:
 
 
 def login(args: argparse.Namespace, target: PasqalCloudTarget) -> int:
-    if args.device:
-        sys.stderr.write("login --device: not implemented\n")
-        return 1
+    flow = device_login if args.device else browser_login
+
     try:
-        config = oidc.discover(target.deployment.issuer)
+        config = oidc.discover(target.deployment.issuer, device=args.device)
         _revoke_previous(target, config)
-        entry = _save_login(target, browser_login.login(target.deployment, config))
+        entry = _save_login(target, flow.login(target.deployment, config))
+
     # A rejected cache file fails the login before the browser opens: it is
     # never overwritten, it may already have leaked.
     except (oidc.LoginError, oidc.OIDCError, token_cache.TokenCacheError, OSError) as e:
         sys.stderr.write(f"Error: {e}\n")
         return 1
+
     sys.stderr.write(f"Logged in to {target.region}/{target.env} as {_user(entry)}\n")
     return 0
 

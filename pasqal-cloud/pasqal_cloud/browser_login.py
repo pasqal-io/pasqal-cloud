@@ -3,9 +3,7 @@
 
 from __future__ import annotations
 
-import base64
 import contextlib
-import hashlib
 import secrets
 import sys
 import time
@@ -77,12 +75,7 @@ def _wait_for_callback(server: _CallbackServer) -> dict[str, str]:
 
 def login(deployment: DeploymentConf, config: dict[str, Any]) -> dict[str, Any]:
     """Run the browser login and return the token endpoint response."""
-    verifier = secrets.token_urlsafe(64)
-    challenge = (
-        base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest())
-        .rstrip(b"=")
-        .decode()
-    )
+    verifier, challenge = oidc.pkce_pair()
     with _listen() as server:
         server.state = secrets.token_urlsafe(32)
         redirect_uri = f"http://127.0.0.1:{server.server_port}/callback"
