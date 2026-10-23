@@ -1,12 +1,17 @@
 from itertools import product
 
 import pytest
+from pasqal_cloud.authentication import password_grant_config
 from pasqal_cloud.cli import main
 from pasqal_cloud.endpoints import (
+    AUTH0_TOKEN_PROVIDER_GRANT_TYPE,
     DEPLOYMENTS,
     ENVS,
+    KEYCLOAK_REALM,
+    REALM,
     REGIONS,
     resolve_pasqal_cloud_target,
+    TokenProviderConf,
 )
 
 
@@ -59,3 +64,36 @@ def test_cli_reports_invalid_env(monkeypatch, capsys):
     monkeypatch.setenv("PASQAL_CLOUD_ENV", "staging")
     assert main(["auth", "status"]) == 1
     assert "prod, preprod, dev" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("region", "env", "realm", "grant_type"),
+    [
+        ("fr", "dev", REALM, AUTH0_TOKEN_PROVIDER_GRANT_TYPE),
+        ("sa", "preprod", KEYCLOAK_REALM, "password"),
+    ],
+)
+def test_password_grant_config(
+    requests_mock, monkeypatch, region, env, realm, grant_type
+):
+    monkeypatch.setenv("PASQAL_CLOUD_ENV", env)
+    target = resolve_pasqal_cloud_target(region)
+    issuer = target.deployment.issuer.rstrip("/")
+    requests_mock.get(
+        f"{issuer}/.well-known/openid-configuration",
+        json={
+            "authorization_endpoint": f"{issuer}/authorize",
+            "token_endpoint": f"{issuer}/token",
+            "scopes_supported": ["offline_access"],
+        },
+    )
+
+    config = password_grant_config(target)
+
+    assert config == TokenProviderConf(
+        token_endpoint=f"{issuer}/token",
+        public_client_id=target.deployment.client_id,
+        audience=target.deployment.audience,
+        realm=realm,
+        grant_type=grant_type,
+    )

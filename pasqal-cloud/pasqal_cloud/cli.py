@@ -22,27 +22,8 @@ def _save_login(
     """Replace the cache entry for `target`."""
     if "refresh_token" not in tokens:
         raise oidc.LoginError("The provider returned no refresh token (offline_access)")
-    now = int(time.time())
-    deployment = target.deployment
     try:
-        entry = token_cache.CacheEntry(
-            region=target.region,
-            env=target.env,
-            issuer=deployment.issuer,
-            client_id=deployment.client_id,
-            refresh_token=str(tokens["refresh_token"]),
-            access_token=str(tokens["access_token"]),
-            expires_at=now + int(tokens["expires_in"]),
-            scope=str(tokens.get("scope", "")),
-            refresh_expires_at=(
-                now + int(tokens["refresh_expires_in"])
-                if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
-                else None
-            ),
-            id_claims=(
-                oidc.id_claims(tokens["id_token"]) if "id_token" in tokens else {}
-            ),
-        )
+        entry = token_cache.CacheEntry.from_tokens(target, tokens)
     except (KeyError, TypeError, ValueError) as e:
         raise oidc.LoginError(f"Invalid token response: {e!r}") from e
     with token_cache.lock():
@@ -182,8 +163,7 @@ def logout(_args: argparse.Namespace, target: PasqalCloudTarget) -> int:
                 sys.stderr.write(
                     "Error: logged in to several environments, log out of one with:\n"
                     + "".join(
-                        f"  {_logout_command(entry)}\n"
-                        for _, entry in sorted(entries.items())
+                        f"  {_logout_command(e)}\n" for _, e in sorted(entries.items())
                     )
                 )
                 return 1

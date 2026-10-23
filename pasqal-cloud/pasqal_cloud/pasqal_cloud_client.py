@@ -7,8 +7,7 @@ from warnings import simplefilter, warn
 from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.batch import RESULT_POLLING_INTERVAL, Batch
-from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
 from pasqal_cloud.errors import (
@@ -33,7 +32,8 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import CreateJob, Job, create_jobs_to_api_payload
+from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import (
@@ -108,14 +108,14 @@ class PasqalCloudClient:
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
 
-        To authenticate to Pasqal Cloud, you have to provide either an
-        email/password combination or a TokenProvider instance.
-        You may omit the password, you will then be prompted to enter one.
-
+        The target deployment is selected by `region` (default: $PASQAL_CLOUD_REGION,
+        else fr) and $PASQAL_CLOUD_ENV (prod, preprod or dev, default prod).
 
         The SDK can be initialized with several authentication options:
-            - Option 1: No arguments -> Allows unauthenticated access to public
-                features.
+            - Option 1: No arguments -> Uses the login made with
+                `pasqal-cloud auth login` for the region and environment, else
+                allows unauthenticated access to public features. The login is
+                not used with explicit `endpoints`.
             - Option 2: `username` and `password` -> Authenticated access using a
                 username and password.
             - Option 3: `username` only -> Prompts for password during initialization.
@@ -133,7 +133,7 @@ class PasqalCloudClient:
             project_id: ID of the owner project of the batch.
             client_class: client class used to determine authentication \
             and endpoints targeted by the SDK
-            region: specifies the region to target
+            region: Region to target, defaults to $PASQAL_CLOUD_REGION, else fr.
             auth_config: configuration object for the authentication provider
         """
         _check_sdk_version()

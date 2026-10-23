@@ -14,12 +14,17 @@ from pasqal_cloud import (
     Endpoints,
     PASQAL_ENDPOINTS,
 )
-from pasqal_cloud.http_client import HTTPClient
-from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.endpoints import TokenProviderConf
+from pasqal_cloud.endpoints import (
+    KSA_CORE_API_URL,
+    KSA_DEV_CORE_API_URL,
+    PREPROD_CORE_API_URL,
+    TokenProviderConf,
+)
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.ovh import OvhClient
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -186,8 +191,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         )
         with pytest.raises(
             ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            match="Authentication required. Please log in with:",
         ):
             sdk.get_batch("fake-id")
 
@@ -231,8 +235,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
             ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            match="Authentication required. Please log in with:",
         ):
             sdk.get_batch("fake-id")
 
@@ -637,3 +640,15 @@ class TestHeaders:
             "not supported by the OVH client",
         ):
             client._get_url("add_jobs")
+
+
+def test_endpoints_follow_region_and_env(monkeypatch):
+    monkeypatch.setenv("PASQAL_CLOUD_REGION", "sa")
+    assert HTTPClient().endpoints.core == KSA_CORE_API_URL
+
+    monkeypatch.setenv("PASQAL_CLOUD_REGION", "fr")
+    monkeypatch.setenv("PASQAL_CLOUD_ENV", "preprod")
+    assert HTTPClient().endpoints.core == PREPROD_CORE_API_URL
+
+    monkeypatch.setenv("PASQAL_CLOUD_ENV", "dev")
+    assert HTTPClient(region="sa").endpoints.core == KSA_DEV_CORE_API_URL

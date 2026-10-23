@@ -32,13 +32,6 @@ def tokens(email="alice@example.com", refresh="REFRESH-1"):
     }
 
 
-@pytest.fixture(autouse=True)
-def _home(monkeypatch, tmp_path):
-    monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.delenv("PASQAL_CLOUD_REGION", raising=False)
-    monkeypatch.delenv("PASQAL_CLOUD_ENV", raising=False)
-
-
 @pytest.fixture
 def idp(requests_mock):
     requests_mock.get(f"{ISSUER}/.well-known/openid-configuration", json=CONFIG)

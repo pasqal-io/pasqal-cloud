@@ -24,13 +24,25 @@ from uuid import UUID
 import requests
 from requests.auth import AuthBase
 
+from pasqal_cloud import token_cache
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
+    CachedLoginTokenProvider,
     HTTPBearerAuthenticator,
+    login_command,
+    LoginRequiredError,
+    password_grant_config,
     PasswordGrantTokenProvider,
     TokenProvider,
 )
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
+from pasqal_cloud.endpoints import (
+    Auth0Conf,
+    Endpoints,
+    PasqalCloudTarget,
+    Region,
+    resolve_pasqal_cloud_target,
+    TokenProviderConf,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -68,14 +80,31 @@ class HTTPClient:
         auth_config: Optional[TokenProviderConf] = None,
         region: Optional[Region] = None,
     ):
-        self.endpoints = self._make_endpoints(endpoints, region)
+        self.target = resolve_pasqal_cloud_target(region)
+        self.endpoints = self._make_endpoints(endpoints, self.target)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
         if token_provider is not None:
+            if username or password:
+                warnings.warn(
+                    "Passing both token_provider and username/password is deprecated"
+                    " and will raise an error in the next major version:"
+                    " username/password is used, pass only one of them.",
+                    FutureWarning,
+                    stacklevel=3,
+                )
             self._check_token_provider(token_provider)
 
         if username:
+            warnings.warn(
+                "Authenticating with username/password is discouraged. Prefer"
+                f" logging in once with: {login_command(self.target)}, then create"
+                " the client without credentials.",
+                UserWarning,
+                stacklevel=3,
+            )
+
             if auth0 is not None and auth_config is not None:
                 raise ValueError(
                     "The auth0 and auth_config parameters cannot be used "
@@ -91,9 +120,11 @@ class HTTPClient:
                 auth_config = TokenProviderConf.from_auth0_config(auth0)
 
             if auth_config is None:
-                auth_config = TokenProviderConf.from_region(region)
+                auth_config = password_grant_config(self.target)
 
             token_provider = self._credential_login(username, password, auth_config)
+        elif token_provider is None and endpoints is None:
+            token_provider = self._cached_login(self.target)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -185,14 +216,27 @@ class HTTPClient:
 
     @staticmethod
     def _make_endpoints(
-        endpoints: Optional[Endpoints], region: Optional[Region] = None
+        endpoints: Optional[Endpoints], target: PasqalCloudTarget
     ) -> Endpoints:
         if endpoints is None:
-            return Endpoints.from_region(region)
+            return target.deployment.api
         if not isinstance(endpoints, Endpoints):
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
+
+    @staticmethod
+    def _cached_login(target: PasqalCloudTarget) -> Optional[TokenProvider]:
+        """The `pasqal-cloud auth login` of the target, if any.
+
+        Raises TokenCacheError if the cache file is too permissive or invalid.
+        """
+        entry = token_cache.read_entries().get(
+            token_cache.entry_key(target.region, target.env)
+        )
+        if entry is None or not entry.matches(target.deployment):
+            return None
+        return CachedLoginTokenProvider(target)
 
     @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
@@ -228,9 +272,11 @@ class HTTPClient:
         gziped: bool = False,
     ) -> JSendPayload:
         if self.authenticator is None:
+            command = login_command(self.target)
             raise ValueError(
-                "Authentication required. Please provide your credentials when"
-                " initializing the client."
+                f"Authentication required. Please log in with: {command}"
+                " (add --device if no browser is available) or provide your"
+                " credentials when initializing the client."
             )
 
         headers = {
@@ -494,10 +540,16 @@ class HTTPClient:
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         if self.authenticator is not None:
-            response: Dict[str, str] = self._authenticated_request(
-                "GET", self._get_url("get_devices_specs")
-            )["data"]
-            return response
+            # The specs are public: an expired CLI login must not block them.
+            try:
+                response: Dict[str, str] = self._authenticated_request(
+                    "GET", self._get_url("get_devices_specs")
+                )["data"]
+                return response
+
+            except LoginRequiredError as e:
+                warnings.warn(f"{e}. Returning the public device specs.", stacklevel=2)
+
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:
