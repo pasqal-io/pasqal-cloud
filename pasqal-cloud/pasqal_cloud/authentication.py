@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -54,8 +55,8 @@ class ExpiringTokenProvider(TokenProvider, ABC):
     """TokenProvider class which caches a token up to its expiry date.
 
     This is an abstract class. Create your custom TokenProvider by inheriting from
-    this class and defining your own `_query_token` method. See Auth0TokenProvider for
-    an implementation example.
+    this class and defining your own `_query_token` method. See
+    PasswordGrantTokenProvider for an implementation example.
     """
 
     __token_cache: Optional[tuple[datetime, str]] = None
@@ -290,6 +291,17 @@ class CachedLoginTokenProvider(ExpiringTokenProvider):
         raise TokenProviderError(last_error) from last_error
 
 
+def _warn_deprecated_auth0_provider(name: str) -> None:
+    warnings.warn(
+        f"{name} is deprecated and will be removed in the next major version: pass"
+        " username/password to PasqalCloudConnection, or log in with"
+        " `pasqal-cloud auth login`.",
+        FutureWarning,
+        # The caller of the token provider, through its __init__.
+        stacklevel=3,
+    )
+
+
 class Auth0TokenProvider(PasswordGrantTokenProvider):
     """ExpiringTokenProvider implementation which fetches a token from auth0."""
 
@@ -302,7 +314,10 @@ class Auth0TokenProvider(PasswordGrantTokenProvider):
             password: password of the user to log in as
             auth0: auth0 configuration object to target the proper auth0 tenant and app
         """
-        super().__init__(username, password, TokenProviderConf.from_auth0_config(auth0))
+        _warn_deprecated_auth0_provider(type(self).__name__)
+        super().__init__(
+            username, password, TokenProviderConf._from_auth0_config(auth0)
+        )
 
 
 class InsecureAuth0TokenProvider(PasswordGrantTokenProvider):
@@ -320,6 +335,10 @@ class InsecureAuth0TokenProvider(PasswordGrantTokenProvider):
             password: password of the user to log in as
             auth0: auth0 configuration object to target the proper auth0 tenant and app
         """
+        _warn_deprecated_auth0_provider(type(self).__name__)
         super().__init__(
-            username, password, TokenProviderConf.from_auth0_config(auth0), verify=False
+            username,
+            password,
+            TokenProviderConf._from_auth0_config(auth0),
+            verify=False,
         )
