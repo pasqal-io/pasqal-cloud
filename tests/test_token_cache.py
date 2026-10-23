@@ -191,3 +191,12 @@ def test_status_reports_bad_file(capsys):
     write().chmod(0o644)
     assert main(["auth", "status"]) == 1
     assert "chmod 600" in capsys.readouterr().err
+
+
+def test_save_login_writes_entry():
+    from pasqal_cloud.cli import _save_login
+    from pasqal_cloud.endpoints import resolve_pasqal_cloud_target
+
+    tokens = {"refresh_token": "R", "access_token": "A", "expires_in": 60}
+    entry = _save_login(resolve_pasqal_cloud_target("fr"), tokens)
+    assert token_cache.read_entries() == {entry.key: entry}
