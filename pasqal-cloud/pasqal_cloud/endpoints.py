@@ -38,9 +38,9 @@ PREPROD_CORE_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/core-fast"
 PREPROD_ACCOUNT_API_URL: Final[str] = "https://apis.preprod.pasqal.cloud/account"
 
 # -- Dev --
-DEV_CORE_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/core-fast"
+DEV_CORE_API_URL: Final[str] = "https://apis-127-0-0-1.nip.io/core-fast"
 
-DEV_ACCOUNT_API_URL: Final[str] = "https://apis.dev.pasqal.cloud/account"
+DEV_ACCOUNT_API_URL: Final[str] = "https://apis-127-0-0-1.nip.io/account"
 
 # Region = Saudi-Arabia
 
