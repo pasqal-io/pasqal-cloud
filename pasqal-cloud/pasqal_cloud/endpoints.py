@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
 from dataclasses import dataclass
 from sys import version_info
-from typing import cast, get_args, Literal, Optional
+from typing import get_args, Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -97,7 +96,7 @@ SA_KEYCLOAK_TOKEN_ENDPOINT = (
     "https://auth.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 )
 
-PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud"
+PREPROD_SA_KEYCLOAK_BASE_URL = "https://auth.preprod.sa.pasqal.cloud/"
 PREPROD_SA_KEYCLOAK_TOKEN_ENDPOINT = "https://auth.preprod.sa.pasqal.cloud/realms/pasqal-cloud/protocol/openid-connect/token"
 
 KEYCLOAK_SDK_CLIENT_ID = "cloud-sdk"
@@ -227,71 +226,37 @@ AUTH_CONFIG = {
 
 # ---- Interactive login (pasqal-cloud CLI) ----
 
-Env = Literal["prod", "preprod", "dev"]
-
 REGIONS: tuple[Region, ...] = get_args(Region)
-ENVS: tuple[Env, ...] = get_args(Env)
 
 
 @dataclass(frozen=True)
 class DeploymentConf:
+    # Flat string fields: each one is a key of the user config, see
+    # `pasqal_cloud.settings`.
     issuer: str
     client_id: str
     audience: str
+    core_url: str
+    account_url: str
 
 
+# Prod defaults. Other environments are set per region in the user config,
+# see `pasqal_cloud.settings`.
 # TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
 # once they are created.
-DEPLOYMENTS: dict[tuple[Region, Env], DeploymentConf] = {
-    ("fr", "prod"): DeploymentConf(
-        f"https://{AUTH0_DOMAIN}/", PUBLIC_CLIENT_ID, AUDIENCE
+DEPLOYMENTS: dict[Region, DeploymentConf] = {
+    "fr": DeploymentConf(
+        f"https://{AUTH0_DOMAIN}/",
+        PUBLIC_CLIENT_ID,
+        AUDIENCE,
+        CORE_API_URL,
+        ACCOUNT_API_URL,
     ),
-    ("fr", "preprod"): DeploymentConf(
-        f"https://{PREPROD_AUTH0_DOMAIN}/", PREPROD_PUBLIC_CLIENT_ID, PREPROD_AUDIENCE
-    ),
-    ("fr", "dev"): DeploymentConf(
-        f"https://{DEV_AUTH0_DOMAIN}/", DEV_PUBLIC_CLIENT_ID, DEV_AUDIENCE
-    ),
-    ("sa", "prod"): DeploymentConf(
+    "sa": DeploymentConf(
         f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         KEYCLOAK_SDK_CLIENT_ID,
         AUDIENCE,
-    ),
-    ("sa", "preprod"): DeploymentConf(
-        f"{PREPROD_SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        KEYCLOAK_SDK_CLIENT_ID,
-        PREPROD_AUDIENCE,
-    ),
-    ("sa", "dev"): DeploymentConf(
-        "https://keycloak-127-0-0-1.nip.io/realms/users",
-        KEYCLOAK_SDK_CLIENT_ID,
-        DEV_AUDIENCE,
+        KSA_CORE_API_URL,
+        KSA_ACCOUNT_API_URL,
     ),
 }
-
-
-@dataclass(frozen=True)
-class PasqalCloudTarget:
-    region: Region
-    env: Env
-    deployment: DeploymentConf
-
-
-def _from_env(var: str, default: str, valid: tuple[str, ...]) -> str:
-    value = os.environ.get(var) or default
-    if value not in valid:
-        raise ValueError(
-            f"Invalid ${var}={value!r}, expected one of: {', '.join(valid)}"
-        )
-    return value
-
-
-def resolve_pasqal_cloud_target(region: Region | None = None) -> PasqalCloudTarget:
-    """Resolve region/env from the explicit argument, then env vars, then defaults.
-
-    Raises ValueError on unknown env var values, never falls back to prod.
-    """
-    # _from_env validated the values, so the casts are safe.
-    region = region or cast(Region, _from_env("PASQAL_CLOUD_REGION", "fr", REGIONS))
-    env = cast(Env, _from_env("PASQAL_CLOUD_ENV", "prod", ENVS))
-    return PasqalCloudTarget(region, env, DEPLOYMENTS[(region, env)])
