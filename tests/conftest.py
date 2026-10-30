@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 import requests_mock
 from pasqal_cloud import Batch, config, Job, oidc, Workload
-from pasqal_cloud.endpoints import AUTH_CONFIG, Endpoints
+from pasqal_cloud.endpoints import _AUTH_CONFIG, Endpoints
 from pasqal_cloud.http_client import HTTPClient
 from requests import HTTPError, Request
 
@@ -36,7 +36,7 @@ def _password_grant_config(monkeypatch):
     """The password login discovers the token endpoint: keep it off the network."""
     monkeypatch.setattr(
         "pasqal_cloud.http_client.password_grant_config",
-        lambda _profile: AUTH_CONFIG["fr-prod"],
+        lambda _profile: _AUTH_CONFIG["fr-prod"],
     )
 
 
