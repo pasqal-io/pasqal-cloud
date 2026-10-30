@@ -688,7 +688,6 @@ def test_endpoints_follow_region_and_profile():
 def test_password_login_follows_profile(
     password_provider, requests_mock, monkeypatch, region
 ):
-    authentication._discover.cache_clear()
     monkeypatch.setattr(
         "pasqal_cloud.http_client.password_grant_config",
         authentication.password_grant_config,

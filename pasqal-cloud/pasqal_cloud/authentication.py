@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import functools
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -11,8 +11,8 @@ from requests import PreparedRequest
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
-from pasqal_cloud import oidc
-from pasqal_cloud.config import PasqalCloudProfile
+from pasqal_cloud import oidc, token_cache
+from pasqal_cloud.config import DEFAULT_PROFILE_NAME, PasqalCloudProfile
 from pasqal_cloud.endpoints import (
     Auth0Conf,
     TokenProviderConf,
@@ -32,6 +32,11 @@ class HTTPBearerAuthenticator(AuthBase):
 
 class TokenProviderError(Exception):
     pass
+
+
+class LoginRequiredError(TokenProviderError):
+    """The cached login is missing, expired or revoked: run the command given
+    in the message."""
 
 
 class TokenProvider(ABC):
@@ -181,17 +186,23 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
         )
 
 
-@functools.lru_cache(maxsize=None)
-def _discover(issuer: str) -> dict[str, Any]:
-    """Discover once per process: failures are not cached, so they are retried."""
-    return oidc.discover(issuer)
+REFRESH_ATTEMPTS = 3
+
+
+def login_command(profile: PasqalCloudProfile) -> str:
+    """The command line logging in to `profile`: the CLI logs in to the active
+    profile only."""
+    command = "pasqal-cloud auth login"
+    if profile.name != DEFAULT_PROFILE_NAME:
+        command = f"pasqal-cloud profile activate {profile.name} && {command}"
+    return command
 
 
 def password_grant_config(profile: PasqalCloudProfile) -> TokenProviderConf:
     """The password login of `profile`, with the client of the interactive logins."""
     profile_config = profile.config
     try:
-        token_endpoint = _discover(profile_config.issuer)["token_endpoint"]
+        token_endpoint = oidc.discover(profile_config.issuer)["token_endpoint"]
     except oidc.OIDCError as e:
         raise TokenProviderError(e) from e
 
@@ -203,6 +214,77 @@ def password_grant_config(profile: PasqalCloudProfile) -> TokenProviderConf:
         realm=None,
         grant_type="password",
     )
+
+
+class CachedLoginTokenProvider(ExpiringTokenProvider):
+    """Token provider using the `pasqal-cloud auth login` entry of the token
+    cache, refreshing its access and refresh tokens when needed.
+
+    Refreshes are serialised across processes and hosts by the cache lock:
+    refresh tokens rotate, so two processes refreshing the same one would
+    invalidate each other.
+    """
+
+    def __init__(self, profile: PasqalCloudProfile):
+        self.profile = profile
+
+    def _login_required(self, reason: str) -> LoginRequiredError:
+        return LoginRequiredError(
+            f"{reason}, run: {login_command(self.profile)}"
+            " (add --device if no browser is available)"
+        )
+
+    def _query_token(self) -> dict[str, Any]:
+        key = self.profile.name
+
+        # Another process may have refreshed the tokens since this one read them.
+        with token_cache.lock():
+            entries = token_cache.read_entries()
+            entry = token_cache.entry_for(entries, self.profile)
+            if entry is None:
+                raise self._login_required(f"Not logged in to {key}")
+
+            if entry.expires_at - time.time() <= self.expiry_window.total_seconds():
+                entry = self._refresh(entry)
+                token_cache.write_entries({**entries, key: entry})
+
+        return {
+            "access_token": entry.access_token,
+            "expires_in": entry.expires_at - time.time(),
+        }
+
+    def _refresh(self, entry: token_cache.CacheEntry) -> token_cache.CacheEntry:
+        """Exchange the refresh token, retrying transient errors."""
+        last_error: oidc.OIDCError | None = None
+        for attempt in range(REFRESH_ATTEMPTS):
+            if attempt:
+                time.sleep(2 ** (attempt - 1))
+
+            try:
+                tokens = oidc.token_request(
+                    oidc.discover(entry.issuer),
+                    {
+                        "grant_type": "refresh_token",
+                        "client_id": entry.client_id,
+                        "refresh_token": entry.refresh_token,
+                    },
+                )
+                return entry.updated(tokens)
+
+            except oidc.OIDCError as e:
+                # The entry is kept so `pasqal-cloud auth status` can report it.
+                if e.error == "invalid_grant":
+                    raise self._login_required(
+                        f"The login to {self.profile.name} expired or was revoked"
+                    ) from e
+                if not e.transient:
+                    raise TokenProviderError(e) from e
+                last_error = e
+
+            except (KeyError, TypeError, ValueError) as e:
+                raise TokenProviderError(f"Invalid token response: {e!r}") from e
+
+        raise TokenProviderError(last_error) from last_error
 
 
 class Auth0TokenProvider(PasswordGrantTokenProvider):

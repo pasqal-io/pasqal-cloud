@@ -33,6 +33,7 @@ from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
+from pasqal_cloud.authentication import LoginRequiredError
 from pasqal_cloud.device.device_types import DeviceTypeName
 from pasqal_cloud.endpoints import Region
 from pasqal_cloud.job import CreateJob
@@ -42,6 +43,8 @@ MAX_CLOUD_ATTEMPTS = 5
 
 
 retry = tenacity.retry(
+    # Logging in again needs the user, retrying cannot help.
+    retry=tenacity.retry_if_not_exception_type(LoginRequiredError),
     wait=tenacity.wait_exponential(multiplier=1, max=60),
     stop=tenacity.stop_after_attempt(MAX_CLOUD_ATTEMPTS),
     reraise=True,
@@ -53,6 +56,9 @@ class PasqalCloudConnection(RemoteConnection):
 
     The cloud connection enables to run sequences on simulators or on real
     QPUs.
+
+    Without username/password, token_provider nor endpoints, the login made with
+    `pasqal-cloud auth login` is used, if any.
 
     Args:
         username: Your username in the PASQAL cloud platform.

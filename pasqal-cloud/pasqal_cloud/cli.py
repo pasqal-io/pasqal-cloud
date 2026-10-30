@@ -50,36 +50,22 @@ def _save_login(
     """Replace the cache entry for `profile`."""
     if "refresh_token" not in tokens:
         raise oidc.LoginError("The provider returned no refresh token (offline_access)")
-    now = int(time.time())
-    profile_config = profile.config
+
     try:
-        entry = token_cache.CacheEntry(
-            issuer=profile_config.issuer,
-            client_id=profile_config.client_id,
-            audience=profile_config.audience,
-            refresh_token=str(tokens["refresh_token"]),
-            access_token=str(tokens["access_token"]),
-            expires_at=now + int(tokens["expires_in"]),
-            scope=str(tokens.get("scope", "")),
-            refresh_expires_at=(
-                now + int(tokens["refresh_expires_in"])
-                if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
-                else None
-            ),
-            id_claims=(
-                oidc.id_claims(tokens["id_token"]) if "id_token" in tokens else {}
-            ),
-        )
+        entry = token_cache.CacheEntry.from_tokens(profile, tokens)
     except (KeyError, TypeError, ValueError) as e:
         raise oidc.LoginError(f"Invalid token response: {e!r}") from e
+
     with token_cache.lock():
         entries = token_cache.read_entries()
         previous = entries.get(profile.name)
         token_cache.write_entries({**entries, profile.name: entry})
+
     if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
         sys.stderr.write(
             f"Note: replaced the login of {_user(previous)} with {_user(entry)}\n"
         )
+
     return entry
 
 
