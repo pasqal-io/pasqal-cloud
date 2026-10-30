@@ -215,6 +215,7 @@ def test_entry_of_another_client_is_ignored():
     assert HTTPClient().authenticator is None
 
 
+@pytest.mark.filterwarnings("ignore:Argument `endpoints` is deprecated")
 def test_explicit_endpoints_ignore_the_cache():
     save()
     client = HTTPClient(endpoints=Endpoints(core="https://example.org/core"))
