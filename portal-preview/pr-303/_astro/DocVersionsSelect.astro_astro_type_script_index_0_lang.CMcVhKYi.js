@@ -1,0 +1,1 @@
+import{t as e}from"./client.CgHQLjoD.js";document.addEventListener(`change`,t=>{let n=t.target;n instanceof HTMLSelectElement&&n.matches(`[data-doc-versions-select]`)&&n.value&&e(n.value)});
