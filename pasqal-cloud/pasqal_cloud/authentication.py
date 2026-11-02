@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
@@ -10,7 +11,12 @@ from requests import PreparedRequest
 from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
-from pasqal_cloud.endpoints import Auth0Conf, TokenProviderConf
+from pasqal_cloud import oidc
+from pasqal_cloud.config import PasqalCloudProfile
+from pasqal_cloud.endpoints import (
+    Auth0Conf,
+    TokenProviderConf,
+)
 
 
 class HTTPBearerAuthenticator(AuthBase):
@@ -142,17 +148,18 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
         self.get_token()
 
     def _query_token(self) -> Any:
+        data = {
+            "client_id": self.config.public_client_id,
+            "grant_type": self.config.grant_type,
+            "audience": self.config.audience,
+            "username": self.username,
+            "password": self.password,
+        }
+        if self.config.realm is not None:
+            data["realm"] = self.config.realm
+
         response = requests.post(
-            self.config.token_endpoint,
-            data={
-                "client_id": self.config.public_client_id,
-                "grant_type": self.config.grant_type,
-                "realm": self.config.realm,
-                "audience": self.config.audience,
-                "username": self.username,
-                "password": self.password,
-            },
-            verify=self.verify,
+            self.config.token_endpoint, data=data, verify=self.verify
         )
         if response.status_code >= 400:
             error_description = self._get_error_message(response.json())
@@ -172,6 +179,30 @@ class PasswordGrantTokenProvider(ExpiringTokenProvider):
             if "error_description" in content
             else content.get("error", "")
         )
+
+
+@functools.lru_cache(maxsize=None)
+def _discover(issuer: str) -> dict[str, Any]:
+    """Discover once per process: failures are not cached, so they are retried."""
+    return oidc.discover(issuer)
+
+
+def password_grant_config(profile: PasqalCloudProfile) -> TokenProviderConf:
+    """The password login of `profile`, with the client of the interactive logins."""
+    profile_config = profile.config
+    try:
+        token_endpoint = _discover(profile_config.issuer)["token_endpoint"]
+    except oidc.OIDCError as e:
+        raise TokenProviderError(e) from e
+
+    return TokenProviderConf(
+        token_endpoint=token_endpoint,
+        public_client_id=profile_config.client_id,
+        audience=profile_config.audience,
+        # Keycloak and Auth0 both accept the standard password grant.
+        realm=None,
+        grant_type="password",
+    )
 
 
 class Auth0TokenProvider(PasswordGrantTokenProvider):

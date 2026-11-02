@@ -1,6 +1,7 @@
 import contextlib
 import gzip
 import json
+from dataclasses import replace
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -11,15 +12,17 @@ from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
+    authentication,
+    config,
     Endpoints,
     PASQAL_ENDPOINTS,
 )
-from pasqal_cloud.http_client import HTTPClient
-from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud._version import __version__ as sdk_version
-from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.endpoints import TokenProviderConf
+from pasqal_cloud.authentication import PasswordGrantTokenProvider, TokenProvider
+from pasqal_cloud.endpoints import KSA_CORE_API_URL, TokenProviderConf
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.ovh import OvhClient
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -171,6 +174,17 @@ class TestInvalidAuthConfig(TestSDKCommonAttributes):
                 auth0=auth0_config,
                 auth_config=auth_config,
             )
+
+
+def test_password_grant_sends_realm_only_when_set(requests_mock):
+    requests_mock.post("https://auth/token", json={"access_token": "token"})
+    config = TokenProviderConf("https://auth/token", "client", "aud", None, "password")
+
+    PasswordGrantTokenProvider("u", "p", config)
+    assert "realm" not in requests_mock.last_request.text
+
+    PasswordGrantTokenProvider("u", "p", replace(config, realm="pcs-users"))
+    assert "realm=pcs-users" in requests_mock.last_request.text
 
 
 @patch(
@@ -637,3 +651,65 @@ class TestHeaders:
             "not supported by the OVH client",
         ):
             client._get_url("add_jobs")
+
+
+def save_dev_profile(region):
+    """Save a `dev` profile for `region` and make it the one in use."""
+    profile_config = config.ProfileConfig(
+        issuer=f"https://auth.{region}.dev/",
+        client_id=f"{region}-dev-client",
+        audience=f"{region}-dev-audience",
+        core_url=f"https://apis.{region}.dev/core-fast",
+        account_url=f"https://apis.{region}.dev/account",
+    )
+    config.save_config(
+        config.Config(active_profile="dev", profiles={"dev": profile_config})
+    )
+    return profile_config
+
+
+def test_endpoints_follow_region_and_profile():
+    assert HTTPClient(region="sa").endpoints.core == KSA_CORE_API_URL
+
+    save_dev_profile("sa")
+    dev = Endpoints(
+        core="https://apis.sa.dev/core-fast", account="https://apis.sa.dev/account"
+    )
+    assert HTTPClient().endpoints == dev
+    with pytest.warns(UserWarning, match="region='fr' is ignored: the 'dev' profile"):
+        assert HTTPClient(region="fr").endpoints == dev
+
+    config.save_config(config.Config(active_profile="default-fr"))
+    assert HTTPClient().endpoints == PASQAL_ENDPOINTS["prod"]
+
+
+@pytest.mark.parametrize("region", ["fr", "sa"])
+@patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
+def test_password_login_follows_profile(
+    password_provider, requests_mock, monkeypatch, region
+):
+    authentication._discover.cache_clear()
+    monkeypatch.setattr(
+        "pasqal_cloud.http_client.password_grant_config",
+        authentication.password_grant_config,
+    )
+    profile_config = save_dev_profile(region)
+    issuer = profile_config.issuer.rstrip("/")
+    requests_mock.get(
+        f"{issuer}/.well-known/openid-configuration",
+        json={
+            "authorization_endpoint": f"{issuer}/authorize",
+            "token_endpoint": f"{issuer}/token",
+            "scopes_supported": ["offline_access"],
+        },
+    )
+
+    HTTPClient(username="u", password="p")
+
+    config = password_provider.call_args.args[2]
+    assert config.token_endpoint == f"{issuer}/token"
+    assert (config.public_client_id, config.audience) == (
+        profile_config.client_id,
+        profile_config.audience,
+    )
+    assert config.grant_type == "password"
