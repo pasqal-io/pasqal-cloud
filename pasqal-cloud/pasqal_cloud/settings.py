@@ -21,6 +21,7 @@ profile is one deployment (one environment in one region), with every key of
         "active_profile": "preprod-fr",
         "profiles": {
             "preprod-fr": {
+                "region": "fr",
                 "issuer": "...",
                 "client_id": "...",
                 "audience": "...",
@@ -44,12 +45,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, field_validator, ValidationError
 
-from pasqal_cloud.endpoints import DeploymentConf, DEPLOYMENTS, REGIONS
+from pasqal_cloud.endpoints import DeploymentConf, DEPLOYMENTS, Region, REGIONS
 
 CONFIG_PATH = Path.home() / ".pasqal" / "config.json"
 
 BUILTIN_PROFILES = {f"default-{region}": DEPLOYMENTS[region] for region in REGIONS}
-DEFAULT_PROFILE = "default-fr"
+DEFAULT_REGION: Region = "fr"
+DEFAULT_PROFILE = f"default-{DEFAULT_REGION}"
 PROFILE_KEYS = tuple(DeploymentConf.model_fields)
 
 
@@ -75,6 +77,10 @@ class Config(BaseModel):
 class PasqalCloudTarget:
     profile: str
     deployment: DeploymentConf
+
+    @property
+    def region(self) -> Region:
+        return self.deployment.region
 
 
 def load_config() -> Config:
