@@ -112,6 +112,9 @@ class PasqalCloudClient:
         email/password combination or a TokenProvider instance.
         You may omit the password, you will then be prompted to enter one.
 
+        The target deployment is the active `pasqal-cloud` config profile.
+        Without one, `region` selects the prod deployment of that region
+        (default: fr).
 
         The SDK can be initialized with several authentication options:
             - Option 1: No arguments -> Allows unauthenticated access to public
@@ -133,7 +136,9 @@ class PasqalCloudClient:
             project_id: ID of the owner project of the batch.
             client_class: client class used to determine authentication \
             and endpoints targeted by the SDK
-            region: specifies the region to target
+            region: Region to target. Without a config profile, selects the
+                region's prod deployment (default: fr); with one, ignored with
+                a warning.
             auth_config: configuration object for the authentication provider
         """
         _check_sdk_version()

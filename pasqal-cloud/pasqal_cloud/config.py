@@ -271,10 +271,31 @@ def delete_profile(config: Config, name: str) -> None:
 
 
 def resolve_profile(
-    profile: str | None = None, config: Config | None = None
+    profile: str | None = None,
+    config: Config | None = None,
+    region: Region | None = None,
 ) -> PasqalCloudProfile:
     """Resolve the profile (see `resolve_profile_name`) to its config.
-    Raises ValueError on an unknown profile or an invalid or unreadable config."""
+
+    Without a chosen profile (argument or active one), `region` selects the
+    `default-<region>` one. With a chosen profile, the profile wins and
+    `region` is ignored with a warning.
+
+    Raises ValueError on an unknown profile or region or an invalid or
+    unreadable config."""
+    if region is not None and region not in REGIONS:
+        raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+
     config = load_config() if config is None else config
     name = resolve_profile_name(config, profile)
+    chosen = profile or config.active_profile
+    if region is not None and not chosen:
+        name = f"default-{region}"
+    elif region is not None:
+        warnings.warn(
+            f"region={region!r} is ignored: the {name!r} profile selects the "
+            "endpoints",
+            stacklevel=2,
+        )
+
     return PasqalCloudProfile(name, get_profile_config(config, name))

@@ -11,12 +11,6 @@ from pasqal_cloud.config import DEFAULT_PROFILES
 from tests.utils import posix_only
 
 
-@pytest.fixture(autouse=True)
-def _home(monkeypatch, tmp_path):
-    monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
-
-
 def make_entry(region="fr", email="alice@example.com"):
     profile_config = DEFAULT_PROFILES[f"default-{region}"]
     return token_cache.CacheEntry(

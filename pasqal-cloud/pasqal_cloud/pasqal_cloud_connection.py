@@ -65,6 +65,9 @@ class PasqalCloudConnection(RemoteConnection):
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
+        region: The platform region. Without a `pasqal-cloud` config profile,
+            selects the region's prod deployment (default: fr); with one, ignored
+            with a warning.
         kwargs: Additional arguments to provide to the PasqalCloudClient()
     """
 
@@ -73,7 +76,7 @@ class PasqalCloudConnection(RemoteConnection):
         username: str = "",
         password: str = "",
         project_id: str = "",
-        region: Region = "fr",
+        region: Region | None = None,
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""

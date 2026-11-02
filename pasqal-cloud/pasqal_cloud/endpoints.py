@@ -116,7 +116,8 @@ class TokenProviderConf:
     token_endpoint: str
     public_client_id: str
     audience: str
-    realm: str
+    # Only sent when set: the standard password grant has no realm.
+    realm: Optional[str]
     grant_type: str
 
     @classmethod
