@@ -16,14 +16,14 @@
 
 from __future__ import annotations
 
-import json
 import os
 import stat
-import tempfile
-from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
+from pydantic import BaseModel, TypeAdapter
+
+from pasqal_cloud.config import write_private_file
 from pasqal_cloud.endpoints import ProfileConfig
 
 
@@ -31,8 +31,8 @@ class TokenCacheError(Exception):
     pass
 
 
-@dataclass
-class CacheEntry:
+class CacheEntry(BaseModel):
+    # Unknown keys are dropped so files written by newer versions still load.
     profile: str
     # Issuer and client are kept so an entry stays usable (status, logout) after
     # they change in DEFAULT_PROFILES or the profile.
@@ -45,7 +45,7 @@ class CacheEntry:
     # Only Keycloak returns the refresh token lifetime.
     refresh_expires_at: int | None = None
     # Decoded from the id_token without signature check: display only.
-    id_claims: dict[str, Any] = field(default_factory=dict)
+    id_claims: dict[str, Any] = {}
 
     def matches(self, profile_config: ProfileConfig) -> bool:
         """False once the profile changed (new client, issuer...): not logged in."""
@@ -55,12 +55,7 @@ class CacheEntry:
         )
 
 
-# Expected JSON types of CacheEntry fields, str when not listed.
-_TYPES: dict[str, Any] = {
-    "expires_at": int,
-    "refresh_expires_at": (int, type(None)),
-    "id_claims": dict,
-}
+_ENTRIES = TypeAdapter(dict[str, CacheEntry])
 
 
 def cache_dir() -> Path:
@@ -69,18 +64,6 @@ def cache_dir() -> Path:
 
 def cache_path() -> Path:
     return cache_dir() / "cloud-credentials.json"
-
-
-def _parse_entry(key: str, data: Any) -> CacheEntry:
-    # Unknown keys are dropped so files written by newer versions still load.
-    names = {fld.name for fld in fields(CacheEntry)}
-    entry = CacheEntry(**{k: v for k, v in data.items() if k in names})
-    for name in names:
-        if not isinstance(getattr(entry, name), _TYPES.get(name, str)):
-            raise TypeError(f"{key}: {name} has an invalid type")
-    if entry.profile != key:
-        raise ValueError(f"{key}: entry is for {entry.profile}")
-    return entry
 
 
 def read_entries() -> dict[str, CacheEntry]:
@@ -109,10 +92,14 @@ def read_entries() -> dict[str, CacheEntry]:
                     f"chmod 600 {path}"
                 )
         try:
-            data = json.load(f)
-            return {key: _parse_entry(key, value) for key, value in data.items()}
-        except (ValueError, TypeError, AttributeError) as e:
+            entries = _ENTRIES.validate_json(f.read())
+            for key, entry in entries.items():
+                if entry.profile != key:
+                    raise ValueError(f"{key}: entry is for {entry.profile}")
+        except ValueError as e:  # pydantic's ValidationError is a ValueError
             raise TokenCacheError(f"{path} is not a valid cache file: {e}") from e
+
+    return entries
 
 
 def write_entries(entries: dict[str, CacheEntry]) -> None:
@@ -124,15 +111,5 @@ def write_entries(entries: dict[str, CacheEntry]) -> None:
     if not entries:
         path.unlink(missing_ok=True)
         return
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    # mkstemp creates the file with mode 0600.
-    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".", suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as f:
-            json.dump({key: asdict(entry) for key, entry in entries.items()}, f)
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp, path)
-    except BaseException:
-        os.unlink(tmp)
-        raise
+
+    write_private_file(path, _ENTRIES.dump_json(entries).decode())

@@ -102,14 +102,18 @@ def test_ignores_unknown_keys():
 
 @pytest.mark.parametrize(
     ("key", "value"),
-    [("expires_at", "soon"), ("id_claims", []), ("access_token", None)],
+    [
+        ("expires_at", "soon"),
+        ("id_claims", []),
+        ("access_token", None),
+    ],
 )
 def test_rejects_wrong_types(key, value):
     path = write()
     data = json.loads(path.read_text())
     data["default-fr"][key] = value
     path.write_text(json.dumps(data))
-    with pytest.raises(token_cache.TokenCacheError, match=f"{key} has an invalid"):
+    with pytest.raises(token_cache.TokenCacheError, match=f"default-fr.{key}"):
         token_cache.read_entries()
 
 
