@@ -55,7 +55,7 @@ class CacheEntry(BaseModel):
         )
 
 
-_ENTRIES = TypeAdapter(dict[str, CacheEntry])
+_ENTRIES: TypeAdapter[dict[str, CacheEntry]] = TypeAdapter(dict[str, CacheEntry])
 
 
 def cache_dir() -> Path:
