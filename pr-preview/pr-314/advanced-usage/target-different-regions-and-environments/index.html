@@ -726,11 +726,11 @@
 <h2 id="access-a-different-region">Access a different region</h2>
 <p>By default, the European (<code>fr</code>) platform is targeted. Available regions are <code>"fr"</code>
 (default) and <code>"sa"</code> (Saudi-Arabia).</p>
-<p>Each config profile targets one region. The built-in <code>default-fr</code> and <code>default-sa</code>
+<p>Each config profile targets one deployment. The built-in <code>default-fr</code> and <code>default-sa</code>
 profiles target production. Select one for both the SDK and the <code>pasqal-cloud</code>
 command: activate it, or select it per process with the <code>PASQAL_CLOUD_PROFILE</code>
 environment variable, or per command with the <code>--profile</code> flag:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pasqal-cloud<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>default-sa
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pasqal-cloud<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>default-sa
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
@@ -743,33 +743,32 @@ profile of that region:</p>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">"sa"</span><span class="p">)</span>
 </code></pre></div>
-<p>With a selected profile, <code>region</code> must match the profile's region, otherwise a
-<code>ValueError</code> is raised.</p>
+<p>With a selected profile, the profile wins: <code>region</code> is ignored with a warning.</p>
 <h2 id="target-a-non-production-environment">Target a non-production environment</h2>
 <p>This is intended for package developers or users who have been given access to non-prod
 environments of the Pasqal cloud platform.</p>
 <p>Environments are described by config profiles, stored in <code>~/.pasqal/config.json</code>.
-Create a profile for another environment, it prompts for its <code>region</code>, <code>issuer</code>,
+Create a profile for another environment, it prompts for its <code>issuer</code>,
 <code>client_id</code>, <code>audience</code>, <code>core_url</code> and <code>account_url</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pasqal-cloud<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span>preprod-sa
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pasqal-cloud<span class="w"> </span>profile<span class="w"> </span>create<span class="w"> </span>preprod-sa
 </code></pre></div>
 <p>Then select it like the built-in profiles, for example:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pasqal-cloud<span class="w"> </span>config<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>preprod-sa
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pasqal-cloud<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>preprod-sa
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
-<p><code>pasqal-cloud config</code> shows the values of the active profile,
-<code>pasqal-cloud config profile edit &lt;name&gt;</code> changes them and
-<code>pasqal-cloud config profile list</code> lists the profiles.</p>
+<p><code>pasqal-cloud profile show</code> shows the values of the active profile,
+<code>pasqal-cloud profile edit &lt;name&gt;</code> changes them and
+<code>pasqal-cloud profile list</code> lists the profiles.</p>
 <p>Each profile has its own login. <code>pasqal-cloud auth status</code> lists the cached logins and
 marks the one of the selected profile.</p>
 <div class="admonition note">
 <p class="admonition-title">Deprecated arguments</p>
 <p>The <code>endpoints</code>, <code>auth_config</code> and <code>auth0</code> arguments are deprecated: use <code>region</code>
-and <code>pasqal-cloud config</code> profiles instead.</p>
+and <code>pasqal-cloud profile</code> instead.</p>
 </div>
 
 
