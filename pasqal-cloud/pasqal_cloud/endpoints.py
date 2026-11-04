@@ -269,9 +269,6 @@ class DeploymentConf(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="allow")
 
-    # Also selects the identity provider flavour of password logins:
-    # Keycloak in sa, Auth0 in fr.
-    region: Region
     issuer: NonEmptyStr
     client_id: NonEmptyStr
     audience: NonEmptyStr
@@ -290,7 +287,6 @@ class DeploymentConf(BaseModel):
 # once they are created.
 DEPLOYMENTS: dict[Region, DeploymentConf] = {
     "fr": DeploymentConf(
-        region="fr",
         issuer=f"https://{AUTH0_DOMAIN}/",
         client_id=PUBLIC_CLIENT_ID,
         audience=AUDIENCE,
@@ -298,7 +294,6 @@ DEPLOYMENTS: dict[Region, DeploymentConf] = {
         account_url=ACCOUNT_API_URL,
     ),
     "sa": DeploymentConf(
-        region="sa",
         issuer=f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         client_id=KEYCLOAK_SDK_CLIENT_ID,
         audience=AUDIENCE,

@@ -18,14 +18,13 @@ from __future__ import annotations
 import argparse
 import sys
 
-from pasqal_cloud.endpoints import check_url, DeploymentConf, REGIONS, URL_KEYS
+from pasqal_cloud.endpoints import check_url, DeploymentConf, URL_KEYS
 from pasqal_cloud.settings import (
     activate_profile,
     check_editable_profile,
     check_new_profile_name,
     Config,
     CONFIG_PATH,
-    DEFAULT_REGION,
     delete_profile,
     load_config,
     PROFILE_KEYS,
@@ -80,10 +79,6 @@ def _prompt_value(key: str, current: str | None) -> str:
             sys.stderr.write(f"{key} is required\n")
             continue
 
-        if key == "region" and value not in REGIONS:
-            sys.stderr.write(f"region must be one of: {', '.join(REGIONS)}\n")
-            continue
-
         try:
             return check_url(key, value) if key in URL_KEYS else value
         except ValueError as e:
@@ -91,13 +86,14 @@ def _prompt_value(key: str, current: str | None) -> str:
 
 
 def _prompt_deployment(current: DeploymentConf | None) -> DeploymentConf:
-    # On creation only the region has a default: prod defaults for the other
-    # keys would let Enter through the prompts silently send the profile's
-    # logins to prod.
-    defaults = current.model_dump() if current else {"region": DEFAULT_REGION}
-    values = {key: _prompt_value(key, defaults.get(key)) for key in PROFILE_KEYS}
+    # No prod defaults on creation: pressing Enter through the prompts would
+    # silently send the profile's logins to prod.
+    values = {
+        key: _prompt_value(key, getattr(current, key) if current else None)
+        for key in PROFILE_KEYS
+    }
     extra = current.model_extra if current else None
-    return DeploymentConf.model_validate({**(extra or {}), **values})
+    return DeploymentConf(**(extra or {}), **values)
 
 
 def profile_create(args: argparse.Namespace, config: Config) -> int:
