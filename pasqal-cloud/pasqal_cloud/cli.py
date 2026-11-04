@@ -21,10 +21,12 @@ import sys
 from pasqal_cloud.endpoints import check_url, DeploymentConf, URL_KEYS
 from pasqal_cloud.settings import (
     activate_profile,
+    BUILTIN_PROFILES,
     check_editable_profile,
     check_new_profile_name,
     Config,
     CONFIG_PATH,
+    DEFAULT_PROFILE,
     delete_profile,
     load_config,
     PROFILE_KEYS,
@@ -70,9 +72,11 @@ def profile_list(_args: argparse.Namespace, config: Config) -> int:
     return 0
 
 
-def _prompt_value(key: str, current: str | None) -> str:
+def _prompt_value(key: str, current: str | None, prod: str) -> str:
     """Ask for `key` until the answer is valid, Enter keeping `current`."""
-    label = f"{key} [{current}]: " if current else f"{key}: "
+    label = (
+        f"{key} [{current}]: " if current else f"{key} ({DEFAULT_PROFILE}: {prod}): "
+    )
     while True:
         value = input(label).strip() or current
         if not value:
@@ -86,10 +90,14 @@ def _prompt_value(key: str, current: str | None) -> str:
 
 
 def _prompt_deployment(current: DeploymentConf | None) -> DeploymentConf:
-    # No prod defaults on creation: pressing Enter through the prompts would
-    # silently send the profile's logins to prod.
+    # On creation, prod values are shown as examples but not used as defaults:
+    # pressing Enter through the prompts would silently send the profile's
+    # logins to prod.
+    prod = BUILTIN_PROFILES[DEFAULT_PROFILE]
     values = {
-        key: _prompt_value(key, getattr(current, key) if current else None)
+        key: _prompt_value(
+            key, getattr(current, key) if current else None, getattr(prod, key)
+        )
         for key in PROFILE_KEYS
     }
     extra = current.model_extra if current else None
