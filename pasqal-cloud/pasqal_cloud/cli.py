@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""`pasqal-cloud` command line interface: auth login/status/logout, config."""
+"""`pasqal-cloud` command line interface: auth login/status/logout, profile."""
 
 from __future__ import annotations
 
@@ -54,8 +54,8 @@ def logout(args: argparse.Namespace, config: Config) -> int:
     return 1
 
 
-def config_show(args: argparse.Namespace, config: Config) -> int:
-    target = resolve_pasqal_cloud_target(args.profile, config)
+def profile_show(args: argparse.Namespace, config: Config) -> int:
+    target = resolve_pasqal_cloud_target(args.name, config)
     lines = [f"# {CONFIG_PATH}", f"profile = {target.profile}"]
     lines += [f"{key} = {getattr(target.deployment, key)}" for key in PROFILE_KEYS]
 
@@ -103,7 +103,7 @@ def profile_create(args: argparse.Namespace, config: Config) -> int:
 
     sys.stderr.write(
         f"Created profile {args.name!r}. "
-        f"Activate it with: pasqal-cloud config profile activate {args.name}\n"
+        f"Activate it with: pasqal-cloud profile activate {args.name}\n"
     )
     return 0
 
@@ -161,25 +161,19 @@ def build_parser() -> argparse.ArgumentParser:
     for sub in auth_commands.choices.values():
         _add_profile_option(sub)
 
-    config = commands.add_parser(
-        "config", help=f"Show or change the config ({CONFIG_PATH})"
+    profile = commands.add_parser(
+        "profile", help=f"Manage config profiles ({CONFIG_PATH})"
     )
-    # `--profile` lives on `show` only: on `config` itself, the subcommand's
-    # own `--profile` default would silently override it.
-    config.set_defaults(func=config_show, profile=None)
-    config_commands = config.add_subparsers(dest="config_command")
-
-    show_parser = config_commands.add_parser(
-        "show", help="Show a profile's values (default: active profile)"
-    )
-    _add_profile_option(show_parser)
-    show_parser.set_defaults(func=config_show)
-
-    profile = config_commands.add_parser("profile", help="Manage config profiles")
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_commands.add_parser(
         "list", help="List profiles, * marks the active one"
     ).set_defaults(func=profile_list)
+
+    show_parser = profile_commands.add_parser(
+        "show", help="Show a profile's values (default: active profile)"
+    )
+    show_parser.add_argument("name", nargs="?")
+    show_parser.set_defaults(func=profile_show)
 
     for name, func, help_text in [
         ("create", profile_create, "Create a profile, prompting for its values"),

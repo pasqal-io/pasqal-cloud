@@ -157,7 +157,7 @@ def check_editable_profile(config: Config, name: str) -> DeploymentConf:
         raise ValueError(
             f"The built-in {name!r} profile holds the prod presets and can't be "
             "changed. For other values, create a profile: "
-            "pasqal-cloud config profile create <name>"
+            "pasqal-cloud profile create <name>"
         )
 
     return deployment

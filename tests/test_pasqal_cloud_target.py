@@ -95,8 +95,8 @@ def test_unknown_keys_survive_load_and_save(monkeypatch, config_path):
     write_config(config_path, **newer)
     answer_prompts(monkeypatch, "", "new-id", "", "", "")
 
-    assert main(["config", "profile", "activate", "dev"]) == 0
-    assert main(["config", "profile", "edit", "dev"]) == 0
+    assert main(["profile", "activate", "dev"]) == 0
+    assert main(["profile", "edit", "dev"]) == 0
 
     saved = json.loads(config_path.read_text())
     assert saved["telemetry"] is False
@@ -131,13 +131,13 @@ def test_http_url_warns_except_on_loopback():
 
 
 def test_cli_show(capsys):
-    assert main(["config"]) == 0
+    assert main(["profile", "show"]) == 0
 
     out = capsys.readouterr().out
     assert "profile = default-fr" in out
     assert f"client_id = {DEPLOYMENTS['fr'].client_id}" in out
 
-    assert main(["config", "show", "--profile", "default-sa"]) == 0
+    assert main(["profile", "show", "default-sa"]) == 0
     assert f"issuer = {DEPLOYMENTS['sa'].issuer}" in capsys.readouterr().out
 
 
@@ -155,7 +155,7 @@ def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
         "https://dev/account",
     )
 
-    assert main(["config", "profile", "create", "dev"]) == 0
+    assert main(["profile", "create", "dev"]) == 0
 
     err = capsys.readouterr().err
     assert "Invalid issuer" in err
@@ -179,7 +179,7 @@ def test_cli_profile_edit_keeps_values_on_enter(monkeypatch, config_path):
     write_config(config_path, profiles={"dev": deployment("dev")})
     prompts = answer_prompts(monkeypatch, "", "new-id", "", "", "")
 
-    assert main(["config", "profile", "edit", "dev"]) == 0
+    assert main(["profile", "edit", "dev"]) == 0
 
     assert prompts[0] == "issuer [https://dev/]: "
     assert resolve_pasqal_cloud_target("dev").deployment == DeploymentConf(
@@ -190,7 +190,7 @@ def test_cli_profile_edit_keeps_values_on_enter(monkeypatch, config_path):
 def test_cli_profile_create_checks_name_before_prompting(monkeypatch):
     prompts = answer_prompts(monkeypatch)
 
-    assert main(["config", "profile", "create", "default-fr"]) == 1
+    assert main(["profile", "create", "default-fr"]) == 1
     assert prompts == []
 
 
@@ -198,20 +198,20 @@ def test_cli_profile_create_aborts_without_saving(monkeypatch, config_path):
     monkeypatch.setattr(
         "builtins.input", lambda _prompt: (_ for _ in ()).throw(EOFError)
     )
-    assert main(["config", "profile", "create", "dev"]) == 1
+    assert main(["profile", "create", "dev"]) == 1
     assert not config_path.exists()
 
 
 def test_cli_profile_switch(capsys, config_path):
     write_config(config_path, profiles={"dev": deployment("dev")})
 
-    assert main(["config", "profile", "activate", "dev"]) == 0
+    assert main(["profile", "activate", "dev"]) == 0
     assert resolve_pasqal_cloud_target().deployment.client_id == "dev"
 
-    assert main(["config", "profile", "list"]) == 0
+    assert main(["profile", "list"]) == 0
     assert capsys.readouterr().out == "  default-fr\n  default-sa\n* dev\n"
 
-    assert main(["config", "profile", "delete", "dev"]) == 0
+    assert main(["profile", "delete", "dev"]) == 0
     assert resolve_pasqal_cloud_target().profile == "default-fr"
     assert json.loads(config_path.read_text()) == {"profiles": {}}
 
@@ -219,11 +219,11 @@ def test_cli_profile_switch(capsys, config_path):
 @pytest.mark.parametrize(
     ("argv", "error"),
     [
-        (["config", "profile", "create", "default-fr"], "already exists"),
-        (["config", "profile", "create", " "], "can't be empty"),
-        (["config", "profile", "activate", "nope"], "Unknown profile 'nope'"),
-        (["config", "profile", "edit", "default-sa"], "can't be changed"),
-        (["config", "profile", "delete", "default-fr"], "can't be changed"),
+        (["profile", "create", "default-fr"], "already exists"),
+        (["profile", "create", " "], "can't be empty"),
+        (["profile", "activate", "nope"], "Unknown profile 'nope'"),
+        (["profile", "edit", "default-sa"], "can't be changed"),
+        (["profile", "delete", "default-fr"], "can't be changed"),
         (["auth", "login", "--profile", "nope"], "Unknown profile"),
     ],
 )
