@@ -86,7 +86,15 @@ def load_config() -> Config:
     try:
         return Config.model_validate_json(text)
     except ValidationError as e:
-        raise ValueError(f"Invalid config {CONFIG_PATH}: {e}") from e
+        problems = [
+            f"  {'.'.join(map(str, err['loc'])) or 'file'}: {err['msg']}"
+            for err in e.errors(include_url=False)
+        ]
+        raise ValueError(
+            f"Invalid config {CONFIG_PATH}:\n"
+            + "\n".join(problems)
+            + "\nFix these entries in the file and retry."
+        ) from e
 
 
 def save_config(config: Config) -> None:

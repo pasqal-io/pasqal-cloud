@@ -74,7 +74,10 @@ def test_profile_resolution_order(monkeypatch):
 @pytest.mark.parametrize(
     ("config", "error"),
     [
-        ({"profiles": {"dev": {"issuer": "https://dev/"}}}, "client_id"),
+        (
+            {"profiles": {"dev": {"issuer": "https://dev/"}}},
+            "dev.client_id: Field required",
+        ),
         ({"profiles": {"dev": {**deployment("dev"), "issuer": "x"}}}, "https://"),
         ({"profiles": {"dev": {**deployment("dev"), "audience": " "}}}, "audience"),
         ({"profiles": {"default-sa": deployment("x")}}, "can't be redefined"),
@@ -112,7 +115,7 @@ def test_unknown_active_profile_raises():
 def test_invalid_json_raises(config_path):
     config_path.parent.mkdir()
     config_path.write_text("{")
-    with pytest.raises(ValueError, match="Invalid config"):
+    with pytest.raises(ValueError, match="Invalid JSON(.|\n)*Fix these entries"):
         settings.load_config()
 
 
