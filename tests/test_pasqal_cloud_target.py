@@ -15,9 +15,8 @@ def config_path(monkeypatch, tmp_path):
     return path
 
 
-def deployment(name, region="fr"):
+def deployment(name):
     return {
-        "region": region,
         "issuer": f"https://{name}/",
         "client_id": name,
         "audience": name,
@@ -49,7 +48,6 @@ def test_defaults_without_config_file():
 @pytest.mark.parametrize("region", REGIONS)
 def test_builtin_profile_per_region(region):
     target = resolve_pasqal_cloud_target(f"default-{region}")
-    assert target.region == region
     assert target.deployment == DEPLOYMENTS[region]
 
 
@@ -77,7 +75,6 @@ def test_profile_resolution_order(monkeypatch):
     ("config", "error"),
     [
         ({"profiles": {"dev": {"issuer": "https://dev/"}}}, "client_id"),
-        ({"profiles": {"dev": {**deployment("dev"), "region": "us"}}}, "region"),
         ({"profiles": {"dev": {**deployment("dev"), "issuer": "x"}}}, "https://"),
         ({"profiles": {"dev": {**deployment("dev"), "audience": " "}}}, "audience"),
         ({"profiles": {"default-sa": deployment("x")}}, "can't be redefined"),
@@ -96,7 +93,7 @@ def test_unknown_keys_survive_load_and_save(monkeypatch, config_path):
         "profiles": {"dev": {**deployment("dev"), "scope": "openid"}},
     }
     write_config(config_path, **newer)
-    answer_prompts(monkeypatch, "", "", "new-id", "", "", "")
+    answer_prompts(monkeypatch, "", "new-id", "", "", "")
 
     assert main(["config", "profile", "activate", "dev"]) == 0
     assert main(["config", "profile", "edit", "dev"]) == 0
@@ -145,12 +142,10 @@ def test_cli_show(capsys):
 
 
 def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
-    # region invalid then sa, issuer invalid then valid, client_id empty
-    # (required, asked again), then audience, core_url and account_url.
-    prompts = answer_prompts(
+    # issuer invalid then valid, client_id empty (required, asked again), then
+    # audience, core_url and account_url.
+    answer_prompts(
         monkeypatch,
-        "us",
-        "sa",
         "not a url",
         "https://dev/",
         "",
@@ -162,15 +157,12 @@ def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
 
     assert main(["config", "profile", "create", "dev"]) == 0
 
-    assert prompts[0] == "region [fr]: "
     err = capsys.readouterr().err
-    assert "region must be one of: fr, sa" in err
     assert "Invalid issuer" in err
     assert "client_id is required" in err
     assert json.loads(config_path.read_text()) == {
         "profiles": {
             "dev": {
-                "region": "sa",
                 "issuer": "https://dev/",
                 "client_id": "cloud-sdk",
                 "audience": "dev-aud",
@@ -185,11 +177,11 @@ def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
 
 def test_cli_profile_edit_keeps_values_on_enter(monkeypatch, config_path):
     write_config(config_path, profiles={"dev": deployment("dev")})
-    prompts = answer_prompts(monkeypatch, "", "", "new-id", "", "", "")
+    prompts = answer_prompts(monkeypatch, "", "new-id", "", "", "")
 
     assert main(["config", "profile", "edit", "dev"]) == 0
 
-    assert prompts[:2] == ["region [fr]: ", "issuer [https://dev/]: "]
+    assert prompts[0] == "issuer [https://dev/]: "
     assert resolve_pasqal_cloud_target("dev").deployment == DeploymentConf(
         **{**deployment("dev"), "client_id": "new-id"}
     )
