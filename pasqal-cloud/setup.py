@@ -72,6 +72,9 @@ setup(
     ],
     extras_require={
         "dev": {
+            # security: older certifi trusts the compromised eMudhra/emSign CAs
+            "certifi>=2026.10.19",
+            "pip>=26.2.2",
             "auth0-python >= 3.23.1, <4.0.0",
             "ruff==0.6.9",
             "mypy==1.10.0",
