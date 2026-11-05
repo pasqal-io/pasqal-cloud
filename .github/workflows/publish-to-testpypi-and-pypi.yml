@@ -20,6 +20,14 @@ jobs:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
     steps:
+      - name: Upgrade ca-certificates
+        # Runs first so that every TLS client in the job (git in checkout included)
+        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
+        # apt doesn't rely on the TLS trust store: packages are checked against
+        # checksums in GPG-signed repository indexes.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --only-upgrade ca-certificates
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -39,12 +47,6 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Upgrade ca-certificates
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
       - name: Upgrade pip and certifi
         run: |
           # Pinned pip >= 26.2.2 for the eMudhra/emSign CA incident, see https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576
@@ -63,14 +65,14 @@ jobs:
         run: ./.github/scripts/package.sh
 
       - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           repository-url: https://test.pypi.org/legacy/
           skip-existing: true # Allows repeating the action
           attestations: false # Otherwise an attestation is added to dist/
 
       - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
 
   create-github-release:
     name: Create GitHub Release
@@ -79,6 +81,14 @@ jobs:
     permissions:
       contents: write # required to create the GitHub release
     steps:
+      - name: Upgrade ca-certificates
+        # Runs first so that every TLS client in the job (git in checkout included)
+        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
+        # apt doesn't rely on the TLS trust store: packages are checked against
+        # checksums in GPG-signed repository indexes.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --only-upgrade ca-certificates
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Extract version from VERSION.txt
