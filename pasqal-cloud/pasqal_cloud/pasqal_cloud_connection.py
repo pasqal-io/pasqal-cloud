@@ -131,7 +131,7 @@ class PasqalCloudConnection(RemoteConnection):
         return self.get_results(batch_id=batch.id, job_ids=new_job_ids)
 
     @retry
-    def fetch_available_devices(self) -> dict[str, Device]:
+    def fetch_available_devices(self) -> dict[str, Device]:  # type: ignore[override, unused-ignore]
         """Fetches the devices available through this connection."""
         abstract_devices = self.cloud_client.get_device_specs_dict()
         return {
@@ -225,13 +225,13 @@ class PasqalCloudConnection(RemoteConnection):
         return results
 
     @retry
-    def _get_batch_status(self, batch_id: str) -> BatchStatus:
+    def _get_batch_status(self, batch_id: str) -> BatchStatus:  # type: ignore[override, unused-ignore]
         """Gets the status of a batch from its ID."""
         batch_status = self.cloud_client.get_batch_status(id=batch_id)
         return BatchStatus[batch_status.value]
 
     @retry
-    def _get_job_ids(self, batch_id: str) -> list[str]:
+    def _get_job_ids(self, batch_id: str) -> list[str]:  # type: ignore[override, unused-ignore]
         """Gets all the job IDs within a batch."""
         batch = self.cloud_client.get_batch(id=batch_id)
         return [job.id for job in batch.ordered_jobs]

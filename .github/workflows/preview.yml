@@ -72,7 +72,7 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.event.action == 'closed' || needs.build.result == 'success')
+      github.event.action == 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: write # push the preview to the gh-pages branch
@@ -142,6 +142,7 @@ jobs:
             --user 0:0 \
             --volume "$PWD/portal-dist:/out" \
             --env BUILD_CONFIG='{"pasqalCloud":"https://pasqal-io.github.io/pasqal-cloud/pr-preview/pr-${{ github.event.pull_request.number }}/"}' \
+            --env CONTENT_SOURCES=pasqalCloud \
             --env ASTRO_BASE="/pasqal-cloud/${PORTAL_PREVIEW_PATH}/" \
             --entrypoint sh \
             "$DOC_PORTAL_IMAGE" \
