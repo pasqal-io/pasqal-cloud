@@ -28,19 +28,29 @@ jobs:
   unit_tests:
     # Draft pull requests are not gated.
     if: github.event_name == 'push' || github.event.pull_request.draft == false
-    name: Unit testing
-    runs-on: ubuntu-latest
+    name: Unit testing (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
     strategy:
       # Report every failing interpreter in one run instead of the first only.
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
     steps:
       # Before checkout so git trusts the fixed store, see https://emudhra.we-have-a-problem.com/
       # (apt verifies packages with GPG-signed indexes, not TLS).
       - name: Upgrade ca-certificates
+        if: ${{ runner.os == 'Linux' }}
         run: sudo apt-get update && sudo apt-get install -y --only-upgrade ca-certificates
+      - name: Remove compromised roots from /etc/ssl/cert.pem
+        if: ${{ runner.os == 'macOS' }}
+        shell: bash
+        run: |
+          sudo cp -p /etc/ssl/cert.pem /etc/ssl/cert.pem.bak
+          sudo awk '/^(###|===) /{skip=0}
+            /^=== .*\/CN=(AAA Certificate Services|emSign ECC Root CA - G3)$/{skip=1}
+            !skip' /etc/ssl/cert.pem.bak | sudo tee /etc/ssl/cert.pem > /dev/null
       - name: Checkout main code and submodules
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -71,6 +81,6 @@ jobs:
           pytest -vvv --cov
 
       - name: Mypy checks only for Python 3.10
-        if: ${{ matrix.python-version == '3.10' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
         run: |
           mypy
