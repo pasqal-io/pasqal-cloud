@@ -15,14 +15,10 @@ from pasqal_cloud.cli import (
 @pytest.mark.parametrize(
     ("argv", "func", "expected"),
     [
-        (["auth", "login"], login, {"profile": None, "device": False}),
-        (
-            ["auth", "login", "--device", "--profile", "dev"],
-            login,
-            {"profile": "dev", "device": True},
-        ),
-        (["auth", "status", "--profile", "dev"], auth_status, {"profile": "dev"}),
-        (["auth", "logout"], logout, {"profile": None}),
+        (["auth", "login"], login, {"device": False}),
+        (["auth", "login", "--device"], login, {"device": True}),
+        (["auth", "status"], auth_status, {}),
+        (["auth", "logout"], logout, {}),
         (["profile", "list"], profile_list, {}),
         (["profile", "show"], profile_show, {"name": None}),
         (["profile", "show", "dev"], profile_show, {"name": "dev"}),
@@ -45,6 +41,7 @@ def test_parse(argv, func, expected):
         ["auth"],
         ["login"],
         ["auth", "login", "--region", "sa"],
+        ["auth", "login", "--profile", "dev"],
         ["auth", "logout", "--device"],
         ["config"],
         ["config", "profile", "list"],

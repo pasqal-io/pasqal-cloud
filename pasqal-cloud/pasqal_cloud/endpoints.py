@@ -260,9 +260,9 @@ def check_url(key: str, value: str) -> str:
     return value
 
 
-class DeploymentConf(BaseModel):
+class ProfileConfig(BaseModel):
     """Where to log in and which APIs to call. Each field is a key of a user
-    config profile, see `pasqal_cloud.settings`.
+    config profile, see `pasqal_cloud.config`.
 
     Unknown keys are kept, so a config written by a newer version survives
     being loaded and saved by an older one."""
@@ -281,19 +281,19 @@ class DeploymentConf(BaseModel):
         return check_url(str(info.field_name), value)
 
 
-# Prod defaults, one built-in profile per region. Other environments are user
-# config profiles, see `pasqal_cloud.settings`.
+# Read-only prod profiles, one per region (`default-<region>`). Other
+# environments are user config profiles, see `pasqal_cloud.config`.
 # TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
 # once they are created.
-DEPLOYMENTS: dict[Region, DeploymentConf] = {
-    "fr": DeploymentConf(
+DEFAULT_PROFILES: dict[str, ProfileConfig] = {
+    "default-fr": ProfileConfig(
         issuer=f"https://{AUTH0_DOMAIN}/",
         client_id=PUBLIC_CLIENT_ID,
         audience=AUDIENCE,
         core_url=CORE_API_URL,
         account_url=ACCOUNT_API_URL,
     ),
-    "sa": DeploymentConf(
+    "default-sa": ProfileConfig(
         issuer=f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         client_id=KEYCLOAK_SDK_CLIENT_ID,
         audience=AUDIENCE,
