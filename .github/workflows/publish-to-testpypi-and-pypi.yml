@@ -20,14 +20,11 @@ jobs:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
     steps:
-      - name: Upgrade ca-certificates
-        # Runs first so that every TLS client in the job (git in checkout included)
-        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
+      # Before checkout so git trusts the fixed store, see https://emudhra.we-have-a-problem.com/
+      # (apt verifies packages with GPG-signed indexes, not TLS).
+      - &upgrade-ca-certificates
+        name: Upgrade ca-certificates
+        run: sudo apt-get update && sudo apt-get install -y --only-upgrade ca-certificates
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -81,14 +78,7 @@ jobs:
     permissions:
       contents: write # required to create the GitHub release
     steps:
-      - name: Upgrade ca-certificates
-        # Runs first so that every TLS client in the job (git in checkout included)
-        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
+      - *upgrade-ca-certificates
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Extract version from VERSION.txt

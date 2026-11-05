@@ -34,14 +34,11 @@ jobs:
     permissions:
       contents: read # checkout only; deliberately nothing else
     steps:
-      - name: Upgrade ca-certificates
-        # Runs first so that every TLS client in the job (git in checkout included)
-        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
+      # Before checkout so git trusts the fixed store, see https://emudhra.we-have-a-problem.com/
+      # (apt verifies packages with GPG-signed indexes, not TLS).
+      - &upgrade-ca-certificates
+        name: Upgrade ca-certificates
+        run: sudo apt-get update && sudo apt-get install -y --only-upgrade ca-certificates
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -96,14 +93,7 @@ jobs:
       pull-requests: write # leave/update the sticky preview comment
       deployments: read # wait-for-pages-deployment polls the Deployments API
     steps:
-      - name: Upgrade ca-certificates
-        # Runs first so that every TLS client in the job (git in checkout included)
-        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
+      - *upgrade-ca-certificates
       - name: Checkout the base commit, never the PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -141,14 +131,7 @@ jobs:
       PORTAL_PREVIEW_PATH: portal-preview/pr-${{ github.event.pull_request.number }}
       DOC_PORTAL_IMAGE: europe-west9-docker.pkg.dev/pasqal-artifact/frontend/doc-portal:source-runtime
     steps:
-      - name: Upgrade ca-certificates
-        # Runs first so that every TLS client in the job (git in checkout included)
-        # sees the fixed trust store, see https://emudhra.we-have-a-problem.com/
-        # apt doesn't rely on the TLS trust store: packages are checked against
-        # checksums in GPG-signed repository indexes.
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
+      - *upgrade-ca-certificates
       - name: Checkout the base commit, never the PR head
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
