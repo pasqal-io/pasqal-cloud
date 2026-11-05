@@ -1,21 +1,19 @@
 import json
 
 import pytest
-from pasqal_cloud import settings
 from pasqal_cloud.cli import main
-from pasqal_cloud.endpoints import DeploymentConf, DEPLOYMENTS, REGIONS
-from pasqal_cloud.settings import Config, resolve_pasqal_cloud_target
+from pasqal_cloud.config import Config, load_config, resolve_profile
+from pasqal_cloud.endpoints import DEFAULT_PROFILES, ProfileConfig, REGIONS
 
 
 @pytest.fixture(autouse=True)
 def config_path(monkeypatch, tmp_path):
-    monkeypatch.delenv("PASQAL_CLOUD_PROFILE", raising=False)
     path = tmp_path / ".pasqal" / "config.json"
-    monkeypatch.setattr(settings, "CONFIG_PATH", path)
+    monkeypatch.setattr("pasqal_cloud.config.CONFIG_PATH", path)
     return path
 
 
-def deployment(name):
+def profile_config(name):
     return {
         "issuer": f"https://{name}/",
         "client_id": name,
@@ -40,35 +38,32 @@ def answer_prompts(monkeypatch, *answers):
 
 
 def test_defaults_without_config_file():
-    target = resolve_pasqal_cloud_target()
-    assert target.profile == "default-fr"
-    assert target.deployment == DEPLOYMENTS["fr"]
+    profile = resolve_profile()
+    assert profile.name == "default-fr"
+    assert profile.config == DEFAULT_PROFILES["default-fr"]
 
 
 @pytest.mark.parametrize("region", REGIONS)
 def test_builtin_profile_per_region(region):
-    target = resolve_pasqal_cloud_target(f"default-{region}")
-    assert target.deployment == DEPLOYMENTS[region]
+    profile = resolve_profile(f"default-{region}")
+    assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
 
 
 def test_named_profile_uses_its_values():
-    config = Config.model_validate({"profiles": {"dev": deployment("dev")}})
-    target = resolve_pasqal_cloud_target("dev", config)
-    assert target.deployment == DeploymentConf(**deployment("dev"))
+    config = Config.model_validate({"profiles": {"dev": profile_config("dev")}})
+    profile = resolve_profile("dev", config)
+    assert profile.config == ProfileConfig(**profile_config("dev"))
 
 
-def test_profile_resolution_order(monkeypatch):
+def test_profile_resolution_order():
     config = Config.model_validate(
         {
             "active_profile": "dev",
-            "profiles": {n: deployment(n) for n in ("dev", "preprod", "ci")},
+            "profiles": {n: profile_config(n) for n in ("dev", "preprod")},
         }
     )
-    assert resolve_pasqal_cloud_target(config=config).profile == "dev"
-
-    monkeypatch.setenv("PASQAL_CLOUD_PROFILE", "ci")
-    assert resolve_pasqal_cloud_target(config=config).profile == "ci"
-    assert resolve_pasqal_cloud_target("preprod", config).profile == "preprod"
+    assert resolve_profile(config=config).name == "dev"
+    assert resolve_profile("preprod", config).name == "preprod"
 
 
 @pytest.mark.parametrize(
@@ -78,22 +73,22 @@ def test_profile_resolution_order(monkeypatch):
             {"profiles": {"dev": {"issuer": "https://dev/"}}},
             "dev.client_id: Field required",
         ),
-        ({"profiles": {"dev": {**deployment("dev"), "issuer": "x"}}}, "https://"),
-        ({"profiles": {"dev": {**deployment("dev"), "audience": " "}}}, "audience"),
-        ({"profiles": {"default-sa": deployment("x")}}, "can't be redefined"),
+        ({"profiles": {"dev": {**profile_config("dev"), "issuer": "x"}}}, "https://"),
+        ({"profiles": {"dev": {**profile_config("dev"), "audience": " "}}}, "audience"),
+        ({"profiles": {"default-sa": profile_config("x")}}, "can't be redefined"),
     ],
 )
 def test_invalid_config_raises(config_path, config, error):
     write_config(config_path, **config)
     with pytest.raises(ValueError, match=error):
-        settings.load_config()
+        load_config()
 
 
 def test_unknown_keys_survive_load_and_save(monkeypatch, config_path):
     # A config written by a newer version, with keys this one doesn't know.
     newer = {
         "telemetry": False,
-        "profiles": {"dev": {**deployment("dev"), "scope": "openid"}},
+        "profiles": {"dev": {**profile_config("dev"), "scope": "openid"}},
     }
     write_config(config_path, **newer)
     answer_prompts(monkeypatch, "", "new-id", "", "", "")
@@ -109,14 +104,14 @@ def test_unknown_keys_survive_load_and_save(monkeypatch, config_path):
 
 def test_unknown_active_profile_raises():
     with pytest.raises(ValueError, match="Unknown profile 'nope'"):
-        resolve_pasqal_cloud_target(config=Config(active_profile="nope"))
+        resolve_profile(config=Config(active_profile="nope"))
 
 
 def test_invalid_json_raises(config_path):
     config_path.parent.mkdir()
     config_path.write_text("{")
     with pytest.raises(ValueError, match="Invalid JSON(.|\n)*Fix these entries"):
-        settings.load_config()
+        load_config()
 
 
 def test_unreadable_config_is_a_clean_error(config_path, capsys):
@@ -128,9 +123,9 @@ def test_unreadable_config_is_a_clean_error(config_path, capsys):
 
 def test_http_url_warns_except_on_loopback():
     with pytest.warns(UserWarning, match="core_url .* isn't https"):
-        DeploymentConf(**{**deployment("dev"), "core_url": "http://dev/core"})
+        ProfileConfig(**{**profile_config("dev"), "core_url": "http://dev/core"})
 
-    DeploymentConf(**{**deployment("dev"), "core_url": "http://localhost:8000/c"})
+    ProfileConfig(**{**profile_config("dev"), "core_url": "http://localhost:8000/c"})
 
 
 def test_cli_show(capsys):
@@ -138,10 +133,12 @@ def test_cli_show(capsys):
 
     out = capsys.readouterr().out
     assert "profile = default-fr" in out
-    assert f"client_id = {DEPLOYMENTS['fr'].client_id}" in out
+    assert f"client_id = {DEFAULT_PROFILES['default-fr'].client_id}" in out
 
     assert main(["profile", "show", "default-sa"]) == 0
-    assert f"issuer = {DEPLOYMENTS['sa'].issuer}" in capsys.readouterr().out
+    assert (
+        f"issuer = {DEFAULT_PROFILES['default-sa'].issuer}" in capsys.readouterr().out
+    )
 
 
 def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
@@ -179,14 +176,14 @@ def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
 
 
 def test_cli_profile_edit_keeps_values_on_enter(monkeypatch, config_path):
-    write_config(config_path, profiles={"dev": deployment("dev")})
+    write_config(config_path, profiles={"dev": profile_config("dev")})
     prompts = answer_prompts(monkeypatch, "", "new-id", "", "", "")
 
     assert main(["profile", "edit", "dev"]) == 0
 
     assert prompts[0] == "issuer [https://dev/]: "
-    assert resolve_pasqal_cloud_target("dev").deployment == DeploymentConf(
-        **{**deployment("dev"), "client_id": "new-id"}
+    assert resolve_profile("dev").config == ProfileConfig(
+        **{**profile_config("dev"), "client_id": "new-id"}
     )
 
 
@@ -206,16 +203,16 @@ def test_cli_profile_create_aborts_without_saving(monkeypatch, config_path):
 
 
 def test_cli_profile_switch(capsys, config_path):
-    write_config(config_path, profiles={"dev": deployment("dev")})
+    write_config(config_path, profiles={"dev": profile_config("dev")})
 
     assert main(["profile", "activate", "dev"]) == 0
-    assert resolve_pasqal_cloud_target().deployment.client_id == "dev"
+    assert resolve_profile().config.client_id == "dev"
 
     assert main(["profile", "list"]) == 0
     assert capsys.readouterr().out == "  default-fr\n  default-sa\n* dev\n"
 
     assert main(["profile", "delete", "dev"]) == 0
-    assert resolve_pasqal_cloud_target().profile == "default-fr"
+    assert resolve_profile().name == "default-fr"
     assert json.loads(config_path.read_text()) == {"profiles": {}}
 
 
@@ -227,7 +224,6 @@ def test_cli_profile_switch(capsys, config_path):
         (["profile", "activate", "nope"], "Unknown profile 'nope'"),
         (["profile", "edit", "default-sa"], "can't be changed"),
         (["profile", "delete", "default-fr"], "can't be changed"),
-        (["auth", "login", "--profile", "nope"], "Unknown profile"),
     ],
 )
 def test_cli_profile_errors(capsys, argv, error):

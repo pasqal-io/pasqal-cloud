@@ -18,48 +18,48 @@ from __future__ import annotations
 import argparse
 import sys
 
-from pasqal_cloud.endpoints import check_url, DeploymentConf, URL_KEYS
-from pasqal_cloud.settings import (
+from pasqal_cloud.config import (
     activate_profile,
-    BUILTIN_PROFILES,
     check_editable_profile,
     check_new_profile_name,
     Config,
     CONFIG_PATH,
-    DEFAULT_PROFILE,
+    DEFAULT_PROFILE_NAME,
+    DEFAULT_PROFILES,
     delete_profile,
     load_config,
     PROFILE_KEYS,
     profile_names,
-    resolve_pasqal_cloud_target,
+    resolve_profile,
     resolve_profile_name,
     save_config,
 )
+from pasqal_cloud.endpoints import check_url, ProfileConfig, URL_KEYS
 
 
 def login(args: argparse.Namespace, config: Config) -> int:
-    target = resolve_pasqal_cloud_target(args.profile, config)
+    profile = resolve_profile(config=config)
     flow = "device" if args.device else "pkce"
-    sys.stderr.write(f"login ({flow}, {target.profile}): not implemented\n")
+    sys.stderr.write(f"login ({flow}, {profile.name}): not implemented\n")
     return 1
 
 
-def auth_status(args: argparse.Namespace, config: Config) -> int:
-    target = resolve_pasqal_cloud_target(args.profile, config)
-    sys.stderr.write(f"auth status ({target.profile}): not implemented\n")
+def auth_status(_args: argparse.Namespace, config: Config) -> int:
+    profile = resolve_profile(config=config)
+    sys.stderr.write(f"auth status ({profile.name}): not implemented\n")
     return 1
 
 
-def logout(args: argparse.Namespace, config: Config) -> int:
-    target = resolve_pasqal_cloud_target(args.profile, config)
-    sys.stderr.write(f"logout ({target.profile}): not implemented\n")
+def logout(_args: argparse.Namespace, config: Config) -> int:
+    profile = resolve_profile(config=config)
+    sys.stderr.write(f"logout ({profile.name}): not implemented\n")
     return 1
 
 
 def profile_show(args: argparse.Namespace, config: Config) -> int:
-    target = resolve_pasqal_cloud_target(args.name, config)
-    lines = [f"# {CONFIG_PATH}", f"profile = {target.profile}"]
-    lines += [f"{key} = {getattr(target.deployment, key)}" for key in PROFILE_KEYS]
+    profile = resolve_profile(args.name, config)
+    lines = [f"# {CONFIG_PATH}", f"profile = {profile.name}"]
+    lines += [f"{key} = {getattr(profile.config, key)}" for key in PROFILE_KEYS]
 
     sys.stdout.write("\n".join(lines) + "\n")
     return 0
@@ -75,7 +75,9 @@ def profile_list(_args: argparse.Namespace, config: Config) -> int:
 def _prompt_value(key: str, current: str | None, prod: str) -> str:
     """Ask for `key` until the answer is valid, Enter keeping `current`."""
     label = (
-        f"{key} [{current}]: " if current else f"{key} ({DEFAULT_PROFILE}: {prod}): "
+        f"{key} [{current}]: "
+        if current
+        else f"{key} ({DEFAULT_PROFILE_NAME}: {prod}): "
     )
     while True:
         value = input(label).strip() or current
@@ -89,11 +91,11 @@ def _prompt_value(key: str, current: str | None, prod: str) -> str:
             sys.stderr.write(f"{e}\n")
 
 
-def _prompt_deployment(current: DeploymentConf | None) -> DeploymentConf:
+def _prompt_profile_config(current: ProfileConfig | None) -> ProfileConfig:
     # On creation, prod values are shown as examples but not used as defaults:
     # pressing Enter through the prompts would silently send the profile's
     # logins to prod.
-    prod = BUILTIN_PROFILES[DEFAULT_PROFILE]
+    prod = DEFAULT_PROFILES[DEFAULT_PROFILE_NAME]
     values = {
         key: _prompt_value(
             key, getattr(current, key) if current else None, getattr(prod, key)
@@ -101,12 +103,12 @@ def _prompt_deployment(current: DeploymentConf | None) -> DeploymentConf:
         for key in PROFILE_KEYS
     }
     extra = current.model_extra if current else None
-    return DeploymentConf(**(extra or {}), **values)
+    return ProfileConfig(**(extra or {}), **values)
 
 
 def profile_create(args: argparse.Namespace, config: Config) -> int:
     check_new_profile_name(config, args.name)
-    config.profiles[args.name] = _prompt_deployment(None)
+    config.profiles[args.name] = _prompt_profile_config(None)
     save_config(config)
 
     sys.stderr.write(
@@ -118,7 +120,7 @@ def profile_create(args: argparse.Namespace, config: Config) -> int:
 
 def profile_edit(args: argparse.Namespace, config: Config) -> int:
     current = check_editable_profile(config, args.name)
-    config.profiles[args.name] = _prompt_deployment(current)
+    config.profiles[args.name] = _prompt_profile_config(current)
     save_config(config)
     return 0
 
@@ -133,15 +135,6 @@ def profile_delete(args: argparse.Namespace, config: Config) -> int:
     delete_profile(config, args.name)
     save_config(config)
     return 0
-
-
-def _add_profile_option(parser: argparse.ArgumentParser) -> None:
-    # Defaults to None so $PASQAL_CLOUD_PROFILE and the config apply.
-    parser.add_argument(
-        "--profile",
-        help="Config profile (default: $PASQAL_CLOUD_PROFILE, active profile, "
-        "or default-fr)",
-    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -165,9 +158,6 @@ def build_parser() -> argparse.ArgumentParser:
     auth_commands.add_parser(
         "logout", help="Log out and delete the cached login"
     ).set_defaults(func=logout)
-
-    for sub in auth_commands.choices.values():
-        _add_profile_option(sub)
 
     profile = commands.add_parser(
         "profile", help=f"Manage config profiles ({CONFIG_PATH})"
