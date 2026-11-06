@@ -134,7 +134,7 @@ DEFAULT_PROFILES: dict[str, ProfileConfig] = {
     ),
 }
 
-CONFIG_PATH = Path.home() / ".pasqal" / "config.json"
+CONFIG_DIR = Path.home() / ".pasqal"
 
 DEFAULT_PROFILE_NAME = "default-fr"
 PROFILE_KEYS = tuple(ProfileConfig.model_fields)
@@ -164,13 +164,17 @@ class PasqalCloudProfile:
     config: ProfileConfig
 
 
+def config_path() -> Path:
+    return CONFIG_DIR / "config.json"
+
+
 def load_config() -> Config:
     try:
-        text = CONFIG_PATH.read_text()
+        text = config_path().read_text()
     except FileNotFoundError:
         return Config()
     except OSError as e:
-        raise ValueError(f"Can't read config {CONFIG_PATH}: {e}") from e
+        raise ValueError(f"Can't read config {config_path()}: {e}") from e
 
     try:
         return Config.model_validate_json(text)
@@ -180,7 +184,7 @@ def load_config() -> Config:
             for err in e.errors(include_url=False)
         ]
         raise ValueError(
-            f"Invalid config {CONFIG_PATH}:\n"
+            f"Invalid config {config_path()}:\n"
             + "\n".join(problems)
             + "\nFix these entries in the file and retry."
         ) from e
@@ -188,7 +192,7 @@ def load_config() -> Config:
 
 def save_config(config: Config) -> None:
     write_private_file(
-        CONFIG_PATH, config.model_dump_json(indent=2, exclude_none=True) + "\n"
+        config_path(), config.model_dump_json(indent=2, exclude_none=True) + "\n"
     )
 
 

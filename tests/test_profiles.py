@@ -15,9 +15,8 @@ from pasqal_cloud.config import (
 
 @pytest.fixture(autouse=True)
 def config_path(monkeypatch, tmp_path):
-    path = tmp_path / ".pasqal" / "config.json"
-    monkeypatch.setattr("pasqal_cloud.config.CONFIG_PATH", path)
-    return path
+    monkeypatch.setattr("pasqal_cloud.config.CONFIG_DIR", tmp_path / ".pasqal")
+    return tmp_path / ".pasqal" / "config.json"
 
 
 def profile_config(name):

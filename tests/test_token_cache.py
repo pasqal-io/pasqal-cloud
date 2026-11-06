@@ -6,13 +6,17 @@ import time
 import pytest
 from pasqal_cloud import config, token_cache
 from pasqal_cloud.cli import _format_expiry, main
-from pasqal_cloud.endpoints import DEFAULT_PROFILES
+from pasqal_cloud.config import DEFAULT_PROFILES
+
+# Windows has no POSIX owner or mode bits; the file is protected by the user
+# profile's ACL, so the cache file is not checked there.
+posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX owner/mode")
 
 
 @pytest.fixture(autouse=True)
 def _home(monkeypatch, tmp_path):
     monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr(config, "CONFIG_PATH", tmp_path / ".pasqal" / "config.json")
+    monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
 
 
 def make_entry(region="fr", profile="default-fr", email="alice@example.com"):
@@ -38,8 +42,9 @@ def write(region="fr", profile="default-fr", **kwargs):
 def test_round_trip_and_permissions():
     path = write()
     assert path.name == "cloud-credentials.json"
-    assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
-    assert stat.S_IMODE(path.stat().st_mode) == 0o600
+    if os.name != "nt":
+        assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
+        assert stat.S_IMODE(path.stat().st_mode) == 0o600
     assert token_cache.read_entries() == {"default-fr": make_entry()}
     assert os.listdir(path.parent) == [path.name]  # no temp file left
 
@@ -70,6 +75,7 @@ def test_matches_profile_config():
     assert not entry.matches(DEFAULT_PROFILES["default-sa"])
 
 
+@posix_only
 def test_rejects_permissive_file():
     path = write()
     path.chmod(0o644)
@@ -78,10 +84,17 @@ def test_rejects_permissive_file():
     assert stat.S_IMODE(path.stat().st_mode) == 0o644  # never repaired
 
 
+@posix_only
 def test_rejects_foreign_owner(monkeypatch):
     path = write()
     monkeypatch.setattr(os, "getuid", lambda: os.stat(path).st_uid + 1)
     with pytest.raises(token_cache.TokenCacheError, match="not owned"):
+        token_cache.read_entries()
+
+
+def test_rejects_unreadable_file():
+    token_cache.cache_path().mkdir(parents=True)
+    with pytest.raises(token_cache.TokenCacheError, match="is unreadable"):
         token_cache.read_entries()
 
 
@@ -92,12 +105,17 @@ def test_rejects_corrupt_file():
         token_cache.read_entries()
 
 
-def test_ignores_unknown_keys():
+def test_keeps_unknown_keys():
     path = write()
     data = json.loads(path.read_text())
     data["default-fr"]["added_later"] = 1
     path.write_text(json.dumps(data))
-    assert token_cache.read_entries() == {"default-fr": make_entry()}
+
+    entries = token_cache.read_entries()
+    assert entries["default-fr"].model_extra == {"added_later": 1}
+
+    write("sa", "dev")  # rewriting the file for another profile
+    assert json.loads(path.read_text())["default-fr"]["added_later"] == 1
 
 
 @pytest.mark.parametrize(
@@ -199,6 +217,7 @@ def test_status_ignores_entry_for_another_client(capsys):
     assert "Not logged in to default-fr" in err
 
 
+@posix_only
 def test_status_reports_bad_file(capsys):
     write().chmod(0o644)
     assert main(["auth", "status"]) == 1
