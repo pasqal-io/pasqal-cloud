@@ -36,7 +36,6 @@ class CacheEntry(BaseModel):
     # being loaded and saved by an older one.
     model_config = ConfigDict(extra="allow")
 
-    profile: str
     # The login settings are kept so an entry stays usable (status, logout)
     # after they change in DEFAULT_PROFILES or the profile.
     issuer: str
@@ -99,9 +98,6 @@ def read_entries() -> dict[str, CacheEntry]:
                 )
         try:
             entries = _ENTRIES.validate_json(f.read())
-            for key, entry in entries.items():
-                if entry.profile != key:
-                    raise ValueError(f"{key}: entry is for {entry.profile}")
         except ValueError as e:  # pydantic's ValidationError is a ValueError
             raise TokenCacheError(f"{path} is not a valid cache file: {e}") from e
 
