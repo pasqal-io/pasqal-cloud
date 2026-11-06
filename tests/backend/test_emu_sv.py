@@ -1,5 +1,4 @@
 import dataclasses
-from unittest.mock import patch
 from uuid import uuid4
 
 import requests_mock
@@ -9,7 +8,7 @@ from pulser.backend.remote import JobParams
 from pasqal_cloud.backends import RemoteSVBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
-from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from tests.test_doubles.authentication import FakeTokenProvider
 
 test_device = dataclasses.replace(
     DigitalAnalogDevice,
@@ -21,14 +20,10 @@ test_device = dataclasses.replace(
 )
 
 
-@patch(
-    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 def test_emu_sv_backend(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
     connection = PasqalCloudConnection(
-        username="test", password="test", project_id=str(uuid4())
+        token_provider=FakeTokenProvider(), project_id=str(uuid4())
     )
 
     device = AnalogDevice
