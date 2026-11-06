@@ -9,6 +9,7 @@ from pasqal_cloud import cli, config, token_cache
 from pasqal_cloud.config import DEFAULT_PROFILES
 
 from tests.test_token_cache import write
+from tests.utils import posix_only
 
 FR = DEFAULT_PROFILES["default-fr"].issuer.rstrip("/")
 SA = DEFAULT_PROFILES["default-sa"].issuer.rstrip("/")
@@ -99,8 +100,20 @@ def test_revocation_failure_is_a_warning(idp, capsys):
 
 
 @pytest.mark.usefixtures("idp")
-def test_rejected_cache_file(capsys):
+def test_corrupt_cache_file(capsys):
+    write("fr").write_text("{")
+
+    assert cli.main(["auth", "logout"]) == 1
+    assert "not a valid cache file" in capsys.readouterr().err
+    assert token_cache.cache_path().read_text() == "{"
+    assert not token_cache.lock_path().exists()
+
+
+@posix_only
+@pytest.mark.usefixtures("idp")
+def test_permissive_cache_file(capsys):
     write("fr").chmod(0o644)
+
     assert cli.main(["auth", "logout"]) == 1
     assert "chmod 600" in capsys.readouterr().err
     assert token_cache.cache_path().exists()
