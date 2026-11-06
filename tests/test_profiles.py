@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 from pasqal_cloud.cli import main
@@ -123,8 +124,11 @@ def test_invalid_json_raises(config_path):
 def test_unreadable_config_is_a_clean_error(config_path, capsys):
     config_path.mkdir(parents=True)
 
+    with pytest.raises(ValueError, match="Can't read config"):
+        load_config()
+
     assert main(["auth", "login"]) == 1
-    assert "Is a directory" in capsys.readouterr().err
+    assert capsys.readouterr().err.startswith("Error: ")
 
 
 def test_http_url_warns_except_on_loopback():
@@ -177,7 +181,9 @@ def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
             }
         }
     }
-    assert config_path.stat().st_mode & 0o777 == 0o600
+    # Windows has no POSIX modes; the file is protected by the user profile's ACL.
+    if os.name != "nt":
+        assert config_path.stat().st_mode & 0o777 == 0o600
     assert [p.name for p in config_path.parent.iterdir()] == ["config.json"]
 
 
