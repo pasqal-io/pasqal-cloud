@@ -161,6 +161,30 @@ def test_token_error(idp, capsys):
 
 
 @pytest.mark.usefixtures("idp")
+def test_provider_error_callback(monkeypatch, capsys):
+    pages = []
+    threads = []
+
+    def run(url):
+        query = {k: v[0] for k, v in parse_qs(urlsplit(url).query).items()}
+        error = urlencode({"error": "access_denied", "state": query["state"]})
+        with urllib.request.urlopen(f"{query['redirect_uri']}?{error}") as page:
+            pages.append(page.read())
+
+    def fake_open(url):
+        threads.append(threading.Thread(target=run, args=(url,), daemon=True))
+        threads[0].start()
+        return True
+
+    monkeypatch.setattr(browser_login.webbrowser, "open", fake_open)
+    assert cli.main(["auth", "login"]) == 1
+    assert "access_denied" in capsys.readouterr().err
+
+    threads[0].join(timeout=5)
+    assert pages == [browser_login._ERROR_PAGE]
+
+
+@pytest.mark.usefixtures("idp")
 def test_no_browser(monkeypatch, capsys):
     monkeypatch.setattr(browser_login.webbrowser, "open", lambda _url: False)
     assert cli.main(["auth", "login"]) == 1
