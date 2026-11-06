@@ -25,6 +25,7 @@ def make_entry(region="fr", profile="default-fr", email="alice@example.com"):
         profile=profile,
         issuer=profile_config.issuer,
         client_id=profile_config.client_id,
+        audience=profile_config.audience,
         refresh_token="SECRET-REFRESH",
         access_token="SECRET-ACCESS",
         expires_at=int(time.time()) + 3600,
@@ -73,6 +74,10 @@ def test_matches_profile_config():
     entry = make_entry()
     assert entry.matches(DEFAULT_PROFILES["default-fr"])
     assert not entry.matches(DEFAULT_PROFILES["default-sa"])
+
+    for key in ("issuer", "client_id", "audience"):
+        changed = DEFAULT_PROFILES["default-fr"].model_copy(update={key: "other"})
+        assert not entry.matches(changed), key
 
 
 @posix_only
