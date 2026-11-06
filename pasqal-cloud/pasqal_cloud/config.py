@@ -275,27 +275,18 @@ def resolve_profile(
     config: Config | None = None,
     region: Region | None = None,
 ) -> PasqalCloudProfile:
-    """Resolve the profile (see `resolve_profile_name`) to its config.
+    """Resolve the profile to its config: `region` selects the built-in
+    `default-<region>` one, even over the active profile. Without it, see
+    `resolve_profile_name`.
 
-    Without a chosen profile (argument or active one), `region` selects the
-    `default-<region>` one. With a chosen profile, the profile wins and
-    `region` is ignored with a warning.
-
-    Raises ValueError on an unknown profile or region or an invalid or
-    unreadable config."""
+    Raises ValueError on an unknown profile or region, on both a profile and a
+    region, or on an invalid or unreadable config."""
     if region is not None and region not in REGIONS:
         raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+    if region is not None and profile is not None:
+        raise ValueError("Pass either a profile or a region, not both")
 
     config = load_config() if config is None else config
-    name = resolve_profile_name(config, profile)
-    chosen = profile or config.active_profile
-    if region is not None and not chosen:
-        name = f"default-{region}"
-    elif region is not None:
-        warnings.warn(
-            f"region={region!r} is ignored: the {name!r} profile selects the "
-            "endpoints",
-            stacklevel=2,
-        )
+    name = f"default-{region}" if region else resolve_profile_name(config, profile)
 
     return PasqalCloudProfile(name, get_profile_config(config, name))
