@@ -169,6 +169,8 @@ def load_config() -> Config:
         text = CONFIG_PATH.read_text()
     except FileNotFoundError:
         return Config()
+    except OSError as e:
+        raise ValueError(f"Can't read config {CONFIG_PATH}: {e}") from e
 
     try:
         return Config.model_validate_json(text)
@@ -269,7 +271,7 @@ def resolve_profile(
     profile: str | None = None, config: Config | None = None
 ) -> PasqalCloudProfile:
     """Resolve the profile (see `resolve_profile_name`) to its config.
-    Raises ValueError on an unknown profile or an invalid config."""
+    Raises ValueError on an unknown profile or an invalid or unreadable config."""
     config = load_config() if config is None else config
     name = resolve_profile_name(config, profile)
     return PasqalCloudProfile(name, get_profile_config(config, name))
