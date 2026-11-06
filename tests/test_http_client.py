@@ -673,8 +673,7 @@ def test_endpoints_follow_region_and_profile():
         core="https://apis.sa.dev/core-fast", account="https://apis.sa.dev/account"
     )
     assert HTTPClient().endpoints == dev
-    with pytest.warns(UserWarning, match="region='fr' is ignored: the 'dev' profile"):
-        assert HTTPClient(region="fr").endpoints == dev
+    assert HTTPClient(region="fr").endpoints == PASQAL_ENDPOINTS["prod"]
 
     config.save_config(config.Config(active_profile="default-fr"))
     assert HTTPClient().endpoints == PASQAL_ENDPOINTS["prod"]

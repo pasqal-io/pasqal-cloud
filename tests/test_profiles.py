@@ -64,14 +64,16 @@ def test_region_selects_builtin_profile_without_chosen_profile(region):
     assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
 
 
-def test_chosen_profile_wins_over_region():
-    config = Config.model_validate({"profiles": {"dev": profile_config("dev")}})
-    with pytest.warns(UserWarning, match="region='sa' is ignored: the 'dev' profile"):
-        assert resolve_profile("dev", config, "sa").name == "dev"
+def test_region_wins_over_active_profile():
+    config = Config.model_validate(
+        {"active_profile": "dev", "profiles": {"dev": profile_config("dev")}}
+    )
+    assert resolve_profile(config=config, region="sa").name == "default-sa"
 
-    config.active_profile = "default-fr"
-    with pytest.warns(UserWarning, match="the 'default-fr' profile"):
-        assert resolve_profile(config=config, region="sa").name == "default-fr"
+
+def test_profile_and_region_raises():
+    with pytest.raises(ValueError, match="either a profile or a region"):
+        resolve_profile("default-fr", region="sa")
 
 
 def test_unknown_region_raises():

@@ -108,9 +108,8 @@ class PasqalCloudClient:
         """
         This class provides helper methods to call the Pasqal Cloud endpoints.
 
-        The target deployment is the active `pasqal-cloud` config profile.
-        Without one, `region` selects the prod deployment of that region
-        (default: fr).
+        The target deployment is the `default-<region>` profile when `region` is
+        given, else the active `pasqal-cloud` config profile, else `default-fr`.
 
         The SDK can be initialized with several authentication options:
             - Option 1: No arguments -> Uses the login made with
@@ -134,9 +133,8 @@ class PasqalCloudClient:
             project_id: ID of the owner project of the batch.
             client_class: client class used to determine authentication \
             and endpoints targeted by the SDK
-            region: Region to target. Without a config profile, selects the
-                region's prod deployment (default: fr); with one, ignored with
-                a warning.
+            region: Region to target: selects the `default-<region>` profile,
+                even over the active config profile.
             auth_config: configuration object for the authentication provider
         """
         _check_sdk_version()
