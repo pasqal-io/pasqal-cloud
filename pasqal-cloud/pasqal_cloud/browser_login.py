@@ -39,9 +39,18 @@ _DONE_PAGE = (
     b"<html><body><p>Pasqal Cloud login complete, you can close this tab.</p>"
     b"</body></html>"
 )
+_ERROR_PAGE = (
+    b"<html><body><p>Pasqal Cloud login failed, see your terminal for details."
+    b"</p></body></html>"
+)
 
 
 class _CallbackServer(HTTPServer):
+    # POSIX needs SO_REUSEADDR to rebind a port left in TIME_WAIT by the
+    # previous login. On Windows it would bind a port another process listens
+    # on, so a busy port would not be skipped.
+    allow_reuse_address = sys.platform != "win32"
+
     state: str
     params: dict[str, str] | None = None
 
@@ -62,7 +71,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
-        self.wfile.write(_DONE_PAGE)
+        self.wfile.write(_ERROR_PAGE if "error" in params else _DONE_PAGE)
 
     def log_message(self, *_args: Any) -> None:
         pass
