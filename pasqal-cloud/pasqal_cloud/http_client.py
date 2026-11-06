@@ -368,11 +368,10 @@ class HTTPClient:
         )
 
     def get_job_results(self, job_id: str) -> Optional[JobResult]:
-        """
-        Download job result from S3.
+        """Download a job result using the link returned by the core API.
 
-        This function request a presigned-url for a specific job_id from the core API.
-        Once the presigned-url is obtained, it downloads the result from S3.
+        This function requests a result link for a specific job ID from the core API,
+        then downloads the result from that link.
         """
         results_link = self._authenticated_request(
             "GET", self._get_url("get_job_results_link", job_id=job_id)
