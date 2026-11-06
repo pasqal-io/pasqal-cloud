@@ -5,7 +5,7 @@ This guide will help you install `pasqal-cloud`, authenticate, and submit your f
 ## Prerequisites
 
 - **Python 3.10** or higher
-- A **Pasqal Cloud account** with valid credentials (username & password), see the [documentation](https://docs.pasqal.com/cloud/set-up/).
+- A **Pasqal Cloud account**, see the [documentation](https://docs.pasqal.com/cloud/set-up/).
 - A **project ID** you are a member of, see the [documentation](https://docs.pasqal.com/cloud/set-up/#find-your-project-id).
 
 
@@ -19,26 +19,24 @@ pip install pasqal-cloud
 
 ## Authentication
 
-Create a connection by providing your credentials and project ID:
+Log in once from a terminal, with the usual Pasqal Cloud login page:
+
+```bash
+pasqal-cloud auth login            # opens the browser
+pasqal-cloud auth login --device   # no browser (SSH, notebook): shows a code to enter on a phone or laptop
+```
+
+Then create a connection with your project ID:
 
 ```python
 from pasqal_cloud import PasqalCloudConnection
 
 connection = PasqalCloudConnection(
-    username="your_username",       # Your Pasqal platform email
-    password="your_password",       # Your Pasqal platform password
     project_id="your_project_id",  # Your project ID from the portal
 )
 ```
 
-!!! warning
-
-    Never hard-code your password in source files. Prefer using environment variables instead
-
-If you omit the `password` argument, you will be prompted to enter it interactively in
-your terminal.
-
-For more authentication options (custom token providers, OVH), see [Authentication](advanced-usage/authentication.md).
+For more authentication options (username and password, custom token providers, OVH), see [Authentication](advanced-usage/authentication.md).
 
 ## Running a sequence on a QPU
 

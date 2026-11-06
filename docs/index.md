@@ -16,14 +16,16 @@ pip install pasqal-cloud
 
 ## At a glance
 
+Log in once from a terminal (add `--device` when no browser is available):
+
+```bash
+pasqal-cloud auth login
+```
+
 ```python
 from pasqal_cloud import PasqalCloudConnection
 
-connection = PasqalCloudConnection(
-    username="your_username",
-    password="your_password",
-    project_id="your_project_id",
-)
+connection = PasqalCloudConnection(project_id="your_project_id")
 
 devices = connection.fetch_available_devices()
 ```
