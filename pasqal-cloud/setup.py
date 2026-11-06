@@ -68,7 +68,7 @@ setup(
         "pyjwt[crypto]>=2.5.0, <3.0.0",
         "pydantic >= 2.6.0, <3.0.0",
         "pulser-core >= 1.8",
-        "tenacity >= 9.1, <9.2",
+        "tenacity >= 9.1",
     ],
     extras_require={
         "dev": {
