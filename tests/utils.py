@@ -11,6 +11,8 @@ import requests
 # profile's ACL, so the cache file is not checked there.
 posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX owner/mode")
 
+windows_only = pytest.mark.skipif(os.name != "nt", reason="Windows-only behaviour")
+
 
 def convert_to_serializable(value: Any) -> Any:
     """Convert values to a serializable format."""
