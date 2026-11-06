@@ -24,7 +24,6 @@ def _home(monkeypatch, tmp_path):
     developer's ones."""
     monkeypatch.setenv("HOME", str(tmp_path))
     monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
-    monkeypatch.delenv("PASQAL_CLOUD_PROFILE", raising=False)
 
 
 @pytest.fixture(autouse=True)

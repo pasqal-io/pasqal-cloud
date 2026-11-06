@@ -190,11 +190,11 @@ REFRESH_ATTEMPTS = 3
 
 
 def login_command(profile: PasqalCloudProfile) -> str:
-    """The command line logging in to `profile`: the CLI logs in to the active
+    """The commands logging in to `profile`: the CLI logs in to the active
     profile only."""
     command = "pasqal-cloud auth login"
     if profile.name != DEFAULT_PROFILE_NAME:
-        command = f"pasqal-cloud profile activate {profile.name} && {command}"
+        command = f"pasqal-cloud profile activate {profile.name}, then: {command}"
     return command
 
 
