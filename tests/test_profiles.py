@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 
 import pytest
 from pasqal_cloud.authentication import password_grant_config
@@ -11,8 +12,11 @@ from pasqal_cloud.config import (
     ProfileConfig,
     REGIONS,
     resolve_profile,
+    write_private_file,
 )
 from pasqal_cloud.endpoints import TokenProviderConf
+
+from tests.utils import windows_only
 
 
 @pytest.fixture(autouse=True)
@@ -290,3 +294,25 @@ def test_password_grant_config(requests_mock):
         realm=None,
         grant_type="password",
     )
+
+
+@windows_only
+def test_write_private_file_waits_for_a_reader_on_windows(tmp_path, caplog):
+    path = tmp_path / "config.json"
+    path.write_text("old")
+
+    # Python's open() doesn't let other handles delete or replace the file,
+    # so os.replace fails until the reader closes it.
+    reader = path.open()
+    closer = threading.Timer(0.2, reader.close)
+    closer.start()
+
+    try:
+        write_private_file(path, "new")
+    finally:
+        closer.join()
+
+    assert path.read_text() == "new"
+    assert caplog.messages == [
+        f"{path} is open in another process, retrying the write..."
+    ]

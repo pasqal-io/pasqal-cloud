@@ -37,8 +37,11 @@ is used.
 
 from __future__ import annotations
 
+import logging
 import os
+import sys
 import tempfile
+import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -67,6 +70,8 @@ from pasqal_cloud.endpoints import (
     Region,
     SA_KEYCLOAK_BASE_URL,
 )
+
+logger = logging.getLogger(__name__)
 
 REGIONS: tuple[Region, ...] = get_args(Region)
 URL_KEYS = ("issuer", "core_url", "account_url")
@@ -207,10 +212,31 @@ def write_private_file(path: Path, text: str) -> None:
             f.write(text)
             f.flush()
             os.fsync(f.fileno())
-        os.replace(tmp, path)
+        replace_file(tmp, path)
     except BaseException:
         os.unlink(tmp)
         raise
+
+
+def replace_file(src: str, dst: Path) -> None:
+    """`os.replace`, retried briefly on Windows.
+
+    Windows refuses to replace a file another process has open, while POSIX
+    `rename` doesn't care.
+    """
+    if sys.platform == "win32":
+        for attempt in range(1, 10):
+            try:
+                os.replace(src, dst)
+                return
+            except PermissionError:  # noqa: PERF203 (retrying is the point)
+                if attempt == 1:
+                    logger.warning(
+                        "%s is open in another process, retrying the write...", dst
+                    )
+                time.sleep(0.05 * attempt)
+
+    os.replace(src, dst)
 
 
 # ---- Profiles ----
