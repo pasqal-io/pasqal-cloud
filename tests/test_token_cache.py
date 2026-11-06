@@ -19,10 +19,9 @@ def _home(monkeypatch, tmp_path):
     monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
 
 
-def make_entry(region="fr", profile="default-fr", email="alice@example.com"):
+def make_entry(region="fr", email="alice@example.com"):
     profile_config = DEFAULT_PROFILES[f"default-{region}"]
     return token_cache.CacheEntry(
-        profile=profile,
         issuer=profile_config.issuer,
         client_id=profile_config.client_id,
         audience=profile_config.audience,
@@ -35,8 +34,8 @@ def make_entry(region="fr", profile="default-fr", email="alice@example.com"):
 
 def write(region="fr", profile="default-fr", **kwargs):
     entries = token_cache.read_entries()
-    entry = make_entry(region, profile, **kwargs)
-    token_cache.write_entries({**entries, entry.profile: entry})
+    entry = make_entry(region, **kwargs)
+    token_cache.write_entries({**entries, profile: entry})
     return token_cache.cache_path()
 
 
@@ -137,14 +136,6 @@ def test_rejects_wrong_types(key, value):
     data["default-fr"][key] = value
     path.write_text(json.dumps(data))
     with pytest.raises(token_cache.TokenCacheError, match=f"default-fr.{key}"):
-        token_cache.read_entries()
-
-
-def test_rejects_entry_under_wrong_key():
-    path = write()
-    data = json.loads(path.read_text())
-    path.write_text(json.dumps({"default-sa": data["default-fr"]}))
-    with pytest.raises(token_cache.TokenCacheError, match="entry is for default-fr"):
         token_cache.read_entries()
 
 
