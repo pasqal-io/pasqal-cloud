@@ -27,7 +27,7 @@ from pasqal_cloud.config import (
     check_new_profile_name,
     check_url,
     Config,
-    CONFIG_PATH,
+    config_path,
     DEFAULT_PROFILE_NAME,
     DEFAULT_PROFILES,
     delete_profile,
@@ -111,7 +111,7 @@ def logout(_args: argparse.Namespace, config: Config) -> int:
 
 def profile_show(args: argparse.Namespace, config: Config) -> int:
     profile = resolve_profile(args.name, config)
-    lines = [f"# {CONFIG_PATH}", f"profile = {profile.name}"]
+    lines = [f"# {config_path()}", f"profile = {profile.name}"]
     lines += [f"{key} = {getattr(profile.config, key)}" for key in PROFILE_KEYS]
 
     sys.stdout.write("\n".join(lines) + "\n")
@@ -213,7 +213,7 @@ def build_parser() -> argparse.ArgumentParser:
     ).set_defaults(func=logout)
 
     profile = commands.add_parser(
-        "profile", help=f"Manage config profiles ({CONFIG_PATH})"
+        "profile", help=f"Manage config profiles ({config_path()})"
     )
     profile_commands = profile.add_subparsers(dest="profile_command", required=True)
     profile_commands.add_parser(

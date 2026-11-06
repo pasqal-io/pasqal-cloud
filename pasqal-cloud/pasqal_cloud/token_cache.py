@@ -21,10 +21,10 @@ import stat
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel, ConfigDict, TypeAdapter
 
-from pasqal_cloud.config import write_private_file
-from pasqal_cloud.endpoints import ProfileConfig
+from pasqal_cloud import config
+from pasqal_cloud.config import ProfileConfig
 
 
 class TokenCacheError(Exception):
@@ -32,7 +32,10 @@ class TokenCacheError(Exception):
 
 
 class CacheEntry(BaseModel):
-    # Unknown keys are dropped so files written by newer versions still load.
+    # Unknown keys are kept, so an entry written by a newer version survives
+    # being loaded and saved by an older one.
+    model_config = ConfigDict(extra="allow")
+
     profile: str
     # Issuer and client are kept so an entry stays usable (status, logout) after
     # they change in DEFAULT_PROFILES or the profile.
@@ -58,12 +61,8 @@ class CacheEntry(BaseModel):
 _ENTRIES: TypeAdapter[dict[str, CacheEntry]] = TypeAdapter(dict[str, CacheEntry])
 
 
-def cache_dir() -> Path:
-    return Path.home() / ".pasqal"
-
-
 def cache_path() -> Path:
-    return cache_dir() / "cloud-credentials.json"
+    return config.CONFIG_DIR / "cloud-credentials.json"
 
 
 def read_entries() -> dict[str, CacheEntry]:
@@ -77,6 +76,9 @@ def read_entries() -> dict[str, CacheEntry]:
         f = open(path, encoding="utf-8")
     except FileNotFoundError:
         return {}
+    except OSError as e:
+        raise TokenCacheError(f"{path} is unreadable: {e}") from e
+
     with f:
         st = os.fstat(f.fileno())
         # POSIX only, Windows has no uid/mode bits to check.
@@ -112,4 +114,4 @@ def write_entries(entries: dict[str, CacheEntry]) -> None:
         path.unlink(missing_ok=True)
         return
 
-    write_private_file(path, _ENTRIES.dump_json(entries).decode())
+    config.write_private_file(path, _ENTRIES.dump_json(entries).decode())
