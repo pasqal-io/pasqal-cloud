@@ -2,8 +2,14 @@ import json
 
 import pytest
 from pasqal_cloud.cli import main
-from pasqal_cloud.config import Config, load_config, resolve_profile
-from pasqal_cloud.endpoints import DEFAULT_PROFILES, ProfileConfig, REGIONS
+from pasqal_cloud.config import (
+    Config,
+    DEFAULT_PROFILES,
+    load_config,
+    ProfileConfig,
+    REGIONS,
+    resolve_profile,
+)
 
 
 @pytest.fixture(autouse=True)

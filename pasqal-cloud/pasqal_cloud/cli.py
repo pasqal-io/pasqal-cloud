@@ -22,6 +22,7 @@ from pasqal_cloud.config import (
     activate_profile,
     check_editable_profile,
     check_new_profile_name,
+    check_url,
     Config,
     CONFIG_PATH,
     DEFAULT_PROFILE_NAME,
@@ -30,11 +31,12 @@ from pasqal_cloud.config import (
     load_config,
     PROFILE_KEYS,
     profile_names,
+    ProfileConfig,
     resolve_profile,
     resolve_profile_name,
     save_config,
+    URL_KEYS,
 )
-from pasqal_cloud.endpoints import check_url, ProfileConfig, URL_KEYS
 
 
 def login(args: argparse.Namespace, config: Config) -> int:

@@ -11,19 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import warnings
 from dataclasses import dataclass
 from sys import version_info
-from typing import Annotated, get_args, Literal, Optional
-from urllib.parse import urlparse
-
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    field_validator,
-    StringConstraints,
-    ValidationInfo,
-)
+from typing import Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -230,74 +220,5 @@ AUTH_CONFIG = {
         audience=PREPROD_AUDIENCE,
         realm=KEYCLOAK_REALM,
         grant_type="password",
-    ),
-}
-
-
-# ---- Interactive login (pasqal-cloud CLI) ----
-
-REGIONS: tuple[Region, ...] = get_args(Region)
-URL_KEYS = ("issuer", "core_url", "account_url")
-LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
-
-NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-
-
-def check_url(key: str, value: str) -> str:
-    """Reject non-http(s) URLs, and warn on plain HTTP outside loopback hosts:
-    tokens sent there can be read on the network."""
-    url = urlparse(value)
-    if url.scheme not in ("http", "https") or not url.hostname:
-        raise ValueError(f"Invalid {key} {value!r}: expected an https:// URL")
-
-    if url.scheme == "http" and url.hostname not in LOOPBACK_HOSTS:
-        warnings.warn(
-            f"{key} {value!r} isn't https: tokens sent to it can be read on the "
-            "network",
-            stacklevel=2,
-        )
-
-    return value
-
-
-class ProfileConfig(BaseModel):
-    """Where to log in and which APIs to call. Each field is a key of a user
-    config profile, see `pasqal_cloud.config`.
-
-    Unknown keys are kept, so a config written by a newer version survives
-    being loaded and saved by an older one."""
-
-    model_config = ConfigDict(frozen=True, extra="allow")
-
-    issuer: NonEmptyStr
-    client_id: NonEmptyStr
-    audience: NonEmptyStr
-    core_url: NonEmptyStr
-    account_url: NonEmptyStr
-
-    @field_validator(*URL_KEYS)
-    @classmethod
-    def _check_url(cls, value: str, info: ValidationInfo) -> str:
-        return check_url(str(info.field_name), value)
-
-
-# Read-only prod profiles, one per region (`default-<region>`). Other
-# environments are user config profiles, see `pasqal_cloud.config`.
-# TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
-# once they are created.
-DEFAULT_PROFILES: dict[str, ProfileConfig] = {
-    "default-fr": ProfileConfig(
-        issuer=f"https://{AUTH0_DOMAIN}/",
-        client_id=PUBLIC_CLIENT_ID,
-        audience=AUDIENCE,
-        core_url=CORE_API_URL,
-        account_url=ACCOUNT_API_URL,
-    ),
-    "default-sa": ProfileConfig(
-        issuer=f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
-        client_id=KEYCLOAK_SDK_CLIENT_ID,
-        audience=AUDIENCE,
-        core_url=KSA_CORE_API_URL,
-        account_url=KSA_ACCOUNT_API_URL,
     ),
 }
