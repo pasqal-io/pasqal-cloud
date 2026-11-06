@@ -11,6 +11,8 @@ import pytest
 from pasqal_cloud import browser_login, cli, config, token_cache
 from pasqal_cloud.config import DEFAULT_PROFILES
 
+from tests.utils import posix_only
+
 DEPLOYMENT = DEFAULT_PROFILES["default-fr"]
 ISSUER = DEPLOYMENT.issuer.rstrip("/")
 CONFIG = {
@@ -132,12 +134,25 @@ def test_missing_token_endpoint(idp, capsys):
     assert "has no token_endpoint" in capsys.readouterr().err
 
 
+@pytest.mark.usefixtures("browser", "idp")
+def test_login_refuses_corrupt_cache_file(capsys):
+    assert cli.main(["auth", "login"]) == 0
+    path = token_cache.cache_path()
+    path.write_text("{")
+
+    assert cli.main(["auth", "login"]) == 1
+    assert "not a valid cache file" in capsys.readouterr().err
+    assert path.read_text() == "{"  # never overwritten
+
+
+@posix_only
 @pytest.mark.usefixtures("browser")
-def test_login_refuses_rejected_cache_file(idp, capsys):
+def test_login_refuses_permissive_cache_file(idp, capsys):
     assert cli.main(["auth", "login"]) == 0
     path = token_cache.cache_path()
     path.chmod(0o644)
     content = path.read_bytes()
+
     assert cli.main(["auth", "login"]) == 1
     assert "chmod 600" in capsys.readouterr().err
     assert path.read_bytes() == content  # never overwritten

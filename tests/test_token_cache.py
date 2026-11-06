@@ -8,9 +8,7 @@ from pasqal_cloud import config, token_cache
 from pasqal_cloud.cli import _format_expiry, main
 from pasqal_cloud.config import DEFAULT_PROFILES
 
-# Windows has no POSIX owner or mode bits; the file is protected by the user
-# profile's ACL, so the cache file is not checked there.
-posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX owner/mode")
+from tests.utils import posix_only
 
 
 @pytest.fixture(autouse=True)
