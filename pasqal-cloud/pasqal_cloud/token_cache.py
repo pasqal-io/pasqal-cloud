@@ -37,10 +37,13 @@ class CacheEntry(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     profile: str
-    # Issuer and client are kept so an entry stays usable (status, logout) after
-    # they change in DEFAULT_PROFILES or the profile.
+    # The login settings are kept so an entry stays usable (status, logout)
+    # after they change in DEFAULT_PROFILES or the profile.
     issuer: str
     client_id: str
+    # Auth0 issues access tokens for this API and keeps it on refresh. Keycloak
+    # ignores it, its audience comes from the client's mappers.
+    audience: str
     refresh_token: str
     access_token: str
     expires_at: int
@@ -51,10 +54,11 @@ class CacheEntry(BaseModel):
     id_claims: dict[str, Any] = {}
 
     def matches(self, profile_config: ProfileConfig) -> bool:
-        """False once the profile changed (new client, issuer...): not logged in."""
-        return (self.issuer, self.client_id) == (
+        """False once the login settings of the profile changed: not logged in."""
+        return (self.issuer, self.client_id, self.audience) == (
             profile_config.issuer,
             profile_config.client_id,
+            profile_config.audience,
         )
 
 
