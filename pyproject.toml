@@ -56,6 +56,9 @@ order-by-type = false
 
 known-third-party = []
 
+[tool.ruff.lint.per-file-ignores]
+"examples/*.py" = ["T201"]
+
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
 mark-parentheses = false

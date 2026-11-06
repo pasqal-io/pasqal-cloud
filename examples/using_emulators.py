@@ -1,8 +1,12 @@
 from pasqal_cloud import PasqalCloudConnection, RemoteMPSBackend
+from pulser import Register, Sequence
 from pulser.pulse import Pulse
-from pulser import Sequence, Register
 
-connection = PasqalCloudConnection(...)
+connection = PasqalCloudConnection(
+    username="your-username",
+    password="your-password",
+    project_id="your-project-id",
+)
 
 # Retrieve all QPU devices
 devices = connection.fetch_available_devices()
