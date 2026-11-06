@@ -146,8 +146,9 @@ def test_invalid_grant_requires_login(idp):
 
     with pytest.raises(LoginRequiredError) as e:
         HTTPClient().user_token()
-    assert "run: pasqal-cloud profile activate dev && pasqal-cloud auth login" in str(
-        e.value
+    assert (
+        "run: pasqal-cloud profile activate dev, then: pasqal-cloud auth login"
+        in str(e.value)
     )
 
     # The entry stays so `pasqal-cloud auth status` can still report it.
