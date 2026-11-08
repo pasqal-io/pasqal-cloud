@@ -7,8 +7,7 @@ from warnings import simplefilter, warn
 from requests.exceptions import HTTPError
 
 from pasqal_cloud.authentication import TokenProvider
-from pasqal_cloud.batch import RESULT_POLLING_INTERVAL, Batch
-from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.batch import Batch, RESULT_POLLING_INTERVAL
 from pasqal_cloud.device import BaseConfig, DeviceTypeName, EmulatorType
 from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
 from pasqal_cloud.errors import (
@@ -33,7 +32,8 @@ from pasqal_cloud.errors import (
     WorkloadCreationError,
     WorkloadFetchingError,
 )
-from pasqal_cloud.job import CreateJob, Job, create_jobs_to_api_payload
+from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
 from pasqal_cloud.project import Project
 from pasqal_cloud.utils.constants import BatchStatus, JobStatus
 from pasqal_cloud.utils.filters import (
@@ -203,8 +203,8 @@ class PasqalCloudClient:
     def _validate_device_type(
         self,
         emulator: Optional[EmulatorType],
-        device_type: Optional[DeviceTypeName],
-    ) -> Optional[DeviceTypeName]:
+        device_type: Optional[str],
+    ) -> Optional[str]:
         if emulator is not None and device_type is not None:
             raise InvalidDeviceTypeSet
         if emulator is not None:
@@ -217,9 +217,7 @@ class PasqalCloudClient:
             return DeviceTypeName(str(emulator))
         return device_type
 
-    def _validate_device_type_choice(
-        self, device_type: Optional[DeviceTypeName]
-    ) -> None:
+    def _validate_device_type_choice(self, device_type: Optional[str]) -> None:
         if not device_type:
             return
 
@@ -307,7 +305,7 @@ class PasqalCloudClient:
         complete: Optional[bool] = None,
         open: Optional[bool] = None,
         emulator: Optional[EmulatorType] = None,
-        device_type: Optional[DeviceTypeName] = None,
+        device_type: Optional[str] = None,
         configuration: Optional[BaseConfig] = None,
         backend_configuration: Optional[str] = None,
         wait: bool = False,
@@ -328,11 +326,12 @@ class PasqalCloudClient:
                 Once all the jobs are sent, use the `Batch.close` method.
                 Otherwise, the batch will be timed out if all jobs have already
                 been terminated and no new jobs are sent.
-            emulator: The type of emulator to use,
-                If set to None, the device_type will be set to the one
-                stored in the serialized sequence
+            emulator: Deprecated; use device_type instead.
+            device_type: The device type on which to run the batch. If not provided,
+                it is read from the serialized sequence.
             configuration: A dictionary with extra configuration for the emulators
                 that accept it.
+            backend_configuration: Serialized backend-specific configuration.
             wait: Whether to block on this statement until all the submitted jobs are
                 terminated
             fetch_results (deprecated): Whether to wait for the batch to
