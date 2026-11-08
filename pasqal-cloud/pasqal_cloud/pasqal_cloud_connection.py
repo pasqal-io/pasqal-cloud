@@ -30,7 +30,6 @@ from pulser.backend.remote import (
 )
 from pulser.devices import Device
 from pulser.json.abstract_repr.deserializer import deserialize_device
-from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
 from pasqal_cloud.device.device_types import DeviceTypeName
@@ -98,7 +97,7 @@ class PasqalCloudConnection(RemoteConnection):
         """Submits the sequence for execution on a remote Pasqal backend."""
         sequence = self._add_measurement_to_sequence(sequence)
 
-        job_params: list[CreateJob] = make_json_compatible(kwargs.get("job_params", []))
+        job_params: list[CreateJob] = kwargs.get("job_params", [])
 
         if sequence.is_parametrized() or sequence.is_register_mappable():
             for params in job_params:

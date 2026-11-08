@@ -1,10 +1,12 @@
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, cast, Dict, List, Optional, TypedDict, Union
 
+import numpy as np
+from pulser.json.utils import make_json_compatible as _make_json_compatible
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from requests import HTTPError
 
-from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.errors import JobCancellingError
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.utils.jsend import JobResult
 
 
@@ -102,14 +104,30 @@ class CreateJob(TypedDict, total=False):
     serialized_sequence: Optional[str]
 
 
+def make_json_compatible(value: Any) -> Any:
+    """Convert NumPy arrays and scalars to JSON-compatible values."""
+    if isinstance(value, dict):
+        return {key: make_json_compatible(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [make_json_compatible(item) for item in value]
+    if isinstance(value, np.generic):
+        return _make_json_compatible(value.item())
+    return _make_json_compatible(value)
+
+
 def create_jobs_to_api_payload(
     jobs: List["CreateJob"],
 ) -> List[Dict[str, Any]]:
     """Convert CreateJob dicts to API payload format.
 
-    Renames the 'serialized_sequence' key to 'sequence' as expected by the API.
+    Renames the 'serialized_sequence' key to 'sequence' as expected by the API
+    and converts NumPy arrays and numeric scalars to JSON-compatible values.
     """
-    return [
+    payload = [
         {"sequence" if k == "serialized_sequence" else k: v for k, v in job.items()}
         for job in jobs
     ]
+    return cast(
+        List[Dict[str, Any]],
+        make_json_compatible(payload),
+    )

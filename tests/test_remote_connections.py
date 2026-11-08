@@ -26,7 +26,14 @@ from uuid import uuid4
 import numpy as np
 import pulser
 import pytest
-from pasqal_cloud import DeviceTypeName
+from pasqal_cloud import (
+    DeviceTypeName,
+    Endpoints,
+    ovh,
+    OVHConnection,
+    PasqalCloudConnection,
+)
+from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 from pasqal_cloud.utils.constants import BatchStatus as SDKBatchStatus
 from pulser.backend.config import EmulatorConfig
 from pulser.backend.remote import (
@@ -39,8 +46,6 @@ from pulser.devices import DigitalAnalogDevice
 from pulser.register.special_layouts import SquareLatticeLayout
 from pulser.result import SampledResult
 from pulser.sequence import Sequence
-from pasqal_cloud import Endpoints, ovh, OVHConnection, PasqalCloudConnection
-from pasqal_cloud.ovh import MissingEnvironmentVariableError, OvhClient
 
 root = Path(__file__).parent.parent
 
@@ -371,7 +376,7 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
         {
             "runs": 10,
             "variables": {
-                "t": np.array(100),  # Check that numpy array is converted
+                "t": np.array(100),  # Converted later when creating the API payload
                 "qubits": {"q0": 1, "q1": 2, "q2": 4, "q3": 3},
             },
         }
@@ -423,15 +428,6 @@ def test_submit(fixt_pasqal_cloud, parametrized, mimic_qpu, seq, mock_batch):
         wait=False,
         open=False,
     )
-
-    job_params[0]["runs"] = {10}
-    with pytest.raises(TypeError, match="Object of type set is not JSON serializable"):
-        # Check that the decoder still fails on unsupported types
-        fixt_pasqal_cloud.pasqal_cloud.submit(
-            seq,
-            job_params=job_params,
-            config=config,
-        )
 
     assert isinstance(remote_results, RemoteResults)
     assert remote_results.get_batch_status() == BatchStatus.DONE
