@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import socket
 import stat
@@ -26,10 +27,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+import tenacity
 from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 from pasqal_cloud import config, oidc
 from pasqal_cloud.config import PasqalCloudProfile, ProfileConfig
+
+logger = logging.getLogger(__name__)
 
 # Seconds after which a lock is considered abandoned and taken over: well
 # above the worst case of the network calls made under it.
@@ -176,6 +180,27 @@ def read_entries() -> dict[str, CacheEntry]:
     return entries
 
 
+def _warn_lock_retry(state: tenacity.RetryCallState) -> None:
+    if state.attempt_number == 1:
+        logger.warning(
+            "%s is still being deleted by its previous holder, retrying...",
+            state.args[0],
+        )
+
+
+@tenacity.retry(
+    # Windows refuses to create a file the previous holder is still deleting.
+    # Elsewhere, or if it persists, it's a real permission error.
+    retry=tenacity.retry_if_exception_type(PermissionError),
+    wait=tenacity.wait_incrementing(start=0.05, increment=0.05),
+    stop=tenacity.stop_after_attempt(10 if os.name == "nt" else 1),
+    before_sleep=_warn_lock_retry,
+    reraise=True,
+)
+def _create_lock_file(path: Path) -> int:
+    return os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+
+
 @contextmanager
 def lock() -> Iterator[None]:
     """Hold the cache lock file, to wrap every read-modify-write of the cache.
@@ -190,7 +215,7 @@ def lock() -> Iterator[None]:
 
     while True:
         try:
-            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+            fd = _create_lock_file(path)
             break
         except FileExistsError:
             pass

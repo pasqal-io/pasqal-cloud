@@ -41,13 +41,13 @@ import logging
 import os
 import sys
 import tempfile
-import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, get_args
 from urllib.parse import urlparse
 
+import tenacity
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -218,24 +218,24 @@ def write_private_file(path: Path, text: str) -> None:
         raise
 
 
+def _warn_replace_retry(state: tenacity.RetryCallState) -> None:
+    if state.attempt_number == 1:
+        logger.warning(
+            "%s is open in another process, retrying the write...", state.args[1]
+        )
+
+
+@tenacity.retry(
+    # Windows refuses to replace a file another process has open, while POSIX
+    # `rename` doesn't care.
+    retry=tenacity.retry_if_exception_type(PermissionError),
+    wait=tenacity.wait_incrementing(start=0.05, increment=0.05),
+    stop=tenacity.stop_after_attempt(10 if sys.platform == "win32" else 1),
+    before_sleep=_warn_replace_retry,
+    reraise=True,
+)
 def replace_file(src: str, dst: Path) -> None:
-    """`os.replace`, retried briefly on Windows.
-
-    Windows refuses to replace a file another process has open, while POSIX
-    `rename` doesn't care.
-    """
-    if sys.platform == "win32":
-        for attempt in range(1, 10):
-            try:
-                os.replace(src, dst)
-                return
-            except PermissionError:  # noqa: PERF203 (retrying is the point)
-                if attempt == 1:
-                    logger.warning(
-                        "%s is open in another process, retrying the write...", dst
-                    )
-                time.sleep(0.05 * attempt)
-
+    """`os.replace`, retried briefly on Windows."""
     os.replace(src, dst)
 
 

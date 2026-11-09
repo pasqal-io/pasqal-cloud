@@ -9,7 +9,7 @@ from pasqal_cloud import cli, config, token_cache
 from pasqal_cloud.config import DEFAULT_PROFILES
 
 from tests.test_token_cache import write
-from tests.utils import posix_only
+from tests.utils import posix_only, windows_only
 
 FR = DEFAULT_PROFILES["default-fr"].issuer.rstrip("/")
 SA = DEFAULT_PROFILES["default-sa"].issuer.rstrip("/")
@@ -146,3 +146,44 @@ def test_lock_takes_over_stale_lock():
     os.utime(path, (stale, stale))
     with token_cache.lock():
         assert json.loads(path.read_text())["pid"] == os.getpid()
+
+
+@windows_only
+def test_lock_waits_for_a_pending_delete_on_windows(caplog):
+    # Windows deletes a file in two steps: the file is first marked "delete
+    # pending", then actually removed once its last open handle is closed.
+    # Meanwhile its name still exists, and creating it again fails with
+    # PermissionError, not FileExistsError. lock() hits this when the process
+    # holding the lock has just released it, deleting the lock file, while
+    # another process still has the file open.
+    path = token_cache.lock_path()
+    path.parent.mkdir(mode=0o700)
+    path.write_text("{}")
+
+    # O_TEMPORARY opens with "delete on close", sharing delete access with
+    # other handles. `other_process` is the process keeping the file open. The
+    # second handle is the process releasing the lock: closing it marks the
+    # file as delete pending, but `other_process` keeps it from being removed.
+    other_process = os.open(path, os.O_RDONLY | os.O_TEMPORARY)
+    os.close(os.open(path, os.O_RDONLY | os.O_TEMPORARY))
+
+    # The file is in the state lock() must handle: the very call it makes
+    # fails with PermissionError.
+    with pytest.raises(PermissionError):
+        os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+
+    # The other process closes the file after 0.2s, well within the
+    # ~2s lock() retries for: the file is removed and can be created again.
+    closer = threading.Timer(0.2, os.close, (other_process,))
+    closer.start()
+
+    try:
+        with token_cache.lock():
+            # A new lock file, with our pid, replaced the deleted one.
+            assert json.loads(path.read_text())["pid"] == os.getpid()
+    finally:
+        closer.join()
+
+    assert caplog.messages == [
+        f"{path} is still being deleted by its previous holder, retrying..."
+    ]
