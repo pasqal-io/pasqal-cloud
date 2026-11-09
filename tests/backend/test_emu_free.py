@@ -1,4 +1,3 @@
-from unittest.mock import patch
 from uuid import uuid4
 
 import pytest
@@ -10,18 +9,14 @@ from pulser.backend.remote import JobParams
 from pasqal_cloud.backends import RemoteEmuFreeBackend
 from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
-from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
+from tests.test_doubles.authentication import FakeTokenProvider
 
 
-@patch(
-    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 @pytest.mark.parametrize("job_params", [None, [JobParams(runs=10)]])
 def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params):
     mock_request.reset_mock()
     connection = PasqalCloudConnection(
-        username="test", password="test", project_id=str(uuid4())
+        token_provider=FakeTokenProvider(), project_id=str(uuid4())
     )
 
     device = AnalogDevice
@@ -49,14 +44,10 @@ def test_emu_free_backend(mock_request: requests_mock.mocker.Mocker, job_params)
     assert post_batch_body["jobs"] == job_params or {"runs": 1}
 
 
-@patch(
-    "pasqal_cloud.http_client.PasswordGrantTokenProvider",
-    FakeAuth0AuthenticationSuccess,
-)
 def test_emu_free_backend_with_custom_config(mock_request: requests_mock.mocker.Mocker):
     mock_request.reset_mock()
     connection = PasqalCloudConnection(
-        username="test", password="test", project_id=str(uuid4())
+        token_provider=FakeTokenProvider(), project_id=str(uuid4())
     )
 
     device = AnalogDevice

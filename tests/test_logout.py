@@ -24,12 +24,6 @@ def oidc_config(issuer):
     }
 
 
-@pytest.fixture(autouse=True)
-def _home(monkeypatch, tmp_path):
-    monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
-
-
 @pytest.fixture
 def idp(requests_mock):
     for issuer in (FR, SA):

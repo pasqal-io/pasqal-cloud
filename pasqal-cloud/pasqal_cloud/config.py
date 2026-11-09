@@ -37,8 +37,11 @@ is used.
 
 from __future__ import annotations
 
+import logging
 import os
+import sys
 import tempfile
+import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
@@ -67,6 +70,8 @@ from pasqal_cloud.endpoints import (
     Region,
     SA_KEYCLOAK_BASE_URL,
 )
+
+logger = logging.getLogger(__name__)
 
 REGIONS: tuple[Region, ...] = get_args(Region)
 URL_KEYS = ("issuer", "core_url", "account_url")
@@ -207,10 +212,31 @@ def write_private_file(path: Path, text: str) -> None:
             f.write(text)
             f.flush()
             os.fsync(f.fileno())
-        os.replace(tmp, path)
+        replace_file(tmp, path)
     except BaseException:
         os.unlink(tmp)
         raise
+
+
+def replace_file(src: str, dst: Path) -> None:
+    """`os.replace`, retried briefly on Windows.
+
+    Windows refuses to replace a file another process has open, while POSIX
+    `rename` doesn't care.
+    """
+    if sys.platform == "win32":
+        for attempt in range(1, 10):
+            try:
+                os.replace(src, dst)
+                return
+            except PermissionError:  # noqa: PERF203 (retrying is the point)
+                if attempt == 1:
+                    logger.warning(
+                        "%s is open in another process, retrying the write...", dst
+                    )
+                time.sleep(0.05 * attempt)
+
+    os.replace(src, dst)
 
 
 # ---- Profiles ----
@@ -271,10 +297,22 @@ def delete_profile(config: Config, name: str) -> None:
 
 
 def resolve_profile(
-    profile: str | None = None, config: Config | None = None
+    profile: str | None = None,
+    config: Config | None = None,
+    region: Region | None = None,
 ) -> PasqalCloudProfile:
-    """Resolve the profile (see `resolve_profile_name`) to its config.
-    Raises ValueError on an unknown profile or an invalid or unreadable config."""
+    """Resolve the profile to its config: `region` selects the built-in
+    `default-<region>` one, even over the active profile. Without it, see
+    `resolve_profile_name`.
+
+    Raises ValueError on an unknown profile or region, on both a profile and a
+    region, or on an invalid or unreadable config."""
+    if region is not None and region not in REGIONS:
+        raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+    if region is not None and profile is not None:
+        raise ValueError("Pass either a profile or a region, not both")
+
     config = load_config() if config is None else config
-    name = resolve_profile_name(config, profile)
+    name = f"default-{region}" if region else resolve_profile_name(config, profile)
+
     return PasqalCloudProfile(name, get_profile_config(config, name))

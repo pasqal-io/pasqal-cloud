@@ -1,7 +1,9 @@
 import json
 import os
+import threading
 
 import pytest
+from pasqal_cloud.authentication import password_grant_config
 from pasqal_cloud.cli import main
 from pasqal_cloud.config import (
     Config,
@@ -10,7 +12,11 @@ from pasqal_cloud.config import (
     ProfileConfig,
     REGIONS,
     resolve_profile,
+    write_private_file,
 )
+from pasqal_cloud.endpoints import TokenProviderConf
+
+from tests.utils import windows_only
 
 
 @pytest.fixture(autouse=True)
@@ -53,6 +59,30 @@ def test_defaults_without_config_file():
 def test_builtin_profile_per_region(region):
     profile = resolve_profile(f"default-{region}")
     assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
+
+
+@pytest.mark.parametrize("region", REGIONS)
+def test_region_selects_builtin_profile_without_chosen_profile(region):
+    profile = resolve_profile(region=region)
+    assert profile.name == f"default-{region}"
+    assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
+
+
+def test_region_wins_over_active_profile():
+    config = Config.model_validate(
+        {"active_profile": "dev", "profiles": {"dev": profile_config("dev")}}
+    )
+    assert resolve_profile(config=config, region="sa").name == "default-sa"
+
+
+def test_profile_and_region_raises():
+    with pytest.raises(ValueError, match="either a profile or a region"):
+        resolve_profile("default-fr", region="sa")
+
+
+def test_unknown_region_raises():
+    with pytest.raises(ValueError, match="Unknown region 'us'"):
+        resolve_profile(region="us")  # type: ignore[arg-type]
 
 
 def test_named_profile_uses_its_values():
@@ -240,3 +270,49 @@ def test_cli_profile_switch(capsys, config_path):
 def test_cli_profile_errors(capsys, argv, error):
     assert main(argv) == 1
     assert error in capsys.readouterr().err
+
+
+def test_password_grant_config(requests_mock):
+    config = Config.model_validate({"profiles": {"dev": profile_config("dev")}})
+    profile = resolve_profile("dev", config)
+    issuer = profile.config.issuer.rstrip("/")
+    requests_mock.get(
+        f"{issuer}/.well-known/openid-configuration",
+        json={
+            "authorization_endpoint": f"{issuer}/authorize",
+            "token_endpoint": f"{issuer}/token",
+            "scopes_supported": ["offline_access"],
+        },
+    )
+
+    config = password_grant_config(profile)
+
+    assert config == TokenProviderConf(
+        token_endpoint=f"{issuer}/token",
+        public_client_id=profile.config.client_id,
+        audience=profile.config.audience,
+        realm=None,
+        grant_type="password",
+    )
+
+
+@windows_only
+def test_write_private_file_waits_for_a_reader_on_windows(tmp_path, caplog):
+    path = tmp_path / "config.json"
+    path.write_text("old")
+
+    # Python's open() doesn't let other handles delete or replace the file,
+    # so os.replace fails until the reader closes it.
+    reader = path.open()
+    closer = threading.Timer(0.2, reader.close)
+    closer.start()
+
+    try:
+        write_private_file(path, "new")
+    finally:
+        closer.join()
+
+    assert path.read_text() == "new"
+    assert caplog.messages == [
+        f"{path} is open in another process, retrying the write..."
+    ]

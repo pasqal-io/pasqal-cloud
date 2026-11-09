@@ -1328,6 +1328,7 @@ class TestBatch:
             )
         assert batch.id == self.batch_id
 
+    @pytest.mark.filterwarnings("ignore:Authenticating with username/password")
     @pytest.mark.filterwarnings("error::UserWarning")
     @pytest.mark.usefixtures("mock_request")
     def test_create_open_batch_all_jobs_have_sequence_no_warning(
