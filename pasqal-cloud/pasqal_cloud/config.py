@@ -115,8 +115,7 @@ class ProfileConfig(BaseModel):
 
 # Read-only prod profiles, one per region (`default-<region>`). Other
 # environments are user config profiles.
-# TODO: replace client IDs with the new Auth0 Native / Keycloak public clients
-# once they are created.
+# TODO: replace Auth0 PROD client ID.
 DEFAULT_PROFILES: dict[str, ProfileConfig] = {
     "default-fr": ProfileConfig(
         issuer=f"https://{AUTH0_DOMAIN}/",
