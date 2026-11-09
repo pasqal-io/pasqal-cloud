@@ -79,6 +79,10 @@ class HTTPClient:
         auth_config: Optional[TokenProviderConf] = None,
         region: Optional[Region] = None,
     ):
+        self._warn_deprecated_args(
+            endpoints=endpoints, auth0=auth0, auth_config=auth_config
+        )
+
         self.profile = resolve_profile(region=region)
         self.endpoints = self._make_endpoints(endpoints, self.profile)
         self._project_id = project_id
@@ -110,13 +114,7 @@ class HTTPClient:
                     "simultaneously."
                 )
             if auth0 is not None:
-                warnings.warn(
-                    "Argument `auth0` is deprecated and will be removed in a"
-                    " future version. Please use auth_config instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                auth_config = TokenProviderConf.from_auth0_config(auth0)
+                auth_config = TokenProviderConf._from_auth0_config(auth0)
 
             if auth_config is None:
                 auth_config = password_grant_config(self.profile)
@@ -212,6 +210,19 @@ class HTTPClient:
     @project_id.setter
     def project_id(self, project_id: str) -> None:
         self._project_id = project_id
+
+    @staticmethod
+    def _warn_deprecated_args(**args: Any) -> None:
+        for name, value in args.items():
+            if value is not None:
+                warnings.warn(
+                    f"Argument `{name}` is deprecated and will be removed in the next"
+                    " major version. Select the region with the `region` argument,"
+                    " and other environments with a `pasqal-cloud profile`.",
+                    FutureWarning,
+                    # The caller of PasqalCloudClient, through HTTPClient.__init__.
+                    stacklevel=4,
+                )
 
     @staticmethod
     def _make_endpoints(

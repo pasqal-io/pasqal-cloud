@@ -10,15 +10,18 @@ import requests
 import requests_mock
 from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
-    AUTH0_CONFIG,
     Auth0Conf,
     config,
     Endpoints,
-    PASQAL_ENDPOINTS,
 )
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import PasswordGrantTokenProvider, TokenProvider
-from pasqal_cloud.endpoints import KSA_CORE_API_URL, TokenProviderConf
+from pasqal_cloud.endpoints import (
+    _AUTH0_CONFIG,
+    _PASQAL_ENDPOINTS,
+    KSA_CORE_API_URL,
+    TokenProviderConf,
+)
 from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.ovh import OvhClient
 from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
@@ -90,10 +93,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         )
         assert sdk.user_token() == CUSTOM_TOKEN
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_correct_endpoints(self):
         sdk = PasqalCloudClient(
             project_id=self.project_id,
@@ -103,10 +103,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         )
         assert sdk._client.endpoints.core == self.new_core_endpoint
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_correct_new_auth0(self):
         new_auth0 = Auth0Conf(domain="new_domain")
         PasqalCloudClient(
@@ -149,6 +146,7 @@ class TestAuthFailure(TestSDKCommonAttributes):
 
 
 class TestInvalidAuthConfig(TestSDKCommonAttributes):
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_cannot_init_sdk_with_auth0_and_auth_config(self):
         """
         verify that sdk initialization raises a ValueError when auth0 and auth_config
@@ -230,6 +228,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         with pytest.raises(TypeError):
             PasqalCloudClient(project_id=self.project_id, token_provider="token")
 
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_bad_auth0(self):
         with pytest.raises(TypeError):
             PasqalCloudClient(
@@ -247,10 +246,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         ):
             sdk.get_batch("fake-id")
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_bad_endpoints(self):
         with pytest.raises(TypeError):
             PasqalCloudClient(
@@ -277,13 +273,14 @@ class TestEnvSDK(TestSDKCommonAttributes):
             ("dev", "https://apis.dev.pasqal.cloud/core-fast"),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_select_env(self, env: str, core_endpoint_expected: str):
         sdk = PasqalCloudClient(
             project_id=self.project_id,
             username=self.username,
             password=self.password,
-            auth0=AUTH0_CONFIG[env],
-            endpoints=PASQAL_ENDPOINTS[env],
+            auth0=_AUTH0_CONFIG[env],
+            endpoints=_PASQAL_ENDPOINTS[env],
         )
         assert sdk._client.endpoints.core == core_endpoint_expected
 
@@ -673,7 +670,7 @@ def test_endpoints_follow_region_and_profile():
         core="https://apis.sa.dev/core-fast", account="https://apis.sa.dev/account"
     )
     assert HTTPClient().endpoints == dev
-    assert HTTPClient(region="fr").endpoints == PASQAL_ENDPOINTS["prod"]
+    assert HTTPClient(region="fr").endpoints == _PASQAL_ENDPOINTS["prod"]
 
     config.save_config(config.Config(active_profile="default-fr"))
-    assert HTTPClient().endpoints == PASQAL_ENDPOINTS["prod"]
+    assert HTTPClient().endpoints == _PASQAL_ENDPOINTS["prod"]
