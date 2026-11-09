@@ -23,7 +23,7 @@ TOKEN = f"{ISSUER}/token"
 
 @pytest.fixture(autouse=True)
 def _no_sleep():
-    with patch("pasqal_cloud.authentication.time.sleep"):
+    with patch("time.sleep"):
         yield
 
 

@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 import requests
+import tenacity
 from jwt import decode, DecodeError
 from requests import PreparedRequest
 from requests.auth import AuthBase
@@ -256,36 +257,40 @@ class CachedLoginTokenProvider(ExpiringTokenProvider):
 
     def _refresh(self, entry: token_cache.CacheEntry) -> token_cache.CacheEntry:
         """Exchange the refresh token, retrying transient errors."""
-        last_error: oidc.OIDCError | None = None
-        for attempt in range(REFRESH_ATTEMPTS):
-            if attempt:
-                time.sleep(2 ** (attempt - 1))
+        try:
+            tokens = _refresh_request(entry)
+            return entry.updated(tokens)
+        except oidc.OIDCError as e:
+            # The entry is kept so `pasqal-cloud auth status` can report it.
+            if e.error == "invalid_grant":
+                raise self._login_required(
+                    f"The login to {self.profile.name} expired or was revoked"
+                ) from e
+            raise TokenProviderError(e) from e
 
-            try:
-                tokens = oidc.token_request(
-                    oidc.discover(entry.issuer),
-                    {
-                        "grant_type": "refresh_token",
-                        "client_id": entry.client_id,
-                        "refresh_token": entry.refresh_token,
-                    },
-                )
-                return entry.updated(tokens)
+        except (KeyError, TypeError, ValueError) as e:
+            raise TokenProviderError(f"Invalid token response: {e!r}") from e
 
-            except oidc.OIDCError as e:
-                # The entry is kept so `pasqal-cloud auth status` can report it.
-                if e.error == "invalid_grant":
-                    raise self._login_required(
-                        f"The login to {self.profile.name} expired or was revoked"
-                    ) from e
-                if not e.transient:
-                    raise TokenProviderError(e) from e
-                last_error = e
 
-            except (KeyError, TypeError, ValueError) as e:
-                raise TokenProviderError(f"Invalid token response: {e!r}") from e
-
-        raise TokenProviderError(last_error) from last_error
+@tenacity.retry(
+    retry=tenacity.retry_if_exception(
+        lambda e: isinstance(e, oidc.OIDCError)
+        and e.transient
+        and e.error != "invalid_grant"
+    ),
+    wait=tenacity.wait_exponential(multiplier=1),
+    stop=tenacity.stop_after_attempt(REFRESH_ATTEMPTS),
+    reraise=True,
+)
+def _refresh_request(entry: token_cache.CacheEntry) -> dict[str, Any]:
+    return oidc.token_request(
+        oidc.discover(entry.issuer),
+        {
+            "grant_type": "refresh_token",
+            "client_id": entry.client_id,
+            "refresh_token": entry.refresh_token,
+        },
+    )
 
 
 def _warn_deprecated_auth0_provider(name: str) -> None:
