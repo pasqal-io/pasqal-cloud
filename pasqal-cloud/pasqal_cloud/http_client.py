@@ -24,7 +24,6 @@ from uuid import UUID
 import requests
 from requests.auth import AuthBase
 
-from pasqal_cloud import token_cache
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
     CachedLoginTokenProvider,
@@ -121,7 +120,7 @@ class HTTPClient:
 
             token_provider = self._credential_login(username, password, auth_config)
         elif token_provider is None and endpoints is None:
-            token_provider = self._cached_login(self.profile)
+            token_provider = CachedLoginTokenProvider(self.profile)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -237,17 +236,6 @@ class HTTPClient:
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
-
-    @staticmethod
-    def _cached_login(profile: PasqalCloudProfile) -> Optional[TokenProvider]:
-        """The `pasqal-cloud auth login` of the profile, if any.
-
-        Raises TokenCacheError if the cache file is too permissive or invalid.
-        """
-        if token_cache.entry_for(token_cache.read_entries(), profile) is None:
-            return None
-
-        return CachedLoginTokenProvider(profile)
 
     @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:
