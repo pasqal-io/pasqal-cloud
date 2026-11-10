@@ -24,7 +24,6 @@ from uuid import UUID
 import requests
 from requests.auth import AuthBase
 
-from pasqal_cloud import token_cache
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
     CachedLoginTokenProvider,
@@ -40,6 +39,7 @@ from pasqal_cloud.endpoints import (
     Auth0Conf,
     Endpoints,
     Region,
+    REGIONS,
     TokenProviderConf,
 )
 from pasqal_cloud.utils.filters import (
@@ -83,7 +83,7 @@ class HTTPClient:
             endpoints=endpoints, auth0=auth0, auth_config=auth_config
         )
 
-        self.profile = resolve_profile(region=region)
+        self.profile = resolve_profile(self._region_profile(region))
         self.endpoints = self._make_endpoints(endpoints, self.profile)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
@@ -121,7 +121,7 @@ class HTTPClient:
 
             token_provider = self._credential_login(username, password, auth_config)
         elif token_provider is None and endpoints is None:
-            token_provider = self._cached_login(self.profile)
+            token_provider = CachedLoginTokenProvider(self.profile)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
@@ -225,6 +225,17 @@ class HTTPClient:
                 )
 
     @staticmethod
+    def _region_profile(region: Optional[Region]) -> Optional[str]:
+        """The built-in `default-<region>` profile, which wins over the active
+        one. Without a region, the active profile is used."""
+        if region is None:
+            return None
+        if region not in REGIONS:
+            raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+
+        return f"default-{region}"
+
+    @staticmethod
     def _make_endpoints(
         endpoints: Optional[Endpoints], profile: PasqalCloudProfile
     ) -> Endpoints:
@@ -237,17 +248,6 @@ class HTTPClient:
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
         return endpoints
-
-    @staticmethod
-    def _cached_login(profile: PasqalCloudProfile) -> Optional[TokenProvider]:
-        """The `pasqal-cloud auth login` of the profile, if any.
-
-        Raises TokenCacheError if the cache file is too permissive or invalid.
-        """
-        if token_cache.entry_for(token_cache.read_entries(), profile) is None:
-            return None
-
-        return CachedLoginTokenProvider(profile)
 
     @staticmethod
     def _check_token_provider(token_provider: TokenProvider) -> None:

@@ -5,13 +5,13 @@ You can get a [`PasqalCloudClient`][pasqal_cloud.pasqal_cloud_client.PasqalCloud
 # Get it from connection
 from pasqal_cloud import PasqalCloudConnection
 
-connection = PasqalCloudConnection(username="username", password="password", project_id="project_id")
+connection = PasqalCloudConnection(project_id="project_id")
 cloud_client = connection.cloud_client
 
 # Instantiate it directly
 from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
-cloud_client = PasqalCloudClient(username="username", password="password", project_id="project_id")
+cloud_client = PasqalCloudClient(project_id="project_id")
 ```
 
 ## Batch
@@ -231,7 +231,7 @@ to instantiate a `Device` instance in the `Pulser` library.
 When you instantiate an [`PasqalCloudClient`][pasqal_cloud.pasqal_cloud_client.PasqalCloudClient], you set the project it is linked to:
 
 ```python
-cloud_client = PasqalCloudClient(username=username, password=password, project_id=project_id)
+cloud_client = PasqalCloudClient(project_id=project_id)
 ```
 
 If you need to send batches/jobs/workloads to another project, you can do it without

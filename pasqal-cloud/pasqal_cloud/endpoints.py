@@ -14,7 +14,7 @@
 import warnings
 from dataclasses import dataclass
 from sys import version_info
-from typing import Any, Literal, Optional
+from typing import Any, get_args, Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -23,6 +23,7 @@ else:
 
 
 Region = Literal["fr", "sa"]
+REGIONS: tuple[Region, ...] = get_args(Region)
 
 # ---- Endpoints ----
 
@@ -79,7 +80,7 @@ class Endpoints:
 # Prod Auth0 configuration
 AUTH0_DOMAIN: Final[str] = "authenticate.pasqal.cloud"
 AUTH0_TOKEN_ENDPOINT: Final[str] = "https://pasqal.eu.auth0.com/oauth/token"
-PUBLIC_CLIENT_ID: Final[str] = "PeZvo7Atx7IVv3iel59asJSb4Ig7vuSB"
+PUBLIC_CLIENT_ID: Final[str] = "Y5LAYAsuD5tlydzv0gUHob8jLn7lh02O"
 AUDIENCE: Final[str] = "https://apis.pasqal.cloud/account/api/v1"
 
 PREPROD_AUTH0_DOMAIN: Final[str] = "authenticate.preprod.pasqal.cloud"

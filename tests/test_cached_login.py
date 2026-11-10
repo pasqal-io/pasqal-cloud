@@ -23,7 +23,7 @@ TOKEN = f"{ISSUER}/token"
 
 @pytest.fixture(autouse=True)
 def _no_sleep():
-    with patch("pasqal_cloud.authentication.time.sleep"):
+    with patch("time.sleep"):
         yield
 
 
@@ -59,12 +59,14 @@ def cached():
 
 
 def test_uses_cached_access_token(requests_mock):
+    """A valid cached access token is used as is, without any request."""
     save()
     assert HTTPClient().user_token() == "SECRET-ACCESS"
     assert not requests_mock.request_history
 
 
 def test_refreshes_expired_token_and_rotates_refresh_token(idp):
+    """An expiring access token is refreshed once and the new tokens are saved."""
     # Still valid, but within the 1 min expiry window: treated as expired.
     save(expires_at=int(time.time()) + 30)
 
@@ -93,6 +95,8 @@ def test_refreshes_expired_token_and_rotates_refresh_token(idp):
 
 
 def test_uses_token_refreshed_by_another_process(idp):
+    """The cache is read again under the lock, so a token refreshed by another
+    process since the client was created is used instead of refreshing again."""
     save(expires_at=0)
     client = HTTPClient()
     save(access_token="OTHER-ACCESS")  # another process refreshed meanwhile
@@ -101,6 +105,7 @@ def test_uses_token_refreshed_by_another_process(idp):
 
 
 def test_discovers_once_per_process(idp):
+    """The issuer's OIDC discovery document is fetched once, then reused."""
     for _ in range(2):
         save(expires_at=0)
         HTTPClient().user_token()
@@ -108,6 +113,7 @@ def test_discovers_once_per_process(idp):
 
 
 def test_invalid_grant_requires_login(idp):
+    """A refresh token rejected as expired or revoked asks for a new login."""
     # On a non-default profile, so the login hint must activate it.
     dev = config.ProfileConfig(
         region="fr",
@@ -156,6 +162,7 @@ def test_invalid_grant_requires_login(idp):
 
 
 def test_expired_login_falls_back_to_public_device_specs(idp):
+    """Device specs are public: an expired login warns and returns them anyway."""
     save(expires_at=0)
     idp.post(TOKEN, status_code=400, json={"error": "invalid_grant"})
     client = HTTPClient()
@@ -171,6 +178,7 @@ def test_expired_login_falls_back_to_public_device_specs(idp):
 
 
 def test_retries_transient_errors(idp):
+    """Transient refresh errors (5xx, rate limiting) are retried."""
     save(expires_at=0)
     idp.post(
         TOKEN,
@@ -186,6 +194,7 @@ def test_retries_transient_errors(idp):
 
 
 def test_gives_up_after_three_attempts(idp):
+    """Persistent refresh errors are raised after REFRESH_ATTEMPTS attempts."""
     save(expires_at=0)
     idp.post(TOKEN, status_code=503)
     with pytest.raises(TokenProviderError):
@@ -194,6 +203,7 @@ def test_gives_up_after_three_attempts(idp):
 
 
 def test_logged_out_meanwhile_requires_login():
+    """A `pasqal-cloud auth logout` while a client is alive logs it out too."""
     save(expires_at=0)
     client = HTTPClient()
     token_cache.write_entries({})
@@ -201,22 +211,30 @@ def test_logged_out_meanwhile_requires_login():
         client.user_token()
 
 
-def test_not_logged_in_stays_unauthenticated():
+def test_login_after_the_client_is_created_is_used():
+    """Logging in with the CLI while a client is alive (e.g. in a REPL) needs no
+    new client: the cache is read again while no valid token is held."""
     client = HTTPClient()
-    assert client.authenticator is None
-    with pytest.raises(
-        ValueError, match="log in with: pasqal-cloud auth login .add --device"
-    ):
-        client._authenticated_request("GET", "https://example.com")
+    with pytest.raises(LoginRequiredError):
+        client.user_token()
+
+    save()
+    assert client.user_token() == "SECRET-ACCESS"
 
 
 def test_entry_of_another_client_is_ignored():
+    """A login made with another OIDC client (e.g. an older SDK) cannot be
+    refreshed by this one, so requests ask for a new login."""
     save(client_id="old-client")
-    assert HTTPClient().authenticator is None
+    client = HTTPClient()
+
+    with pytest.raises(LoginRequiredError, match="Not logged in to default-fr"):
+        client.get_batch("batch-id")
 
 
 @pytest.mark.filterwarnings("ignore:Argument `endpoints` is deprecated")
 def test_explicit_endpoints_ignore_the_cache():
+    """The cached login targets the profile's URLs, not custom endpoints."""
     save()
     client = HTTPClient(endpoints=Endpoints(core="https://example.org/core"))
     assert client.authenticator is None
@@ -224,6 +242,7 @@ def test_explicit_endpoints_ignore_the_cache():
 
 @patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
 def test_explicit_credentials_win(password_provider):
+    """username/password take precedence over the cached login."""
     password_provider.return_value = FakeAuth0AuthenticationSuccess("u", "p", None)
     save()
     assert HTTPClient(username="u", password="p").user_token() == "some_token"
@@ -231,6 +250,7 @@ def test_explicit_credentials_win(password_provider):
 
 @patch("pasqal_cloud.http_client.PasswordGrantTokenProvider")
 def test_password_wins_over_token_provider_with_a_warning(password_provider):
+    """username/password take precedence over a token_provider, with a warning."""
     password_provider.return_value = FakeAuth0AuthenticationSuccess("u", "p", None)
     token_provider = Mock(spec=TokenProvider)
 
@@ -242,6 +262,7 @@ def test_password_wins_over_token_provider_with_a_warning(password_provider):
 
 
 def test_lock_outlives_the_slowest_refresh():
+    """A lock is only taken over once stale, so it must outlive any refresh."""
     # Per attempt: discovery and token requests, each up to TIMEOUT to connect
     # and as much to read; then the backoff between attempts.
     attempts = authentication.REFRESH_ATTEMPTS

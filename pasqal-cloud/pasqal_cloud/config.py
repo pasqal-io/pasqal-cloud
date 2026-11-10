@@ -41,13 +41,13 @@ import logging
 import os
 import sys
 import tempfile
-import time
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, get_args
+from typing import Annotated
 from urllib.parse import urlparse
 
+import tenacity
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -67,13 +67,11 @@ from pasqal_cloud.endpoints import (
     KSA_ACCOUNT_API_URL,
     KSA_CORE_API_URL,
     PUBLIC_CLIENT_ID,
-    Region,
     SA_KEYCLOAK_BASE_URL,
 )
 
 logger = logging.getLogger(__name__)
 
-REGIONS: tuple[Region, ...] = get_args(Region)
 URL_KEYS = ("issuer", "core_url", "account_url")
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 
@@ -218,24 +216,24 @@ def write_private_file(path: Path, text: str) -> None:
         raise
 
 
+def _warn_replace_retry(state: tenacity.RetryCallState) -> None:
+    if state.attempt_number == 1:
+        logger.warning(
+            "%s is open in another process, retrying the write...", state.args[1]
+        )
+
+
+@tenacity.retry(
+    # Windows refuses to replace a file another process has open, while POSIX
+    # `rename` doesn't care.
+    retry=tenacity.retry_if_exception_type(PermissionError),
+    wait=tenacity.wait_incrementing(start=0.05, increment=0.05),
+    stop=tenacity.stop_after_attempt(10 if sys.platform == "win32" else 1),
+    before_sleep=_warn_replace_retry,
+    reraise=True,
+)
 def replace_file(src: str, dst: Path) -> None:
-    """`os.replace`, retried briefly on Windows.
-
-    Windows refuses to replace a file another process has open, while POSIX
-    `rename` doesn't care.
-    """
-    if sys.platform == "win32":
-        for attempt in range(1, 10):
-            try:
-                os.replace(src, dst)
-                return
-            except PermissionError:  # noqa: PERF203 (retrying is the point)
-                if attempt == 1:
-                    logger.warning(
-                        "%s is open in another process, retrying the write...", dst
-                    )
-                time.sleep(0.05 * attempt)
-
+    """`os.replace`, retried briefly on Windows."""
     os.replace(src, dst)
 
 
@@ -297,22 +295,13 @@ def delete_profile(config: Config, name: str) -> None:
 
 
 def resolve_profile(
-    profile: str | None = None,
-    config: Config | None = None,
-    region: Region | None = None,
+    profile: str | None = None, config: Config | None = None
 ) -> PasqalCloudProfile:
-    """Resolve the profile to its config: `region` selects the built-in
-    `default-<region>` one, even over the active profile. Without it, see
-    `resolve_profile_name`.
+    """Resolve the profile to its config, see `resolve_profile_name`.
 
-    Raises ValueError on an unknown profile or region, on both a profile and a
-    region, or on an invalid or unreadable config."""
-    if region is not None and region not in REGIONS:
-        raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
-    if region is not None and profile is not None:
-        raise ValueError("Pass either a profile or a region, not both")
-
+    Raises ValueError on an unknown profile, or on an invalid or unreadable
+    config."""
     config = load_config() if config is None else config
-    name = f"default-{region}" if region else resolve_profile_name(config, profile)
+    name = resolve_profile_name(config, profile)
 
     return PasqalCloudProfile(name, get_profile_config(config, name))
