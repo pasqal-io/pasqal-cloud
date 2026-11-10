@@ -44,7 +44,7 @@ import tempfile
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, get_args
+from typing import Annotated
 from urllib.parse import urlparse
 
 import tenacity
@@ -67,13 +67,11 @@ from pasqal_cloud.endpoints import (
     KSA_ACCOUNT_API_URL,
     KSA_CORE_API_URL,
     PUBLIC_CLIENT_ID,
-    Region,
     SA_KEYCLOAK_BASE_URL,
 )
 
 logger = logging.getLogger(__name__)
 
-REGIONS: tuple[Region, ...] = get_args(Region)
 URL_KEYS = ("issuer", "core_url", "account_url")
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1")
 
@@ -297,22 +295,13 @@ def delete_profile(config: Config, name: str) -> None:
 
 
 def resolve_profile(
-    profile: str | None = None,
-    config: Config | None = None,
-    region: Region | None = None,
+    profile: str | None = None, config: Config | None = None
 ) -> PasqalCloudProfile:
-    """Resolve the profile to its config: `region` selects the built-in
-    `default-<region>` one, even over the active profile. Without it, see
-    `resolve_profile_name`.
+    """Resolve the profile to its config, see `resolve_profile_name`.
 
-    Raises ValueError on an unknown profile or region, on both a profile and a
-    region, or on an invalid or unreadable config."""
-    if region is not None and region not in REGIONS:
-        raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
-    if region is not None and profile is not None:
-        raise ValueError("Pass either a profile or a region, not both")
-
+    Raises ValueError on an unknown profile, or on an invalid or unreadable
+    config."""
     config = load_config() if config is None else config
-    name = f"default-{region}" if region else resolve_profile_name(config, profile)
+    name = resolve_profile_name(config, profile)
 
     return PasqalCloudProfile(name, get_profile_config(config, name))

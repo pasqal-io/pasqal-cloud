@@ -14,7 +14,7 @@
 import warnings
 from dataclasses import dataclass
 from sys import version_info
-from typing import Any, Literal, Optional
+from typing import Any, get_args, Literal, Optional
 
 if version_info[:2] >= (3, 8):
     from typing import Final
@@ -23,6 +23,7 @@ else:
 
 
 Region = Literal["fr", "sa"]
+REGIONS: tuple[Region, ...] = get_args(Region)
 
 # ---- Endpoints ----
 

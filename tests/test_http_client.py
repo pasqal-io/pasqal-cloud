@@ -678,3 +678,8 @@ def test_endpoints_follow_region_and_profile():
 
     config.save_config(config.Config(active_profile="default-fr"))
     assert HTTPClient().endpoints == _PASQAL_ENDPOINTS["prod"]
+
+
+def test_unknown_region_raises():
+    with pytest.raises(ValueError, match="Unknown region 'us'"):
+        HTTPClient(region="us")  # type: ignore[arg-type]
