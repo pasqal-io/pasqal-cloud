@@ -10,11 +10,10 @@ from pasqal_cloud.config import (
     DEFAULT_PROFILES,
     load_config,
     ProfileConfig,
-    REGIONS,
     resolve_profile,
     write_private_file,
 )
-from pasqal_cloud.endpoints import TokenProviderConf
+from pasqal_cloud.endpoints import REGIONS, TokenProviderConf
 
 from tests.utils import windows_only
 
@@ -59,30 +58,6 @@ def test_defaults_without_config_file():
 def test_builtin_profile_per_region(region):
     profile = resolve_profile(f"default-{region}")
     assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
-
-
-@pytest.mark.parametrize("region", REGIONS)
-def test_region_selects_builtin_profile_without_chosen_profile(region):
-    profile = resolve_profile(region=region)
-    assert profile.name == f"default-{region}"
-    assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
-
-
-def test_region_wins_over_active_profile():
-    config = Config.model_validate(
-        {"active_profile": "dev", "profiles": {"dev": profile_config("dev")}}
-    )
-    assert resolve_profile(config=config, region="sa").name == "default-sa"
-
-
-def test_profile_and_region_raises():
-    with pytest.raises(ValueError, match="either a profile or a region"):
-        resolve_profile("default-fr", region="sa")
-
-
-def test_unknown_region_raises():
-    with pytest.raises(ValueError, match="Unknown region 'us'"):
-        resolve_profile(region="us")  # type: ignore[arg-type]
 
 
 def test_named_profile_uses_its_values():

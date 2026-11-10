@@ -39,6 +39,7 @@ from pasqal_cloud.endpoints import (
     Auth0Conf,
     Endpoints,
     Region,
+    REGIONS,
     TokenProviderConf,
 )
 from pasqal_cloud.utils.filters import (
@@ -82,7 +83,7 @@ class HTTPClient:
             endpoints=endpoints, auth0=auth0, auth_config=auth_config
         )
 
-        self.profile = resolve_profile(region=region)
+        self.profile = resolve_profile(self._region_profile(region))
         self.endpoints = self._make_endpoints(endpoints, self.profile)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
@@ -222,6 +223,17 @@ class HTTPClient:
                     # The caller of PasqalCloudClient, through HTTPClient.__init__.
                     stacklevel=4,
                 )
+
+    @staticmethod
+    def _region_profile(region: Optional[Region]) -> Optional[str]:
+        """The built-in `default-<region>` profile, which wins over the active
+        one. Without a region, the active profile is used."""
+        if region is None:
+            return None
+        if region not in REGIONS:
+            raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+
+        return f"default-{region}"
 
     @staticmethod
     def _make_endpoints(
