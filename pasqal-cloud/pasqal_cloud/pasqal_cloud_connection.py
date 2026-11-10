@@ -15,13 +15,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping, cast
+from typing import Any, Callable, cast, Mapping, ParamSpec, TypeVar
 
-from pasqal_cloud.device.device_types import DeviceTypeName
-from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 import tenacity
-from pasqal_cloud.endpoints import Region
-from pasqal_cloud.job import CreateJob
 from pulser import Sequence
 from pulser.backend import Results
 from pulser.backend.config import EmulationConfig
@@ -37,15 +33,26 @@ from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
+from pasqal_cloud.device.device_types import DeviceTypeName
+from pasqal_cloud.endpoints import Region
+from pasqal_cloud.job import CreateJob
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
 MAX_CLOUD_ATTEMPTS = 5
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
-retry = tenacity.retry(
+_retry = tenacity.retry(
     wait=tenacity.wait_exponential(multiplier=1, max=60),
     stop=tenacity.stop_after_attempt(MAX_CLOUD_ATTEMPTS),
     reraise=True,
 )
+
+
+def retry(func: Callable[P, R]) -> Callable[P, R]:
+    """Wrap a callable with the cloud retry policy while preserving its signature."""
+    return _retry(func)
 
 
 class PasqalCloudConnection(RemoteConnection):
@@ -101,9 +108,7 @@ class PasqalCloudConnection(RemoteConnection):
         backend_configuration_str = (
             backend_configuration.to_abstract_repr() if backend_configuration else None
         )
-        # If batch_id is not empty, then we can submit new jobs to a
-        # batch we just created otherwise, create a new one with
-        #  cloud_client.create_batch()
+        # Add jobs to the supplied batch, or create a new batch when none is given.
         if batch_id:
             submit_jobs_fn = retry(self.cloud_client.add_jobs)
             old_job_ids = self._get_job_ids(batch_id)
@@ -131,7 +136,7 @@ class PasqalCloudConnection(RemoteConnection):
         return self.get_results(batch_id=batch.id, job_ids=new_job_ids)
 
     @retry
-    def fetch_available_devices(self) -> dict[str, Device]:  # type: ignore[override, unused-ignore]
+    def fetch_available_devices(self) -> dict[str, Device]:
         """Fetches the devices available through this connection."""
         abstract_devices = self.cloud_client.get_device_specs_dict()
         return {
@@ -225,13 +230,13 @@ class PasqalCloudConnection(RemoteConnection):
         return results
 
     @retry
-    def _get_batch_status(self, batch_id: str) -> BatchStatus:  # type: ignore[override, unused-ignore]
+    def _get_batch_status(self, batch_id: str) -> BatchStatus:
         """Gets the status of a batch from its ID."""
         batch_status = self.cloud_client.get_batch_status(id=batch_id)
         return BatchStatus[batch_status.value]
 
     @retry
-    def _get_job_ids(self, batch_id: str) -> list[str]:  # type: ignore[override, unused-ignore]
+    def _get_job_ids(self, batch_id: str) -> list[str]:
         """Gets all the job IDs within a batch."""
         batch = self.cloud_client.get_batch(id=batch_id)
         return [job.id for job in batch.ordered_jobs]

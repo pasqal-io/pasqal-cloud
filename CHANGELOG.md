@@ -7,7 +7,6 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * `auth0-python` is no longer a runtime dependency (only used by tests)
-* Pin `tenacity < 9.2` until its new type hints are supported
 
 ## [0.24.0]
 
