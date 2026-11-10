@@ -52,8 +52,7 @@ _retry = tenacity.retry(
 
 def retry(func: Callable[P, R]) -> Callable[P, R]:
     """Wrap a callable with the cloud retry policy while preserving its signature."""
-    wrapped: object = _retry(func)
-    return cast(Callable[P, R], wrapped)
+    return _retry(func)
 
 
 class PasqalCloudConnection(RemoteConnection):
