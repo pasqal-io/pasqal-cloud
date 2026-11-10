@@ -86,7 +86,7 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.action == 'closed'
+      (github.event.action == 'closed' || needs.build.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: write # push the preview to the gh-pages branch
@@ -122,7 +122,7 @@ jobs:
     if: |
       always() &&
       github.event.pull_request.head.repo.full_name == github.repository &&
-      (github.event.action == 'closed' || needs.deploy.result == 'success')
+      github.event.action == 'closed'
     runs-on: ubuntu-latest
     permissions:
       contents: write # publish under portal-preview/pr-<n>/ on gh-pages
