@@ -15,6 +15,7 @@ from pasqal_cloud import (
 )
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
+    LoginRequiredError,
     PasswordGrantTokenProvider,
     TokenProvider,
     TokenProviderError,
@@ -199,8 +200,8 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             password=self.password,
         )
         with pytest.raises(
-            ValueError,
-            match="Authentication required. Please log in with:",
+            LoginRequiredError,
+            match="Not logged in to default-fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -244,8 +245,8 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_authentication_no_credentials_provided(self):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
-            ValueError,
-            match="Authentication required. Please log in with:",
+            LoginRequiredError,
+            match="Not logged in to default-fr, run:",
         ):
             sdk.get_batch("fake-id")
 
