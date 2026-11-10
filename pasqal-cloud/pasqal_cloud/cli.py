@@ -143,12 +143,7 @@ def _format_expiry(timestamp: int | None) -> str:
 def auth_status(_args: argparse.Namespace, config: Config) -> int:
     """Offline: list the cached logins, never printing token material."""
     profile = resolve_profile(config=config)
-    profile_from = "active profile" if config.active_profile else "default"
-    sys.stdout.write(
-        f"Cache file: {token_cache.cache_path()}\n"
-        f"Profile:    {profile.name} (from {profile_from})\n"
-        f"Issuer:     {profile.config.issuer}\n"
-    )
+    sys.stdout.write(f"Cache file: {token_cache.cache_path()}\n")
 
     try:
         entries = token_cache.read_entries()
@@ -156,24 +151,32 @@ def auth_status(_args: argparse.Namespace, config: Config) -> int:
         sys.stderr.write(f"Error: {e}\n")
         return 1
 
-    active_found = token_cache.entry_for(entries, profile) is not None
+    # The active profile comes first. An entry issued by another client than the
+    # profile's is still listed, but does not count as a login.
+    logged_in = token_cache.entry_for(entries, profile) is not None
+    sys.stdout.write(
+        f"\n* {profile.name} (active profile)"
+        f"{'' if logged_in else ' -> Not logged in'}\n"
+    )
+    active_entry = entries.pop(profile.name, None)
+    if active_entry is not None:
+        _write_entry(active_entry)
 
     for key, entry in sorted(entries.items()):
-        is_active = active_found and key == profile.name
-        sys.stdout.write(
-            f"\n{'*' if is_active else ' '} {key}"
-            f"{' (active)' if is_active else ''}\n"
-            f"    Issuer:         {entry.issuer}\n"
-            f"    User:           {_user(entry)}\n"
-            f"    Client:         {entry.client_id}\n"
-            f"    Access token:   {_format_expiry(entry.expires_at)}\n"
-            f"    Refresh token:  {_format_expiry(entry.refresh_expires_at)}\n"
-        )
+        sys.stdout.write(f"\n  {key}\n")
+        _write_entry(entry)
 
-    if not active_found:
-        sys.stderr.write(f"Not logged in to {profile.name}\n")
+    return 0 if logged_in else 1
 
-    return 0 if active_found else 1
+
+def _write_entry(entry: token_cache.CacheEntry) -> None:
+    sys.stdout.write(
+        f"    Issuer:         {entry.issuer}\n"
+        f"    User:           {_user(entry)}\n"
+        f"    Client:         {entry.client_id}\n"
+        f"    Access token:   {_format_expiry(entry.expires_at)}\n"
+        f"    Refresh token:  {_format_expiry(entry.refresh_expires_at)}\n"
+    )
 
 
 def logout(_args: argparse.Namespace, config: Config) -> int:

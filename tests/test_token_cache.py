@@ -142,12 +142,12 @@ def test_rejects_non_object(content):
 def test_status_not_logged_in(capsys):
     assert main(["auth", "status"]) == 1
     out, err = capsys.readouterr()
-    assert f"Cache file: {token_cache.cache_path()}" in out
-    assert (
-        "Profile:    default-fr (from default)\n"
-        "Issuer:     https://authenticate.pasqal.cloud/\n"
-    ) in out
-    assert "Not logged in to default-fr" in err
+    assert out == (
+        f"Cache file: {token_cache.cache_path()}\n"
+        "\n"
+        "* default-fr (active profile) -> Not logged in\n"
+    )
+    assert err == ""
 
 
 def test_status_lists_entries_and_marks_active(capsys):
@@ -160,15 +160,13 @@ def test_status_lists_entries_and_marks_active(capsys):
     )
     assert main(["auth", "status"]) == 0
     out, _ = capsys.readouterr()
-    assert (
-        "Profile:    dev (from active profile)\n"
-        "Issuer:     https://auth.sa.pasqal.cloud/realms/pasqal-cloud\n"
-    ) in out
-    assert (
-        "* dev (active)\n"
+    assert out.startswith(
+        f"Cache file: {token_cache.cache_path()}\n"
+        "\n"
+        "* dev (active profile)\n"
         "    Issuer:         https://auth.sa.pasqal.cloud/realms/pasqal-cloud\n"
         "    User:           bob@example.com\n"
-    ) in out
+    )
     assert (
         "  default-fr\n" "    Issuer:         https://authenticate.pasqal.cloud/\n"
     ) in out
@@ -199,10 +197,12 @@ def test_status_ignores_entry_for_another_client(capsys):
     data["default-fr"]["client_id"] = "old-client"
     path.write_text(json.dumps(data))
     assert main(["auth", "status"]) == 1
-    out, err = capsys.readouterr()
-    assert "  default-fr\n" in out
-    assert "(active)" not in out
-    assert "Not logged in to default-fr" in err
+    out, _ = capsys.readouterr()
+    assert (
+        "* default-fr (active profile) -> Not logged in\n"
+        "    Issuer:         https://authenticate.pasqal.cloud/\n"
+    ) in out
+    assert "Client:         old-client" in out
 
 
 @posix_only
