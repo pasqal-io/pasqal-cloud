@@ -468,6 +468,43 @@ class TestBatch:
         assert batch.ordered_jobs[0].full_result == self.job_full_result
         assert len(batch.ordered_jobs) == 1
 
+    def test_batch_close_and_wait_follows_queue_estimate(
+        self,
+        batch: Batch,
+        batch_data_fixture: Dict[str, Any],
+        caplog: pytest.LogCaptureFixture,
+    ):
+        """A queued batch is polled less often and its queue position is logged."""
+        batch_url = f"{batch._client.endpoints.core}/api/v2/batches/{batch.id}"
+        closed = {**batch_data_fixture, "open": False, "complete": True}
+        queued = {**closed, "queue_position": 2, "estimated_start_seconds": 1000}
+        done = {**closed, "status": "DONE"}
+        pending_status = {
+            "id": batch.id,
+            "status": "PENDING",
+            "jobs_count_per_status": {"PENDING": 1},
+        }
+        done_status = {**pending_status, "status": "DONE"}
+        done_status["jobs_count_per_status"] = {"DONE": 1}
+
+        with requests_mock.Mocker() as m, patch("time.sleep") as sleep:
+            m.patch(f"{batch_url}/complete", json={"data": closed})
+            m.get(
+                f"{batch._client.endpoints.core}/api/v1/batches/{batch.id}/status",
+                [{"json": {"data": pending_status}}] * 5
+                + [{"json": {"data": done_status}}],
+            )
+            m.get(batch_url, [{"json": {"data": queued}}, {"json": {"data": done}}])
+
+            with caplog.at_level("INFO", logger="pasqal_cloud"):
+                batch.close(wait=True)
+
+        waits = [call.args[0] for call in sleep.call_args_list]
+        assert max(waits) == 300
+        assert any("queue position 2" in r.getMessage() for r in caplog.records)
+        assert batch.status == "DONE"
+        assert batch.queue_position is None
+
     def test_cancel_batch_self(self, mock_request, batch):
         batch.cancel()
         assert batch.status == "CANCELED"

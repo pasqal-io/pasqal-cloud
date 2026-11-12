@@ -55,6 +55,9 @@ batch.refresh()  # or cloud_client.get_batch(batch.id)
 print(batch.queue_position, batch.estimated_start_seconds)
 ```
 
+While waiting on a queued batch or job (`wait=True`), the SDK logs the batch's queue position
+and estimated start at INFO level on the `pasqal_cloud` logger.
+
 ## Set tags to batches
 
 You can set tags to an existing batch using two different methods.
