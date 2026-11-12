@@ -264,6 +264,30 @@ class TestBatch:
         batch_requested = self.sdk.get_batch(batch.id)
         assert isinstance(batch_requested, BatchModel)
 
+    def test_refresh_updates_queue_info(
+        self, batch: Batch, batch_data_fixture: Dict[str, Any]
+    ):
+        """Refreshing sets the queue info of a queued batch and clears it once
+        the batch has started."""
+        url = f"{batch._client.endpoints.core}/api/v2/batches/{batch.id}"
+        queued = {**batch_data_fixture, "queue_position": 3}
+        queued["estimated_start_seconds"] = 120
+        started = {**batch_data_fixture, "status": "DONE", "queue_position": None}
+        started["estimated_start_seconds"] = None
+
+        with requests_mock.Mocker() as m:
+            m.get(url, json={"data": queued})
+            batch.refresh()
+
+            assert batch.queue_position == 3
+            assert batch.estimated_start_seconds == 120
+
+            m.get(url, json={"data": started})
+            batch.refresh()
+
+        assert batch.queue_position is None
+        assert batch.estimated_start_seconds is None
+
     def test_sequence_builder_fetched_from_api_when_not_provided(
         self, mock_request: requests_mock.mocker.Mocker
     ):

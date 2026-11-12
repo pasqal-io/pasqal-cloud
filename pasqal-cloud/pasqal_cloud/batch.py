@@ -62,6 +62,11 @@ class Batch(BaseModel):
             backend emulator types. It must be in the form of an
             abstract representation/encoded string.
         tags: Keyword used to refine the batch search.
+        queue_position: 1-based position of the batch in its device queue.
+            None if the batch is not pending, running or paused.
+        estimated_start_seconds: Estimated time in seconds before the batch
+            starts executing, based on the shots ahead of it in the queue.
+            Only computed for QPUs; None for emulators.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
         _sequence_builder_fetched: Used to track if sequence_builder has been retrieved
@@ -90,6 +95,8 @@ class Batch(BaseModel):
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
     tags: Optional[list[str]] = None
+    queue_position: Optional[int] = None
+    estimated_start_seconds: Optional[int] = None
     _sequence_builder: Optional[str] = None
     _sequence_builder_fetched: bool = PrivateAttr(default=False)
 
