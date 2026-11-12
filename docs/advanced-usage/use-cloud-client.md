@@ -41,6 +41,20 @@ batch = cloud_client.create_batch(serialized_sequence=None, jobs=[job1, job2], d
 sequence with variables, or use job-level sequences without variables. Additionally, when creating a batch without a
 sequence, all jobs must have their own sequences specified.
 
+### Check the queue position of a batch
+
+A pending, running or paused batch exposes its 1-based `queue_position` in its device queue
+and, on QPUs, `estimated_start_seconds`: the estimated time before it starts, based on the
+shots ahead of it. Both are `None` once the batch is finished, and `estimated_start_seconds`
+is always `None` on emulators.
+
+```python
+batch = cloud_client.create_batch(serialized_sequence, jobs=[job], device_type=DeviceTypeName.FRESNEL)
+
+batch.refresh()  # or cloud_client.get_batch(batch.id)
+print(batch.queue_position, batch.estimated_start_seconds)
+```
+
 ## Set tags to batches
 
 You can set tags to an existing batch using two different methods.
