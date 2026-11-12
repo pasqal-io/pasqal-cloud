@@ -20,7 +20,11 @@ from pasqal_cloud.errors import (
     JobRetryError,
 )
 from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
-from pasqal_cloud.utils.polling import batch_still_running, poll_status
+from pasqal_cloud.utils.polling import (
+    batch_queue_wait_hint,
+    batch_still_running,
+    poll_status,
+)
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -283,7 +287,17 @@ class Batch(BaseModel):
             except HTTPError as e:
                 raise BatchFetchingError(e) from e
 
-        poll_status(fetcher=fetch_status, should_continue=batch_still_running)
+        def fetch_batch() -> Dict[str, Any]:
+            try:
+                return self._client.get_batch(self.id)
+            except HTTPError as e:
+                raise BatchFetchingError(e) from e
+
+        poll_status(
+            fetcher=fetch_status,
+            should_continue=batch_still_running,
+            wait_hint=batch_queue_wait_hint(fetch_batch),
+        )
 
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""
