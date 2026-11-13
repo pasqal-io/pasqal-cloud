@@ -29,6 +29,14 @@ connection = PasqalCloudConnection(project_id="your_project_id", region="sa")
 
 Leave `region` out to use the active profile.
 
+!!! warning
+
+    Without `region`, a connection targets whichever profile is active at the time.
+    Activating another profile, for example from the `pasqal-cloud` command, silently
+    changes the region your scripts and notebooks target. **If you work with several
+    regions, always pass `region` when creating the connection**, so that each one targets
+    the region you expect.
+
 ## Target a non-production environment
 
 This is intended for package developers or users who have been given access to non-prod
