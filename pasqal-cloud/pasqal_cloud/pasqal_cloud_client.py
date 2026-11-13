@@ -44,6 +44,7 @@ from pasqal_cloud.utils.filters import (
     RebatchFilters,
 )
 from pasqal_cloud.utils.polling import (
+    batch_queue_wait_hint,
     batch_still_running,
     job_still_running,
     poll_status,
@@ -184,6 +185,7 @@ class PasqalCloudClient:
         poll_status(
             fetcher=lambda: self._get_batch_status(id),
             should_continue=batch_still_running,
+            wait_hint=batch_queue_wait_hint(lambda: self._get_batch(id)),
         )
 
     def get_batch_status(self, id: str) -> BatchStatus:
@@ -654,11 +656,19 @@ class PasqalCloudClient:
         except HTTPError as e:
             raise JobFetchingError(e) from e
 
-    def _wait_for_job_terminal(self, id: str) -> None:
+    def _wait_for_job_terminal(self, id: str, batch_id: str) -> None:
         """Poll the job-status endpoint until the job status is terminal."""
+
+        def fetch_batch() -> Dict[str, Any]:
+            try:
+                return self._client.get_batch(batch_id)
+            except HTTPError as e:
+                raise JobFetchingError(e) from e
+
         poll_status(
             fetcher=lambda: self._get_job_status(id),
             should_continue=job_still_running,
+            wait_hint=batch_queue_wait_hint(fetch_batch),
         )
 
     def get_job_status(self, id: str) -> JobStatus:
@@ -688,9 +698,12 @@ class PasqalCloudClient:
         Raises:
             JobFetchingError: If fetching failed.
         """
-        if wait:
-            self._wait_for_job_terminal(id)
         job_rsp = self._get_job(id)
+
+        if wait and job_still_running(job_rsp):
+            self._wait_for_job_terminal(id, job_rsp["batch_id"])
+            job_rsp = self._get_job(id)
+
         return Job(**job_rsp, _client=self._client)
 
     def add_jobs(

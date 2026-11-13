@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 ### pasqal-cloud
 
 * `auth0-python` is no longer a runtime dependency (only used by tests)
+* `Batch` exposes `queue_position` and `estimated_start_seconds` (QPU only),
+  updated by `batch.refresh()` and `get_batch()`
+* Waiting on a queued batch or job logs the batch's queue position, estimated start
+  and next check (INFO level), and polls less often while the start is far away
+  (up to 5 min between polls)
 
 ## [0.24.0]
 

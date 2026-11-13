@@ -73,6 +73,82 @@ class TestJob:
         job_requested = self.sdk.get_job(job.id)
         assert job_requested.id == job.id
 
+    def test_get_job_and_wait_follows_its_batch_queue_estimate(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        """A job of a queued batch is polled less often and the batch's queue
+        position is logged."""
+        batch = {
+            "id": self.batch_id,
+            "status": "PENDING",
+            "queue_position": 2,
+            "estimated_start_seconds": 1000,
+        }
+
+        with requests_mock.Mocker() as m, patch("time.sleep") as sleep:
+            self._mock_queued_job(m, polls=7)
+            m.get(self._batch_url(), json={"data": batch})
+
+            with caplog.at_level("INFO", logger="pasqal_cloud"):
+                result = self.sdk.get_job(self.job_id, wait=True)
+
+        waits = [call.args[0] for call in sleep.call_args_list]
+        assert max(waits) == 300
+        assert "queue position 2" in caplog.text
+        assert result.status == "DONE"
+
+    def test_get_job_and_wait_raises_job_error_when_batch_fetch_fails(self):
+        """Failing to fetch the queue info of a job's batch raises a job error."""
+        with requests_mock.Mocker() as m:
+            self._mock_queued_job(m, polls=7)
+            m.get(self._batch_url(), status_code=500)
+
+            with pytest.raises(JobFetchingError):
+                self.sdk.get_job(self.job_id, wait=True)
+
+    def test_get_job_and_wait_returns_finished_job_without_polling(self):
+        """Waiting on a finished job returns it without polling its status."""
+        with requests_mock.Mocker() as m:
+            m.get(self._job_url(), json={"data": self._job_payload("DONE")})
+
+            result = self.sdk.get_job(self.job_id, wait=True)
+
+        assert result.status == "DONE"
+
+    def _job_url(self) -> str:
+        return f"{self.sdk._client.endpoints.core}/api/v2/jobs/{self.job_id}"
+
+    def _batch_url(self) -> str:
+        return f"{self.sdk._client.endpoints.core}/api/v2/batches/{self.batch_id}"
+
+    def _job_payload(self, status: str) -> Dict[str, Any]:
+        return {
+            "runs": 50,
+            "batch_id": self.batch_id,
+            "id": self.job_id,
+            "project_id": "00000000-0000-0000-0000-000000000001",
+            "status": status,
+            "created_at": "2022-12-31T23:59:59.999Z",
+            "updated_at": "2023-01-01T00:00:00.000Z",
+        }
+
+    def _mock_queued_job(self, m: requests_mock.Mocker, polls: int) -> None:
+        """Mock a PENDING job whose status is DONE after `polls` status polls."""
+        pending = {"id": self.job_id, "status": "PENDING"}
+        done = {"id": self.job_id, "status": "DONE"}
+
+        m.get(
+            f"{self.sdk._client.endpoints.core}/api/v1/jobs/{self.job_id}/status",
+            [{"json": {"data": pending}}] * (polls - 1) + [{"json": {"data": done}}],
+        )
+        m.get(
+            self._job_url(),
+            [
+                {"json": {"data": self._job_payload("PENDING")}},
+                {"json": {"data": self._job_payload("DONE")}},
+            ],
+        )
+
     def test_get_job_error(
         self, job, mock_request_exception: requests_mock.mocker.Mocker
     ):
@@ -475,10 +551,9 @@ class TestJob:
         with contextlib.suppress(expected_exception):
             self.sdk.get_job(self.job_id, True)
 
-        # Assertions to verify retry behavior. In the new wait flow:
-        # 1 GET /jobs/{id}/status (poll returns DONE from fixture)
-        # + 6 GET /jobs/{id} (final fetch, 5 retries).
-        assert mock_request.call_count == 7
+        # 6 GET /jobs/{id} (1 attempt + 5 retries); the job is never fetched,
+        # so its status is never polled.
+        assert mock_request.call_count == 6
         assert mock_request.last_request.method == "GET"
         assert mock_request.last_request.path == f"/core-fast/api/v2/jobs/{self.job_id}"
         assert mock_request.last_request.matcher.call_count == 6
