@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### pasqal-cloud
 
-* `auth0-python` is no longer a runtime dependency (only used by tests)
+* `auth0-python` is no longer a dependency at all (it was only used by tests)
 
 ## [0.24.0]
 

@@ -7,19 +7,18 @@ from uuid import uuid4
 import pytest
 import requests
 import requests_mock
-from auth0.v3.exceptions import Auth0Error
 from pasqal_cloud import (
     AUTH0_CONFIG,
     Auth0Conf,
     Endpoints,
     PASQAL_ENDPOINTS,
 )
-from pasqal_cloud.http_client import HTTPClient
-from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 from pasqal_cloud._version import __version__ as sdk_version
-from pasqal_cloud.authentication import TokenProvider
+from pasqal_cloud.authentication import TokenProvider, TokenProviderError
 from pasqal_cloud.endpoints import TokenProviderConf
+from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.ovh import OvhClient
+from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
 
 from tests.test_doubles.authentication import (
     FakeAuth0AuthenticationFailure,
@@ -132,13 +131,13 @@ class TestAuthFailure(TestSDKCommonAttributes):
     def test_module_getpass_bad_password(self, getpass):
         getpass.return_value = self.password
 
-        with pytest.raises(Auth0Error):
+        with pytest.raises(TokenProviderError):
             PasqalCloudClient(project_id=self.project_id, username=self.username)
 
         getpass.assert_called_once()
 
     def test_module_bad_password(self):
-        with pytest.raises(Auth0Error):
+        with pytest.raises(TokenProviderError):
             PasqalCloudClient(
                 project_id=self.project_id,
                 username=self.username,
