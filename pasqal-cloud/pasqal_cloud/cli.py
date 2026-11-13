@@ -19,8 +19,9 @@ import argparse
 import sys
 import time
 from datetime import datetime
+from typing import Any
 
-from pasqal_cloud import token_cache
+from pasqal_cloud import browser_login, oidc, token_cache
 from pasqal_cloud.config import (
     activate_profile,
     check_editable_profile,
@@ -32,6 +33,7 @@ from pasqal_cloud.config import (
     DEFAULT_PROFILES,
     delete_profile,
     load_config,
+    PasqalCloudProfile,
     PROFILE_KEYS,
     profile_names,
     ProfileConfig,
@@ -42,11 +44,80 @@ from pasqal_cloud.config import (
 )
 
 
+def _save_login(
+    profile: PasqalCloudProfile, tokens: dict[str, Any]
+) -> token_cache.CacheEntry:
+    """Replace the cache entry for `profile`."""
+    if "refresh_token" not in tokens:
+        raise oidc.LoginError("The provider returned no refresh token (offline_access)")
+    now = int(time.time())
+    profile_config = profile.config
+    try:
+        entry = token_cache.CacheEntry(
+            issuer=profile_config.issuer,
+            client_id=profile_config.client_id,
+            audience=profile_config.audience,
+            refresh_token=str(tokens["refresh_token"]),
+            access_token=str(tokens["access_token"]),
+            expires_at=now + int(tokens["expires_in"]),
+            scope=str(tokens.get("scope", "")),
+            refresh_expires_at=(
+                now + int(tokens["refresh_expires_in"])
+                if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
+                else None
+            ),
+            id_claims=(
+                oidc.id_claims(tokens["id_token"]) if "id_token" in tokens else {}
+            ),
+        )
+    except (KeyError, TypeError, ValueError) as e:
+        raise oidc.LoginError(f"Invalid token response: {e!r}") from e
+    entries = token_cache.read_entries()
+    previous = entries.get(profile.name)
+    token_cache.write_entries({**entries, profile.name: entry})
+    if previous and previous.id_claims.get("sub") != entry.id_claims.get("sub"):
+        sys.stderr.write(
+            f"Note: replaced the login of {_user(previous)} with {_user(entry)}\n"
+        )
+    return entry
+
+
+def _user(entry: token_cache.CacheEntry) -> str:
+    return str(entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown"))
+
+
+def _revoke_previous(profile: PasqalCloudProfile, discovery: dict[str, Any]) -> None:
+    """Best effort revocation of the cached refresh token, before a new login.
+
+    Must run before the new tokens are issued: with SSO they can share the old
+    token's session (Keycloak) or grant (Auth0), and revoking the old token
+    afterwards could revoke them too.
+    """
+    previous = token_cache.entry_for(token_cache.read_entries(), profile)
+    if previous is None:
+        return  # missing, or issued by another client: cannot be revoked here
+    try:
+        oidc.revoke(discovery, previous.client_id, previous.refresh_token)
+    except oidc.OIDCError as e:
+        sys.stderr.write(f"Warning: could not revoke the previous login: {e}\n")
+
+
 def login(args: argparse.Namespace, config: Config) -> int:
     profile = resolve_profile(config=config)
-    flow = "device" if args.device else "pkce"
-    sys.stderr.write(f"login ({flow}, {profile.name}): not implemented\n")
-    return 1
+    if args.device:
+        sys.stderr.write("login --device: not implemented\n")
+        return 1
+    try:
+        discovery = oidc.discover(profile.config.issuer)
+        _revoke_previous(profile, discovery)
+        entry = _save_login(profile, browser_login.login(profile.config, discovery))
+    # A rejected cache file fails the login before the browser opens: it is
+    # never overwritten, it may already have leaked.
+    except (oidc.LoginError, oidc.OIDCError, token_cache.TokenCacheError, OSError) as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 1
+    sys.stderr.write(f"Logged in to {profile.name} as {_user(entry)}\n")
+    return 0
 
 
 def _duration(seconds: float) -> str:
@@ -87,12 +158,11 @@ def auth_status(_args: argparse.Namespace, config: Config) -> int:
     active_found = active is not None and active.matches(profile.config)
     for key, entry in sorted(entries.items()):
         is_active = active_found and key == profile.name
-        user = entry.id_claims.get("email") or entry.id_claims.get("sub", "unknown")
         sys.stdout.write(
             f"\n{'*' if is_active else ' '} {key}"
             f"{' (active)' if is_active else ''}\n"
             f"    Issuer:         {entry.issuer}\n"
-            f"    User:           {user}\n"
+            f"    User:           {_user(entry)}\n"
             f"    Client:         {entry.client_id}\n"
             f"    Access token:   {_format_expiry(entry.expires_at)}\n"
             f"    Refresh token:  {_format_expiry(entry.refresh_expires_at)}\n"

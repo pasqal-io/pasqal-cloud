@@ -1,9 +1,15 @@
+import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urlencode
 from uuid import UUID
 
+import pytest
 import requests
+
+# Windows has no POSIX owner or mode bits; the file is protected by the user
+# profile's ACL, so the cache file is not checked there.
+posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX owner/mode")
 
 
 def convert_to_serializable(value: Any) -> Any:

@@ -8,9 +8,7 @@ from pasqal_cloud import config, token_cache
 from pasqal_cloud.cli import _format_expiry, main
 from pasqal_cloud.config import DEFAULT_PROFILES
 
-# Windows has no POSIX owner or mode bits; the file is protected by the user
-# profile's ACL, so the cache file is not checked there.
-posix_only = pytest.mark.skipif(os.name == "nt", reason="no POSIX owner/mode")
+from tests.utils import posix_only
 
 
 @pytest.fixture(autouse=True)
@@ -218,3 +216,12 @@ def test_status_reports_bad_file(capsys):
     write().chmod(0o644)
     assert main(["auth", "status"]) == 1
     assert "chmod 600" in capsys.readouterr().err
+
+
+def test_save_login_writes_entry():
+    from pasqal_cloud.cli import _save_login
+    from pasqal_cloud.config import resolve_profile
+
+    tokens = {"refresh_token": "R", "access_token": "A", "expires_in": 60}
+    entry = _save_login(resolve_profile(), tokens)
+    assert token_cache.read_entries() == {"default-fr": entry}
