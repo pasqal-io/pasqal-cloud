@@ -26,6 +26,7 @@ nav:
       - OVHConnection: reference/ovh_connection.md
       - Backends: reference/backends.md
       - PasqalCloudClient: reference/pasqal_cloud_client.md
+      - Filters: reference/filters.md
 
   - Migrating from pulser-pasqal: migrating-from-pulser-pasqal.md
 
