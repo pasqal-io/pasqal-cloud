@@ -49,15 +49,11 @@ from pasqal_cloud.utils.filters import (
     PaginationParams,
     RebatchFilters,
 )
+from pasqal_cloud.utils.http import skip_ssl_verify
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
-
-
-# Env variable to disable SSL verification. Should be used only in testing environement
-def _skip_ssl_verify() -> bool:
-    return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
 
 
 # Env variable to disable gzip outgoing request body content
@@ -128,7 +124,7 @@ class HTTPClient:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
         self.session = requests.Session()
-        self.session.verify = not _skip_ssl_verify()
+        self.session.verify = not skip_ssl_verify()
         self.allow_gzip_request_body = not _skip_gzip_request_body()
 
     def _get_api_urls(self) -> Dict[str, str]:
@@ -265,7 +261,7 @@ class HTTPClient:
                 raise ValueError("The prompted password should not be empty")
 
         token_provider: TokenProvider = PasswordGrantTokenProvider(
-            username, password, config, verify=not _skip_ssl_verify()
+            username, password, config, verify=not skip_ssl_verify()
         )
         return token_provider
 

@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict, field_validator, PrivateAttr
 from pydantic_core.core_schema import ValidationInfo
 from requests import HTTPError
 
-from pasqal_cloud.http_client import _skip_ssl_verify, HTTPClient
 from pasqal_cloud.errors import (
     InvalidWorkloadResultsFormatError,
     WorkloadCancellingError,
@@ -15,6 +14,8 @@ from pasqal_cloud.errors import (
     WorkloadResultsDecodeError,
     WorkloadResultsDownloadError,
 )
+from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.utils.http import skip_ssl_verify
 
 
 class Workload(BaseModel):
@@ -82,7 +83,7 @@ class Workload(BaseModel):
         if result or not result_link:
             return result
         try:
-            res = requests.get(result_link, verify=not _skip_ssl_verify())
+            res = requests.get(result_link, verify=not skip_ssl_verify())
         except HTTPError as e:
             raise WorkloadResultsDownloadError(e) from e
         except requests.ConnectionError as e:

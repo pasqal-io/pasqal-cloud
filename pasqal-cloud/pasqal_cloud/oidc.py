@@ -25,6 +25,8 @@ from typing import Any
 import jwt
 import requests
 
+from pasqal_cloud.utils.http import skip_ssl_verify
+
 SCOPES = ("openid", "profile", "email", "offline_access")
 TIMEOUT = 10  # seconds, per HTTP request
 
@@ -51,7 +53,7 @@ def discover(issuer: str, device: bool = False) -> dict[str, Any]:
     endpoints we need, including the device flow one if `device`."""
     url = f"{issuer.rstrip('/')}/.well-known/openid-configuration"
     try:
-        response = requests.get(url, timeout=TIMEOUT)
+        response = requests.get(url, timeout=TIMEOUT, verify=not skip_ssl_verify())
     except requests.RequestException as e:
         raise OIDCError(f"OIDC discovery failed ({url}): {e}", transient=True) from e
 
@@ -94,7 +96,9 @@ def token_request(config: dict[str, Any], data: dict[str, str]) -> dict[str, Any
 def post_form(url: str, data: dict[str, str], what: str) -> dict[str, Any]:
     """POST `data` to `url`, return the JSON body, raise OIDCError on any failure."""
     try:
-        response = requests.post(url, data=data, timeout=TIMEOUT)
+        response = requests.post(
+            url, data=data, timeout=TIMEOUT, verify=not skip_ssl_verify()
+        )
     except requests.RequestException as e:
         raise OIDCError(f"{what} failed: {e}", transient=True) from e
 
@@ -130,6 +134,7 @@ def revoke(config: dict[str, Any], client_id: str, refresh_token: str) -> None:
                 "token_type_hint": "refresh_token",
             },
             timeout=TIMEOUT,
+            verify=not skip_ssl_verify(),
         ).raise_for_status()
     except requests.RequestException as e:
         raise OIDCError(f"Token revocation failed: {e}") from e
