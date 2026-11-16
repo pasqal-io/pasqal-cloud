@@ -1,0 +1,1601 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://pasqal-io.github.io/pasqal-cloud/dev/reference/filters/">
+      
+      
+        <link rel="prev" href="../pasqal_cloud_client/">
+      
+      
+        <link rel="next" href="../../migrating-from-pulser-pasqal/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.50">
+    
+    
+      
+        <title>Filters - pasqal-cloud</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.a40c8224.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../extras/css/mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#filters" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pasqal-cloud" class="md-header__button md-logo" aria-label="pasqal-cloud" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pasqal-cloud
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Filters
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/pasqal-io/pasqal-cloud" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pasqal-io/pasqal-cloud
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+    
+  
+  Getting started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../advanced-usage/authentication/" class="md-tabs__link">
+          
+  
+  Advanced Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../migrating-from-pulser-pasqal/" class="md-tabs__link">
+        
+  
+    
+  
+  Migrating from pulser-pasqal
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pasqal-cloud" class="md-nav__button md-logo" aria-label="pasqal-cloud" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pasqal-cloud
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/pasqal-io/pasqal-cloud" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    pasqal-io/pasqal-cloud
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Getting started
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Usage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced-usage/authentication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Authentication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced-usage/target-different-regions-and-environments/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Target different regions and environments
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../advanced-usage/use-cloud-client/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Use PasqalCloudClient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pasqal_cloud_connection/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PasqalCloudConnection
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ovh_connection/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    OVHConnection
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backends/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Backends
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pasqal_cloud_client/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    PasqalCloudClient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Filters
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Filters
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rebatchfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      RebatchFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canceljobfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      CancelJobFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jobfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      JobFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#batchfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      BatchFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paginationparams" class="md-nav__link">
+    <span class="md-ellipsis">
+      PaginationParams
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migrating-from-pulser-pasqal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migrating from pulser-pasqal
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#rebatchfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      RebatchFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canceljobfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      CancelJobFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jobfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      JobFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#batchfilters" class="md-nav__link">
+    <span class="md-ellipsis">
+      BatchFilters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paginationparams" class="md-nav__link">
+    <span class="md-ellipsis">
+      PaginationParams
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="filters">Filters</h1>
+<h2 id="rebatchfilters"><code>RebatchFilters</code></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pasqal_cloud.utils.filters.BaseJobFilters">BaseJobFilters</span></code></p>
+
+
+        <p>Class to provide filters for querying jobs to re-create.</p>
+<p>Setting a value for any attribute of this class will add a filter to the query.</p>
+<p>When using several filters at the same time, the API will return elements who pass
+all filters at the same time:
+    - If the filter value is a single element, the API will return jobs whose
+      attribute matches the provided value.
+    - If the filter value is a list, the API will return jobs whose value for
+      this attribute is contained in that list.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.id">id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by job IDs</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.status">status</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by job statuses,</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="pasqal_cloud.utils.constants.JobStatus">JobStatus</span>], <span title="pasqal_cloud.utils.constants.JobStatus">JobStatus</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.min_runs">min_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Minimum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.max_runs">max_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Maximum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.start_date">start_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or after this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.RebatchFilters.end_date">end_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or before this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="canceljobfilters"><code>CancelJobFilters</code></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pasqal_cloud.utils.filters.BaseJobFilters">BaseJobFilters</span></code></p>
+
+
+        <p>Class to provide filters for cancelling a group of jobs.</p>
+<p>Setting a value for any attribute of this class will add a filter to the query.</p>
+<p>When using several filters at the same time, the API will return elements who pass
+all filters at the same time:
+    - If the filter value is a single element, the API will return jobs whose
+      attribute matches the provided value.
+    - If the filter value is a list, the API will return jobs whose value for
+      this attribute is contained in that list.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.CancelJobFilters.id">id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by job IDs</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.CancelJobFilters.min_runs">min_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Minimum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.CancelJobFilters.max_runs">max_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Maximum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.CancelJobFilters.start_date">start_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or after this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.CancelJobFilters.end_date">end_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or before this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="jobfilters"><code>JobFilters</code></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pasqal_cloud.utils.filters.BaseJobFilters">BaseJobFilters</span></code></p>
+
+
+        <p>Class to provide filters for querying jobs.</p>
+<p>Setting a value for any attribute of this class will add a filter to the query.</p>
+<p>When using several filters at the same time, the API will return elements who pass
+all filters at the same time:
+    - If the filter value is a single element, the API will return jobs whose
+      attribute matches the provided value.
+    - If the filter value is a list, the API will return jobs whose value for
+      this attribute is contained in that list.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.id">id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by job IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.project_id">project_id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by project IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.user_id">user_id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by user IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="str">str</span>], <span title="str">str</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.batch_id">batch_id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by batch IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.status">status</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by job statuses.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="pasqal_cloud.utils.constants.JobStatus">JobStatus</span>], <span title="pasqal_cloud.utils.constants.JobStatus">JobStatus</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.min_runs">min_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Minimum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.max_runs">max_runs</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Maximum number of runs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.errors">errors</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by presence of errors.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="bool">bool</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.start_date">start_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or after this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.JobFilters.end_date">end_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Jobs created at or before this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="batchfilters"><code>BatchFilters</code></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pasqal_cloud.utils.filters.BaseFilters">BaseFilters</span></code></p>
+
+
+        <p>Class to provide filters for querying batches.</p>
+<p>Setting a value for any attribute of this class will add a filter to the query.</p>
+<p>When using several filters at the same time, the API will return elements who pass
+all filters at the same time:
+    - If the filter value is a single element, the API will return batches whose
+      attribute matches the provided value.
+    - If the filter value is a list, the API will return batches whose value for
+      this attribute is contained in that list.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.id">id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by batch IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.project_id">project_id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by project IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]], <span title="typing.Union">Union</span>[<span title="uuid.UUID">UUID</span>, <span title="str">str</span>]]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.user_id">user_id</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by user IDs.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="str">str</span>], <span title="str">str</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.device_type">device_type</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by device type.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="str">str</span>], <span title="str">str</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.status">status</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by batch statuses.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="pasqal_cloud.utils.constants.BatchStatus">BatchStatus</span>], <span title="pasqal_cloud.utils.constants.BatchStatus">BatchStatus</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.open">open</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>If the batch accepts more jobs or not.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="bool">bool</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.start_date">start_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Batches created at or after this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.end_date">end_date</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Batches created at or before this datetime.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.queue_priority">queue_priority</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by queue priority value.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="typing.Union">Union</span>[<span title="typing.List">List</span>[<span title="pasqal_cloud.utils.constants.QueuePriority">QueuePriority</span>], <span title="pasqal_cloud.utils.constants.QueuePriority">QueuePriority</span>]]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.BatchFilters.tag">tag</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>Filter by a specific tag.</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="paginationparams"><code>PaginationParams</code></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+        <p>Class providing parameters for paginating query results.</p>
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">ATTRIBUTE</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.PaginationParams.offset">offset</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>The starting index of the items to return (must be 0 or greater).</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="int">int</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pasqal_cloud.utils.filters.PaginationParams.limit">limit</span></code></td>
+            <td class="doc-attribute-details">
+              <div class="doc-md-description">
+                <p>The maximum number of items to return (must be greater than 0 and
+   less than or equal to 100).</p>
+              </div>
+              <p>
+                  <span class="doc-attribute-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="int">int</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.60a45f97.min.js"></script>
+      
+    
+  </body>
+</html>
