@@ -633,6 +633,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/filters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Filters
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -741,6 +762,14 @@ the active profile:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span> <span class="n">region</span><span class="o">=</span><span class="s2">"sa"</span><span class="p">)</span>
 </code></pre></div>
 <p>Leave <code>region</code> out to use the active profile.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Without <code>region</code>, a connection targets whichever profile is active at the time.
+Activating another profile, for example from the <code>pasqal-cloud</code> command, silently
+changes the region your scripts and notebooks target. <strong>If you work with several
+regions, always pass <code>region</code> when creating the connection</strong>, so that each one targets
+the region you expect.</p>
+</div>
 <h2 id="target-a-non-production-environment">Target a non-production environment</h2>
 <p>This is intended for package developers or users who have been given access to non-prod
 environments of the Pasqal cloud platform.</p>
