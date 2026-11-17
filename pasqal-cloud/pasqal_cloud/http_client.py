@@ -27,6 +27,7 @@ from requests.auth import AuthBase
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
     CachedLoginTokenProvider,
+    ClientCredentialsTokenProvider,
     HTTPBearerAuthenticator,
     login_command,
     LoginRequiredError,
@@ -118,6 +119,11 @@ class HTTPClient:
             token_provider = self._credential_login(username, password, auth_config)
         elif token_provider is None and endpoints is None:
             token_provider = CachedLoginTokenProvider(self.profile)
+
+        if isinstance(token_provider, ClientCredentialsTokenProvider):
+            # The user builds the provider before the connection resolves its
+            # profile: share it so the token comes from the connection's region.
+            token_provider.profile = self.profile
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
