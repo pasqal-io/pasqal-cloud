@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import os
 import warnings
 from getpass import getpass
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Union
@@ -27,6 +26,7 @@ from requests.auth import AuthBase
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
     CachedLoginTokenProvider,
+    ClientCredentialsTokenProvider,
     HTTPBearerAuthenticator,
     login_command,
     LoginRequiredError,
@@ -42,6 +42,11 @@ from pasqal_cloud.endpoints import (
     REGIONS,
     TokenProviderConf,
 )
+from pasqal_cloud.utils.constants import (
+    HTTP_TIMEOUT,
+    skip_gzip_request_body,
+    skip_ssl_verify,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -49,16 +54,8 @@ from pasqal_cloud.utils.filters import (
     PaginationParams,
     RebatchFilters,
 )
-from pasqal_cloud.utils.http import skip_ssl_verify
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
-
-TIMEOUT = 30  # client http requests timeout after 30s
-
-
-# Env variable to disable gzip outgoing request body content
-def _skip_gzip_request_body() -> bool:
-    return bool(os.getenv("PASQAL_SKIP_GZIP_REQUEST_BODY", False))
 
 
 class HTTPClient:
@@ -119,13 +116,18 @@ class HTTPClient:
         elif token_provider is None and endpoints is None:
             token_provider = CachedLoginTokenProvider(self.profile)
 
+        if isinstance(token_provider, ClientCredentialsTokenProvider):
+            # The user builds the provider before the connection resolves its
+            # profile: share it so the token comes from the connection's region.
+            token_provider.profile = self.profile
+
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
         self.session = requests.Session()
         self.session.verify = not skip_ssl_verify()
-        self.allow_gzip_request_body = not _skip_gzip_request_body()
+        self.allow_gzip_request_body = not skip_gzip_request_body()
 
     def _get_api_urls(self) -> Dict[str, str]:
         """Return a dictionary mapping API endpoint names to their URLs."""
@@ -315,7 +317,7 @@ class HTTPClient:
         resp = request_with_retry(
             method,
             url,
-            timeout=TIMEOUT,
+            timeout=HTTP_TIMEOUT,
             headers=headers,
             auth=self.authenticator,
             params=params,

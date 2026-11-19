@@ -14,7 +14,11 @@ from requests.auth import AuthBase
 from requests.exceptions import HTTPError
 
 from pasqal_cloud import oidc, token_cache
-from pasqal_cloud.config import DEFAULT_PROFILE_NAME, PasqalCloudProfile
+from pasqal_cloud.config import (
+    DEFAULT_PROFILE_NAME,
+    PasqalCloudProfile,
+    resolve_profile,
+)
 from pasqal_cloud.endpoints import (
     Auth0Conf,
     TokenProviderConf,
@@ -291,6 +295,56 @@ def _refresh_request(entry: token_cache.CacheEntry) -> dict[str, Any]:
             "refresh_token": entry.refresh_token,
         },
     )
+
+
+class ClientCredentialsTokenProvider(ExpiringTokenProvider):
+    """Token provider for a service account, using the OAuth 2.0 client
+    credentials grant.
+
+
+    The connection sets `profile` to its own, so the token comes from the
+    connection's region. Used on its own, the provider uses the active profile.
+    """
+
+    def __init__(self, client_id: str, client_secret: str):
+        """
+        Args:
+            client_id: ID of the service account
+            client_secret: secret of the service account
+        """
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.profile: Optional[PasqalCloudProfile] = None
+
+    def _query_token(self) -> dict[str, Any]:
+        if self.profile is None:
+            self.profile = resolve_profile()
+
+        profile_config = self.profile.config
+        try:
+            return _client_credentials_request(
+                profile_config.issuer,
+                {
+                    "grant_type": "client_credentials",
+                    "client_id": self.client_id,
+                    "client_secret": self.client_secret,
+                    "audience": profile_config.audience,
+                },
+            )
+        except oidc.OIDCError as e:
+            raise TokenProviderError(e) from e
+
+
+@tenacity.retry(
+    retry=tenacity.retry_if_exception(
+        lambda e: isinstance(e, oidc.OIDCError) and e.transient
+    ),
+    wait=tenacity.wait_exponential(multiplier=1),
+    stop=tenacity.stop_after_attempt(REFRESH_ATTEMPTS),
+    reraise=True,
+)
+def _client_credentials_request(issuer: str, data: dict[str, str]) -> dict[str, Any]:
+    return oidc.token_request(oidc.discover(issuer), data)
 
 
 def _warn_deprecated_auth0_provider(name: str) -> None:
