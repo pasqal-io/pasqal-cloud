@@ -20,7 +20,11 @@ from pasqal_cloud.errors import (
     JobRetryError,
 )
 from pasqal_cloud.job import create_jobs_to_api_payload, CreateJob, Job
-from pasqal_cloud.utils.polling import batch_still_running, poll_status
+from pasqal_cloud.utils.polling import (
+    batch_queue_wait_hint,
+    batch_still_running,
+    poll_status,
+)
 
 RESULT_POLLING_INTERVAL = 2  # seconds
 
@@ -62,6 +66,11 @@ class Batch(BaseModel):
             backend emulator types. It must be in the form of an
             abstract representation/encoded string.
         tags: Keyword used to refine the batch search.
+        queue_position: 1-based position of the batch in its device queue.
+            None if the batch is not pending, running or paused.
+        estimated_start_seconds: Estimated time in seconds before the batch
+            starts executing, based on the shots ahead of it in the queue.
+            Only computed for QPUs; None for emulators.
         jobs (deprecated): Dictionary of all the jobs added to the batch.
         sequence_builder: Pulser sequence of the batch.
         _sequence_builder_fetched: Used to track if sequence_builder has been retrieved
@@ -90,6 +99,8 @@ class Batch(BaseModel):
     configuration: Union[BaseConfig, Dict[str, Any], None] = None
     backend_configuration: Optional[str] = None
     tags: Optional[list[str]] = None
+    queue_position: Optional[int] = None
+    estimated_start_seconds: Optional[int] = None
     _sequence_builder: Optional[str] = None
     _sequence_builder_fetched: bool = PrivateAttr(default=False)
 
@@ -276,7 +287,17 @@ class Batch(BaseModel):
             except HTTPError as e:
                 raise BatchFetchingError(e) from e
 
-        poll_status(fetcher=fetch_status, should_continue=batch_still_running)
+        def fetch_batch() -> Dict[str, Any]:
+            try:
+                return self._client.get_batch(self.id)
+            except HTTPError as e:
+                raise BatchFetchingError(e) from e
+
+        poll_status(
+            fetcher=fetch_status,
+            should_continue=batch_still_running,
+            wait_hint=batch_queue_wait_hint(fetch_batch),
+        )
 
     def _update_from_api_response(self, data: Dict[str, Any]) -> None:
         """Update the instance in place with the response body of the batch API"""
