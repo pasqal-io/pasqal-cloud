@@ -66,8 +66,8 @@ connection = PasqalCloudConnection(
     project_id="your_project_id",
     region="sa",
     token_provider=ClientCredentialsTokenProvider(
-        client_id=os.environ["PASQAL_CLIENT_ID"],
-        client_secret=os.environ["PASQAL_CLIENT_SECRET"],
+        client_id=os.environ["PASQAL_CLOUD_CLIENT_ID"],
+        client_secret=os.environ["PASQAL_CLOUD_CLIENT_SECRET"],
     ),
 )
 ```
