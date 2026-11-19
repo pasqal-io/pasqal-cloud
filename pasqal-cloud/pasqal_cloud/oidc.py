@@ -25,7 +25,7 @@ from typing import Any
 import jwt
 import requests
 
-from pasqal_cloud.utils.http import skip_ssl_verify
+from pasqal_cloud.utils.constants import skip_ssl_verify
 
 SCOPES = ("openid", "profile", "email", "offline_access")
 TIMEOUT = 10  # seconds, per HTTP request

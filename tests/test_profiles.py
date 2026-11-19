@@ -14,13 +14,14 @@ from pasqal_cloud.config import (
     write_private_file,
 )
 from pasqal_cloud.endpoints import REGIONS, TokenProviderConf
+from pasqal_cloud.utils import constants
 
 from tests.utils import windows_only
 
 
 @pytest.fixture(autouse=True)
 def config_path(monkeypatch, tmp_path):
-    monkeypatch.setattr("pasqal_cloud.config.CONFIG_DIR", tmp_path / ".pasqal")
+    monkeypatch.setattr(constants, "CONFIG_DIR", tmp_path / ".pasqal")
     return tmp_path / ".pasqal" / "config.json"
 
 

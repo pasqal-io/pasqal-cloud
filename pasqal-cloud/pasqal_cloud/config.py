@@ -69,6 +69,7 @@ from pasqal_cloud.endpoints import (
     PUBLIC_CLIENT_ID,
     SA_KEYCLOAK_BASE_URL,
 )
+from pasqal_cloud.utils import constants
 
 logger = logging.getLogger(__name__)
 
@@ -136,8 +137,6 @@ DEFAULT_PROFILES: dict[str, ProfileConfig] = {
     ),
 }
 
-CONFIG_DIR = Path.home() / ".pasqal"
-
 DEFAULT_PROFILE_NAME = "default-fr"
 PROFILE_KEYS = tuple(ProfileConfig.model_fields)
 
@@ -167,7 +166,7 @@ class PasqalCloudProfile:
 
 
 def config_path() -> Path:
-    return CONFIG_DIR / "config.json"
+    return constants.CONFIG_DIR / "config.json"
 
 
 def load_config() -> Config:
