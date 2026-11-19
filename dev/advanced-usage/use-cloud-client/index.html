@@ -935,13 +935,13 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Get it from connection</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"username"</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">"password"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"project_id"</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"project_id"</span><span class="p">)</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cloud_client</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Instantiate it directly</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.pasqal_cloud_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudClient</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"username"</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">"password"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"project_id"</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="s2">"project_id"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="batch">Batch</h2>
 <p>A batch is a group of jobs that will run on the same QPU or emulator. Sequences can be specified at the batch level,
@@ -1110,7 +1110,7 @@ the pulser sequence that can be run on QPUs (e.g., max number of atoms, availabl
 to instantiate a <code>Device</code> instance in the <code>Pulser</code> library.</p>
 <h2 id="change-the-project-linked-to-your-cloud-client">Change the project linked to your Cloud client</h2>
 <p>When you instantiate an <a class="autorefs autorefs-internal" href="../../reference/pasqal_cloud_client/#pasqal_cloud.pasqal_cloud_client.PasqalCloudClient"><code>PasqalCloudClient</code></a>, you set the project it is linked to:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">cloud_client</span> <span class="o">=</span> <span class="n">PasqalCloudClient</span><span class="p">(</span><span class="n">project_id</span><span class="o">=</span><span class="n">project_id</span><span class="p">)</span>
 </code></pre></div>
 <p>If you need to send batches/jobs/workloads to another project, you can do it without
 having to instantiate another Cloud client:</p>
