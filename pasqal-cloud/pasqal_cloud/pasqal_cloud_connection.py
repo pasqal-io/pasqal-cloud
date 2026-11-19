@@ -33,6 +33,7 @@ from pulser.json.abstract_repr.deserializer import deserialize_device
 from pulser.json.utils import make_json_compatible
 from pulser.result import SampledResult
 
+from pasqal_cloud.authentication import LoginRequiredError
 from pasqal_cloud.device.device_types import DeviceTypeName
 from pasqal_cloud.endpoints import Region
 from pasqal_cloud.job import CreateJob
@@ -44,6 +45,8 @@ R = TypeVar("R")
 
 
 _retry = tenacity.retry(
+    # Logging in again needs the user, retrying cannot help.
+    retry=tenacity.retry_if_not_exception_type(LoginRequiredError),
     wait=tenacity.wait_exponential(multiplier=1, max=60),
     stop=tenacity.stop_after_attempt(MAX_CLOUD_ATTEMPTS),
     reraise=True,
@@ -65,6 +68,9 @@ class PasqalCloudConnection(RemoteConnection):
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
+        region: The platform region: selects the `default-<region>` profile,
+            even over the active `pasqal-cloud` config profile. Without it, the active
+            profile applies (default: default-fr).
         kwargs: Additional arguments to provide to the PasqalCloudClient()
     """
 
@@ -73,7 +79,7 @@ class PasqalCloudConnection(RemoteConnection):
         username: str = "",
         password: str = "",
         project_id: str = "",
-        region: Region = "fr",
+        region: Region | None = None,
         **kwargs: Any,
     ):
         """Initializes a connection to the Pasqal cloud platform."""

@@ -2,8 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from pasqal_cloud.authentication import PasswordGrantTokenProvider
+from pasqal_cloud.authentication import PasswordGrantTokenProvider, TokenProvider
 from requests import HTTPError
+
+
+class FakeTokenProvider(TokenProvider):
+    def get_token(self) -> str:
+        return "some_token"
 
 
 class FakeAuth0AuthenticationSuccess(PasswordGrantTokenProvider):

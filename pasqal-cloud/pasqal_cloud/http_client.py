@@ -26,11 +26,22 @@ from requests.auth import AuthBase
 
 from pasqal_cloud._version import __version__ as sdk_version
 from pasqal_cloud.authentication import (
+    CachedLoginTokenProvider,
     HTTPBearerAuthenticator,
+    login_command,
+    LoginRequiredError,
+    password_grant_config,
     PasswordGrantTokenProvider,
     TokenProvider,
 )
-from pasqal_cloud.endpoints import Auth0Conf, Endpoints, Region, TokenProviderConf
+from pasqal_cloud.config import PasqalCloudProfile, resolve_profile
+from pasqal_cloud.endpoints import (
+    Auth0Conf,
+    Endpoints,
+    Region,
+    REGIONS,
+    TokenProviderConf,
+)
 from pasqal_cloud.utils.filters import (
     BatchFilters,
     CancelJobFilters,
@@ -38,15 +49,11 @@ from pasqal_cloud.utils.filters import (
     PaginationParams,
     RebatchFilters,
 )
+from pasqal_cloud.utils.http import skip_ssl_verify
 from pasqal_cloud.utils.jsend import JobResult, JSendPayload
 from pasqal_cloud.utils.retry import retry_http_error
 
 TIMEOUT = 30  # client http requests timeout after 30s
-
-
-# Env variable to disable SSL verification. Should be used only in testing environement
-def _skip_ssl_verify() -> bool:
-    return bool(os.getenv("PASQAL_SKIP_SSL_VERIFY", False))
 
 
 # Env variable to disable gzip outgoing request body content
@@ -68,39 +75,56 @@ class HTTPClient:
         auth_config: Optional[TokenProviderConf] = None,
         region: Optional[Region] = None,
     ):
-        self.endpoints = self._make_endpoints(endpoints, region)
+        self._warn_deprecated_args(
+            endpoints=endpoints, auth0=auth0, auth_config=auth_config
+        )
+
+        self.profile = resolve_profile(self._region_profile(region))
+        self.endpoints = self._make_endpoints(endpoints, self.profile)
         self._project_id = project_id
         self.user_agent = f"PasqalCloudSDK/{sdk_version}"
 
         if token_provider is not None:
+            if username or password:
+                warnings.warn(
+                    "Passing both token_provider and username/password is deprecated"
+                    " and will raise an error in the next major version:"
+                    " username/password is used, pass only one of them.",
+                    FutureWarning,
+                    stacklevel=3,
+                )
             self._check_token_provider(token_provider)
 
         if username:
+            warnings.warn(
+                "Authenticating with username/password is discouraged. Prefer"
+                f" logging in once with: {login_command(self.profile)}, then create"
+                " the client without credentials.",
+                UserWarning,
+                stacklevel=3,
+            )
+
             if auth0 is not None and auth_config is not None:
                 raise ValueError(
                     "The auth0 and auth_config parameters cannot be used "
                     "simultaneously."
                 )
             if auth0 is not None:
-                warnings.warn(
-                    "Argument `auth0` is deprecated and will be removed in a"
-                    " future version. Please use auth_config instead.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                auth_config = TokenProviderConf.from_auth0_config(auth0)
+                auth_config = TokenProviderConf._from_auth0_config(auth0)
 
             if auth_config is None:
-                auth_config = TokenProviderConf.from_region(region)
+                auth_config = password_grant_config(self.profile)
 
             token_provider = self._credential_login(username, password, auth_config)
+        elif token_provider is None and endpoints is None:
+            token_provider = CachedLoginTokenProvider(self.profile)
 
         self.authenticator: Optional[HTTPBearerAuthenticator] = None
         if token_provider:
             self.authenticator = HTTPBearerAuthenticator(token_provider)
 
         self.session = requests.Session()
-        self.session.verify = not _skip_ssl_verify()
+        self.session.verify = not skip_ssl_verify()
         self.allow_gzip_request_body = not _skip_gzip_request_body()
 
     def _get_api_urls(self) -> Dict[str, str]:
@@ -184,11 +208,38 @@ class HTTPClient:
         self._project_id = project_id
 
     @staticmethod
+    def _warn_deprecated_args(**args: Any) -> None:
+        for name, value in args.items():
+            if value is not None:
+                warnings.warn(
+                    f"Argument `{name}` is deprecated and will be removed in the next"
+                    " major version. Select the region with the `region` argument,"
+                    " and other environments with a `pasqal-cloud profile`.",
+                    FutureWarning,
+                    # The caller of PasqalCloudClient, through HTTPClient.__init__.
+                    stacklevel=4,
+                )
+
+    @staticmethod
+    def _region_profile(region: Optional[Region]) -> Optional[str]:
+        """The built-in `default-<region>` profile, which wins over the active
+        one. Without a region, the active profile is used."""
+        if region is None:
+            return None
+        if region not in REGIONS:
+            raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
+
+        return f"default-{region}"
+
+    @staticmethod
     def _make_endpoints(
-        endpoints: Optional[Endpoints], region: Optional[Region] = None
+        endpoints: Optional[Endpoints], profile: PasqalCloudProfile
     ) -> Endpoints:
         if endpoints is None:
-            return Endpoints.from_region(region)
+            profile_config = profile.config
+            return Endpoints(
+                core=profile_config.core_url, account=profile_config.account_url
+            )
         if not isinstance(endpoints, Endpoints):
             raise TypeError(f"endpoints must be a {Endpoints.__name__} instance")
 
@@ -210,7 +261,7 @@ class HTTPClient:
                 raise ValueError("The prompted password should not be empty")
 
         token_provider: TokenProvider = PasswordGrantTokenProvider(
-            username, password, config, verify=not _skip_ssl_verify()
+            username, password, config, verify=not skip_ssl_verify()
         )
         return token_provider
 
@@ -228,9 +279,11 @@ class HTTPClient:
         gziped: bool = False,
     ) -> JSendPayload:
         if self.authenticator is None:
+            command = login_command(self.profile)
             raise ValueError(
-                "Authentication required. Please provide your credentials when"
-                " initializing the client."
+                f"Authentication required. Please log in with: {command}"
+                " (add --device if no browser is available) or provide your"
+                " credentials when initializing the client."
             )
 
         headers = {
@@ -493,10 +546,16 @@ class HTTPClient:
 
     def get_device_specs_dict(self) -> Dict[str, str]:
         if self.authenticator is not None:
-            response: Dict[str, str] = self._authenticated_request(
-                "GET", self._get_url("get_devices_specs")
-            )["data"]
-            return response
+            # The specs are public: an expired CLI login must not block them.
+            try:
+                response: Dict[str, str] = self._authenticated_request(
+                    "GET", self._get_url("get_devices_specs")
+                )["data"]
+                return response
+
+            except LoginRequiredError as e:
+                warnings.warn(f"{e}. Returning the public device specs.", stacklevel=2)
+
         return self.get_public_device_specs()
 
     def get_public_device_specs(self) -> Dict[str, str]:

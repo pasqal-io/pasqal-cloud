@@ -1,6 +1,7 @@
 import contextlib
 import gzip
 import json
+from dataclasses import replace
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -8,14 +9,23 @@ import pytest
 import requests
 import requests_mock
 from pasqal_cloud import (
-    AUTH0_CONFIG,
     Auth0Conf,
+    config,
     Endpoints,
-    PASQAL_ENDPOINTS,
 )
 from pasqal_cloud._version import __version__ as sdk_version
-from pasqal_cloud.authentication import TokenProvider, TokenProviderError
-from pasqal_cloud.endpoints import TokenProviderConf
+from pasqal_cloud.authentication import (
+    LoginRequiredError,
+    PasswordGrantTokenProvider,
+    TokenProvider,
+    TokenProviderError,
+)
+from pasqal_cloud.endpoints import (
+    _AUTH0_CONFIG,
+    _PASQAL_ENDPOINTS,
+    KSA_CORE_API_URL,
+    TokenProviderConf,
+)
 from pasqal_cloud.http_client import HTTPClient
 from pasqal_cloud.ovh import OvhClient
 from pasqal_cloud.pasqal_cloud_client import PasqalCloudClient
@@ -87,10 +97,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         )
         assert sdk.user_token() == CUSTOM_TOKEN
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_correct_endpoints(self):
         sdk = PasqalCloudClient(
             project_id=self.project_id,
@@ -100,10 +107,7 @@ class TestAuthSuccess(TestSDKCommonAttributes):
         )
         assert sdk._client.endpoints.core == self.new_core_endpoint
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_correct_new_auth0(self):
         new_auth0 = Auth0Conf(domain="new_domain")
         PasqalCloudClient(
@@ -146,6 +150,7 @@ class TestAuthFailure(TestSDKCommonAttributes):
 
 
 class TestInvalidAuthConfig(TestSDKCommonAttributes):
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_cannot_init_sdk_with_auth0_and_auth_config(self):
         """
         verify that sdk initialization raises a ValueError when auth0 and auth_config
@@ -172,6 +177,17 @@ class TestInvalidAuthConfig(TestSDKCommonAttributes):
             )
 
 
+def test_password_grant_sends_realm_only_when_set(requests_mock):
+    requests_mock.post("https://auth/token", json={"access_token": "token"})
+    config = TokenProviderConf("https://auth/token", "client", "aud", None, "password")
+
+    PasswordGrantTokenProvider("u", "p", config)
+    assert "realm" not in requests_mock.last_request.text
+
+    PasswordGrantTokenProvider("u", "p", replace(config, realm="pcs-users"))
+    assert "realm=pcs-users" in requests_mock.last_request.text
+
+
 @patch(
     "pasqal_cloud.http_client.PasswordGrantTokenProvider",
     FakeAuth0AuthenticationFailure,
@@ -184,9 +200,8 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
             password=self.password,
         )
         with pytest.raises(
-            ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            LoginRequiredError,
+            match="Not logged in to default-fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -217,6 +232,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         with pytest.raises(TypeError):
             PasqalCloudClient(project_id=self.project_id, token_provider="token")
 
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_bad_auth0(self):
         with pytest.raises(TypeError):
             PasqalCloudClient(
@@ -229,16 +245,12 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
     def test_authentication_no_credentials_provided(self):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
-            ValueError,
-            match="Authentication required. Please provide your credentials when "
-            "initializing the client.",
+            LoginRequiredError,
+            match="Not logged in to default-fr, run:",
         ):
             sdk.get_batch("fake-id")
 
-    @pytest.mark.filterwarnings(
-        "ignore:The parameters 'endpoints' and 'auth0' are deprecated, from now use"
-        " 'env' instead"
-    )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_bad_endpoints(self):
         with pytest.raises(TypeError):
             PasqalCloudClient(
@@ -265,13 +277,14 @@ class TestEnvSDK(TestSDKCommonAttributes):
             ("dev", "https://apis.dev.pasqal.cloud/core-fast"),
         ],
     )
+    @pytest.mark.filterwarnings("ignore:Argument .* is deprecated:FutureWarning")
     def test_select_env(self, env: str, core_endpoint_expected: str):
         sdk = PasqalCloudClient(
             project_id=self.project_id,
             username=self.username,
             password=self.password,
-            auth0=AUTH0_CONFIG[env],
-            endpoints=PASQAL_ENDPOINTS[env],
+            auth0=_AUTH0_CONFIG[env],
+            endpoints=_PASQAL_ENDPOINTS[env],
         )
         assert sdk._client.endpoints.core == core_endpoint_expected
 
@@ -636,3 +649,37 @@ class TestHeaders:
             "not supported by the OVH client",
         ):
             client._get_url("add_jobs")
+
+
+def save_dev_profile(region):
+    """Save a `dev` profile for `region` and make it the one in use."""
+    profile_config = config.ProfileConfig(
+        issuer=f"https://auth.{region}.dev/",
+        client_id=f"{region}-dev-client",
+        audience=f"{region}-dev-audience",
+        core_url=f"https://apis.{region}.dev/core-fast",
+        account_url=f"https://apis.{region}.dev/account",
+    )
+    config.save_config(
+        config.Config(active_profile="dev", profiles={"dev": profile_config})
+    )
+    return profile_config
+
+
+def test_endpoints_follow_region_and_profile():
+    assert HTTPClient(region="sa").endpoints.core == KSA_CORE_API_URL
+
+    save_dev_profile("sa")
+    dev = Endpoints(
+        core="https://apis.sa.dev/core-fast", account="https://apis.sa.dev/account"
+    )
+    assert HTTPClient().endpoints == dev
+    assert HTTPClient(region="fr").endpoints == _PASQAL_ENDPOINTS["prod"]
+
+    config.save_config(config.Config(active_profile="default-fr"))
+    assert HTTPClient().endpoints == _PASQAL_ENDPOINTS["prod"]
+
+
+def test_unknown_region_raises():
+    with pytest.raises(ValueError, match="Unknown region 'us'"):
+        HTTPClient(region="us")  # type: ignore[arg-type]
