@@ -16,6 +16,7 @@ All notable changes to this project will be documented in this file.
   * `Auth0TokenProvider` and `InsecureAuth0TokenProvider`: pass `username`/`password`, or use `pasqal-cloud auth login`
   * passing both `token_provider` and `username`/`password`
 * `auth0-python` is no longer a dependency at all (it was only used by tests)
+* Convert NumPy arrays and numeric scalars in job payloads to JSON-compatible values
 
 ## [0.24.0]
 
