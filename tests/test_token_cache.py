@@ -32,12 +32,15 @@ def write(region="fr", profile="fr", **kwargs):
 
 
 def test_round_trip_and_permissions():
-    path = write()
+    entry = make_entry()
+    token_cache.write_entries({"fr": entry})
+    path = token_cache.cache_path()
+
     assert path.name == "cloud-credentials.json"
     if os.name != "nt":
         assert stat.S_IMODE(path.parent.stat().st_mode) == 0o700
         assert stat.S_IMODE(path.stat().st_mode) == 0o600
-    assert token_cache.read_entries() == {"fr": make_entry()}
+    assert token_cache.read_entries() == {"fr": entry}
     assert os.listdir(path.parent) == [path.name]  # no temp file left
 
 
