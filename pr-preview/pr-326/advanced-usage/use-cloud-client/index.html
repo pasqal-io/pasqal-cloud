@@ -989,8 +989,6 @@ is always <code>None</code> on emulators.</p>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">batch</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>  <span class="c1"># or cloud_client.get_batch(batch.id)</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">queue_position</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">estimated_start_seconds</span><span class="p">)</span>
 </code></pre></div>
-<p>While waiting on a queued batch or job (<code>wait=True</code>), the SDK logs the batch's queue position
-and estimated start at INFO level on the <code>pasqal_cloud</code> logger.</p>
 <h2 id="set-tags-to-batches">Set tags to batches</h2>
 <p>You can set tags to an existing batch using two different methods.
 Note that setting tags completely replace any existing tags of the batch.</p>
