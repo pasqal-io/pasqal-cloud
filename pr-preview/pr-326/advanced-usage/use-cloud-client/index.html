@@ -980,7 +980,7 @@ This is useful when you want to run different quantum programs in the same batch
 sequence with variables, or use job-level sequences without variables. Additionally, when creating a batch without a
 sequence, all jobs must have their own sequences specified.</p>
 <h3 id="check-the-queue-position-of-a-batch">Check the queue position of a batch</h3>
-<p>A pending, running or paused batch exposes its 1-based <code>queue_position</code> in its device queue
+<p>A pending, running or paused batch exposes <code>queue_position</code> in its device queue
 and, on QPUs, <code>estimated_start_seconds</code>: the estimated time before it starts, based on the
 shots ahead of it. Both are <code>None</code> once the batch is finished, and <code>estimated_start_seconds</code>
 is always <code>None</code> on emulators.</p>
