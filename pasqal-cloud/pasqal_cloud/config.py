@@ -30,8 +30,8 @@ profile is one environment in one region, with every key of
         }
     }
 
-The read-only `default-<region>` profiles always exist and hold the prod
-presets built from `pasqal_cloud.endpoints`. Without an active profile, `default-fr`
+The read-only `<region>` profiles always exist and hold the prod
+presets built from `pasqal_cloud.endpoints`. Without an active profile, `fr`
 is used.
 """
 
@@ -117,18 +117,18 @@ class ProfileConfig(BaseModel):
         return check_url(str(info.field_name), value)
 
 
-# Read-only prod profiles, one per region (`default-<region>`). Other
+# Read-only prod profiles, one per region (`<region>`). Other
 # environments are user config profiles.
 # TODO: replace Auth0 PROD client ID.
 DEFAULT_PROFILES: dict[str, ProfileConfig] = {
-    "default-fr": ProfileConfig(
+    "fr": ProfileConfig(
         issuer=f"https://{AUTH0_DOMAIN}/",
         client_id=PUBLIC_CLIENT_ID,
         audience=AUDIENCE,
         core_url=CORE_API_URL,
         account_url=ACCOUNT_API_URL,
     ),
-    "default-sa": ProfileConfig(
+    "sa": ProfileConfig(
         issuer=f"{SA_KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}",
         client_id=KEYCLOAK_SDK_CLIENT_ID,
         audience=AUDIENCE,
@@ -137,7 +137,7 @@ DEFAULT_PROFILES: dict[str, ProfileConfig] = {
     ),
 }
 
-DEFAULT_PROFILE_NAME = "default-fr"
+DEFAULT_PROFILE_NAME = "fr"
 PROFILE_KEYS = tuple(ProfileConfig.model_fields)
 
 
@@ -245,7 +245,7 @@ def profile_names(config: Config) -> list[str]:
 
 def resolve_profile_name(config: Config, profile: str | None = None) -> str:
     """Resolve the profile from the explicit argument, then the config active
-    profile, then `default-fr`.
+    profile, then `fr`.
     """
     return profile or config.active_profile or DEFAULT_PROFILE_NAME
 

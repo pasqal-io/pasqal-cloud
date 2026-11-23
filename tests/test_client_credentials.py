@@ -54,7 +54,7 @@ def provider():
 def test_connection_requests_token_from_its_region(requests_mock, region):
     """The connection's region selects the issuer and audience of the client
     credentials grant, and its requests use the resulting token."""
-    profile = f"default-{region}"
+    profile = region
     token_endpoint = mock_idp(requests_mock, profile)
 
     client = HTTPClient(region=region, token_provider=provider())
@@ -74,7 +74,7 @@ def test_invalid_credentials_raise_token_provider_error(requests_mock):
     """Rejected credentials raise a TokenProviderError with the IdP's reason."""
     mock_idp(
         requests_mock,
-        "default-sa",
+        "sa",
         status_code=401,
         json={"error": "invalid_client", "error_description": "Bad secret"},
     )
@@ -86,8 +86,8 @@ def test_invalid_credentials_raise_token_provider_error(requests_mock):
 
 def test_standalone_provider_uses_active_profile(requests_mock):
     """Outside a connection, the token comes from the active profile
-    (default-fr here), requested on first use only."""
-    token_endpoint = mock_idp(requests_mock, "default-fr")
+    (fr here), requested on first use only."""
+    token_endpoint = mock_idp(requests_mock, "fr")
 
     standalone = provider()
     assert not requests_mock.request_history
@@ -97,7 +97,7 @@ def test_standalone_provider_uses_active_profile(requests_mock):
 
 
 def test_valid_token_is_reused(requests_mock):
-    token_endpoint = mock_idp(requests_mock, "default-fr")
+    token_endpoint = mock_idp(requests_mock, "fr")
 
     client = HTTPClient(token_provider=provider())
     client.user_token()
@@ -109,7 +109,7 @@ def test_valid_token_is_reused(requests_mock):
 def test_expiring_token_is_requested_again(requests_mock):
     """A token inside the 1 min expiry window is replaced by a new one."""
     token_endpoint = mock_idp(
-        requests_mock, "default-fr", json={"access_token": "T", "expires_in": 30}
+        requests_mock, "fr", json={"access_token": "T", "expires_in": 30}
     )
 
     client = HTTPClient(token_provider=provider())
@@ -123,7 +123,7 @@ def test_transient_errors_are_retried(requests_mock):
     """A transient token endpoint error is retried."""
     token_endpoint = mock_idp(
         requests_mock,
-        "default-fr",
+        "fr",
         response_list=[
             {"status_code": 503, "text": "<html>Unavailable</html>"},
             {"json": {"access_token": "SA-TOKEN", "expires_in": 300}},

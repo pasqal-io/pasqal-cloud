@@ -201,7 +201,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         )
         with pytest.raises(
             LoginRequiredError,
-            match="Not logged in to default-fr, run:",
+            match="Not logged in to fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -246,7 +246,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
             LoginRequiredError,
-            match="Not logged in to default-fr, run:",
+            match="Not logged in to fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -676,7 +676,7 @@ def test_endpoints_follow_region_and_profile():
     assert HTTPClient().endpoints == dev
     assert HTTPClient(region="fr").endpoints == _PASQAL_ENDPOINTS["prod"]
 
-    config.save_config(config.Config(active_profile="default-fr"))
+    config.save_config(config.Config(active_profile="fr"))
     assert HTTPClient().endpoints == _PASQAL_ENDPOINTS["prod"]
 
 

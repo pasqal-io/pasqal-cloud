@@ -68,9 +68,9 @@ class PasqalCloudConnection(RemoteConnection):
         username: Your username in the PASQAL cloud platform.
         password: The password for your PASQAL cloud platform account.
         project_id: The project ID associated to the account.
-        region: The platform region: selects the `default-<region>` profile,
+        region: The platform region: selects the `<region>` profile,
             even over the active `pasqal-cloud` config profile. Without it, the active
-            profile applies (default: default-fr).
+            profile applies (default: fr).
         kwargs: Additional arguments to provide to the PasqalCloudClient()
     """
 

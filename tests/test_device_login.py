@@ -7,7 +7,7 @@ import pytest
 from pasqal_cloud import cli, device_login, token_cache
 from pasqal_cloud.config import DEFAULT_PROFILES
 
-DEPLOYMENT = DEFAULT_PROFILES["default-fr"]
+DEPLOYMENT = DEFAULT_PROFILES["fr"]
 ISSUER = DEPLOYMENT.issuer.rstrip("/")
 CONFIG = {
     "authorization_endpoint": f"{ISSUER}/authorize",
@@ -88,12 +88,12 @@ def test_device_login(idp, clock, capsys):
     assert posts[0]["code_challenge"] == [challenge]
     assert posts[0]["code_challenge_method"] == ["S256"]
 
-    assert token_cache.read_entries()["default-fr"].refresh_token == "REFRESH"
+    assert token_cache.read_entries()["fr"].refresh_token == "REFRESH"
 
     err = capsys.readouterr().err
     assert f"Open {ISSUER}/activate on another device" in err
     assert "enter code: W7KD-PQL9" in err
-    assert "Logged in to default-fr as alice@example.com" in err
+    assert "Logged in to fr as alice@example.com" in err
 
 
 def test_device_flow_not_enabled(idp, capsys):

@@ -11,8 +11,8 @@ from pasqal_cloud.config import DEFAULT_PROFILES
 from tests.test_token_cache import write
 from tests.utils import posix_only, windows_only
 
-FR = DEFAULT_PROFILES["default-fr"].issuer.rstrip("/")
-SA = DEFAULT_PROFILES["default-sa"].issuer.rstrip("/")
+FR = DEFAULT_PROFILES["fr"].issuer.rstrip("/")
+SA = DEFAULT_PROFILES["sa"].issuer.rstrip("/")
 
 
 def oidc_config(issuer):
@@ -44,13 +44,13 @@ def revoked(idp):
 
 def test_logs_out_of_the_profile(idp, capsys):
     write("fr")
-    write("sa", "default-sa")
-    config.save_config(config.Config(active_profile="default-sa"))
+    write("sa", "sa")
+    config.save_config(config.Config(active_profile="sa"))
     assert cli.main(["auth", "logout"]) == 0
     assert revoked(idp) == [(SA, "SECRET-REFRESH")]
-    assert sorted(token_cache.read_entries()) == ["default-fr"]
+    assert sorted(token_cache.read_entries()) == ["fr"]
     assert not token_cache.lock_path().exists()
-    assert "Logged out of default-sa (alice@example.com)" in capsys.readouterr().err
+    assert "Logged out of sa (alice@example.com)" in capsys.readouterr().err
 
 
 def test_last_entry_deletes_the_file(idp):
@@ -63,7 +63,7 @@ def test_last_entry_deletes_the_file(idp):
 def test_not_logged_in(idp, capsys):
     write("sa", "dev")
     assert cli.main(["auth", "logout"]) == 0
-    assert "Not logged in to default-fr\n" in capsys.readouterr().err
+    assert "Not logged in to fr\n" in capsys.readouterr().err
     assert sorted(token_cache.read_entries()) == ["dev"]
     assert not idp.request_history
 
@@ -74,14 +74,14 @@ def test_profile_gone_from_the_config(idp):
     config.save_config(config.Config(active_profile="dev"))
     assert cli.main(["auth", "logout"]) == 0
     assert revoked(idp) == [(SA, "SECRET-REFRESH")]
-    assert sorted(token_cache.read_entries()) == ["default-fr"]
+    assert sorted(token_cache.read_entries()) == ["fr"]
 
 
 def test_discovery_failure_only_skips_revocation(idp, capsys):
     idp.get(f"{FR}/.well-known/openid-configuration", status_code=503)
     write("fr")
     assert cli.main(["auth", "logout"]) == 0
-    assert "could not revoke the login of default-fr" in capsys.readouterr().err
+    assert "could not revoke the login of fr" in capsys.readouterr().err
     assert not token_cache.cache_path().exists()
 
 

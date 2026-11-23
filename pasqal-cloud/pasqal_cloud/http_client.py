@@ -224,14 +224,14 @@ class HTTPClient:
 
     @staticmethod
     def _region_profile(region: Optional[Region]) -> Optional[str]:
-        """The built-in `default-<region>` profile, which wins over the active
+        """The built-in `<region>` profile, which wins over the active
         one. Without a region, the active profile is used."""
         if region is None:
             return None
         if region not in REGIONS:
             raise ValueError(f"Unknown region {region!r}, expected one of: {REGIONS}")
 
-        return f"default-{region}"
+        return region
 
     @staticmethod
     def _make_endpoints(

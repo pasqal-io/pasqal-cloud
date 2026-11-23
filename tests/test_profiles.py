@@ -51,14 +51,14 @@ def answer_prompts(monkeypatch, *answers):
 
 def test_defaults_without_config_file():
     profile = resolve_profile()
-    assert profile.name == "default-fr"
-    assert profile.config == DEFAULT_PROFILES["default-fr"]
+    assert profile.name == "fr"
+    assert profile.config == DEFAULT_PROFILES["fr"]
 
 
 @pytest.mark.parametrize("region", REGIONS)
 def test_builtin_profile_per_region(region):
-    profile = resolve_profile(f"default-{region}")
-    assert profile.config == DEFAULT_PROFILES[f"default-{region}"]
+    profile = resolve_profile(region)
+    assert profile.config == DEFAULT_PROFILES[region]
 
 
 def test_named_profile_uses_its_values():
@@ -87,7 +87,7 @@ def test_profile_resolution_order():
         ),
         ({"profiles": {"dev": {**profile_config("dev"), "issuer": "x"}}}, "https://"),
         ({"profiles": {"dev": {**profile_config("dev"), "audience": " "}}}, "audience"),
-        ({"profiles": {"default-sa": profile_config("x")}}, "can't be redefined"),
+        ({"profiles": {"sa": profile_config("x")}}, "can't be redefined"),
     ],
 )
 def test_invalid_config_raises(config_path, config, error):
@@ -147,13 +147,11 @@ def test_cli_show(capsys):
     assert main(["profile", "show"]) == 0
 
     out = capsys.readouterr().out
-    assert "profile = default-fr" in out
-    assert f"client_id = {DEFAULT_PROFILES['default-fr'].client_id}" in out
+    assert "profile = fr" in out
+    assert f"client_id = {DEFAULT_PROFILES['fr'].client_id}" in out
 
-    assert main(["profile", "show", "default-sa"]) == 0
-    assert (
-        f"issuer = {DEFAULT_PROFILES['default-sa'].issuer}" in capsys.readouterr().out
-    )
+    assert main(["profile", "show", "sa"]) == 0
+    assert f"issuer = {DEFAULT_PROFILES['sa'].issuer}" in capsys.readouterr().out
 
 
 def test_cli_profile_create_prompts(monkeypatch, config_path, capsys):
@@ -207,7 +205,7 @@ def test_cli_profile_edit_keeps_values_on_enter(monkeypatch, config_path):
 def test_cli_profile_create_checks_name_before_prompting(monkeypatch):
     prompts = answer_prompts(monkeypatch)
 
-    assert main(["profile", "create", "default-fr"]) == 1
+    assert main(["profile", "create", "fr"]) == 1
     assert prompts == []
 
 
@@ -226,21 +224,21 @@ def test_cli_profile_switch(capsys, config_path):
     assert resolve_profile().config.client_id == "dev"
 
     assert main(["profile", "list"]) == 0
-    assert capsys.readouterr().out == "  default-fr\n  default-sa\n* dev\n"
+    assert capsys.readouterr().out == "* dev\n  fr\n  sa\n"
 
     assert main(["profile", "delete", "dev"]) == 0
-    assert resolve_profile().name == "default-fr"
+    assert resolve_profile().name == "fr"
     assert json.loads(config_path.read_text()) == {"profiles": {}}
 
 
 @pytest.mark.parametrize(
     ("argv", "error"),
     [
-        (["profile", "create", "default-fr"], "already exists"),
+        (["profile", "create", "fr"], "already exists"),
         (["profile", "create", " "], "can't be empty"),
         (["profile", "activate", "nope"], "Unknown profile 'nope'"),
-        (["profile", "edit", "default-sa"], "can't be changed"),
-        (["profile", "delete", "default-fr"], "can't be changed"),
+        (["profile", "edit", "sa"], "can't be changed"),
+        (["profile", "delete", "fr"], "can't be changed"),
     ],
 )
 def test_cli_profile_errors(capsys, argv, error):
