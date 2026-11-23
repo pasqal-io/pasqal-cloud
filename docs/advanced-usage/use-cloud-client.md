@@ -43,7 +43,7 @@ sequence, all jobs must have their own sequences specified.
 
 ### Check the queue position of a batch
 
-A pending, running or paused batch exposes its 1-based `queue_position` in its device queue
+A pending, running or paused batch exposes `queue_position` in its device queue
 and, on QPUs, `estimated_start_seconds`: the estimated time before it starts, based on the
 shots ahead of it. Both are `None` once the batch is finished, and `estimated_start_seconds`
 is always `None` on emulators.

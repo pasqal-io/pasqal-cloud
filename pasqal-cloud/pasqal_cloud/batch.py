@@ -62,7 +62,7 @@ class Batch(BaseModel):
             backend emulator types. It must be in the form of an
             abstract representation/encoded string.
         tags: Keyword used to refine the batch search.
-        queue_position: 1-based position of the batch in its device queue.
+        queue_position: position of the batch in its device queue.
             None if the batch is not pending, running or paused.
         estimated_start_seconds: Estimated time in seconds before the batch
             starts executing, based on the shots ahead of it in the queue.
