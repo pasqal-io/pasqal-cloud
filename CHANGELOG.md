@@ -16,6 +16,8 @@ All notable changes to this project will be documented in this file.
   * `Auth0TokenProvider` and `InsecureAuth0TokenProvider`: pass `username`/`password`, or use `pasqal-cloud auth login`
   * passing both `token_provider` and `username`/`password`
 * `auth0-python` is no longer a dependency at all (it was only used by tests)
+* `Batch` exposes `queue_position` and `estimated_start_seconds` (QPU only),
+  updated by `batch.refresh()` and `get_batch()`
 
 ## [0.24.0]
 
