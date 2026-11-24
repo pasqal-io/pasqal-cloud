@@ -8,8 +8,8 @@ All notable changes to this project will be documented in this file.
 
 * New `pasqal-cloud auth login|status|logout` command to manage authentication without a password
 * After `pasqal-cloud auth login`, `PasqalCloudConnection` needs only a `project_id`: no credentials in code
-* New `ClientCredentialsTokenProvider` to authenticate as a service account (client ID and secret)
 * New `pasqal-cloud profile` command: profiles in `~/.pasqal/config.json` select the region and environment (built-in `fr` and `sa` for production), selected with `pasqal-cloud profile activate`
+* New `ClientCredentialsTokenProvider` to authenticate as a service account (client ID and secret)
 * Deprecated, to be removed in the next major version:
   * the `endpoints`, `auth_config` and `auth0` arguments: use `region` and `pasqal-cloud profile`
   * `Endpoints.from_region()`, `TokenProviderConf.from_region()` and `TokenProviderConf.from_auth0_config()`
