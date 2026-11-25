@@ -747,10 +747,10 @@
 <h2 id="access-a-different-region">Access a different region</h2>
 <p>By default, the European (<code>fr</code>) platform is targeted. Available regions are <code>"fr"</code>
 (default) and <code>"sa"</code> (Saudi-Arabia).</p>
-<p>Each config profile targets one deployment. The built-in <code>default-fr</code> and <code>default-sa</code>
+<p>Each config profile targets one deployment. The built-in <code>fr</code> and <code>sa</code>
 profiles target production. Activate one to select it for both the SDK and the
 <code>pasqal-cloud</code> command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pasqal-cloud<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>default-sa
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pasqal-cloud<span class="w"> </span>profile<span class="w"> </span>activate<span class="w"> </span>sa
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>pasqal-cloud<span class="w"> </span>auth<span class="w"> </span>login
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
