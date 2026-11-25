@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## Next release
 
+## [0.25.0]
+
 ### pasqal-cloud
 
 * New `pasqal-cloud auth login|status|logout` command to manage authentication without a password
