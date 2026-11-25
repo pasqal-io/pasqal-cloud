@@ -435,6 +435,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#log-in-with-a-service-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log in with a service account
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#log-in-with-a-username-and-password" class="md-nav__link">
     <span class="md-ellipsis">
       Log in with a username and password
@@ -759,6 +768,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#log-in-with-a-service-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      Log in with a service account
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#log-in-with-a-username-and-password" class="md-nav__link">
     <span class="md-ellipsis">
       Log in with a username and password
@@ -855,8 +873,8 @@ giving the command to run to log in again.</p>
 <td><code>!pasqal-cloud auth login --device</code> in a cell</td>
 </tr>
 <tr>
-<td>Automated tests, CI</td>
-<td>username and password, see <a href="#log-in-with-a-username-and-password">below</a></td>
+<td>Automated scripts, CI</td>
+<td>a service account, see <a href="#log-in-with-a-service-account">below</a></td>
 </tr>
 </tbody>
 </table>
@@ -865,16 +883,40 @@ giving the command to run to log in again.</p>
 <p>To be safe, log in just before submitting your jobs. If the queue is long, keep an eye
 on it and log in again before your jobs start.</p>
 </div>
+<h2 id="log-in-with-a-service-account">Log in with a service account</h2>
+<p>Scripts running without a user, e.g. in CI, authenticate with the client ID and secret of
+a service account:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.authentication</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClientCredentialsTokenProvider</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">region</span><span class="o">=</span><span class="s2">"sa"</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">token_provider</span><span class="o">=</span><span class="n">ClientCredentialsTokenProvider</span><span class="p">(</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">client_id</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"PASQAL_CLOUD_CLIENT_ID"</span><span class="p">],</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">client_secret</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"PASQAL_CLOUD_CLIENT_SECRET"</span><span class="p">],</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="p">),</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="p">)</span>
+</code></pre></div>
+<p>The token is requested from the region of the connection, or from the active profile
+without a region.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Never put the client secret directly in code: read it from an environment variable
+or a secret manager.</p>
+</div>
 <h2 id="log-in-with-a-username-and-password">Log in with a username and password</h2>
 <p>Logging in with a password is still supported, e.g. for automated tests. It does not work
 for accounts enrolled in MFA: use <code>pasqal-cloud auth login</code> instead.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span>  <span class="c1"># Your username or email on the Pasqal platform.</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"your_password"</span><span class="p">,</span>  <span class="c1"># Your password on the Pasqal platform.</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span>  <span class="c1"># Your username or email on the Pasqal platform.</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">password</span><span class="o">=</span><span class="s2">"your_password"</span><span class="p">,</span>  <span class="c1"># Your password on the Pasqal platform.</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">,</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">)</span>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -883,29 +925,29 @@ to avoid leaking passwords by mistake when pushing your code.</p>
 </div>
 <p>The password can be omitted: you are then prompted for it in your terminal when running
 your script.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="s2">"your_username"</span><span class="p">,</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="use-a-custom-token-provider-developers-only">Use a custom token provider (developers only)</h2>
 <p>You can define a custom class to provide the token.
 For example, if you have a token, you can use it to authenticate with our APIs:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.authentication</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenProvider</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="k">return</span> <span class="s2">"your-token"</span>  <span class="c1"># Replace this value with your token</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">token_provider</span><span class="o">=</span><span class="n">CustomTokenProvider</span><span class="p">(),</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">PasqalCloudConnection</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud.authentication</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenProvider</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">CustomTokenProvider</span><span class="p">(</span><span class="n">TokenProvider</span><span class="p">):</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="k">return</span> <span class="s2">"your-token"</span>  <span class="c1"># Replace this value with your token</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">PasqalCloudConnection</span><span class="p">(</span><span class="n">token_provider</span><span class="o">=</span><span class="n">CustomTokenProvider</span><span class="p">(),</span> <span class="n">project_id</span><span class="o">=</span><span class="s2">"your_project_id"</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="ovhconnection">OVHConnection</h2>
 <p>For OVH users, authentication is handled via the <code>PASQAL_PULSER_ACCESS_TOKEN</code> environment variable.
 No username or password is required.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"your-access-token"</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PASQAL_PULSER_ACCESS_TOKEN</span><span class="o">=</span><span class="s2">"your-access-token"</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVHConnection</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">OVHConnection</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pasqal_cloud</span><span class="w"> </span><span class="kn">import</span> <span class="n">OVHConnection</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">connection</span> <span class="o">=</span> <span class="n">OVHConnection</span><span class="p">()</span>
 </code></pre></div>
 
 
