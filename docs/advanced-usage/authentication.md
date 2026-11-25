@@ -44,12 +44,41 @@ giving the command to run to log in again.
 | Remote machine without browser (SSH) | `pasqal-cloud auth login --device` |
 | HPC / Slurm jobs | `pasqal-cloud auth login --device` on the login node, before submitting |
 | Jupyter notebook | `!pasqal-cloud auth login --device` in a cell |
-| Automated tests, CI | username and password, see [below](#log-in-with-a-username-and-password) |
+| Automated scripts, CI | a service account, see [below](#log-in-with-a-service-account) |
 
 !!! tip "Long Slurm jobs"
 
     To be safe, log in just before submitting your jobs. If the queue is long, keep an eye
     on it and log in again before your jobs start.
+
+## Log in with a service account
+
+Scripts running without a user, e.g. in CI, authenticate with the client ID and secret of
+a service account:
+
+```python
+import os
+
+from pasqal_cloud import PasqalCloudConnection
+from pasqal_cloud.authentication import ClientCredentialsTokenProvider
+
+connection = PasqalCloudConnection(
+    project_id="your_project_id",
+    region="sa",
+    token_provider=ClientCredentialsTokenProvider(
+        client_id=os.environ["PASQAL_CLOUD_CLIENT_ID"],
+        client_secret=os.environ["PASQAL_CLOUD_CLIENT_SECRET"],
+    ),
+)
+```
+
+The token is requested from the region of the connection, or from the active profile
+without a region.
+
+!!! warning
+
+    Never put the client secret directly in code: read it from an environment variable
+    or a secret manager.
 
 ## Log in with a username and password
 

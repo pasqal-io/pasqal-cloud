@@ -15,7 +15,7 @@ from pasqal_cloud.errors import (
     WorkloadResultsDownloadError,
 )
 from pasqal_cloud.http_client import HTTPClient
-from pasqal_cloud.utils.http import skip_ssl_verify
+from pasqal_cloud.utils.constants import skip_ssl_verify
 
 
 class Workload(BaseModel):

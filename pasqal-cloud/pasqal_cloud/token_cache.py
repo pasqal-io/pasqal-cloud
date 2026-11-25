@@ -32,6 +32,7 @@ from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 from pasqal_cloud import config, oidc
 from pasqal_cloud.config import PasqalCloudProfile, ProfileConfig
+from pasqal_cloud.utils import constants
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ _ENTRIES: TypeAdapter[dict[str, CacheEntry]] = TypeAdapter(dict[str, CacheEntry]
 
 
 def cache_path() -> Path:
-    return config.CONFIG_DIR / "cloud-credentials.json"
+    return constants.CONFIG_DIR / "cloud-credentials.json"
 
 
 def lock_path() -> Path:

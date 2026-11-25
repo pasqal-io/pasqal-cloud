@@ -13,13 +13,16 @@
 # limitations under the License.
 from typing import Any
 
-from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
-from pasqal_cloud.ovh import OVHConnection
+from pulser.sequence import store_package_version_metadata
+
+from pasqal_cloud._version import __version__
 from pasqal_cloud.backends import (
+    RemoteEmuFreeBackend,
     RemoteMPSBackend,
     RemoteSVBackend,
-    RemoteEmuFreeBackend,
 )
+from pasqal_cloud.ovh import OVHConnection
+from pasqal_cloud.pasqal_cloud_connection import PasqalCloudConnection
 
 # Public API — only these two are the intended top-level exports.
 __all__ = [
@@ -29,6 +32,8 @@ __all__ = [
     "RemoteSVBackend",
     "RemoteEmuFreeBackend",
 ]
+
+store_package_version_metadata("pasqal-cloud", __version__)
 
 
 def __getattr__(name: str) -> Any:

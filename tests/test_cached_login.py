@@ -16,7 +16,7 @@ from pasqal_cloud.http_client import HTTPClient
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
 from tests.test_token_cache import make_entry
 
-ISSUER = DEFAULT_PROFILES["default-fr"].issuer.rstrip("/")
+ISSUER = DEFAULT_PROFILES["fr"].issuer.rstrip("/")
 DISCOVERY = f"{ISSUER}/.well-known/openid-configuration"
 TOKEN = f"{ISSUER}/token"
 
@@ -50,12 +50,12 @@ def idp(requests_mock):
 
 def save(**changes):
     entry = make_entry().model_copy(update=changes)
-    token_cache.write_entries({"default-fr": entry})
+    token_cache.write_entries({"fr": entry})
     return entry
 
 
 def cached():
-    return token_cache.read_entries()["default-fr"]
+    return token_cache.read_entries()["fr"]
 
 
 def test_uses_cached_access_token(requests_mock):
@@ -80,7 +80,7 @@ def test_refreshes_expired_token_and_rotates_refresh_token(idp):
     assert len(token_requests) == 1
     assert parse_qs(token_requests[0].text) == {
         "grant_type": ["refresh_token"],
-        "client_id": [DEFAULT_PROFILES["default-fr"].client_id],
+        "client_id": [DEFAULT_PROFILES["fr"].client_id],
         "refresh_token": ["SECRET-REFRESH"],
     }
 
@@ -207,7 +207,7 @@ def test_logged_out_meanwhile_requires_login():
     save(expires_at=0)
     client = HTTPClient()
     token_cache.write_entries({})
-    with pytest.raises(LoginRequiredError, match="Not logged in to default-fr"):
+    with pytest.raises(LoginRequiredError, match="Not logged in to fr"):
         client.user_token()
 
 
@@ -228,7 +228,7 @@ def test_entry_of_another_client_is_ignored():
     save(client_id="old-client")
     client = HTTPClient()
 
-    with pytest.raises(LoginRequiredError, match="Not logged in to default-fr"):
+    with pytest.raises(LoginRequiredError, match="Not logged in to fr"):
         client.get_batch("batch-id")
 
 

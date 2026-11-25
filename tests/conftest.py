@@ -6,9 +6,10 @@ from unittest.mock import patch
 
 import pytest
 import requests_mock
-from pasqal_cloud import Batch, config, Job, oidc, Workload
+from pasqal_cloud import Batch, Job, oidc, Workload
 from pasqal_cloud.endpoints import _AUTH_CONFIG, Endpoints
 from pasqal_cloud.http_client import HTTPClient
+from pasqal_cloud.utils import constants
 from requests import HTTPError, Request
 
 from tests.test_doubles.authentication import FakeAuth0AuthenticationSuccess
@@ -20,10 +21,8 @@ JSON_FILE = "_.{}.json"
 
 @pytest.fixture(autouse=True)
 def _home(monkeypatch, tmp_path):
-    """The SDK reads the login cache and config in ~/.pasqal: never use the
-    developer's ones."""
-    monkeypatch.setenv("HOME", str(tmp_path))
-    monkeypatch.setattr(config, "CONFIG_DIR", tmp_path / ".pasqal")
+    """Never use the developer's login cache and config."""
+    monkeypatch.setattr(constants, "CONFIG_DIR", tmp_path / ".pasqal")
 
 
 @pytest.fixture(autouse=True)
@@ -117,7 +116,7 @@ def mock_response(request, _) -> Dict[str, Any]:
 def _skip_gzip_request_body():
     """Disable gzip compression globally for all tests."""
     with pytest.MonkeyPatch.context() as mp:
-        mp.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "1")
+        mp.setenv("PASQAL_CLOUD_SKIP_GZIP_REQUEST_BODY", "1")
         yield
 
 

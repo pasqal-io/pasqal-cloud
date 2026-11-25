@@ -5,12 +5,12 @@
 By default, the European (`fr`) platform is targeted. Available regions are `"fr"`
 (default) and `"sa"` (Saudi-Arabia).
 
-Each config profile targets one deployment. The built-in `default-fr` and `default-sa`
+Each config profile targets one deployment. The built-in `fr` and `sa`
 profiles target production. Activate one to select it for both the SDK and the
 `pasqal-cloud` command:
 
 ```bash
-pasqal-cloud profile activate default-sa
+pasqal-cloud profile activate sa
 pasqal-cloud auth login
 ```
 

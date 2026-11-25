@@ -201,7 +201,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         )
         with pytest.raises(
             LoginRequiredError,
-            match="Not logged in to default-fr, run:",
+            match="Not logged in to fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -246,7 +246,7 @@ class TestAuthInvalidClient(TestSDKCommonAttributes):
         sdk = PasqalCloudClient(project_id=self.project_id)
         with pytest.raises(
             LoginRequiredError,
-            match="Not logged in to default-fr, run:",
+            match="Not logged in to fr, run:",
         ):
             sdk.get_batch("fake-id")
 
@@ -388,7 +388,7 @@ class TestSDKRetry:
         When gziped parameter is passed to _authenticated_request, the outgoing
         request's payload is gziped.
         """
-        monkeypatch.setenv("PASQAL_SKIP_GZIP_REQUEST_BODY", "")
+        monkeypatch.setenv("PASQAL_CLOUD_SKIP_GZIP_REQUEST_BODY", "")
         # Reinitialize SDK with the env var set
         sdk = PasqalCloudClient(
             username="me@test.com",
@@ -416,7 +416,7 @@ class TestSDKRetry:
     def test_sdk_skip_gzip_requests(self, mock_request: requests_mock.mocker.Mocker):
         """
         We can override the gziped param of _authenticated_request with an env var:
-        PASQAL_SKIP_GZIP_REQUEST_BODY
+        PASQAL_CLOUD_SKIP_GZIP_REQUEST_BODY
         """
         mock_request.reset_mock()
         mock_request.register_uri(
@@ -676,7 +676,7 @@ def test_endpoints_follow_region_and_profile():
     assert HTTPClient().endpoints == dev
     assert HTTPClient(region="fr").endpoints == _PASQAL_ENDPOINTS["prod"]
 
-    config.save_config(config.Config(active_profile="default-fr"))
+    config.save_config(config.Config(active_profile="fr"))
     assert HTTPClient().endpoints == _PASQAL_ENDPOINTS["prod"]
 
 

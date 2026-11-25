@@ -13,7 +13,7 @@ from pasqal_cloud.config import DEFAULT_PROFILES
 
 from tests.utils import posix_only
 
-DEPLOYMENT = DEFAULT_PROFILES["default-fr"]
+DEPLOYMENT = DEFAULT_PROFILES["fr"]
 ISSUER = DEPLOYMENT.issuer.rstrip("/")
 CONFIG = {
     "authorization_endpoint": f"{ISSUER}/authorize",
@@ -81,12 +81,12 @@ def test_login(idp, browser, capsys):
         == query["code_challenge"]
     )
 
-    entry = token_cache.read_entries()["default-fr"]
+    entry = token_cache.read_entries()["fr"]
     assert entry.refresh_token == "REFRESH-1"
     assert entry.id_claims["email"] == "alice@example.com"
     assert entry.refresh_expires_at is None
     err = capsys.readouterr().err
-    assert "Logged in to default-fr as alice@example.com" in err
+    assert "Logged in to fr as alice@example.com" in err
     assert "REFRESH" not in err
 
 
@@ -95,7 +95,7 @@ def test_login_revokes_previous_before_new_login(idp, capsys):
     assert cli.main(["auth", "login"]) == 0
     idp.post(CONFIG["token_endpoint"], json=tokens("bob@example.com", "REFRESH-2"))
     assert cli.main(["auth", "login"]) == 0
-    entry = token_cache.read_entries()["default-fr"]
+    entry = token_cache.read_entries()["fr"]
     assert entry.refresh_token == "REFRESH-2"
     posts = [r for r in idp.request_history if r.method == "POST"]
     assert [r.path for r in posts[-2:]] == ["/oauth/revoke", "/oauth/token"]
