@@ -14,6 +14,7 @@ It implements the Pulser [`RemoteConnection`](https://docs.pasqal.com/pulser/) i
 | 0.22.0  | 2026-03-17   | 2027-03-17     |
 | 0.23.0  | 2026-06-30   | 2027-03-30     |
 | 0.24.0  | 2026-09-07   | 2027-09-07     |
+| 0.25.0  | 2026-11-30   | 2027-11-30     |
 
 ## Getting started
 
