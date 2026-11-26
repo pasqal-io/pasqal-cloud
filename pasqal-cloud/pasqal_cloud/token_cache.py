@@ -40,6 +40,10 @@ logger = logging.getLogger(__name__)
 # above the worst case of the network calls made under it.
 LOCK_STALE_AFTER = 180
 
+# Auth0 doesn't return the refresh token lifetime, a post-login action adds its
+# expiry (epoch seconds) to the id_token.
+AUTH0_REFRESH_EXPIRES_AT_CLAIM = "https://portal.pasqal.cloud/refresh_expires_at"
+
 
 class TokenCacheError(Exception):
     pass
@@ -61,7 +65,7 @@ class CacheEntry(BaseModel):
     access_token: str
     expires_at: int
     scope: str = ""
-    # Only Keycloak returns the refresh token lifetime.
+    # From Keycloak's refresh_expires_in or Auth0's id_token claim.
     refresh_expires_at: int | None = None
     # Decoded from the id_token without signature check: display only.
     id_claims: dict[str, Any] = {}
@@ -99,22 +103,26 @@ class CacheEntry(BaseModel):
         Raises KeyError, TypeError, ValueError or OIDCError on an invalid response.
         """
         now = int(time.time())
+        id_claims = (
+            oidc.id_claims(tokens["id_token"])
+            if "id_token" in tokens
+            else self.id_claims
+        )
+
+        refresh_expires_at = None
+        if tokens.get("refresh_expires_in"):  # Keycloak: 0 means no expiry
+            refresh_expires_at = now + int(tokens["refresh_expires_in"])
+        elif id_claims.get(AUTH0_REFRESH_EXPIRES_AT_CLAIM):
+            refresh_expires_at = int(id_claims[AUTH0_REFRESH_EXPIRES_AT_CLAIM])
+
         return self.model_copy(
             update={
                 "access_token": str(tokens["access_token"]),
                 "expires_at": now + int(tokens["expires_in"]),
                 "refresh_token": str(tokens.get("refresh_token", self.refresh_token)),
                 "scope": str(tokens.get("scope", self.scope)),
-                "refresh_expires_at": (
-                    now + int(tokens["refresh_expires_in"])
-                    if tokens.get("refresh_expires_in")  # Keycloak: 0 means no expiry
-                    else None
-                ),
-                "id_claims": (
-                    oidc.id_claims(tokens["id_token"])
-                    if "id_token" in tokens
-                    else self.id_claims
-                ),
+                "refresh_expires_at": refresh_expires_at,
+                "id_claims": id_claims,
             }
         )
 

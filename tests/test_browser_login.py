@@ -23,8 +23,8 @@ CONFIG = {
 }
 
 
-def tokens(email="alice@example.com", refresh="REFRESH-1"):
-    claims = {"sub": email, "email": email}
+def tokens(email="alice@example.com", refresh="REFRESH-1", **extra_claims):
+    claims = {"sub": email, "email": email, **extra_claims}
     return {
         "access_token": "ACCESS",
         "refresh_token": refresh,
@@ -88,6 +88,16 @@ def test_login(idp, browser, capsys):
     err = capsys.readouterr().err
     assert "Logged in to fr as alice@example.com" in err
     assert "REFRESH" not in err
+
+
+@pytest.mark.usefixtures("browser")
+def test_login_reads_refresh_expiry_from_auth0_claim(idp):
+    claim = {token_cache.AUTH0_REFRESH_EXPIRES_AT_CLAIM: 2_000_000_000}
+    idp.post(CONFIG["token_endpoint"], json=tokens(**claim))
+
+    assert cli.main(["auth", "login"]) == 0
+
+    assert token_cache.read_entries()["fr"].refresh_expires_at == 2_000_000_000
 
 
 @pytest.mark.usefixtures("browser")

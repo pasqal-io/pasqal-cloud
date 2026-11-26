@@ -132,7 +132,7 @@ def _duration(seconds: float) -> str:
 
 def _format_expiry(timestamp: int | None) -> str:
     if timestamp is None:
-        return "expiry unknown"  # Auth0 does not return the refresh token lifetime
+        return "expiry unknown"
     text = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
     delta = timestamp - time.time()
     if delta > 0:
